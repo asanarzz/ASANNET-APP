@@ -1,6 +1,8 @@
 package com.kafinet.asannet
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -35,19 +37,25 @@ class ImageViewerActivity : AppCompatActivity() {
 
         Glide.with(this)
             .load(url)
-            .listener(object : RequestListener<android.graphics.drawable.Drawable> {
+            .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
-                    e: GlideException?, model: Any?, target: Target<android.graphics.drawable.Drawable>?, isFirstResource: Boolean
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
                 ): Boolean {
-                    binding.progress.visibility = android.view.View.GONE
+                    binding.progress.visibility = View.GONE
                     return false
                 }
 
                 override fun onResourceReady(
-                    resource: android.graphics.drawable.Drawable?, model: Any?,
-                    target: Target<android.graphics.drawable.Drawable>?, dataSource: DataSource?, isFirstResource: Boolean
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
                 ): Boolean {
-                    binding.progress.visibility = android.view.View.GONE
+                    binding.progress.visibility = View.GONE
                     return false
                 }
             })
