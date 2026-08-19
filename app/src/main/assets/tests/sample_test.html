@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمون نمونه</title>
+<style>
+  body { font-family: Tahoma, sans-serif; background:#F4F5FB; margin:0; padding:20px; color:#1E1B2E; }
+  h2 { color:#4F46E5; }
+  .q { background:#fff; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+  .q p { font-weight:bold; margin-top:0; }
+  label { display:block; padding:8px; border-radius:8px; margin-bottom:6px; background:#F4F5FB; cursor:pointer; }
+  button { background:#4F46E5; color:#fff; border:none; padding:12px 20px; border-radius:10px; font-size:15px; width:100%; }
+  #result { margin-top:16px; font-weight:bold; text-align:center; font-size:16px; }
+</style>
+</head>
+<body>
+  <h2>آزمون نمونه — استعدادیابی</h2>
+
+  <div class="q">
+    <p>۱. کدام گزینه با بقیه فرق دارد؟</p>
+    <label><input type="radio" name="q1" value="0"> سیب</label>
+    <label><input type="radio" name="q1" value="1"> موز</label>
+    <label><input type="radio" name="q1" value="2" data-correct="true"> صندلی</label>
+    <label><input type="radio" name="q1" value="3"> پرتقال</label>
+  </div>
+
+  <div class="q">
+    <p>۲. عدد بعدی در دنباله ۲، ۴، ۶، ۸ کدام است؟</p>
+    <label><input type="radio" name="q2" value="0"> ۹</label>
+    <label><input type="radio" name="q2" value="1" data-correct="true"> ۱۰</label>
+    <label><input type="radio" name="q2" value="2"> ۱۱</label>
+    <label><input type="radio" name="q2" value="3"> ۱۲</label>
+  </div>
+
+  <button onclick="checkAnswers()">پایان آزمون و مشاهده‌ی نتیجه</button>
+  <div id="result"></div>
+
+<script>
+function checkAnswers() {
+  const questions = ['q1', 'q2'];
+  let correct = 0;
+  questions.forEach(name => {
+    const selected = document.querySelector('input[name="' + name + '"]:checked');
+    if (selected && selected.dataset.correct === 'true') correct++;
+  });
+  document.getElementById('result').innerText =
+    'نتیجه: ' + correct + ' از ' + questions.length + ' سؤال درست بود.';
+}
+</script>
+</body>
+</html>

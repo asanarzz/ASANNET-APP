@@ -1,0 +1,27 @@
+name: Keep Supabase Project Alive
+
+# پروژه‌های رایگان Supabase بعد از ۷ روز بدون فعالیت خودکار Pause می‌شوند.
+# این ورک‌فلو هر ۲ روز یک‌بار یک درخواست سبک به دیتابیس می‌زند تا پروژه همیشه فعال بماند.
+
+on:
+  schedule:
+    - cron: '0 6 */2 * *'   # هر ۲ روز، ساعت ۰۶:۰۰ UTC
+  workflow_dispatch:        # امکان اجرای دستی از تب Actions
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST endpoint
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "SUPABASE_URL یا SUPABASE_ANON_KEY تنظیم نشده — ابتدا این دو را در Settings > Secrets and variables > Actions اضافه کن."
+            exit 1
+          fi
+          curl -sf -o /dev/null -w "HTTP %{http_code}\n" \
+            "${SUPABASE_URL}/rest/v1/users?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}

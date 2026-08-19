@@ -1,0 +1,16 @@
+[
+  {
+    "id": "sample_test",
+    "type": "test",
+    "title": "آزمون نمونه (تستی)",
+    "description": "یک آزمون نمونه برای تست عملکرد برنامه — بعداً آزمون‌های واقعی را جایگزین کنید",
+    "url": "tests/sample_test.html"
+  },
+  {
+    "id": "sample_link",
+    "type": "link",
+    "title": "وب‌سایت نمونه",
+    "description": "نمونه‌ی یک لینک خارجی",
+    "url": "https://www.google.com"
+  }
+]
