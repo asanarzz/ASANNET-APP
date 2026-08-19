@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت — کافی‌نت آسان‌نت</title>
+<style>
+  :root{
+    --primary:#4F46E5;
+    --primary-dark:#3730A3;
+    --primary-light:#818CF8;
+    --accent:#06B6D4;
+    --bg:#F4F5FB;
+    --surface:#FFFFFF;
+    --text:#1E1B2E;
+    --muted:#6B7280;
+    --border:#E5E7EB;
+    --danger:#DC2626;
+    --success:#059669;
+    --r-test:#7C3AED;
+    --r-link:#2563EB;
+    --r-image:#059669;
+    --r-video:#DC2626;
+    --r-file:#D97706;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Vazirmatn', Tahoma, sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    background:linear-gradient(135deg, var(--primary), var(--primary-light));
+    color:#fff; padding:22px 24px; box-shadow:0 2px 10px rgba(79,70,229,.25);
+  }
+  header h1{margin:0; font-size:20px;}
+  header p{margin:4px 0 0; font-size:13px; opacity:.85;}
+  .wrap{max-width:820px; margin:0 auto; padding:20px 16px 60px;}
+  .card{background:var(--surface); border-radius:16px; padding:18px; box-shadow:0 2px 10px rgba(20,20,50,.05); margin-bottom:16px;}
+  .card h2{margin:0 0 14px; font-size:16px;}
+  label{display:block; font-size:13px; color:var(--muted); margin:12px 0 5px;}
+  input[type=text], input[type=password], input[type=url], textarea, select{
+    width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px;
+    font-family:inherit; font-size:14px; background:#fff; color:var(--text);
+  }
+  textarea{resize:vertical; min-height:60px;}
+  .row{display:flex; gap:10px;}
+  .row > *{flex:1;}
+  button{
+    cursor:pointer; border:none; border-radius:10px; padding:11px 18px; font-size:14px; font-weight:600;
+    font-family:inherit;
+  }
+  .btn-primary{background:var(--primary); color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-outline{background:#fff; color:var(--primary); border:1px solid var(--primary);}
+  .btn-danger{background:#FEF2F2; color:var(--danger);}
+  .btn-small{padding:7px 12px; font-size:13px;}
+  .btn-full{width:100%; margin-top:14px;}
+  .muted{color:var(--muted); font-size:13px;}
+  .hidden{display:none !important;}
+
+  .type-tabs{display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;}
+  .type-tab{padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; color:var(--muted);}
+  .type-tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+
+  .source-tabs{display:flex; gap:8px; margin-top:8px;}
+  .source-tab{flex:1; text-align:center; padding:9px; border-radius:10px; border:1px solid var(--border); cursor:pointer; font-size:13px; color:var(--muted); background:#fff;}
+  .source-tab.active{border-color:var(--primary); color:var(--primary); background:#EEF0FF; font-weight:600;}
+
+  .file-drop{
+    margin-top:8px; border:2px dashed var(--border); border-radius:12px; padding:20px; text-align:center;
+    color:var(--muted); font-size:13px; cursor:pointer;
+  }
+  .file-drop.dragover{border-color:var(--primary); background:#EEF0FF;}
+  .file-drop input{display:none;}
+
+  .item{
+    display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:14px; margin-bottom:10px;
+  }
+  .item .badge{
+    width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:12px; font-weight:bold; flex-shrink:0;
+  }
+  .item .info{flex:1; min-width:0;}
+  .item .info .t{font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .item .info .d{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .item .actions{display:flex; gap:6px; flex-shrink:0;}
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--text); color:#fff; padding:12px 20px; border-radius:10px; font-size:13px;
+    box-shadow:0 4px 14px rgba(0,0,0,.2); z-index:999; opacity:0; transition:opacity .25s; pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+  .toast.error{background:var(--danger);}
+  .toast.success{background:var(--success);}
+
+  .progress-wrap{margin-top:10px; height:6px; background:var(--border); border-radius:4px; overflow:hidden; display:none;}
+  .progress-bar{height:100%; width:0%; background:var(--accent); transition:width .2s;}
+
+  .link-btn{background:none; border:none; color:var(--primary); font-size:12px; text-decoration:underline; cursor:pointer; padding:0;}
+  .empty-msg{text-align:center; color:var(--muted); padding:30px 10px; font-size:13px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>پنل مدیریت کافی‌نت آسان‌نت</h1>
+  <p>از اینجا لینک، آزمون، عکس، ویدیو و فایل اضافه کن — بدون نیاز به کدنویسی. تغییرات خودکار روی اپ همه‌ی کاربران ظاهر می‌شود.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- Setup card (shown first time) -->
+  <div class="card" id="setup-card">
+    <h2>۱) اتصال به مخزن گیت‌هاب</h2>
+    <p class="muted">این اطلاعات فقط داخل همین مرورگر ذخیره می‌شود و به هیچ سرور دیگری فرستاده نمی‌شود.</p>
+
+    <label>نام کاربری گیت‌هاب</label>
+    <input type="text" id="in-owner" placeholder="مثلاً: aliuser">
+
+    <label>نام مخزن (Repository)</label>
+    <input type="text" id="in-repo" placeholder="مثلاً: kafinet-app">
+
+    <label>نام شاخه (Branch)</label>
+    <input type="text" id="in-branch" placeholder="main" value="main">
+
+    <label>Personal Access Token</label>
+    <input type="password" id="in-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <p class="muted">
+      از گیت‌هاب: Settings ← Developer settings ← Fine-grained tokens ← بساز، دسترسی
+      <b>Contents: Read and write</b> را فقط برای همین مخزن فعال کن.
+    </p>
+
+    <button class="btn-primary btn-full" id="btn-connect">اتصال و ورود</button>
+  </div>
+
+  <!-- Main app (hidden until connected) -->
+  <div id="app-area" class="hidden">
+
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-weight:600; font-size:14px;" id="repo-label"></div>
+        <div class="muted" id="repo-sub"></div>
+      </div>
+      <button class="btn-outline btn-small" id="btn-logout">تغییر تنظیمات</button>
+    </div>
+
+    <!-- Add item -->
+    <div class="card">
+      <h2>افزودن محتوای جدید</h2>
+
+      <label>نوع محتوا</label>
+      <div class="type-tabs" id="type-tabs">
+        <div class="type-tab active" data-type="link">لینک</div>
+        <div class="type-tab" data-type="test">آزمون HTML</div>
+        <div class="type-tab" data-type="image">عکس</div>
+        <div class="type-tab" data-type="video">ویدیو</div>
+        <div class="type-tab" data-type="file">فایل</div>
+      </div>
+
+      <label>عنوان</label>
+      <input type="text" id="in-title" placeholder="مثلاً: آزمون هوش عمومی">
+
+      <label>توضیح کوتاه (اختیاری)</label>
+      <textarea id="in-desc" placeholder="یک خط توضیح درباره‌ی این محتوا"></textarea>
+
+      <label>منبع محتوا</label>
+      <div class="source-tabs">
+        <div class="source-tab active" data-src="url">لینک (URL)</div>
+        <div class="source-tab" data-src="upload">آپلود فایل از گوشی/کامپیوتر</div>
+      </div>
+
+      <div id="src-url-box">
+        <label>آدرس لینک</label>
+        <input type="url" id="in-url" placeholder="https://...">
+      </div>
+
+      <div id="src-upload-box" class="hidden">
+        <div class="file-drop" id="drop-zone">
+          <div id="drop-label">برای انتخاب فایل کلیک کن، یا فایل را اینجا رها کن</div>
+          <div class="muted" style="margin-top:4px;">حجم پیشنهادی: کمتر از ۲۰ مگابایت</div>
+          <input type="file" id="in-file">
+        </div>
+        <div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+      </div>
+
+      <button class="btn-primary btn-full" id="btn-add">افزودن به برنامه</button>
+    </div>
+
+    <!-- Content list -->
+    <div class="card">
+      <h2>محتوای فعلی <button class="link-btn" id="btn-refresh" style="float:left;">بارگذاری مجدد</button></h2>
+      <div id="list-area"><div class="empty-msg">در حال بارگذاری…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TYPE_META = {
+  test:  {label:'آزمون', color:'var(--r-test)',  abbr:'HTML'},
+  link:  {label:'لینک',  color:'var(--r-link)',  abbr:'LNK'},
+  image: {label:'عکس',   color:'var(--r-image)', abbr:'IMG'},
+  video: {label:'ویدیو', color:'var(--r-video)', abbr:'VID'},
+  file:  {label:'فایل',  color:'var(--r-file)',  abbr:'FILE'},
+};
+
+let cfg = null;          // {owner, repo, branch, token}
+let contentSha = null;   // sha of content.json for updates
+let contentItems = [];   // parsed array
+let selectedType = 'link';
+let selectedSource = 'url';
+let selectedFile = null;
+
+const $ = (id) => document.getElementById(id);
+
+function toast(msg, kind) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (kind ? ' ' + kind : '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ---------- config persistence ----------
+function loadConfig() {
+  try {
+    const raw = localStorage.getItem('kafinet_admin_cfg');
+    if (raw) cfg = JSON.parse(raw);
+  } catch (e) { cfg = null; }
+}
+function saveConfig() {
+  localStorage.setItem('kafinet_admin_cfg', JSON.stringify(cfg));
+}
+function clearConfig() {
+  localStorage.removeItem('kafinet_admin_cfg');
+  cfg = null;
+}
+
+// ---------- unicode-safe base64 ----------
+function b64EncodeUnicode(str) {
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m, p1) => String.fromCharCode('0x' + p1)));
+}
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+
+// ---------- GitHub API ----------
+function ghHeaders() {
+  return {
+    'Authorization': 'Bearer ' + cfg.token,
+    'Accept': 'application/vnd.github+json',
+  };
+}
+async function ghGetFile(path) {
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`;
+  const res = await fetch(url, { headers: ghHeaders() });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('خطا در دریافت ' + path + ' (' + res.status + ')');
+  return res.json();
+}
+async function ghPutFile(path, base64Content, message, sha) {
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`;
+  const body = { message, content: base64Content, branch: cfg.branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(url, { method: 'PUT', headers: { ...ghHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error('ذخیره ناموفق بود (' + res.status + '): ' + errText.slice(0, 200));
+  }
+  return res.json();
+}
+function rawUrl(path) {
+  return `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${path}`;
+}
+
+// ---------- content.json ----------
+async function loadContentList() {
+  $('list-area').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
+  try {
+    const file = await ghGetFile('content.json');
+    if (file) {
+      contentSha = file.sha;
+      const text = b64DecodeUnicode(file.content.replace(/\n/g, ''));
+      contentItems = JSON.parse(text || '[]');
+    } else {
+      contentSha = null;
+      contentItems = [];
+    }
+    renderList();
+  } catch (e) {
+    $('list-area').innerHTML = '<div class="empty-msg">خطا در بارگذاری محتوا</div>';
+    toast(e.message, 'error');
+  }
+}
+
+async function saveContentList(commitMessage) {
+  const text = JSON.stringify(contentItems, null, 2);
+  const result = await ghPutFile('content.json', b64EncodeUnicode(text), commitMessage, contentSha);
+  contentSha = result.content.sha;
+}
+
+function renderList() {
+  const area = $('list-area');
+  if (!contentItems.length) {
+    area.innerHTML = '<div class="empty-msg">هنوز محتوایی اضافه نشده — از فرم بالا شروع کن</div>';
+    return;
+  }
+  area.innerHTML = '';
+  contentItems.slice().reverse().forEach((item) => {
+    const meta = TYPE_META[item.type] || TYPE_META.link;
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.innerHTML = `
+      <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
+      <div class="info">
+        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}</div>
+        <div class="d">${escapeHtml(item.description || item.url || '')}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
+      </div>`;
+    area.appendChild(row);
+  });
+  area.querySelectorAll('[data-del]').forEach((btn) => {
+    btn.addEventListener('click', () => deleteItem(btn.getAttribute('data-del')));
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function deleteItem(id) {
+  if (!confirm('این مورد از برنامه حذف شود؟')) return;
+  contentItems = contentItems.filter((i) => i.id !== id);
+  try {
+    await saveContentList('حذف محتوا: ' + id);
+    toast('حذف شد', 'success');
+    renderList();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+// ---------- add item flow ----------
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9.\-]+/g, '-').replace(/-+/g, '-').slice(0, 80);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleAdd() {
+  const title = $('in-title').value.trim();
+  const description = $('in-desc').value.trim();
+
+  if (!title) { toast('عنوان را وارد کن', 'error'); return; }
+
+  let url = '';
+  const btn = $('btn-add');
+  btn.disabled = true;
+  const originalText = btn.textContent;
+
+  try {
+    if (selectedSource === 'url') {
+      url = $('in-url').value.trim();
+      if (!url) { toast('آدرس لینک را وارد کن', 'error'); btn.disabled = false; return; }
+    } else {
+      if (!selectedFile) { toast('یک فایل انتخاب کن', 'error'); btn.disabled = false; return; }
+      btn.textContent = 'در حال آپلود…';
+      $('progress-wrap').style.display = 'block';
+      $('progress-bar').style.width = '30%';
+
+      const folder = selectedType === 'test' ? 'tests' : 'media';
+      const filename = Date.now() + '-' + slugify(selectedFile.name);
+      const path = folder + '/' + filename;
+
+      const dataUrl = await readFileAsDataUrl(selectedFile);
+      const base64 = dataUrl.split(',')[1];
+
+      $('progress-bar').style.width = '70%';
+      await ghPutFile(path, base64, 'افزودن فایل: ' + filename, null);
+      $('progress-bar').style.width = '100%';
+
+      url = rawUrl(path);
+    }
+
+    const newItem = {
+      id: 'item_' + Date.now(),
+      type: selectedType,
+      title,
+      description,
+      url,
+    };
+    contentItems.push(newItem);
+
+    btn.textContent = 'در حال ذخیره...';
+    await saveContentList('افزودن محتوا: ' + title);
+
+    toast('با موفقیت اضافه شد ✔', 'success');
+    resetForm();
+    renderList();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+    $('progress-wrap').style.display = 'none';
+    $('progress-bar').style.width = '0%';
+  }
+}
+
+function resetForm() {
+  $('in-title').value = '';
+  $('in-desc').value = '';
+  $('in-url').value = '';
+  selectedFile = null;
+  $('in-file').value = '';
+  $('drop-label').textContent = 'برای انتخاب فایل کلیک کن، یا فایل را اینجا رها کن';
+}
+
+// ---------- UI wiring ----------
+function initTabs() {
+  document.querySelectorAll('.type-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      selectedType = tab.getAttribute('data-type');
+    });
+  });
+
+  document.querySelectorAll('.source-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.source-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      selectedSource = tab.getAttribute('data-src');
+      $('src-url-box').classList.toggle('hidden', selectedSource !== 'url');
+      $('src-upload-box').classList.toggle('hidden', selectedSource !== 'upload');
+    });
+  });
+
+  const dropZone = $('drop-zone');
+  const fileInput = $('in-file');
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) {
+      selectedFile = fileInput.files[0];
+      $('drop-label').textContent = 'انتخاب شد: ' + selectedFile.name;
+    }
+  });
+  ['dragover'].forEach((ev) => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }));
+  ['dragleave', 'drop'].forEach((ev) => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
+  dropZone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files[0]) {
+      selectedFile = e.dataTransfer.files[0];
+      $('drop-label').textContent = 'انتخاب شد: ' + selectedFile.name;
+    }
+  });
+
+  $('btn-add').addEventListener('click', handleAdd);
+  $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
+  $('btn-logout').addEventListener('click', () => {
+    if (confirm('اطلاعات اتصال از این مرورگر پاک شود؟')) {
+      clearConfig();
+      location.reload();
+    }
+  });
+}
+
+async function connect() {
+  const owner = $('in-owner').value.trim();
+  const repo = $('in-repo').value.trim();
+  const branch = $('in-branch').value.trim() || 'main';
+  const token = $('in-token').value.trim();
+
+  if (!owner || !repo || !token) { toast('همه‌ی فیلدها را پر کن', 'error'); return; }
+
+  cfg = { owner, repo, branch, token };
+  const btn = $('btn-connect');
+  btn.disabled = true;
+  btn.textContent = 'در حال بررسی اتصال…';
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: ghHeaders() });
+    if (!res.ok) throw new Error('اتصال ناموفق — نام کاربری، مخزن یا توکن را بررسی کن');
+    saveConfig();
+    showApp();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'اتصال و ورود';
+  }
+}
+
+function showApp() {
+  $('setup-card').classList.add('hidden');
+  $('app-area').classList.remove('hidden');
+  $('repo-label').textContent = cfg.owner + ' / ' + cfg.repo;
+  $('repo-sub').textContent = 'شاخه: ' + cfg.branch;
+  loadContentList();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  $('btn-connect').addEventListener('click', connect);
+  loadConfig();
+  if (cfg && cfg.owner && cfg.repo && cfg.token) {
+    showApp();
+  }
+});
+</script>
+</body>
+</html>

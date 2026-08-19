@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">کافی‌نت آسان‌نت</string>
+    <string name="app_subtitle">آزمون‌های غربالگری و استعدادیابی دانش‌آموزان</string>
+
+    <!--
+      لینک خام (raw) فایل content.json که با پنل مدیریت (admin/index.html) ویرایش می‌شود.
+      حتماً بعد از ساخت ریپازیتوری این مقدار را با آدرس واقعی خودت پر کن، مثلاً:
+      https://raw.githubusercontent.com/USERNAME/REPO/main/content.json
+      بدون این آدرس، اپ فقط نسخه‌ی نمونه‌ی محلی داخل assets/content.json را نشان می‌دهد.
+    -->
+    <string name="remote_content_url"></string>
+
+    <string name="filter_all">همه</string>
+    <string name="filter_test">آزمون</string>
+    <string name="filter_link">لینک</string>
+    <string name="filter_image">عکس</string>
+    <string name="filter_video">ویدیو</string>
+    <string name="filter_file">فایل</string>
+
+    <string name="empty_state">فعلاً محتوایی اضافه نشده است</string>
+    <string name="loading">در حال بارگذاری…</string>
+    <string name="error_loading">خطا در دریافت محتوا — نسخه‌ی ذخیره‌شده نمایش داده شد</string>
+    <string name="open_in_browser">باز کردن در مرورگر</string>
+    <string name="search_hint">جستجو…</string>
+
+    <!--
+      اطلاعات اتصال به Supabase (برای ثبت‌نام کاربران).
+      بعد از ساخت پروژه در supabase.com این دو مقدار را پر کن.
+      راهنمای کامل در README.md بخش «ثبت‌نام کاربران» موجود است.
+    -->
+    <string name="supabase_url"></string>
+    <string name="supabase_anon_key"></string>
+
+    <string name="registration_intro">برای استفاده از برنامه، لطفاً ابتدا مشخصات خود را وارد کن</string>
+    <string name="label_first_name">نام</string>
+    <string name="hint_first_name">مثلاً: علی</string>
+    <string name="label_last_name">نام خانوادگی</string>
+    <string name="hint_last_name">مثلاً: محمدی</string>
+    <string name="label_national_code">کد ملی</string>
+    <string name="hint_national_code">۱۰ رقم بدون خط تیره</string>
+    <string name="label_phone">شماره موبایل</string>
+    <string name="hint_phone">۰۹xxxxxxxxx</string>
+    <string name="label_birth_date">تاریخ تولد</string>
+    <string name="hint_birth_date">مثلاً: ۱۳۸۰/۰۵/۱۲</string>
+    <string name="label_password">رمز عبور</string>
+    <string name="hint_password">حداقل ۶ کاراکتر</string>
+    <string name="label_password_confirm">تکرار رمز عبور</string>
+    <string name="hint_password_confirm">رمز عبور را دوباره وارد کن</string>
+    <string name="btn_register">ثبت‌نام و ورود به برنامه</string>
+
+    <string name="err_required_fields">لطفاً همه‌ی فیلدها را پر کن</string>
+    <string name="err_invalid_national_code">کد ملی وارد شده معتبر نیست</string>
+    <string name="err_invalid_phone">شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد</string>
+    <string name="err_password_short">رمز عبور باید حداقل ۶ کاراکتر باشد</string>
+    <string name="err_password_mismatch">رمز عبور و تکرار آن یکسان نیستند</string>
+    <string name="err_network">خطا در برقراری ارتباط — اتصال اینترنت را بررسی کن و دوباره تلاش کن</string>
+    <string name="error_backend_not_configured">تنظیمات سرور ثبت‌نام هنوز کامل نشده است</string>
+</resources>
