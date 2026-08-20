@@ -11,8 +11,8 @@ object SupabaseClient {
 
     /**
      * کاربر جدید را در جدول users در Supabase ثبت می‌کند.
-     * اگر کد ملی از قبل ثبت شده باشد، درخواست نادیده گرفته می‌شود (نه خطا) — یعنی کاربر
-     * از قبل جزو ثبت‌نامی‌هاست و باز هم اجازه‌ی ورود به اپ دارد.
+     * اگر کد ملی از قبل ثبت شده باشد (خطای ۴۰۹ به‌خاطر محدودیت unique)، همچنان موفق
+     * در نظر گرفته می‌شود — یعنی کاربر از قبل جزو ثبت‌نامی‌هاست و اجازه‌ی ورود به اپ دارد.
      * در صورت موفقیت true برمی‌گرداند.
      */
     suspend fun registerUser(
@@ -31,7 +31,7 @@ object SupabaseClient {
             throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
         }
 
-        val url = URL("$baseUrl/rest/v1/users?on_conflict=national_code")
+        val url = URL("$baseUrl/rest/v1/users")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
@@ -40,7 +40,7 @@ object SupabaseClient {
         connection.setRequestProperty("apikey", anonKey)
         connection.setRequestProperty("Authorization", "Bearer $anonKey")
         connection.setRequestProperty("Content-Type", "application/json")
-        connection.setRequestProperty("Prefer", "resolution=ignore-duplicates,return=minimal")
+        connection.setRequestProperty("Prefer", "return=minimal")
 
         val body = JSONObject().apply {
             put("first_name", firstName)
@@ -55,6 +55,7 @@ object SupabaseClient {
 
         val responseCode = connection.responseCode
         connection.disconnect()
-        responseCode in 200..299
+        // 409 یعنی کد ملی تکراری است (محدودیت unique) — این یعنی کاربر از قبل ثبت‌نام کرده، نه خطا
+        responseCode in 200..299 || responseCode == 409
     }
 }
