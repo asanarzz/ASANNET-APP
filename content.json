@@ -1,51 +1,9 @@
 [
   {
-    "id": "welcome_link",
+    "id": "item_1787255636798",
     "type": "link",
-    "title": "به کافی‌نت آسان‌نت خوش آمدید",
-    "description": "این یک آیتم نمونه است — از پنل مدیریت آن را حذف کن و محتوای خودت را اضافه کن",
-    "url": "https://github.com"
-  },
-  {
-    "id": "item_1787174141493",
-    "type": "image",
-    "title": "لوگو",
-    "description": "لوگو کافی نت آسان نت",
-    "url": "https://raw.githubusercontent.com/Asanarzz/Asannet-app/main/media/1787174138750-screenshot-20260603133759.jpg"
-  },
-  {
-    "id": "item_1787175045302",
-    "type": "image",
-    "title": "پیش ثبت نام",
-    "description": "پیش ثبت نام پایه دهم",
-    "url": "https://raw.githubusercontent.com/Asanarzz/Asannet-app/main/media/1787175042734-img-20260806-073726-121.jpg"
-  },
-  {
-    "id": "item_1787176405388",
-    "type": "image",
-    "title": "روزنامه",
-    "description": "روزنامه ها روز",
-    "url": "https://raw.githubusercontent.com/Asanarzz/Asannet-app/main/media/1787176403101-img-20260621-083842-168.jpg"
-  },
-  {
-    "id": "item_1787176841967",
-    "type": "image",
-    "title": "لینک",
-    "description": "لینک کانال",
-    "url": "https://eitaa.com/asannett"
-  },
-  {
-    "id": "item_1787177392249",
-    "type": "image",
-    "title": "لوگو",
-    "description": "لوگو کانال",
-    "url": "https://raw.githubusercontent.com/Asanarzz/Asannet-app/main/media/1787177388854-screenshot-20260603133759.jpg"
-  },
-  {
-    "id": "item_1787181240734",
-    "type": "image",
-    "title": "لینک",
-    "description": "کانال",
+    "title": "لینک کانال کافی نت آسان نت",
+    "description": "عضو کانال بشین تا از اطلاع رسانی ها و ثبت نام ها جا نمونین",
     "url": "https://eitaa.com/asannett"
   }
 ]
