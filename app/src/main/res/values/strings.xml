@@ -9,7 +9,7 @@
       https://raw.githubusercontent.com/USERNAME/REPO/main/content.json
       بدون این آدرس، اپ فقط نسخه‌ی نمونه‌ی محلی داخل assets/content.json را نشان می‌دهد.
     -->
-    <string name="remote_content_url"></string>
+    <string name="remote_content_url">https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/content.json</string>
 
     <string name="filter_all">همه</string>
     <string name="filter_test">آزمون</string>
