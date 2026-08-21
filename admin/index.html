@@ -22,6 +22,12 @@
     --r-image:#059669;
     --r-video:#DC2626;
     --r-file:#D97706;
+    --r-banner:#DB2777;
+    --r-poll:#0891B2;
+    --r-software:#4338CA;
+    --r-music:#EA580C;
+    --r-radio:#65A30D;
+    --r-fun:#F59E0B;
   }
   *{box-sizing:border-box;}
   body{
@@ -156,6 +162,12 @@
         <div class="type-tab" data-type="image">عکس</div>
         <div class="type-tab" data-type="video">ویدیو</div>
         <div class="type-tab" data-type="file">فایل</div>
+        <div class="type-tab" data-type="banner">بنر</div>
+        <div class="type-tab" data-type="poll">نظرسنجی</div>
+        <div class="type-tab" data-type="software">نرم‌افزار</div>
+        <div class="type-tab" data-type="music">آهنگ</div>
+        <div class="type-tab" data-type="radio">رادیو</div>
+        <div class="type-tab" data-type="fun">سرگرمی</div>
       </div>
 
       <label>عنوان</label>
@@ -205,6 +217,12 @@ const TYPE_META = {
   image: {label:'عکس',   color:'var(--r-image)', abbr:'IMG'},
   video: {label:'ویدیو', color:'var(--r-video)', abbr:'VID'},
   file:  {label:'فایل',  color:'var(--r-file)',  abbr:'FILE'},
+  banner:{label:'بنر',   color:'var(--r-banner)', abbr:'BNR'},
+  poll:  {label:'نظرسنجی', color:'var(--r-poll)', abbr:'POLL'},
+  software:{label:'نرم‌افزار', color:'var(--r-software)', abbr:'APP'},
+  music: {label:'آهنگ',  color:'var(--r-music)', abbr:'MUS'},
+  radio: {label:'رادیو', color:'var(--r-radio)', abbr:'RAD'},
+  fun:   {label:'سرگرمی', color:'var(--r-fun)', abbr:'FUN'},
 };
 
 let cfg = null;          // {owner, repo, branch, token}

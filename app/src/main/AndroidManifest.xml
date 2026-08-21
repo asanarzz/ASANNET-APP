@@ -32,14 +32,19 @@
             android:label="@string/app_name" />
 
         <activity
-            android:name=".WebViewActivity"
+            android:name=".CategoryListActivity"
             android:exported="false"
             android:label="@string/app_name" />
 
         <activity
             android:name=".SubmitDocumentsActivity"
             android:exported="false"
-            android:label="@string/submit_documents_title" />
+            android:label="@string/app_name" />
+
+        <activity
+            android:name=".WebViewActivity"
+            android:exported="false"
+            android:label="@string/app_name" />
 
         <activity
             android:name=".ImageViewerActivity"
