@@ -9,7 +9,7 @@
       https://raw.githubusercontent.com/USERNAME/REPO/main/content.json
       بدون این آدرس، اپ فقط نسخه‌ی نمونه‌ی محلی داخل assets/content.json را نشان می‌دهد.
     -->
-    <string name="remote_content_url"></string>
+    <string name="remote_content_url">https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/content.json</string>
 
     <string name="filter_all">همه</string>
     <string name="filter_test">آزمون</string>
@@ -17,6 +17,31 @@
     <string name="filter_image">عکس</string>
     <string name="filter_video">ویدیو</string>
     <string name="filter_file">فایل</string>
+
+    <!-- برچسب دسته‌های صفحه‌ی اصلی (گرید) -->
+    <string name="cat_image">عکس</string>
+    <string name="cat_video">ویدئو</string>
+    <string name="cat_banner">بنر</string>
+    <string name="cat_link">لینک</string>
+    <string name="cat_file">فایل</string>
+    <string name="cat_test">آزمون</string>
+    <string name="cat_poll">نظرسنجی</string>
+    <string name="cat_software">نرم‌افزار</string>
+    <string name="cat_music">آهنگ</string>
+    <string name="cat_radio">رادیو</string>
+    <string name="cat_fun">سرگرمی</string>
+    <string name="cat_docs">ارسال مدارک</string>
+
+    <!-- صفحه‌ی ارسال مدارک -->
+    <string name="docs_intro">عکس یا فایل مدرک خود را انتخاب کن و برای ما ارسال کن.</string>
+    <string name="docs_note_label">توضیح (اختیاری)</string>
+    <string name="docs_note_hint">مثلاً: کارت ملی برای ثبت‌نام آزمون</string>
+    <string name="docs_pick_file">انتخاب عکس یا فایل</string>
+    <string name="docs_pick_file_first">اول یک فایل انتخاب کن</string>
+    <string name="docs_uploading">در حال ارسال…</string>
+    <string name="docs_submit">ارسال مدرک</string>
+    <string name="docs_success">مدرک با موفقیت ارسال شد</string>
+    <string name="docs_error">ارسال مدرک ناموفق بود — دوباره تلاش کن</string>
 
     <string name="empty_state">فعلاً محتوایی اضافه نشده است</string>
     <string name="loading">در حال بارگذاری…</string>
@@ -49,27 +74,16 @@
     <string name="hint_password_confirm">رمز عبور را دوباره وارد کن</string>
     <string name="btn_register">ثبت‌نام و ورود به برنامه</string>
     <string name="btn_login">ورود به برنامه</string>
-    <string name="link_already_registered">قبلاً ثبت‌نام کرده‌ام — ورود</string>
-    <string name="link_new_registration">ثبت‌نام کاربر جدید</string>
-    <string name="login_intro">کد ملی و رمز عبوری که قبلاً ثبت کردی را وارد کن</string>
+    <string name="toggle_to_login">قبلاً ثبت‌نام کرده‌ای؟ ورود</string>
+    <string name="toggle_to_register">حساب نداری؟ ثبت‌نام</string>
+    <string name="err_invalid_login">کد ملی یا رمز عبور اشتباه است</string>
+    <string name="btn_logout">خروج</string>
 
     <string name="err_required_fields">لطفاً همه‌ی فیلدها را پر کن</string>
     <string name="err_invalid_national_code">کد ملی وارد شده معتبر نیست</string>
     <string name="err_invalid_phone">شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد</string>
     <string name="err_password_short">رمز عبور باید حداقل ۶ کاراکتر باشد</string>
     <string name="err_password_mismatch">رمز عبور و تکرار آن یکسان نیستند</string>
-    <string name="err_login_failed">کد ملی یا رمز عبور اشتباه است</string>
     <string name="err_network">خطا در برقراری ارتباط — اتصال اینترنت را بررسی کن و دوباره تلاش کن</string>
     <string name="error_backend_not_configured">تنظیمات سرور ثبت‌نام هنوز کامل نشده است</string>
-
-    <string name="btn_submit_documents">ارسال مدارک</string>
-    <string name="submit_documents_title">ارسال مدارک</string>
-    <string name="submit_documents_intro">فایل مدرک خود را انتخاب کن و برای مدیر ارسال کن</string>
-    <string name="label_document_description">توضیح (اختیاری)</string>
-    <string name="hint_document_description">مثلاً: کارت ملی</string>
-    <string name="btn_choose_file">انتخاب فایل</string>
-    <string name="btn_send_document">ارسال</string>
-    <string name="no_file_chosen">فایلی انتخاب نشده</string>
-    <string name="document_sent_success">مدرک با موفقیت ارسال شد ✔</string>
-    <string name="err_choose_file_first">اول یک فایل انتخاب کن</string>
 </resources>

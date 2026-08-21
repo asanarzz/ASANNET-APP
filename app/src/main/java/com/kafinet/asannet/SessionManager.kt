@@ -20,8 +20,17 @@ object SessionManager {
             .apply()
     }
 
-    fun getNationalCode(context: Context): String {
+    fun getNationalCode(context: Context): String? {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_NATIONAL_CODE, "") ?: ""
+            .getString(KEY_NATIONAL_CODE, null)
+    }
+
+    /** خروج از حساب — فقط اطلاعات محلی این گوشی پاک می‌شود؛ ثبت‌نام در Supabase باقی می‌ماند
+     *  و کاربر می‌تواند بعداً دوباره با کد ملی و رمز عبورش وارد شود. */
+    fun logout(context: Context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
     }
 }

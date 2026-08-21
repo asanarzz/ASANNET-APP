@@ -3,6 +3,7 @@ package com.kafinet.asannet
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -13,13 +14,15 @@ class SubmitDocumentsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySubmitDocumentsBinding
     private var selectedUri: Uri? = null
-    private var selectedFileName: String = ""
+    private var selectedName: String = ""
+    private var selectedMime: String = "application/octet-stream"
 
-    private val pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val pickFile = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             selectedUri = uri
-            selectedFileName = queryFileName(uri)
-            binding.txtChosenFile.text = selectedFileName
+            selectedMime = contentResolver.getType(uri) ?: "application/octet-stream"
+            selectedName = queryFileName(uri) ?: "file"
+            binding.txtFileName.text = selectedName
         }
     }
 
@@ -29,72 +32,51 @@ class SubmitDocumentsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.btnChooseFile.setOnClickListener { pickFileLauncher.launch("*/*") }
-        binding.btnSend.setOnClickListener { attemptSend() }
+        binding.btnPickFile.setOnClickListener { pickFile.launch("*/*") }
+        binding.btnSubmit.setOnClickListener { submit() }
     }
 
-    private fun queryFileName(uri: Uri): String {
-        var name = "file"
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst() && nameIndex >= 0) {
-                name = cursor.getString(nameIndex) ?: name
-            }
+    private fun queryFileName(uri: Uri): String? {
+        var name: String? = null
+        val cursor = contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (it.moveToFirst() && idx >= 0) name = it.getString(idx)
         }
         return name
     }
 
-    private fun attemptSend() {
+    private fun submit() {
         val uri = selectedUri
         if (uri == null) {
-            showError(getString(R.string.err_choose_file_first))
+            Toast.makeText(this, R.string.docs_pick_file_first, Toast.LENGTH_SHORT).show()
             return
         }
+        val note = binding.editNote.text?.toString().orEmpty()
 
-        val nationalCode = SessionManager.getNationalCode(this)
-        val description = binding.inDescription.text.toString().trim()
-
-        hideError()
-        setLoading(true)
+        binding.btnSubmit.isEnabled = false
+        binding.btnSubmit.text = getString(R.string.docs_uploading)
 
         lifecycleScope.launch {
             try {
                 val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 if (bytes == null) {
-                    showError(getString(R.string.err_network))
+                    Toast.makeText(this@SubmitDocumentsActivity, R.string.docs_error, Toast.LENGTH_SHORT).show()
                     return@launch
                 }
-                val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
-                val success = SupabaseClient.uploadDocument(
-                    this@SubmitDocumentsActivity, nationalCode, selectedFileName, mimeType, bytes, description
-                )
-                if (success) {
-                    android.widget.Toast.makeText(
-                        this@SubmitDocumentsActivity, R.string.document_sent_success, android.widget.Toast.LENGTH_SHORT
-                    ).show()
+                val ok = SupabaseClient.uploadDocument(this@SubmitDocumentsActivity, selectedName, selectedMime, bytes, note)
+                if (ok) {
+                    Toast.makeText(this@SubmitDocumentsActivity, R.string.docs_success, Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    showError(getString(R.string.err_network))
+                    Toast.makeText(this@SubmitDocumentsActivity, R.string.docs_error, Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                showError(e.message ?: getString(R.string.err_network))
+                Toast.makeText(this@SubmitDocumentsActivity, R.string.err_network, Toast.LENGTH_SHORT).show()
             } finally {
-                setLoading(false)
+                binding.btnSubmit.isEnabled = true
+                binding.btnSubmit.text = getString(R.string.docs_submit)
             }
         }
-    }
-
-    private fun setLoading(loading: Boolean) {
-        binding.progress.visibility = if (loading) android.view.View.VISIBLE else android.view.View.GONE
-        binding.btnSend.isEnabled = !loading
-    }
-
-    private fun showError(message: String) {
-        binding.txtError.text = message
-        binding.txtError.visibility = android.view.View.VISIBLE
-    }
-
-    private fun hideError() {
-        binding.txtError.visibility = android.view.View.GONE
     }
 }

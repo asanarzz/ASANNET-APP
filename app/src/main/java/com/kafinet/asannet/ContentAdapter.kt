@@ -31,6 +31,13 @@ class ContentAdapter(
             ContentType.IMAGE -> R.drawable.ic_image to R.drawable.icon_circle_image
             ContentType.VIDEO -> R.drawable.ic_video to R.drawable.icon_circle_video
             ContentType.FILE -> R.drawable.ic_file to R.drawable.icon_circle_file
+            ContentType.BANNER -> R.drawable.ic_banner to R.drawable.icon_circle_banner
+            ContentType.POLL -> R.drawable.ic_poll to R.drawable.icon_circle_poll
+            ContentType.SOFTWARE -> R.drawable.ic_software to R.drawable.icon_circle_software
+            ContentType.MUSIC -> R.drawable.ic_music to R.drawable.icon_circle_music
+            ContentType.RADIO -> R.drawable.ic_radio to R.drawable.icon_circle_radio
+            ContentType.FUN -> R.drawable.ic_fun to R.drawable.icon_circle_fun
+            ContentType.DOCS -> R.drawable.ic_docs to R.drawable.icon_circle_docs
         }
         binding.imgTypeIcon.setImageResource(iconRes)
         binding.iconBg.setBackgroundResource(bgRes)

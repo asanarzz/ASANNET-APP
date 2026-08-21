@@ -15,6 +15,13 @@
     <color name="type_image">#059669</color>
     <color name="type_video">#DC2626</color>
     <color name="type_file">#D97706</color>
+    <color name="type_banner">#DB2777</color>
+    <color name="type_poll">#0891B2</color>
+    <color name="type_software">#4338CA</color>
+    <color name="type_music">#EA580C</color>
+    <color name="type_radio">#65A30D</color>
+    <color name="type_fun">#F59E0B</color>
+    <color name="type_docs">#0D9488</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

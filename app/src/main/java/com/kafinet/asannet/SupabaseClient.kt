@@ -60,9 +60,70 @@ object SupabaseClient {
     }
 
     /**
-     * ورود با کد ملی و رمز عبور برای کاربری که قبلاً ثبت‌نام کرده (مثلاً بعد از نصب مجدد اپ).
-     * از یک تابع امن سمت سرور (RPC) استفاده می‌کند که فقط true/false برمی‌گرداند —
-     * هیچ اطلاعات دیگری از کاربران فاش نمی‌شود.
+     * یک فایل مدرک را در باکت «documents» آپلود می‌کند و سطر مربوطه را در جدول
+     * document_submissions ثبت می‌کند. در صورت موفقیت کامل true برمی‌گرداند.
+     */
+    suspend fun uploadDocument(
+        context: Context,
+        fileName: String,
+        mimeType: String,
+        bytes: ByteArray,
+        note: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+        val anonKey = context.getString(R.string.supabase_anon_key)
+
+        if (baseUrl.isBlank() || anonKey.isBlank()) {
+            throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
+        }
+
+        val safeName = fileName.replace(Regex("[^a-zA-Z0-9._\\-]+"), "-")
+        val path = "docs/${System.currentTimeMillis()}-$safeName"
+
+        val uploadUrl = URL("$baseUrl/storage/v1/object/documents/$path")
+        val uploadConn = uploadUrl.openConnection() as HttpURLConnection
+        uploadConn.requestMethod = "POST"
+        uploadConn.doOutput = true
+        uploadConn.connectTimeout = 15000
+        uploadConn.readTimeout = 15000
+        uploadConn.setRequestProperty("apikey", anonKey)
+        uploadConn.setRequestProperty("Authorization", "Bearer $anonKey")
+        uploadConn.setRequestProperty("Content-Type", mimeType)
+        uploadConn.outputStream.use { it.write(bytes) }
+        val uploadCode = uploadConn.responseCode
+        uploadConn.disconnect()
+        if (uploadCode !in 200..299) return@withContext false
+
+        val publicUrl = "$baseUrl/storage/v1/object/public/documents/$path"
+        val nationalCode = SessionManager.getNationalCode(context).orEmpty()
+
+        val insertUrl = URL("$baseUrl/rest/v1/document_submissions")
+        val insertConn = insertUrl.openConnection() as HttpURLConnection
+        insertConn.requestMethod = "POST"
+        insertConn.doOutput = true
+        insertConn.connectTimeout = 8000
+        insertConn.readTimeout = 8000
+        insertConn.setRequestProperty("apikey", anonKey)
+        insertConn.setRequestProperty("Authorization", "Bearer $anonKey")
+        insertConn.setRequestProperty("Content-Type", "application/json")
+        insertConn.setRequestProperty("Prefer", "return=minimal")
+
+        val body = JSONObject().apply {
+            put("national_code", nationalCode)
+            put("file_url", publicUrl)
+            put("file_name", fileName)
+            put("description", note)
+        }
+        insertConn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+        val insertCode = insertConn.responseCode
+        insertConn.disconnect()
+        insertCode in 200..299
+    }
+
+    /**
+     * ورود کاربری که قبلاً ثبت‌نام کرده (بعد از حذف و نصب مجدد برنامه، یا روی گوشی دیگر).
+     * هش ذخیره‌شده‌ی رمز عبور را از طریق یک تابع امن (RPC) می‌گیرد و مقایسه‌ی نهایی
+     * (با همان salt ذخیره‌شده) داخل خود اپ انجام می‌شود.
      */
     suspend fun loginUser(
         context: Context,
@@ -76,7 +137,7 @@ object SupabaseClient {
             throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
         }
 
-        val url = URL("$baseUrl/rest/v1/rpc/verify_login")
+        val url = URL("$baseUrl/rest/v1/rpc/get_password_hash")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
@@ -88,82 +149,20 @@ object SupabaseClient {
 
         val body = JSONObject().apply {
             put("p_national_code", nationalCode)
-            put("p_password", password)
         }
-
         connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
 
         val responseCode = connection.responseCode
-        if (responseCode !in 200..299) {
-            connection.disconnect()
-            return@withContext false
-        }
-        val responseText = connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+        val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
         connection.disconnect()
-        responseText.trim() == "true"
-    }
 
-    /**
-     * یک فایل (مدرک) را در Supabase Storage آپلود می‌کند و یک سطر در جدول
-     * document_submissions ثبت می‌کند تا مدیر بتواند آن را ببیند.
-     */
-    suspend fun uploadDocument(
-        context: Context,
-        nationalCode: String,
-        fileName: String,
-        mimeType: String,
-        fileBytes: ByteArray,
-        description: String
-    ): Boolean = withContext(Dispatchers.IO) {
-        val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
-        val anonKey = context.getString(R.string.supabase_anon_key)
+        if (responseCode !in 200..299) return@withContext false
 
-        if (baseUrl.isBlank() || anonKey.isBlank()) {
-            throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
-        }
+        // پاسخ RPC برای مقدار متنی به‌صورت رشته‌ی JSON برمی‌گردد، مثلاً "salt:hash" یا null
+        val storedHash = text.trim().removeSurrounding("\"")
+        if (storedHash.isBlank() || storedHash == "null") return@withContext false
 
-        val storagePath = "${nationalCode}/${System.currentTimeMillis()}_${fileName}"
-        val uploadUrl = URL("$baseUrl/storage/v1/object/documents/$storagePath")
-        val uploadConnection = uploadUrl.openConnection() as HttpURLConnection
-        uploadConnection.requestMethod = "POST"
-        uploadConnection.doOutput = true
-        uploadConnection.connectTimeout = 15000
-        uploadConnection.readTimeout = 15000
-        uploadConnection.setRequestProperty("apikey", anonKey)
-        uploadConnection.setRequestProperty("Authorization", "Bearer $anonKey")
-        uploadConnection.setRequestProperty("Content-Type", mimeType.ifBlank { "application/octet-stream" })
-
-        uploadConnection.outputStream.use { it.write(fileBytes) }
-        val uploadResponseCode = uploadConnection.responseCode
-        uploadConnection.disconnect()
-
-        if (uploadResponseCode !in 200..299) {
-            return@withContext false
-        }
-
-        val fileUrl = "$baseUrl/storage/v1/object/public/documents/$storagePath"
-
-        val insertUrl = URL("$baseUrl/rest/v1/document_submissions")
-        val insertConnection = insertUrl.openConnection() as HttpURLConnection
-        insertConnection.requestMethod = "POST"
-        insertConnection.doOutput = true
-        insertConnection.connectTimeout = 8000
-        insertConnection.readTimeout = 8000
-        insertConnection.setRequestProperty("apikey", anonKey)
-        insertConnection.setRequestProperty("Authorization", "Bearer $anonKey")
-        insertConnection.setRequestProperty("Content-Type", "application/json")
-        insertConnection.setRequestProperty("Prefer", "return=minimal")
-
-        val body = JSONObject().apply {
-            put("national_code", nationalCode)
-            put("file_url", fileUrl)
-            put("file_name", fileName)
-            put("description", description)
-        }
-        insertConnection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
-
-        val insertResponseCode = insertConnection.responseCode
-        insertConnection.disconnect()
-        insertResponseCode in 200..299
+        PasswordHasher.verify(password, storedHash)
     }
 }

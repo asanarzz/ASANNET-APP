@@ -2,125 +2,52 @@ package com.kafinet.asannet
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.kafinet.asannet.databinding.ActivityMainBinding
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: ContentAdapter
-
-    private var allItems: List<ContentItem> = emptyList()
-    private var currentTypeFilter: ContentType? = null
-    private var currentQuery: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = ContentAdapter(emptyList()) { item -> openItem(item) }
-        binding.recyclerContent.layoutManager = LinearLayoutManager(this)
-        binding.recyclerContent.adapter = adapter
+        val categories = listOf(
+            CategoryEntry(ContentType.IMAGE, getString(R.string.cat_image), R.drawable.ic_image, R.drawable.icon_circle_image),
+            CategoryEntry(ContentType.VIDEO, getString(R.string.cat_video), R.drawable.ic_video, R.drawable.icon_circle_video),
+            CategoryEntry(ContentType.BANNER, getString(R.string.cat_banner), R.drawable.ic_banner, R.drawable.icon_circle_banner),
+            CategoryEntry(ContentType.LINK, getString(R.string.cat_link), R.drawable.ic_link, R.drawable.icon_circle_link),
+            CategoryEntry(ContentType.FILE, getString(R.string.cat_file), R.drawable.ic_file, R.drawable.icon_circle_file),
+            CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.ic_test, R.drawable.icon_circle_test),
+            CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.ic_poll, R.drawable.icon_circle_poll),
+            CategoryEntry(ContentType.SOFTWARE, getString(R.string.cat_software), R.drawable.ic_software, R.drawable.icon_circle_software),
+            CategoryEntry(ContentType.MUSIC, getString(R.string.cat_music), R.drawable.ic_music, R.drawable.icon_circle_music),
+            CategoryEntry(ContentType.RADIO, getString(R.string.cat_radio), R.drawable.ic_radio, R.drawable.icon_circle_radio),
+            CategoryEntry(ContentType.FUN, getString(R.string.cat_fun), R.drawable.ic_fun, R.drawable.icon_circle_fun),
+            CategoryEntry(null, getString(R.string.cat_docs), R.drawable.ic_docs, R.drawable.icon_circle_docs, isSubmit = true)
+        )
 
-        binding.swipeRefresh.setOnRefreshListener { loadContent() }
-        binding.btnRefresh.setOnClickListener {
-            binding.swipeRefresh.isRefreshing = true
-            loadContent()
-        }
-        binding.btnSubmitDocs.setOnClickListener {
-            startActivity(Intent(this, SubmitDocumentsActivity::class.java))
-        }
-
-        binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            currentTypeFilter = when (checkedIds.firstOrNull()) {
-                binding.chipTest.id -> ContentType.TEST
-                binding.chipLink.id -> ContentType.LINK
-                binding.chipImage.id -> ContentType.IMAGE
-                binding.chipVideo.id -> ContentType.VIDEO
-                binding.chipFile.id -> ContentType.FILE
-                else -> null
-            }
-            applyFilters()
-        }
-
-        binding.editSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                currentQuery = s?.toString().orEmpty()
-                applyFilters()
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        loadContent()
-    }
-
-    private fun loadContent() {
-        lifecycleScope.launch {
-            val result = ContentRepository.load(this@MainActivity)
-            allItems = result.items
-            applyFilters()
-            binding.swipeRefresh.isRefreshing = false
-            if (result.error) {
-                Toast.makeText(this@MainActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun applyFilters() {
-        var filtered = allItems
-        currentTypeFilter?.let { type -> filtered = filtered.filter { it.type == type } }
-        if (currentQuery.isNotBlank()) {
-            val q = currentQuery.trim()
-            filtered = filtered.filter {
-                it.title.contains(q, ignoreCase = true) || it.description.contains(q, ignoreCase = true)
-            }
-        }
-        adapter.updateItems(filtered)
-        binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
-    }
-
-    private fun openItem(item: ContentItem) {
-        when (item.type) {
-            ContentType.TEST, ContentType.LINK -> {
-                val intent = Intent(this, WebViewActivity::class.java)
-                intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
-                intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+        binding.recyclerCategories.layoutManager = GridLayoutManager(this, 4)
+        binding.recyclerCategories.adapter = CategoryGridAdapter(categories) { entry ->
+            if (entry.isSubmit) {
+                startActivity(Intent(this, SubmitDocumentsActivity::class.java))
+            } else {
+                val intent = Intent(this, CategoryListActivity::class.java)
+                intent.putExtra(CategoryListActivity.EXTRA_TYPE, entry.type?.key)
+                intent.putExtra(CategoryListActivity.EXTRA_LABEL, entry.label)
                 startActivity(intent)
             }
-            ContentType.IMAGE -> {
-                val intent = Intent(this, ImageViewerActivity::class.java)
-                intent.putExtra(ImageViewerActivity.EXTRA_URL, item.url)
-                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, item.title)
-                startActivity(intent)
-            }
-            ContentType.VIDEO -> {
-                val intent = Intent(this, VideoPlayerActivity::class.java)
-                intent.putExtra(VideoPlayerActivity.EXTRA_URL, item.url)
-                intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, item.title)
-                startActivity(intent)
-            }
-            ContentType.FILE -> {
-                if (DownloadHelper.ensureStoragePermission(this)) {
-                    DownloadHelper.downloadUrl(this, item.url, item.title)
-                }
-            }
         }
-    }
 
-    /** آدرس‌های محلی (فایل‌های داخل assets/tests) را به مسیر قابل بارگذاری در WebView تبدیل می‌کند. */
-    private fun resolveUrl(url: String): String {
-        return if (url.startsWith("http://") || url.startsWith("https://")) {
-            url
-        } else {
-            "file:///android_asset/${url.removePrefix("/")}"
+        binding.btnLogout.setOnClickListener {
+            SessionManager.logout(this)
+            val intent = Intent(this, RegistrationActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
         }
     }
 }

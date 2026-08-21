@@ -4,11 +4,18 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 enum class ContentType(val key: String) {
-    TEST("test"),
-    LINK("link"),
     IMAGE("image"),
     VIDEO("video"),
-    FILE("file");
+    BANNER("banner"),
+    LINK("link"),
+    FILE("file"),
+    TEST("test"),
+    POLL("poll"),
+    SOFTWARE("software"),
+    MUSIC("music"),
+    RADIO("radio"),
+    FUN("fun"),
+    DOCS("docs");
 
     companion object {
         fun fromKey(key: String?): ContentType =
