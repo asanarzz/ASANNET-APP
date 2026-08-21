@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 class RegistrationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationBinding
+    private var isLoginMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +24,29 @@ class RegistrationActivity : AppCompatActivity() {
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnRegister.setOnClickListener { attemptRegister() }
+        binding.btnSubmit.setOnClickListener {
+            if (isLoginMode) attemptLogin() else attemptRegister()
+        }
+        binding.btnToggleMode.setOnClickListener {
+            isLoginMode = !isLoginMode
+            applyMode()
+        }
+        applyMode()
+    }
+
+    private fun applyMode() {
+        hideError()
+        if (isLoginMode) {
+            binding.groupRegisterExtra.visibility = android.view.View.GONE
+            binding.btnSubmit.text = getString(R.string.btn_login)
+            binding.btnToggleMode.text = getString(R.string.link_new_registration)
+            binding.txtIntro.text = getString(R.string.login_intro)
+        } else {
+            binding.groupRegisterExtra.visibility = android.view.View.VISIBLE
+            binding.btnSubmit.text = getString(R.string.btn_register)
+            binding.btnToggleMode.text = getString(R.string.link_already_registered)
+            binding.txtIntro.text = getString(R.string.registration_intro)
+        }
     }
 
     private fun attemptRegister() {
@@ -68,7 +91,7 @@ class RegistrationActivity : AppCompatActivity() {
                     this@RegistrationActivity, firstName, lastName, nationalCode, phone, birthDate, passwordHash
                 )
                 if (success) {
-                    SessionManager.setRegistered(this@RegistrationActivity)
+                    SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
                     goToMain()
                 } else {
                     showError(getString(R.string.err_network))
@@ -81,9 +104,42 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
+    private fun attemptLogin() {
+        val nationalCode = binding.inNationalCode.text.toString().trim()
+        val password = binding.inPassword.text.toString()
+
+        if (nationalCode.isBlank() || password.isBlank()) {
+            showError(getString(R.string.err_required_fields))
+            return
+        }
+        if (!NationalCodeValidator.isValid(nationalCode)) {
+            showError(getString(R.string.err_invalid_national_code))
+            return
+        }
+
+        hideError()
+        setLoading(true)
+
+        lifecycleScope.launch {
+            try {
+                val success = SupabaseClient.loginUser(this@RegistrationActivity, nationalCode, password)
+                if (success) {
+                    SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
+                    goToMain()
+                } else {
+                    showError(getString(R.string.err_login_failed))
+                }
+            } catch (e: Exception) {
+                showError(e.message ?: getString(R.string.err_network))
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
+
     private fun setLoading(loading: Boolean) {
         binding.progress.visibility = if (loading) android.view.View.VISIBLE else android.view.View.GONE
-        binding.btnRegister.isEnabled = !loading
+        binding.btnSubmit.isEnabled = !loading
     }
 
     private fun showError(message: String) {

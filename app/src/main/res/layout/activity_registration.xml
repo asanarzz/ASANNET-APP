@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
@@ -28,6 +30,7 @@
                 android:textStyle="bold"/>
 
             <TextView
+                android:id="@+id/txt_intro"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
@@ -37,7 +40,6 @@
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -51,37 +53,10 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
+                <!-- فیلدهای همیشه‌نمایان: کد ملی و رمز عبور (برای ثبت‌نام و ورود هر دو لازمن) -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_first_name"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp"/>
-                <EditText
-                    android:id="@+id/in_first_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:hint="@string/hint_first_name"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/label_last_name"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp"/>
-                <EditText
-                    android:id="@+id/in_last_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:hint="@string/hint_last_name"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
                     android:text="@string/label_national_code"
                     android:textColor="@color/text_muted"
                     android:textSize="13sp"/>
@@ -97,35 +72,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="@string/label_phone"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp"/>
-                <EditText
-                    android:id="@+id/in_phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:maxLength="11"
-                    android:hint="@string/hint_phone"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/label_birth_date"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp"/>
-                <EditText
-                    android:id="@+id/in_birth_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/hint_birth_date"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
                     android:text="@string/label_password"
                     android:textColor="@color/text_muted"
                     android:textSize="13sp"/>
@@ -136,19 +82,84 @@
                     android:inputType="textPassword"
                     android:hint="@string/hint_password"/>
 
-                <TextView
+                <!-- فیلدهای مخصوص ثبت‌نام؛ در حالت ورود مخفی می‌شوند -->
+                <LinearLayout
+                    android:id="@+id/group_register_extra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/label_password_confirm"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp"/>
-                <EditText
-                    android:id="@+id/in_password_confirm"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:hint="@string/hint_password_confirm"/>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/label_first_name"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"/>
+                    <EditText
+                        android:id="@+id/in_first_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:hint="@string/hint_first_name"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/label_last_name"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"/>
+                    <EditText
+                        android:id="@+id/in_last_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:hint="@string/hint_last_name"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/label_phone"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"/>
+                    <EditText
+                        android:id="@+id/in_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone"
+                        android:maxLength="11"
+                        android:hint="@string/hint_phone"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/label_birth_date"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"/>
+                    <EditText
+                        android:id="@+id/in_birth_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:hint="@string/hint_birth_date"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/label_password_confirm"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"/>
+                    <EditText
+                        android:id="@+id/in_password_confirm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:hint="@string/hint_password_confirm"/>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txt_error"
@@ -158,11 +169,10 @@
                     android:textColor="#DC2626"
                     android:textSize="13sp"
                     android:visibility="gone"
-                    tools:text="خطا"
-                    xmlns:tools="http://schemas.android.com/tools"/>
+                    tools:text="خطا"/>
 
                 <Button
-                    android:id="@+id/btn_register"
+                    android:id="@+id/btn_submit"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_marginTop="16dp"
@@ -171,12 +181,23 @@
                     android:backgroundTint="@color/primary"
                     android:textSize="15sp"/>
 
+                <TextView
+                    android:id="@+id/btn_toggle_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="@string/link_already_registered"
+                    android:textColor="@color/primary"
+                    android:textSize="13sp"
+                    android:padding="6dp"/>
+
                 <ProgressBar
                     android:id="@+id/progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="4dp"
                     android:visibility="gone"/>
 
             </LinearLayout>

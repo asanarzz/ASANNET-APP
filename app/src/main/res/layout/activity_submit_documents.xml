@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/primary"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="8dp"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="@string/submit_documents_title"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/submit_documents_intro"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/btn_choose_file"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_ripple"
+                android:padding="18dp"
+                android:gravity="center"
+                android:text="@string/btn_choose_file"
+                android:textColor="@color/primary"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/txt_chosen_file"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/no_file_chosen"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/label_document_description"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"/>
+            <EditText
+                android:id="@+id/in_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/hint_document_description"/>
+
+            <TextView
+                android:id="@+id/txt_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#DC2626"
+                android:textSize="13sp"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn_send"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="18dp"
+                android:text="@string/btn_send_document"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary"
+                android:textSize="15sp"/>
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="14dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

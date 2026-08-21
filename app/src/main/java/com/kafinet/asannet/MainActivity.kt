@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity() {
             binding.swipeRefresh.isRefreshing = true
             loadContent()
         }
+        binding.btnSubmitDocs.setOnClickListener {
+            startActivity(Intent(this, SubmitDocumentsActivity::class.java))
+        }
 
         binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             currentTypeFilter = when (checkedIds.firstOrNull()) {
