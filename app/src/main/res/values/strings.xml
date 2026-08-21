@@ -9,7 +9,7 @@
       https://raw.githubusercontent.com/USERNAME/REPO/main/content.json
       بدون این آدرس، اپ فقط نسخه‌ی نمونه‌ی محلی داخل assets/content.json را نشان می‌دهد.
     -->
-    <string name="remote_content_url">https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/content.json</string>
+    <string name="remote_content_url"></string>
 
     <string name="filter_all">همه</string>
     <string name="filter_test">آزمون</string>
@@ -29,8 +29,8 @@
       بعد از ساخت پروژه در supabase.com این دو مقدار را پر کن.
       راهنمای کامل در README.md بخش «ثبت‌نام کاربران» موجود است.
     -->
-    <string name="supabase_url">https://ceqkbqcohkflvzlhylij.supabase.co</string>
-    <string name="supabase_anon_key">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlcWticWNvaGtmbHZ6bGh5bGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNjE5NTQsImV4cCI6MjEwMjczNzk1NH0.KS1I4ANp3UiGsd5yOeDVR426Km9_yEFimtzTn1iyaMs</string>
+    <string name="supabase_url"></string>
+    <string name="supabase_anon_key"></string>
 
     <string name="registration_intro">برای استفاده از برنامه، لطفاً ابتدا مشخصات خود را وارد کن</string>
     <string name="label_first_name">نام</string>
@@ -48,12 +48,28 @@
     <string name="label_password_confirm">تکرار رمز عبور</string>
     <string name="hint_password_confirm">رمز عبور را دوباره وارد کن</string>
     <string name="btn_register">ثبت‌نام و ورود به برنامه</string>
+    <string name="btn_login">ورود به برنامه</string>
+    <string name="link_already_registered">قبلاً ثبت‌نام کرده‌ام — ورود</string>
+    <string name="link_new_registration">ثبت‌نام کاربر جدید</string>
+    <string name="login_intro">کد ملی و رمز عبوری که قبلاً ثبت کردی را وارد کن</string>
 
     <string name="err_required_fields">لطفاً همه‌ی فیلدها را پر کن</string>
     <string name="err_invalid_national_code">کد ملی وارد شده معتبر نیست</string>
     <string name="err_invalid_phone">شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد</string>
     <string name="err_password_short">رمز عبور باید حداقل ۶ کاراکتر باشد</string>
     <string name="err_password_mismatch">رمز عبور و تکرار آن یکسان نیستند</string>
+    <string name="err_login_failed">کد ملی یا رمز عبور اشتباه است</string>
     <string name="err_network">خطا در برقراری ارتباط — اتصال اینترنت را بررسی کن و دوباره تلاش کن</string>
     <string name="error_backend_not_configured">تنظیمات سرور ثبت‌نام هنوز کامل نشده است</string>
+
+    <string name="btn_submit_documents">ارسال مدارک</string>
+    <string name="submit_documents_title">ارسال مدارک</string>
+    <string name="submit_documents_intro">فایل مدرک خود را انتخاب کن و برای مدیر ارسال کن</string>
+    <string name="label_document_description">توضیح (اختیاری)</string>
+    <string name="hint_document_description">مثلاً: کارت ملی</string>
+    <string name="btn_choose_file">انتخاب فایل</string>
+    <string name="btn_send_document">ارسال</string>
+    <string name="no_file_chosen">فایلی انتخاب نشده</string>
+    <string name="document_sent_success">مدرک با موفقیت ارسال شد ✔</string>
+    <string name="err_choose_file_first">اول یک فایل انتخاب کن</string>
 </resources>
