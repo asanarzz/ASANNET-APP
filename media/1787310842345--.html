@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فاکتور آنلاین آسان‌نت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --panel2:#f8f9fb;
+    --accent:#0e7c86; --accent-dark:#0a5b63; --gold:#b8860b;
+    --text:#1a2130; --muted:#6b7280; --border:#e3e6eb; --danger:#e11d48;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:'Vazirmatn', sans-serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:24px 14px 60px;
+  }
+  header{ text-align:center; margin-bottom:18px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:15.4px; letter-spacing:0.15em;
+    color:var(--accent); text-transform:uppercase; margin-bottom:8px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .eyebrow::before, .eyebrow::after{ content:''; width:24px; height:1px; background:var(--accent); opacity:0.5; }
+  h1{ font-size:30.8px; font-weight:900; }
+  .sub{ color:var(--muted); font-size:17.5px; margin-top:6px; }
+
+  .card{
+    width:100%; max-width:640px; background:var(--panel);
+    border:1px solid var(--border); border-radius:18px; padding:18px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.05); margin-bottom:16px;
+  }
+  .card-title{
+    font-size:16.1px; color:var(--muted); font-weight:700; margin-bottom:12px;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .field{ margin-bottom:10px; }
+  .field label{ font-size:16.1px; color:var(--muted); display:block; margin-bottom:5px; font-weight:600; }
+  input[type=text], input[type=number], input[type=date], select, textarea{
+    width:100%; background:var(--panel2); border:1px solid var(--border);
+    border-radius:10px; padding:10px 12px; color:var(--text);
+    font-family:'Vazirmatn', sans-serif; font-size:18.9px; outline:none;
+  }
+  input:focus, textarea:focus{ border-color:var(--accent); }
+  textarea{ min-height:60px; resize:vertical; line-height:1.7; }
+
+  /* ---- line items table ---- */
+  .item-card{
+    background:var(--panel2); border:1px solid var(--border); border-radius:12px;
+    padding:12px; margin-bottom:10px;
+  }
+  .item-card .f-desc{ width:100%; margin-bottom:8px; min-height:52px; }
+  .item-row{ display:flex; align-items:center; gap:8px; }
+  .item-row .f-qty{ width:70px; text-align:center; }
+  .item-row .f-price{ flex:1; }
+  .item-row .line-total{
+    font-family:'JetBrains Mono', monospace; font-size:17.5px; font-weight:700;
+    color:var(--accent-dark); white-space:nowrap; min-width:90px; text-align:left;
+  }
+  .del-row{
+    width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
+    background:#fff; color:var(--danger); cursor:pointer; font-size:15.4px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .item-row-labels{
+    display:flex; gap:8px; font-size:14px; color:var(--muted); margin-bottom:4px; font-weight:600;
+  }
+  .item-row-labels span:nth-child(1){ width:70px; text-align:center; }
+  .item-row-labels span:nth-child(2){ flex:1; }
+
+  button{
+    font-family:'Vazirmatn', sans-serif; font-weight:700; font-size:18.2px;
+    border-radius:11px; border:none; padding:11px 16px; cursor:pointer;
+    transition:all .2s;
+  }
+  .btn-add{
+    width:100%; background:var(--panel2); border:1px dashed var(--border);
+    color:var(--accent-dark); margin-top:4px;
+  }
+  .btn-add:hover{ border-color:var(--accent); }
+  .btn-primary{
+    width:100%; background:linear-gradient(90deg, var(--accent), var(--accent-dark)); color:#fff;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+
+  /* ---- totals ---- */
+  .totals{ margin-top:14px; border-top:1px solid var(--border); padding-top:12px; }
+  .totals-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:18.2px; padding:5px 0; color:var(--muted);
+  }
+  .totals-row.grand{
+    font-size:23.8px; font-weight:900; color:var(--text); border-top:1px solid var(--border);
+    margin-top:6px; padding-top:10px;
+  }
+  .totals-row .amt{ font-family:'JetBrains Mono', monospace; direction:ltr; }
+  .totals-row input[type=number]{ width:70px; text-align:center; padding:6px; font-size:17.5px; }
+
+  /* ---- invoice preview (also used for print) ---- */
+  #invoicePreview{
+    background-color:#fff;
+    background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22560%22%20height%3D%22360%22%3E%3Ctext%20x%3D%2220%22%20y%3D%22120%22%20transform%3D%22rotate%28-28%2020%20120%29%22%20font-family%3D%22Vazirmatn%2C%20sans-serif%22%20font-size%3D%2248%22%20font-weight%3D%22700%22%20fill%3D%22%2322c55e%22%20fill-opacity%3D%220.41%22%3E%40ASANNETT%3C/text%3E%3Ctext%20x%3D%22300%22%20y%3D%2290%22%20transform%3D%22rotate%28-28%20300%2090%29%22%20font-family%3D%22Vazirmatn%2C%20sans-serif%22%20font-size%3D%2248%22%20font-weight%3D%22700%22%20fill%3D%22%2322c55e%22%20fill-opacity%3D%220.41%22%3E%40ASANNETT%3C/text%3E%3Ctext%20x%3D%22160%22%20y%3D%22300%22%20transform%3D%22rotate%28-28%20160%20300%29%22%20font-family%3D%22Vazirmatn%2C%20sans-serif%22%20font-size%3D%2248%22%20font-weight%3D%22700%22%20fill%3D%22%2322c55e%22%20fill-opacity%3D%220.41%22%3E%40ASANNETT%3C/text%3E%3Ctext%20x%3D%22440%22%20y%3D%22270%22%20transform%3D%22rotate%28-28%20440%20270%29%22%20font-family%3D%22Vazirmatn%2C%20sans-serif%22%20font-size%3D%2248%22%20font-weight%3D%22700%22%20fill%3D%22%2322c55e%22%20fill-opacity%3D%220.41%22%3E%40ASANNETT%3C/text%3E%3C/svg%3E');
+    background-repeat:repeat;
+    background-size:560px 360px;
+    border:1px solid var(--border); border-radius:18px;
+    padding:28px; max-width:640px; width:100%; margin-bottom:16px;
+    position:relative;
+  }
+  .inv-header{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; }
+  .inv-brand{ display:flex; align-items:center; gap:12px; }
+  .inv-logo{
+    width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:30.8px;
+  }
+  .inv-brand-name{ font-weight:900; font-size:23.8px; }
+  .inv-brand-sub{ font-size:16.1px; color:var(--muted); margin-top:2px; }
+  .inv-meta{ text-align:left; font-size:16.8px; color:var(--muted); }
+  .inv-meta .inv-no{ font-weight:800; color:var(--text); font-size:21px; font-family:'JetBrains Mono', monospace; }
+  .inv-qr{ text-align:center; flex-shrink:0; }
+  .inv-qr img{ width:78px; height:78px; border-radius:8px; border:1px solid var(--border); display:block; }
+  .inv-qr div{ font-size:11.2px; color:var(--muted); margin-top:4px; max-width:90px; word-break:break-all; }
+
+  .inv-parties{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;
+    background:var(--panel2); border-radius:12px; padding:14px;
+  }
+  .inv-party-label{ font-size:14.7px; color:var(--muted); font-weight:700; margin-bottom:4px; }
+  .inv-party-value{ font-size:18.9px; font-weight:600; }
+
+  table.inv-items{ width:100%; border-collapse:collapse; margin-bottom:16px; }
+  table.inv-items th{
+    font-size:15.4px; color:#fff; background:var(--accent); font-weight:700;
+    padding:9px 8px; text-align:right;
+  }
+  table.inv-items th:first-child{ border-radius:8px 0 0 8px; }
+  table.inv-items th:last-child{ border-radius:0 8px 8px 0; text-align:left; }
+  table.inv-items td{
+    font-size:17.5px; padding:9px 8px; border-bottom:1px solid var(--border);
+  }
+  table.inv-items td:last-child{ text-align:left; font-family:'JetBrains Mono', monospace; font-weight:700; }
+  table.inv-items td.qty-cell, table.inv-items td.price-cell{ text-align:center; font-family:'JetBrains Mono', monospace; }
+
+  .inv-totals{ margin-right:auto; width:260px; }
+  .inv-totals .trow{
+    display:flex; justify-content:space-between; font-size:17.5px; color:var(--muted); padding:4px 0;
+  }
+  .inv-totals .trow .amt{ font-family:'JetBrains Mono', monospace; }
+  .inv-totals .trow.grand{
+    font-size:22.4px; font-weight:900; color:var(--text); border-top:2px solid var(--accent);
+    margin-top:6px; padding-top:8px;
+  }
+  .inv-notes{
+    margin-top:18px; font-size:16.8px; color:var(--muted); background:var(--panel2);
+    border-radius:10px; padding:12px; line-height:1.8;
+  }
+  .inv-footer{
+    margin-top:22px; text-align:center; font-size:15.4px; color:var(--muted);
+    border-top:1px dashed var(--border); padding-top:14px;
+  }
+
+  footer{ margin-top:4px; color:var(--muted); font-size:15.4px; text-align:center; }
+
+  @media print{
+    @page{ margin:10mm; }
+    html, body{
+      display:block !important; height:auto !important; min-height:0 !important;
+      padding:0 !important; margin:0 !important; background:#fff !important;
+    }
+    body *{ visibility:hidden; }
+    #invoicePreview, #invoicePreview *{ visibility:visible; }
+    #invoicePreview{
+      position:absolute; top:0; left:0;
+      width:100% !important; max-width:none !important;
+      margin:0 !important; padding:14px !important;
+      border:none !important; box-shadow:none !important;
+      -webkit-print-color-adjust:exact !important;
+      print-color-adjust:exact !important;
+    }
+    header, footer, .card{ display:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">آسان‌نت</div>
+  <a href="https://eitaa.com/asannett" target="_blank" rel="noopener" style="display:block; font-size:15px; font-weight:600; color:var(--accent); text-decoration:none; margin-bottom:8px; font-family:'JetBrains Mono', monospace;">eitaa.com/asannett</a>
+  <h1>فاکتور آنلاین</h1>
+  <div class="sub">پر کن، پیش‌نمایش بگیر، چاپ یا ذخیره به PDF کن</div>
+</header>
+
+<div class="card">
+  <div class="card-title">مشخصات فروشنده</div>
+  <div class="row2">
+    <div class="field"><label>نام فروشگاه</label><input type="text" id="sellerName" placeholder="نام فروشگاه"></div>
+    <div class="field"><label>شماره تماس</label><input type="text" id="sellerPhone" placeholder="مثلاً 0912xxxxxxx"></div>
+  </div>
+  <div class="field"><label>آدرس (اختیاری)</label><input type="text" id="sellerAddress" placeholder="آدرس فروشگاه"></div>
+  <div class="field"><label>شبکه‌های اجتماعی (اختیاری)</label><input type="text" id="sellerSocial" placeholder="مثلاً @asannett یا اینستاگرام/ایتا"></div>
+  <div class="field"><label>لینک برای QR کد (اختیاری)</label><input type="text" id="sellerLink" placeholder="مثلاً لینک اینستاگرام، ایتا یا سایت"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">مشخصات مشتری</div>
+  <div class="row2">
+    <div class="field"><label>نام مشتری</label><input type="text" id="buyerName" placeholder="نام مشتری"></div>
+    <div class="field"><label>شماره تماس (اختیاری)</label><input type="text" id="buyerPhone"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>شماره فاکتور</label><input type="text" id="invoiceNo" value="1"></div>
+    <div class="field">
+      <label>تاریخ (شمسی)</label>
+      <div style="display:flex; gap:6px;">
+        <select id="invDay" style="flex:1;"></select>
+        <select id="invMonth" style="flex:1.6;"></select>
+        <select id="invYear" style="flex:1.2;"></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">اقلام فاکتور</div>
+  <div class="item-row-labels">
+    <span>تعداد</span>
+    <span>قیمت واحد</span>
+    <span>جمع</span>
+  </div>
+  <div id="itemsBody"></div>
+  <button class="btn-add" id="addRowBtn">+ افزودن ردیف</button>
+
+  <div class="totals">
+    <div class="totals-row">
+      <span>جمع کل اقلام</span>
+      <span class="amt" id="sumDisplay">۰</span>
+    </div>
+    <div class="totals-row">
+      <span>تخفیف (٪)</span>
+      <input type="number" id="discountPct" value="0" min="0" max="100">
+    </div>
+    <div class="totals-row">
+      <span>مالیات / عوارض (٪)</span>
+      <input type="number" id="taxPct" value="0" min="0" max="100">
+    </div>
+    <div class="totals-row grand">
+      <span>مبلغ نهایی (تومان)</span>
+      <span class="amt" id="grandDisplay">۰</span>
+    </div>
+  </div>
+
+  <div class="field" style="margin-top:12px;">
+    <label>توضیحات / یادداشت (اختیاری)</label>
+    <textarea id="notes" placeholder="مثلاً شماره حساب، شرایط تسویه و..."></textarea>
+  </div>
+
+  <button class="btn-primary" id="previewBtn" style="margin-top:10px;">ساخت پیش‌نمایش فاکتور</button>
+</div>
+
+<div id="invoicePreview" style="display:none;"></div>
+
+<div class="card" id="printCard" style="display:none;">
+  <button class="btn-primary" id="printBtn">چاپ / ذخیره به PDF</button>
+  <button class="btn-add" id="downloadImgBtn" style="margin-top:8px;">دانلود به‌صورت عکس (PNG)</button>
+</div>
+
+<footer>برای ذخیره‌ی PDF، از دیالوگ چاپ گزینه‌ی «Save as PDF» رو انتخاب کن — یا فاکتور رو به‌صورت عکس دانلود کن</footer>
+
+<script>
+const itemsBody = document.getElementById('itemsBody');
+const addRowBtn = document.getElementById('addRowBtn');
+const sumDisplay = document.getElementById('sumDisplay');
+const grandDisplay = document.getElementById('grandDisplay');
+const discountPct = document.getElementById('discountPct');
+const taxPct = document.getElementById('taxPct');
+const previewBtn = document.getElementById('previewBtn');
+const invoicePreview = document.getElementById('invoicePreview');
+const printCard = document.getElementById('printCard');
+const printBtn = document.getElementById('printBtn');
+const downloadImgBtn = document.getElementById('downloadImgBtn');
+const invDay = document.getElementById('invDay');
+const invMonth = document.getElementById('invMonth');
+const invYear = document.getElementById('invYear');
+
+let rowCounter = 0;
+
+function toFaDigits(s){ return String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+function fmt(n){
+  const num = Number(n)||0;
+  return toFaDigits(Math.round(num).toLocaleString('en-US'));
+}
+
+// ---- Jalali date: used only to figure out today's default day/month/year
+// for the dropdowns; the user then picks freely from Jalali values only ----
+function toJalaliManual(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy;
+  if(gy <= 1600){ jy = 0; gy -= 621; } else { jy = 979; gy -= 1600; }
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365*gy) + Math.floor((gy2+3)/4) - Math.floor((gy2+99)/100) + Math.floor((gy2+399)/400) - 80 + gd + g_d_m[gm-1];
+  jy += 33*Math.floor(days/12053); days %= 12053;
+  jy += 4*Math.floor(days/1461); days %= 1461;
+  if(days > 365){ jy += Math.floor((days-1)/365); days = (days-1)%365; }
+  let jm, jd;
+  if(days < 186){ jm = 1+Math.floor(days/31); jd = 1+(days%31); }
+  else { jm = 7+Math.floor((days-186)/30); jd = 1+((days-186)%30); }
+  return [jy, jm, jd];
+}
+const JALALI_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+function todayJalaliYMD(){
+  const now = new Date();
+  try{
+    const f = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {day:'numeric', month:'numeric', year:'numeric'});
+    if(f.resolvedOptions().calendar === 'persian'){
+      const p = {}; f.formatToParts(now).forEach(x=>p[x.type]=x.value);
+      const toEn = s => Number(String(s).replace(/[۰-۹]/g, d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+      if(p.day && p.month && p.year) return [toEn(p.year), toEn(p.month), toEn(p.day)];
+    }
+  }catch(e){}
+  return toJalaliManual(now.getFullYear(), now.getMonth()+1, now.getDate());
+}
+
+// populate day/month/year dropdowns and default to today
+(function(){
+  const [ty, tm, td] = todayJalaliYMD();
+
+  for(let d=1; d<=31; d++){
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = toFaDigits(d);
+    if(d === td) opt.selected = true;
+    invDay.appendChild(opt);
+  }
+  JALALI_MONTHS.forEach((name, i)=>{
+    const opt = document.createElement('option');
+    opt.value = i+1; opt.textContent = name;
+    if(i+1 === tm) opt.selected = true;
+    invMonth.appendChild(opt);
+  });
+  for(let y=ty-1; y<=ty+2; y++){
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = toFaDigits(y);
+    if(y === ty) opt.selected = true;
+    invYear.appendChild(opt);
+  }
+})();
+
+function selectedJalaliString(){
+  const d = toFaDigits(invDay.value);
+  const m = JALALI_MONTHS[Number(invMonth.value)-1];
+  const y = toFaDigits(invYear.value);
+  return `${d} ${m} ${y}`;
+}
+
+function addRow(prefill){
+  const id = 'row_' + (rowCounter++);
+  const card = document.createElement('div');
+  card.className = 'item-card';
+  card.id = id;
+  card.innerHTML = `
+    <textarea class="f-desc" placeholder="شرح کالا یا خدمات..." rows="2"></textarea>
+    <div class="item-row">
+      <input type="number" class="f-qty" value="1" min="0">
+      <input type="number" class="f-price" value="0" min="0" placeholder="قیمت واحد">
+      <span class="line-total">۰</span>
+      <div class="del-row">✕</div>
+    </div>
+  `;
+  itemsBody.appendChild(card);
+
+  const qtyEl = card.querySelector('.f-qty');
+  const priceEl = card.querySelector('.f-price');
+  const totalEl = card.querySelector('.line-total');
+
+  function recalcRow(){
+    const t = (Number(qtyEl.value)||0) * (Number(priceEl.value)||0);
+    totalEl.textContent = fmt(t);
+    recalcAll();
+  }
+  qtyEl.addEventListener('input', recalcRow);
+  priceEl.addEventListener('input', recalcRow);
+  card.querySelector('.f-desc').addEventListener('input', recalcAll);
+  card.querySelector('.del-row').addEventListener('click', ()=>{ card.remove(); recalcAll(); });
+
+  recalcRow();
+}
+
+function getRows(){
+  return Array.from(itemsBody.querySelectorAll('.item-card')).map(card=>({
+    desc: card.querySelector('.f-desc').value.trim(),
+    qty: Number(card.querySelector('.f-qty').value)||0,
+    price: Number(card.querySelector('.f-price').value)||0
+  }));
+}
+
+function recalcAll(){
+  const rows = getRows();
+  const sum = rows.reduce((acc,r)=> acc + r.qty*r.price, 0);
+  const discount = sum * (Number(discountPct.value)||0) / 100;
+  const afterDiscount = sum - discount;
+  const tax = afterDiscount * (Number(taxPct.value)||0) / 100;
+  const grand = afterDiscount + tax;
+  sumDisplay.textContent = fmt(sum);
+  grandDisplay.textContent = fmt(grand);
+  return { sum, discount, tax, grand, rows };
+}
+
+discountPct.addEventListener('input', recalcAll);
+taxPct.addEventListener('input', recalcAll);
+addRowBtn.addEventListener('click', ()=> addRow());
+
+// start with 3 empty rows
+addRow(); addRow(); addRow();
+
+previewBtn.addEventListener('click', ()=>{
+  const seller = document.getElementById('sellerName').value.trim() || 'فروشگاه';
+  const sellerPhone = document.getElementById('sellerPhone').value.trim();
+  const sellerAddress = document.getElementById('sellerAddress').value.trim();
+  const sellerSocial = document.getElementById('sellerSocial').value.trim();
+  const sellerLink = document.getElementById('sellerLink').value.trim();
+  const buyerName = document.getElementById('buyerName').value.trim() || '—';
+  const buyerPhone = document.getElementById('buyerPhone').value.trim();
+  const invoiceNo = document.getElementById('invoiceNo').value.trim() || '1';
+  const notes = document.getElementById('notes').value.trim();
+
+  const { sum, discount, tax, grand, rows } = recalcAll();
+  const validRows = rows.filter(r => r.desc || r.qty || r.price);
+
+  const rowsHtml = validRows.map(r => `
+    <tr>
+      <td>${r.desc || '—'}</td>
+      <td class="qty-cell">${toFaDigits(r.qty)}</td>
+      <td class="price-cell">${fmt(r.price)}</td>
+      <td>${fmt(r.qty*r.price)}</td>
+    </tr>
+  `).join('');
+
+  invoicePreview.innerHTML = `
+    <div class="inv-header">
+      <div class="inv-brand">
+        <div class="inv-logo">${(seller.trim().charAt(0) || 'ف')}</div>
+        <div>
+          <div class="inv-brand-name">${seller}</div>
+          <div class="inv-brand-sub">${sellerPhone || ''}${sellerPhone && sellerAddress ? ' · ' : ''}${sellerAddress || ''}</div>
+          ${sellerSocial ? `<div class="inv-brand-sub" style="color:var(--accent-dark); font-weight:600;">${sellerSocial}</div>` : ''}
+        </div>
+      </div>
+      <div class="inv-meta">
+        <div class="inv-no">فاکتور #${toFaDigits(invoiceNo)}</div>
+        <div>${selectedJalaliString()}</div>
+      </div>
+      ${sellerLink ? `
+      <div class="inv-qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(sellerLink)}" alt="QR">
+        <div>${sellerLink}</div>
+      </div>` : ''}
+    </div>
+
+    <div class="inv-parties">
+      <div>
+        <div class="inv-party-label">فروشنده</div>
+        <div class="inv-party-value">${seller}</div>
+      </div>
+      <div>
+        <div class="inv-party-label">خریدار</div>
+        <div class="inv-party-value">${buyerName}</div>
+        ${buyerPhone ? `<div style="font-size:15.4px;color:var(--muted);margin-top:2px;">${buyerPhone}</div>` : ''}
+      </div>
+    </div>
+
+    <table class="inv-items">
+      <thead>
+        <tr><th>شرح</th><th style="text-align:center;">تعداد</th><th style="text-align:center;">قیمت واحد</th><th>جمع</th></tr>
+      </thead>
+      <tbody>${rowsHtml || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">آیتمی ثبت نشده</td></tr>'}</tbody>
+    </table>
+
+    <div class="inv-totals">
+      <div class="trow"><span>جمع اقلام</span><span class="amt">${fmt(sum)}</span></div>
+      ${discount > 0 ? `<div class="trow"><span>تخفیف (${toFaDigits(discountPct.value)}٪)</span><span class="amt">- ${fmt(discount)}</span></div>` : ''}
+      ${tax > 0 ? `<div class="trow"><span>مالیات (${toFaDigits(taxPct.value)}٪)</span><span class="amt">+ ${fmt(tax)}</span></div>` : ''}
+      <div class="trow grand"><span>مبلغ نهایی</span><span class="amt">${fmt(grand)} تومان</span></div>
+    </div>
+
+    ${notes ? `<div class="inv-notes">${notes}</div>` : ''}
+
+    <div class="inv-footer">صادر شده توسط ${seller}</div>
+  `;
+
+  invoicePreview.style.display = 'block';
+  printCard.style.display = 'block';
+  invoicePreview.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+printBtn.addEventListener('click', ()=> window.print());
+
+downloadImgBtn.addEventListener('click', ()=>{
+  const originalLabel = downloadImgBtn.textContent;
+  downloadImgBtn.textContent = 'در حال ساخت عکس...';
+  downloadImgBtn.disabled = true;
+
+  // render a wide, full-page clone off-screen so the exported PNG matches
+  // the full-width layout used for print/PDF, instead of the narrow mobile view
+  const clone = invoicePreview.cloneNode(true);
+  clone.style.position = 'fixed';
+  clone.style.top = '0';
+  clone.style.left = '-99999px';
+  clone.style.width = '900px';
+  clone.style.maxWidth = 'none';
+  clone.style.display = 'block';
+  document.body.appendChild(clone);
+
+  html2canvas(clone, { backgroundColor:'#ffffff', scale:2, useCORS:true, width:900, windowWidth:900 }).then(canvas=>{
+    const link = document.createElement('a');
+    const invNo = document.getElementById('invoiceNo').value.trim() || '1';
+    link.download = `فاکتور-${invNo}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(()=>{
+    alert('خطا در ساخت عکس. لطفاً دوباره تلاش کن.');
+  }).finally(()=>{
+    document.body.removeChild(clone);
+    downloadImgBtn.textContent = originalLabel;
+    downloadImgBtn.disabled = false;
+  });
+});
+</script>
+</body>
+</html>
