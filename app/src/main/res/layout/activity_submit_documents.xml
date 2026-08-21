@@ -54,57 +54,117 @@
                 android:textColor="@color/text_muted"
                 android:textSize="13sp"/>
 
+            <!-- اطلاعات متقاضی -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:text="@string/docs_applicant_info_title"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="@string/docs_note_label"
+                android:layout_marginTop="14dp"
+                android:text="@string/label_applicant_national_code"
                 android:textColor="@color/text_muted"
                 android:textSize="13sp"/>
 
             <EditText
-                android:id="@+id/edit_note"
+                android:id="@+id/edit_applicant_national_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:minLines="2"
-                android:gravity="top|start"
                 android:background="@drawable/input_bg"
                 android:padding="12dp"
-                android:hint="@string/docs_note_hint"
+                android:hint="@string/hint_applicant_national_code"
+                android:inputType="number"
+                android:maxLength="10"
                 android:textColor="@color/text_main"
                 android:textSize="14sp"/>
 
-            <LinearLayout
-                android:id="@+id/btn_pick_file"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="14dp"
+                android:text="@string/label_applicant_phone_number"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"/>
+
+            <EditText
+                android:id="@+id/edit_applicant_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/input_bg"
+                android:padding="12dp"
+                android:hint="@string/hint_applicant_phone_number"
+                android:inputType="phone"
+                android:maxLength="11"
+                android:textColor="@color/text_main"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/label_applicant_birth_date"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"/>
+
+            <LinearLayout
+                android:id="@+id/btn_pick_birth_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp"
-                android:background="@drawable/card_ripple"
+                android:padding="12dp"
+                android:background="@drawable/input_bg"
                 android:clickable="true"
                 android:focusable="true">
 
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@drawable/ic_file"
-                    app:tint="@color/primary"/>
-
                 <TextView
-                    android:id="@+id/txt_file_name"
+                    android:id="@+id/txt_birth_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:text="@string/docs_pick_file"
-                    android:textColor="@color/text_main"
-                    android:textSize="14sp"
-                    android:maxLines="1"
-                    android:ellipsize="middle"/>
+                    android:text="@string/hint_applicant_birth_date"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp"/>
             </LinearLayout>
+
+            <!-- مدارک -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:text="@string/docs_documents_title"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:id="@+id/documents_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <TextView
+                android:id="@+id/btn_add_document"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/docs_add_document"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"/>
 
             <Button
                 android:id="@+id/btn_submit"

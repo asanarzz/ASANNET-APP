@@ -62,13 +62,20 @@ object SupabaseClient {
     /**
      * یک فایل مدرک را در باکت «documents» آپلود می‌کند و سطر مربوطه را در جدول
      * document_submissions ثبت می‌کند. در صورت موفقیت کامل true برمی‌گرداند.
+     * applicantNationalCode/applicantPhoneNumber/applicantBirthDate اطلاعات متقاضی‌اند که
+     * برای هر مدرک تکرار می‌شوند و batchId مشترک برای گروه‌بندی مدارک یک ارسال
+     * در پنل مدیریت استفاده می‌شود.
      */
     suspend fun uploadDocument(
         context: Context,
         fileName: String,
         mimeType: String,
         bytes: ByteArray,
-        note: String
+        note: String,
+        applicantNationalCode: String,
+        applicantPhoneNumber: String,
+        applicantBirthDate: String,
+        batchId: String
     ): Boolean = withContext(Dispatchers.IO) {
         val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
         val anonKey = context.getString(R.string.supabase_anon_key)
@@ -113,6 +120,10 @@ object SupabaseClient {
             put("file_url", publicUrl)
             put("file_name", fileName)
             put("description", note)
+            put("applicant_national_code", applicantNationalCode)
+            put("applicant_phone_number", applicantPhoneNumber)
+            put("applicant_birth_date", applicantBirthDate)
+            put("batch_id", batchId)
         }
         insertConn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
         val insertCode = insertConn.responseCode
