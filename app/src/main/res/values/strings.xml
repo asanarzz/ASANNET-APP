@@ -33,7 +33,7 @@
     <string name="cat_docs">ارسال مدارک</string>
 
     <!-- صفحه‌ی ارسال مدارک -->
-    <string name="docs_intro">عکس یا فایل مدرک خود را انتخاب کن و برای ما ارسال کن.</string>
+    <string name="docs_intro">اطلاعات متقاضی را وارد کن، مدارک لازم را اضافه کن و برای ما ارسال کن.</string>
     <string name="docs_note_label">توضیح (اختیاری)</string>
     <string name="docs_note_hint">مثلاً: کارت ملی برای ثبت‌نام آزمون</string>
     <string name="docs_pick_file">انتخاب عکس یا فایل</string>
@@ -42,6 +42,27 @@
     <string name="docs_submit">ارسال مدرک</string>
     <string name="docs_success">مدرک با موفقیت ارسال شد</string>
     <string name="docs_error">ارسال مدرک ناموفق بود — دوباره تلاش کن</string>
+
+    <string name="docs_applicant_info_title">اطلاعات متقاضی</string>
+    <string name="label_applicant_national_code">کد ملی متقاضی</string>
+    <string name="hint_applicant_national_code">۱۰ رقم بدون خط تیره</string>
+    <string name="label_applicant_phone_number">شماره موبایل به نام متقاضی</string>
+    <string name="hint_applicant_phone_number">۰۹xxxxxxxxx</string>
+    <string name="label_applicant_birth_date">تاریخ تولد متقاضی</string>
+    <string name="hint_applicant_birth_date">برای انتخاب تاریخ تولد ضربه بزن</string>
+
+    <string name="docs_documents_title">مدارک</string>
+    <string name="docs_add_document">+ افزودن مدرک</string>
+    <string name="docs_remove_document">حذف</string>
+    <string name="docs_max_files">حداکثر ۱۰ مدرک قابل ارسال است</string>
+    <string name="docs_document_note_hint">توضیح این مدرک، مثلاً: کارت ملی</string>
+
+    <string name="err_applicant_fields_required">لطفاً اطلاعات متقاضی (کد ملی، شماره موبایل و تاریخ تولد) را کامل پر کن</string>
+    <string name="err_pick_at_least_one_document">حداقل یک مدرک انتخاب کن</string>
+
+    <string name="date_picker_title">انتخاب تاریخ تولد</string>
+    <string name="btn_confirm">تأیید</string>
+    <string name="btn_cancel">انصراف</string>
 
     <string name="empty_state">فعلاً محتوایی اضافه نشده است</string>
     <string name="loading">در حال بارگذاری…</string>
