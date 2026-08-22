@@ -31,7 +31,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/contact_title"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -56,7 +56,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/contact_phone_label"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <TextView
                 android:id="@+id/txt_phone_value"
@@ -65,7 +66,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/contact_placeholder"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="19sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
@@ -85,7 +86,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/contact_eitaa_label"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <TextView
                 android:id="@+id/txt_eitaa_value"
@@ -94,7 +96,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/contact_placeholder"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="19sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
@@ -114,7 +116,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/contact_email_label"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <TextView
                 android:id="@+id/txt_email_value"
@@ -123,7 +126,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/contact_placeholder"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="19sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 

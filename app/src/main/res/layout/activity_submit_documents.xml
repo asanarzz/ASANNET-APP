@@ -32,7 +32,7 @@
             android:layout_marginStart="10dp"
             android:text="@string/cat_docs"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -52,7 +52,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/docs_intro"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <!-- اطلاعات متقاضی -->
             <TextView
@@ -61,7 +62,7 @@
                 android:layout_marginTop="22dp"
                 android:text="@string/docs_applicant_info_title"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="19sp"
                 android:textStyle="bold"/>
 
             <TextView
@@ -70,7 +71,8 @@
                 android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_first_name"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <EditText
                 android:id="@+id/edit_applicant_first_name"
@@ -81,7 +83,8 @@
                 android:padding="12dp"
                 android:hint="@string/hint_applicant_first_name"
                 android:textColor="@color/text_main"
-                android:textSize="14sp"/>
+                android:textStyle="bold"
+                android:textSize="18sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -89,7 +92,8 @@
                 android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_last_name"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <EditText
                 android:id="@+id/edit_applicant_last_name"
@@ -100,7 +104,8 @@
                 android:padding="12dp"
                 android:hint="@string/hint_applicant_last_name"
                 android:textColor="@color/text_main"
-                android:textSize="14sp"/>
+                android:textStyle="bold"
+                android:textSize="18sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -108,7 +113,8 @@
                 android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_national_code"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <EditText
                 android:id="@+id/edit_applicant_national_code"
@@ -121,7 +127,8 @@
                 android:inputType="number"
                 android:maxLength="10"
                 android:textColor="@color/text_main"
-                android:textSize="14sp"/>
+                android:textStyle="bold"
+                android:textSize="18sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -129,7 +136,8 @@
                 android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_phone_number"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <EditText
                 android:id="@+id/edit_applicant_phone"
@@ -142,7 +150,8 @@
                 android:inputType="phone"
                 android:maxLength="11"
                 android:textColor="@color/text_main"
-                android:textSize="14sp"/>
+                android:textStyle="bold"
+                android:textSize="18sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -150,7 +159,8 @@
                 android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_birth_date"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"/>
+                android:textStyle="bold"
+                android:textSize="17sp"/>
 
             <LinearLayout
                 android:id="@+id/btn_pick_birth_date"
@@ -171,7 +181,8 @@
                     android:layout_weight="1"
                     android:text="@string/hint_applicant_birth_date"
                     android:textColor="@color/text_muted"
-                    android:textSize="14sp"/>
+                    android:textStyle="bold"
+                    android:textSize="18sp"/>
             </LinearLayout>
 
             <!-- مدارک -->
@@ -181,7 +192,7 @@
                 android:layout_marginTop="26dp"
                 android:text="@string/docs_documents_title"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="19sp"
                 android:textStyle="bold"/>
 
             <LinearLayout
@@ -198,7 +209,7 @@
                 android:text="@string/docs_add_document"
                 android:textColor="@color/primary"
                 android:textStyle="bold"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
