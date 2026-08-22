@@ -68,6 +68,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
+                android:text="@string/label_applicant_first_name"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"/>
+
+            <EditText
+                android:id="@+id/edit_applicant_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/input_bg"
+                android:padding="12dp"
+                android:hint="@string/hint_applicant_first_name"
+                android:textColor="@color/text_main"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/label_applicant_last_name"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"/>
+
+            <EditText
+                android:id="@+id/edit_applicant_last_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/input_bg"
+                android:padding="12dp"
+                android:hint="@string/hint_applicant_last_name"
+                android:textColor="@color/text_main"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
                 android:text="@string/label_applicant_national_code"
                 android:textColor="@color/text_muted"
                 android:textSize="13sp"/>

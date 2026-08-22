@@ -45,6 +45,10 @@
     <string name="docs_error">ارسال مدرک ناموفق بود — دوباره تلاش کن</string>
 
     <string name="docs_applicant_info_title">اطلاعات متقاضی</string>
+    <string name="label_applicant_first_name">نام متقاضی</string>
+    <string name="hint_applicant_first_name">مثلاً: علی</string>
+    <string name="label_applicant_last_name">نام خانوادگی متقاضی</string>
+    <string name="hint_applicant_last_name">مثلاً: محمدی</string>
     <string name="label_applicant_national_code">کد ملی متقاضی</string>
     <string name="hint_applicant_national_code">۱۰ رقم بدون خط تیره</string>
     <string name="label_applicant_phone_number">شماره موبایل به نام متقاضی</string>
@@ -58,7 +62,7 @@
     <string name="docs_max_files">حداکثر ۱۰ مدرک قابل ارسال است</string>
     <string name="docs_document_note_hint">توضیح این مدرک، مثلاً: کارت ملی</string>
 
-    <string name="err_applicant_fields_required">لطفاً اطلاعات متقاضی (کد ملی، شماره موبایل و تاریخ تولد) را کامل پر کن</string>
+    <string name="err_applicant_fields_required">لطفاً اطلاعات متقاضی (نام، نام خانوادگی، کد ملی، شماره موبایل و تاریخ تولد) را کامل پر کن</string>
     <string name="err_pick_at_least_one_document">حداقل یک مدرک انتخاب کن</string>
 
     <string name="date_picker_title">انتخاب تاریخ تولد</string>
