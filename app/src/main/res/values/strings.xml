@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">کافی‌نت آسان‌نت</string>
     <string name="app_subtitle">آزمون‌های غربالگری و استعدادیابی دانش‌آموزان</string>
+    <string name="app_version_label">نسخه %1$s</string>
 
     <!--
       لینک خام (raw) فایل content.json که با پنل مدیریت (admin/index.html) ویرایش می‌شود.

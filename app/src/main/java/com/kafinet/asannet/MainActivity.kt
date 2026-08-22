@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.txtAppVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
+
         binding.btnLogout.setOnClickListener {
             SessionManager.logout(this)
             val intent = Intent(this, RegistrationActivity::class.java)
