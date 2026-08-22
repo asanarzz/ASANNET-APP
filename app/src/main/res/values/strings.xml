@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">کافی‌نت آسان‌نت</string>
+    <string name="app_name">آسان نت</string>
     <string name="app_subtitle">آزمون‌های غربالگری و استعدادیابی دانش‌آموزان</string>
     <string name="app_version_label">نسخه %1$s</string>
 
@@ -10,7 +10,8 @@
     <string name="menu_share_apk">اشتراک‌گذاری فایل نصب برنامه</string>
     <string name="menu_contact">راه‌های ارتباطی</string>
     <string name="menu_logout">خروج از حساب</string>
-    <string name="drawer_national_code_label">کد ملی: %1$s</string>
+    <string name="drawer_username_label">%1$s</string>
+    <string name="drawer_username_fallback">کاربر آسان‌نت</string>
     <string name="share_apk_chooser_title">ارسال فایل نصب برنامه</string>
     <string name="share_apk_error">اشتراک‌گذاری فایل نصب ناموفق بود</string>
 
@@ -24,7 +25,7 @@
 
     <!-- صفحه‌ی درباره -->
     <string name="about_title">درباره آسان‌نت</string>
-    <string name="about_body">کافی‌نت آسان‌نت محلی برای دسترسی سریع به آزمون‌های غربالگری و استعدادیابی، لینک‌ها، فایل‌ها، عکس‌ها، ویدیوها و سایر محتوای آموزشی است که مستقیم از طریق همین برنامه در دسترس قرار می‌گیرد.</string>
+    <string name="about_body">🔥 از هیچ ثبت‌نامی جا نمون! 🔥\n\n😔 تا حالا شده بعد از تموم شدن مهلت ثبت‌نام، تازه باخبر بشی؟\n\n😎 دیگه نگران نباش!\n\nفقط کافیه عضو کانال ما بشی تا زودتر از همه مطلع بشی 👇\n\n💰 ثبت‌نام وام‌ها و تسهیلات\n🚗 ثبت‌نام خودرو\n🛒 کالابرگ الکترونیکی\n💳 یارانه و سهام عدالت\n🏫 ثبت‌نام مدارس و دانشگاه‌ها\n👨‍💼 آگهی‌های استخدامی\n🏠 طرح‌های حمایتی و مسکن\n📢 اخبار فوری و مهم ثبت‌نام‌ها\n\n⚡ سریع‌ترین اطلاع‌رسانی\n✅ بدون شایعه و اخبار کذب\n⏰ قبل از اتمام مهلت ثبت‌نام‌ها باخبر شو.</string>
     <string name="about_version_row">نسخه‌ی نصب‌شده</string>
 
     <!-- صفحه‌ی راه‌های ارتباطی -->

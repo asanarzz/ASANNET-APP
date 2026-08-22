@@ -180,4 +180,48 @@ object SupabaseClient {
 
         PasswordHasher.verify(password, storedHash)
     }
+
+    /**
+     * نام و نام‌خانوادگی کاربر را برای نمایش در برنامه برمی‌گرداند (بدون افشای رمز عبور هش‌شده).
+     * از تابع RPC امن get_user_name در Supabase استفاده می‌کند.
+     */
+    suspend fun fetchUserName(context: Context, nationalCode: String): Pair<String, String>? = withContext(Dispatchers.IO) {
+        val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+        val anonKey = context.getString(R.string.supabase_anon_key)
+
+        if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext null
+
+        try {
+            val url = URL("$baseUrl/rest/v1/rpc/get_user_name")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
+            connection.setRequestProperty("apikey", anonKey)
+            connection.setRequestProperty("Authorization", "Bearer $anonKey")
+            connection.setRequestProperty("Content-Type", "application/json")
+
+            val body = JSONObject().apply {
+                put("p_national_code", nationalCode)
+            }
+            connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+
+            val responseCode = connection.responseCode
+            val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            connection.disconnect()
+
+            if (responseCode !in 200..299) return@withContext null
+
+            val arr = org.json.JSONArray(text)
+            if (arr.length() == 0) return@withContext null
+            val row = arr.getJSONObject(0)
+            val first = row.optString("first_name", "")
+            val last = row.optString("last_name", "")
+            if (first.isBlank() && last.isBlank()) null else Pair(first, last)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

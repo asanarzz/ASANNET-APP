@@ -11,25 +11,12 @@ android {
         applicationId "com.kafinet.asannet"
         minSdk 26
         targetSdk 34
-        versionCode 7
-        versionName "1.5.1"
-    }
-
-    signingConfigs {
-        debug {
-            storeFile file("kafinet-release.keystore")
-            storePassword "kafinet1404"
-            keyAlias "kafinet"
-            keyPassword "kafinet1404"
-        }
+        versionCode 6
+        versionName "1.5"
     }
 
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-        }
         release {
-            signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

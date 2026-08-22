@@ -69,6 +69,10 @@ class RegistrationActivity : AppCompatActivity() {
                 val success = SupabaseClient.loginUser(this@RegistrationActivity, nationalCode, password)
                 if (success) {
                     SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
+                    val name = SupabaseClient.fetchUserName(this@RegistrationActivity, nationalCode)
+                    if (name != null) {
+                        SessionManager.saveUserName(this@RegistrationActivity, name.first, name.second)
+                    }
                     goToMain()
                 } else {
                     showError(getString(R.string.err_invalid_login))
@@ -124,6 +128,7 @@ class RegistrationActivity : AppCompatActivity() {
                 )
                 if (success) {
                     SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
+                    SessionManager.saveUserName(this@RegistrationActivity, firstName, lastName)
                     goToMain()
                 } else {
                     showError(getString(R.string.err_network))
