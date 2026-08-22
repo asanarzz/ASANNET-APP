@@ -2,9 +2,17 @@ package com.kafinet.asannet
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.core.view.GravityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.kafinet.asannet.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,13 +51,62 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.txtAppVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
+        binding.txtDrawerNationalCode.text = getString(
+            R.string.drawer_national_code_label,
+            SessionManager.getNationalCode(this) ?: "—"
+        )
 
-        binding.btnLogout.setOnClickListener {
+        binding.btnMenu.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        binding.navItemSettings.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.navItemAbout.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
+        binding.navItemContact.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            startActivity(Intent(this, ContactActivity::class.java))
+        }
+        binding.navItemShareApk.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            shareApk()
+        }
+        binding.navItemLogout.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
             SessionManager.logout(this)
             val intent = Intent(this, RegistrationActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
+        }
+    }
+
+    /** فایل نصب (APK) فعلی برنامه را در حافظه‌ی موقت کپی و از طریق FileProvider به اشتراک می‌گذارد. */
+    private fun shareApk() {
+        lifecycleScope.launch {
+            try {
+                val destUri = withContext(Dispatchers.IO) {
+                    val src = File(applicationInfo.sourceDir)
+                    val destDir = File(cacheDir, "share")
+                    destDir.mkdirs()
+                    val dest = File(destDir, "AsanNet.apk")
+                    src.copyTo(dest, overwrite = true)
+                    FileProvider.getUriForFile(this@MainActivity, "$packageName.fileprovider", dest)
+                }
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/vnd.android.package-archive"
+                    putExtra(Intent.EXTRA_STREAM, destUri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, getString(R.string.share_apk_chooser_title)))
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, R.string.share_apk_error, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
