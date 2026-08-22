@@ -123,10 +123,13 @@ class SubmitDocumentsActivity : AppCompatActivity() {
     }
 
     private fun submit() {
+        val applicantFirstName = binding.editApplicantFirstName.text?.toString()?.trim().orEmpty()
+        val applicantLastName = binding.editApplicantLastName.text?.toString()?.trim().orEmpty()
         val applicantNationalCode = binding.editApplicantNationalCode.text?.toString()?.trim().orEmpty()
         val applicantPhoneNumber = binding.editApplicantPhone.text?.toString()?.trim().orEmpty()
 
-        if (applicantNationalCode.isBlank() || applicantPhoneNumber.isBlank() || birthDateText.isBlank()) {
+        if (applicantFirstName.isBlank() || applicantLastName.isBlank() ||
+            applicantNationalCode.isBlank() || applicantPhoneNumber.isBlank() || birthDateText.isBlank()) {
             Toast.makeText(this, R.string.err_applicant_fields_required, Toast.LENGTH_SHORT).show()
             return
         }
@@ -168,6 +171,8 @@ class SubmitDocumentsActivity : AppCompatActivity() {
                         mimeType = slot.mime,
                         bytes = bytes,
                         note = note,
+                        applicantFirstName = applicantFirstName,
+                        applicantLastName = applicantLastName,
                         applicantNationalCode = applicantNationalCode,
                         applicantPhoneNumber = applicantPhoneNumber,
                         applicantBirthDate = birthDateText,

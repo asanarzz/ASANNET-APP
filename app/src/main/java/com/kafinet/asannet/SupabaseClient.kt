@@ -62,7 +62,7 @@ object SupabaseClient {
     /**
      * یک فایل مدرک را در باکت «documents» آپلود می‌کند و سطر مربوطه را در جدول
      * document_submissions ثبت می‌کند. در صورت موفقیت کامل true برمی‌گرداند.
-     * applicantNationalCode/applicantPhoneNumber/applicantBirthDate اطلاعات متقاضی‌اند که
+     * applicantFirstName/applicantLastName/applicantNationalCode/applicantPhoneNumber/applicantBirthDate اطلاعات متقاضی‌اند که
      * برای هر مدرک تکرار می‌شوند و batchId مشترک برای گروه‌بندی مدارک یک ارسال
      * در پنل مدیریت استفاده می‌شود.
      */
@@ -72,6 +72,8 @@ object SupabaseClient {
         mimeType: String,
         bytes: ByteArray,
         note: String,
+        applicantFirstName: String,
+        applicantLastName: String,
         applicantNationalCode: String,
         applicantPhoneNumber: String,
         applicantBirthDate: String,
@@ -120,6 +122,8 @@ object SupabaseClient {
             put("file_url", publicUrl)
             put("file_name", fileName)
             put("description", note)
+            put("applicant_first_name", applicantFirstName)
+            put("applicant_last_name", applicantLastName)
             put("applicant_national_code", applicantNationalCode)
             put("applicant_phone_number", applicantPhoneNumber)
             put("applicant_birth_date", applicantBirthDate)
