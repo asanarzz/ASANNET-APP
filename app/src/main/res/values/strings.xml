@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">آسان نت</string>
-    <string name="app_subtitle">آزمون‌های غربالگری و استعدادیابی دانش‌آموزان</string>
+    <string name="app_subtitle">با آسان نت همه چی آسان میشه</string>
     <string name="app_version_label">نسخه %1$s</string>
 
     <!-- منوی کشویی -->

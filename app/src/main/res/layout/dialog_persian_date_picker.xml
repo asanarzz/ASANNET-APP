@@ -12,7 +12,7 @@
         android:layout_gravity="center"
         android:text="@string/date_picker_title"
         android:textColor="@color/text_main"
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textStyle="bold"/>
 
     <LinearLayout
@@ -54,10 +54,11 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_cancel"
             android:textColor="@color/text_muted"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:padding="10dp"
             android:clickable="true"
             android:focusable="true"
+            android:textStyle="bold"
             android:background="?attr/selectableItemBackground"/>
 
         <TextView
@@ -67,7 +68,7 @@
             android:layout_marginStart="12dp"
             android:text="@string/btn_confirm"
             android:textColor="@color/primary"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:padding="10dp"
             android:clickable="true"

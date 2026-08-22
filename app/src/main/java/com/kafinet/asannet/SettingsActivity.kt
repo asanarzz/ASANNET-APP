@@ -22,7 +22,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         binding.txtSettingsVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
-        binding.txtSettingsNationalCode.text = SessionManager.getNationalCode(this) ?: "—"
 
         binding.btnClearCache.setOnClickListener {
             Glide.get(this).clearMemory()

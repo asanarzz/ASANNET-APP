@@ -38,7 +38,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="10dp"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -71,9 +71,10 @@
                 android:hint="@string/search_hint"
                 android:textColorHint="#CCCCFF"
                 android:textColor="@color/white"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
+                android:textStyle="bold"
                 android:inputType="text"/>
         </LinearLayout>
     </LinearLayout>
@@ -120,7 +121,8 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/empty_state"
                 android:textColor="@color/text_muted"
-                android:textSize="14sp"/>
+                android:textStyle="bold"
+                android:textSize="18sp"/>
         </LinearLayout>
 
     </FrameLayout>
