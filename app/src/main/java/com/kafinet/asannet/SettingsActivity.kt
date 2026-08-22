@@ -23,6 +23,12 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.txtSettingsVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
 
+        binding.switchDarkMode.isChecked = ThemeManager.isDarkMode(this)
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            ThemeManager.setDarkMode(this, isChecked)
+            recreate()
+        }
+
         binding.btnClearCache.setOnClickListener {
             Glide.get(this).clearMemory()
             lifecycleScope.launch {
