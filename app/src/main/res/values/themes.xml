@@ -9,8 +9,8 @@
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:fontFamily">@font/darya</item>
-        <item name="fontFamily">@font/darya</item>
+        <item name="android:fontFamily">@font/yekan_boom</item>
+        <item name="fontFamily">@font/yekan_boom</item>
     </style>
 
     <style name="Theme.Kafinet.Fullscreen" parent="Theme.Kafinet">
