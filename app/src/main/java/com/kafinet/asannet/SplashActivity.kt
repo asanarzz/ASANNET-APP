@@ -37,7 +37,8 @@ class SplashActivity : AppCompatActivity() {
         }
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, RegistrationActivity::class.java))
+            val next = if (SessionManager.isRegistered(this)) MainActivity::class.java else RegistrationActivity::class.java
+            startActivity(Intent(this, next))
             finish()
         }, 3000)
     }
