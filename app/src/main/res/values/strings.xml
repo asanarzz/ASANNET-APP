@@ -4,6 +4,36 @@
     <string name="app_subtitle">آزمون‌های غربالگری و استعدادیابی دانش‌آموزان</string>
     <string name="app_version_label">نسخه %1$s</string>
 
+    <!-- منوی کشویی -->
+    <string name="menu_settings">تنظیمات</string>
+    <string name="menu_about">درباره آسان‌نت</string>
+    <string name="menu_share_apk">اشتراک‌گذاری فایل نصب برنامه</string>
+    <string name="menu_contact">راه‌های ارتباطی</string>
+    <string name="menu_logout">خروج از حساب</string>
+    <string name="drawer_national_code_label">کد ملی: %1$s</string>
+    <string name="share_apk_chooser_title">ارسال فایل نصب برنامه</string>
+    <string name="share_apk_error">اشتراک‌گذاری فایل نصب ناموفق بود</string>
+
+    <!-- صفحه‌ی تنظیمات -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="settings_version_row">نسخه‌ی برنامه</string>
+    <string name="settings_clear_cache_title">پاک‌کردن حافظه‌ی موقت تصاویر</string>
+    <string name="settings_clear_cache_sub">فضای اشغال‌شده توسط تصاویر ذخیره‌شده را آزاد می‌کند</string>
+    <string name="settings_clear_cache_done">حافظه‌ی موقت پاک شد</string>
+    <string name="settings_account_row">کد ملی حساب فعلی</string>
+
+    <!-- صفحه‌ی درباره -->
+    <string name="about_title">درباره آسان‌نت</string>
+    <string name="about_body">کافی‌نت آسان‌نت محلی برای دسترسی سریع به آزمون‌های غربالگری و استعدادیابی، لینک‌ها، فایل‌ها، عکس‌ها، ویدیوها و سایر محتوای آموزشی است که مستقیم از طریق همین برنامه در دسترس قرار می‌گیرد.</string>
+    <string name="about_version_row">نسخه‌ی نصب‌شده</string>
+
+    <!-- صفحه‌ی راه‌های ارتباطی -->
+    <string name="contact_title">راه‌های ارتباطی</string>
+    <string name="contact_phone_label">تماس تلفنی</string>
+    <string name="contact_eitaa_label">ایتا</string>
+    <string name="contact_email_label">ایمیل</string>
+    <string name="contact_placeholder">هنوز تنظیم نشده</string>
+
     <!--
       لینک خام (raw) فایل content.json که با پنل مدیریت (admin/index.html) ویرایش می‌شود.
       حتماً بعد از ساخت ریپازیتوری این مقدار را با آدرس واقعی خودت پر کن، مثلاً:

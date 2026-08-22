@@ -14,14 +14,14 @@
 
     <FrameLayout
         android:id="@+id/icon_bg"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="67dp"
+        android:layout_height="67dp"
         android:background="@drawable/icon_circle_test">
 
         <ImageView
             android:id="@+id/img_icon"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="31dp"
+            android:layout_height="31dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_test"
             android:contentDescription="@null"/>
@@ -32,7 +32,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textSize="12sp"
+        android:textSize="14sp"
+        android:textStyle="bold"
         android:textColor="@color/text_main"
         android:maxLines="1"
         android:ellipsize="end"
