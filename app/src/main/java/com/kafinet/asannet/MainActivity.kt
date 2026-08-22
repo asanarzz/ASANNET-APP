@@ -51,10 +51,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.txtAppVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
-        binding.txtDrawerNationalCode.text = getString(
-            R.string.drawer_national_code_label,
-            SessionManager.getNationalCode(this) ?: "—"
-        )
+        binding.txtDrawerNationalCode.text =
+            SessionManager.getFullName(this) ?: getString(R.string.drawer_username_fallback)
 
         binding.btnMenu.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
