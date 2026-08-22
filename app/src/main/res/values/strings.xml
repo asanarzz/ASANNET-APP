@@ -10,7 +10,6 @@
     <string name="menu_share_apk">اشتراک‌گذاری فایل نصب برنامه</string>
     <string name="menu_contact">راه‌های ارتباطی</string>
     <string name="menu_logout">خروج از حساب</string>
-    <string name="drawer_username_label">%1$s</string>
     <string name="drawer_username_fallback">کاربر آسان‌نت</string>
     <string name="share_apk_chooser_title">ارسال فایل نصب برنامه</string>
     <string name="share_apk_error">اشتراک‌گذاری فایل نصب ناموفق بود</string>
@@ -21,12 +20,13 @@
     <string name="settings_clear_cache_title">پاک‌کردن حافظه‌ی موقت تصاویر</string>
     <string name="settings_clear_cache_sub">فضای اشغال‌شده توسط تصاویر ذخیره‌شده را آزاد می‌کند</string>
     <string name="settings_clear_cache_done">حافظه‌ی موقت پاک شد</string>
-    <string name="settings_account_row">کد ملی حساب فعلی</string>
+    <string name="settings_appearance_row">نمایش ظاهر برنامه</string>
+    <string name="settings_dark_mode">حالت تاریک</string>
+    <string name="settings_dark_mode_sub">ظاهر برنامه را برای دیدن راحت‌تر در محیط تاریک تغییر بده</string>
 
     <!-- صفحه‌ی درباره -->
     <string name="about_title">درباره آسان‌نت</string>
     <string name="about_body">🔥 از هیچ ثبت‌نامی جا نمون! 🔥\n\n😔 تا حالا شده بعد از تموم شدن مهلت ثبت‌نام، تازه باخبر بشی؟\n\n😎 دیگه نگران نباش!\n\nفقط کافیه عضو کانال ما بشی تا زودتر از همه مطلع بشی 👇\n\n💰 ثبت‌نام وام‌ها و تسهیلات\n🚗 ثبت‌نام خودرو\n🛒 کالابرگ الکترونیکی\n💳 یارانه و سهام عدالت\n🏫 ثبت‌نام مدارس و دانشگاه‌ها\n👨‍💼 آگهی‌های استخدامی\n🏠 طرح‌های حمایتی و مسکن\n📢 اخبار فوری و مهم ثبت‌نام‌ها\n\n⚡ سریع‌ترین اطلاع‌رسانی\n✅ بدون شایعه و اخبار کذب\n⏰ قبل از اتمام مهلت ثبت‌نام‌ها باخبر شو.</string>
-    <string name="about_version_row">نسخه‌ی نصب‌شده</string>
 
     <!-- صفحه‌ی راه‌های ارتباطی -->
     <string name="contact_title">راه‌های ارتباطی</string>
@@ -42,13 +42,6 @@
       بدون این آدرس، اپ فقط نسخه‌ی نمونه‌ی محلی داخل assets/content.json را نشان می‌دهد.
     -->
     <string name="remote_content_url">https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/content.json</string>
-
-    <string name="filter_all">همه</string>
-    <string name="filter_test">آزمون</string>
-    <string name="filter_link">لینک</string>
-    <string name="filter_image">عکس</string>
-    <string name="filter_video">ویدیو</string>
-    <string name="filter_file">فایل</string>
 
     <!-- برچسب دسته‌های صفحه‌ی اصلی (گرید) -->
     <string name="cat_image">عکس</string>
@@ -66,10 +59,7 @@
 
     <!-- صفحه‌ی ارسال مدارک -->
     <string name="docs_intro">اطلاعات متقاضی را وارد کن، مدارک لازم را اضافه کن و برای ما ارسال کن.</string>
-    <string name="docs_note_label">توضیح (اختیاری)</string>
-    <string name="docs_note_hint">مثلاً: کارت ملی برای ثبت‌نام آزمون</string>
     <string name="docs_pick_file">انتخاب عکس یا فایل</string>
-    <string name="docs_pick_file_first">اول یک فایل انتخاب کن</string>
     <string name="docs_uploading">در حال ارسال…</string>
     <string name="docs_submit">ارسال مدرک</string>
     <string name="docs_success">مدرک با موفقیت ارسال شد</string>
@@ -89,7 +79,6 @@
 
     <string name="docs_documents_title">مدارک</string>
     <string name="docs_add_document">+ افزودن مدرک</string>
-    <string name="docs_remove_document">حذف</string>
     <string name="docs_max_files">حداکثر ۱۰ مدرک قابل ارسال است</string>
     <string name="docs_document_note_hint">توضیح این مدرک، مثلاً: کارت ملی</string>
 
@@ -101,7 +90,6 @@
     <string name="btn_cancel">انصراف</string>
 
     <string name="empty_state">فعلاً محتوایی اضافه نشده است</string>
-    <string name="loading">در حال بارگذاری…</string>
     <string name="error_loading">خطا در دریافت محتوا — نسخه‌ی ذخیره‌شده نمایش داده شد</string>
     <string name="open_in_browser">باز کردن در مرورگر</string>
     <string name="search_hint">جستجو…</string>
@@ -134,7 +122,6 @@
     <string name="toggle_to_login">قبلاً ثبت‌نام کرده‌ای؟ ورود</string>
     <string name="toggle_to_register">حساب نداری؟ ثبت‌نام</string>
     <string name="err_invalid_login">کد ملی یا رمز عبور اشتباه است</string>
-    <string name="btn_logout">خروج</string>
 
     <string name="err_required_fields">لطفاً همه‌ی فیلدها را پر کن</string>
     <string name="err_invalid_national_code">کد ملی وارد شده معتبر نیست</string>

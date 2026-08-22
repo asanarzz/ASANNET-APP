@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- رنگ‌های برند بدون تغییر می‌مانند؛ فقط پس‌زمینه و متن برای حالت تاریک عوض می‌شوند -->
+    <color name="primary">#4F46E5</color>
+    <color name="primary_dark">#3730A3</color>
+    <color name="primary_light">#818CF8</color>
+    <color name="accent">#06B6D4</color>
+
+    <color name="bg">#121017</color>
+    <color name="surface">#1E1B29</color>
+    <color name="text_main">#F4F5FB</color>
+    <color name="text_muted">#9CA3AF</color>
+
+    <color name="type_test">#7C3AED</color>
+    <color name="type_link">#2563EB</color>
+    <color name="type_image">#059669</color>
+    <color name="type_video">#DC2626</color>
+    <color name="type_file">#D97706</color>
+    <color name="type_banner">#DB2777</color>
+    <color name="type_poll">#0891B2</color>
+    <color name="type_software">#4338CA</color>
+    <color name="type_music">#EA580C</color>
+    <color name="type_radio">#65A30D</color>
+    <color name="type_fun">#F59E0B</color>
+    <color name="type_docs">#0D9488</color>
+
+    <color name="danger">#F87171</color>
+    <color name="splash_bg">#2EE4B4</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
