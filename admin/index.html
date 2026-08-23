@@ -230,6 +230,10 @@
         <div class="source-tab" data-src="upload">آپلود فایل از گوشی/کامپیوتر</div>
       </div>
 
+      <div class="muted" id="banner-size-hint" style="margin-top:6px; display:none;">
+        اندازه‌ی پیشنهادی تصویر برای بنر صفحه‌ی اصلی: ۱۶۰۰ × ۸۰۰ پیکسل (نسبت ۲ به ۱)
+      </div>
+
       <div id="src-url-box">
         <label>آدرس لینک</label>
         <input type="url" id="in-url" placeholder="https://...">
@@ -650,6 +654,8 @@ function initTabs() {
       document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       selectedType = tab.getAttribute('data-type');
+      const hint = document.getElementById('banner-size-hint');
+      if (hint) hint.style.display = (selectedType === 'home_banner') ? 'block' : 'none';
     });
   });
 
