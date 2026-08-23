@@ -15,7 +15,12 @@ enum class ContentType(val key: String) {
     MUSIC("music"),
     RADIO("radio"),
     FUN("fun"),
-    DOCS("docs");
+    DOCS("docs"),
+    POWER_OUTAGE("power_outage"),
+    NEWSPAPER("newspaper"),
+    PRICE("price"),
+    SERVICES("services"),
+    HOME_BANNER("home_banner");
 
     companion object {
         fun fromKey(key: String?): ContentType =

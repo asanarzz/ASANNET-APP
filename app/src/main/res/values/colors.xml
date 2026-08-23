@@ -22,6 +22,10 @@
     <color name="type_radio">#65A30D</color>
     <color name="type_fun">#F59E0B</color>
     <color name="type_docs">#0D9488</color>
+    <color name="type_power">#B45309</color>
+    <color name="type_newspaper">#475569</color>
+    <color name="type_price">#CA8A04</color>
+    <color name="type_services">#0E7490</color>
 
     <color name="danger">#DC2626</color>
     <color name="splash_bg">#FFFFFF</color>

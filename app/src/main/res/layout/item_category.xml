@@ -6,22 +6,22 @@
     android:layout_margin="6dp"
     android:orientation="vertical"
     android:gravity="center"
-    android:paddingVertical="12dp"
+    android:paddingVertical="10dp"
     android:paddingHorizontal="4dp"
-    android:background="@drawable/card_ripple"
+    android:background="@drawable/ripple_transparent"
     android:clickable="true"
     android:focusable="true">
 
     <FrameLayout
         android:id="@+id/icon_bg"
-        android:layout_width="67dp"
-        android:layout_height="67dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:background="@drawable/icon_circle_test">
 
         <ImageView
             android:id="@+id/img_icon"
-            android:layout_width="31dp"
-            android:layout_height="31dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_test"
             android:contentDescription="@null"/>
@@ -31,11 +31,12 @@
         android:id="@+id/txt_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="18.4sp"
+        android:layout_marginTop="16dp"
+        android:textSize="15.5sp"
         android:textStyle="bold"
         android:textColor="@color/text_main"
-        android:maxLines="1"
+        android:maxLines="2"
+        android:lineSpacingExtra="1dp"
         android:ellipsize="end"
         android:gravity="center"
         tools:text="آزمون"/>

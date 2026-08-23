@@ -74,6 +74,14 @@
             android:theme="@style/Theme.Kafinet.Fullscreen" />
 
         <activity
+            android:name=".BannerDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".VideoPlayerActivity"
             android:exported="false"
             android:theme="@style/Theme.Kafinet.Fullscreen" />

@@ -28,6 +28,9 @@ class RegistrationActivity : AppCompatActivity() {
             if (isLoginMode) attemptLogin() else attemptRegister()
         }
         binding.txtToggleMode.setOnClickListener { toggleMode() }
+        binding.txtForgotPassword.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+        }
     }
 
     private fun toggleMode() {
@@ -37,12 +40,14 @@ class RegistrationActivity : AppCompatActivity() {
             binding.extraFieldsGroup.visibility = android.view.View.GONE
             binding.extraFieldsGroup2.visibility = android.view.View.GONE
             binding.extraFieldsGroup3.visibility = android.view.View.GONE
+            binding.txtForgotPassword.visibility = android.view.View.VISIBLE
             binding.btnRegister.text = getString(R.string.btn_login)
             binding.txtToggleMode.text = getString(R.string.toggle_to_register)
         } else {
             binding.extraFieldsGroup.visibility = android.view.View.VISIBLE
             binding.extraFieldsGroup2.visibility = android.view.View.VISIBLE
             binding.extraFieldsGroup3.visibility = android.view.View.VISIBLE
+            binding.txtForgotPassword.visibility = android.view.View.GONE
             binding.btnRegister.text = getString(R.string.btn_register)
             binding.txtToggleMode.text = getString(R.string.toggle_to_login)
         }

@@ -104,7 +104,19 @@ class CategoryListActivity : AppCompatActivity() {
                     DownloadHelper.downloadUrl(this, item.url, item.title)
                 }
             }
-            ContentType.DOCS -> { /* این نوع در این لیست ظاهر نمی‌شود */ }
+            ContentType.NEWSPAPER -> {
+                val intent = Intent(this, ImageViewerActivity::class.java)
+                intent.putExtra(ImageViewerActivity.EXTRA_URL, item.url)
+                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, item.title)
+                startActivity(intent)
+            }
+            ContentType.POWER_OUTAGE, ContentType.PRICE, ContentType.SERVICES -> {
+                val intent = Intent(this, WebViewActivity::class.java)
+                intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
+                intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+                startActivity(intent)
+            }
+            ContentType.DOCS, ContentType.HOME_BANNER -> { /* این نوع‌ها در این لیست ظاهر نمی‌شوند */ }
         }
     }
 
