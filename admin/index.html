@@ -28,6 +28,11 @@
     --r-music:#EA580C;
     --r-radio:#65A30D;
     --r-fun:#F59E0B;
+    --r-power:#B45309;
+    --r-newspaper:#475569;
+    --r-price:#CA8A04;
+    --r-services:#0E7490;
+    --r-home-banner:#9333EA;
   }
   *{box-sizing:border-box;}
   body{
@@ -206,6 +211,11 @@
         <div class="type-tab" data-type="music">آهنگ</div>
         <div class="type-tab" data-type="radio">رادیو</div>
         <div class="type-tab" data-type="fun">سرگرمی</div>
+        <div class="type-tab" data-type="power_outage">خاموشی برق</div>
+        <div class="type-tab" data-type="newspaper">روزنامه</div>
+        <div class="type-tab" data-type="price">قیمت دلار/طلا</div>
+        <div class="type-tab" data-type="services">کلیه خدمات</div>
+        <div class="type-tab" data-type="home_banner">بنر صفحه اصلی</div>
       </div>
 
       <label>عنوان</label>
@@ -270,6 +280,11 @@ const TYPE_META = {
   music: {label:'آهنگ',  color:'var(--r-music)', abbr:'MUS'},
   radio: {label:'رادیو', color:'var(--r-radio)', abbr:'RAD'},
   fun:   {label:'سرگرمی', color:'var(--r-fun)', abbr:'FUN'},
+  power_outage: {label:'خاموشی برق', color:'var(--r-power)', abbr:'POWER'},
+  newspaper: {label:'روزنامه', color:'var(--r-newspaper)', abbr:'NEWS'},
+  price: {label:'قیمت دلار/طلا', color:'var(--r-price)', abbr:'PRICE'},
+  services: {label:'کلیه خدمات', color:'var(--r-services)', abbr:'SRV'},
+  home_banner: {label:'بنر صفحه اصلی', color:'var(--r-home-banner)', abbr:'BNR2'},
 };
 
 let cfg = null;          // {owner, repo, branch, token}

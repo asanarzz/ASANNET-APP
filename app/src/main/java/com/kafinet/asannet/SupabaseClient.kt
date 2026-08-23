@@ -136,6 +136,56 @@ object SupabaseClient {
     }
 
     /**
+     * رمز عبور کاربر را در صورتی که کد ملی، شماره موبایل و تاریخ تولد وارد‌شده دقیقاً با
+     * اطلاعات ثبت‌شده مطابقت داشته باشد، بازنشانی می‌کند. تطبیق و بازنشانی هر دو
+     * داخل یک تابع امن (RPC) روی سرور انجام می‌شود تا کلید anon هیچ‌وقت مستقیم به
+     * جدول users دسترسی نداشته باشد.
+     *
+     * نکته: تابع reset_password باید از قبل در Supabase (SQL Editor) ساخته شده باشد.
+     */
+    suspend fun resetPassword(
+        context: Context,
+        nationalCode: String,
+        phoneNumber: String,
+        birthDate: String,
+        newPasswordHash: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+        val anonKey = context.getString(R.string.supabase_anon_key)
+
+        if (baseUrl.isBlank() || anonKey.isBlank()) {
+            throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
+        }
+
+        val url = URL("$baseUrl/rest/v1/rpc/reset_password")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.doOutput = true
+        connection.connectTimeout = 8000
+        connection.readTimeout = 8000
+        connection.setRequestProperty("apikey", anonKey)
+        connection.setRequestProperty("Authorization", "Bearer $anonKey")
+        connection.setRequestProperty("Content-Type", "application/json")
+
+        val body = JSONObject().apply {
+            put("p_national_code", nationalCode)
+            put("p_phone_number", phoneNumber)
+            put("p_birth_date", birthDate)
+            put("p_new_hash", newPasswordHash)
+        }
+        connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+
+        val responseCode = connection.responseCode
+        val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+        val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+        connection.disconnect()
+
+        if (responseCode !in 200..299) return@withContext false
+
+        text.trim().removeSurrounding("\"") == "true"
+    }
+
+    /**
      * ورود کاربری که قبلاً ثبت‌نام کرده (بعد از حذف و نصب مجدد برنامه، یا روی گوشی دیگر).
      * هش ذخیره‌شده‌ی رمز عبور را از طریق یک تابع امن (RPC) می‌گیرد و مقایسه‌ی نهایی
      * (با همان salt ذخیره‌شده) داخل خود اپ انجام می‌شود.

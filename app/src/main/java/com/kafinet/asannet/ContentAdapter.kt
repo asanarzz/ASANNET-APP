@@ -38,6 +38,11 @@ class ContentAdapter(
             ContentType.RADIO -> R.drawable.ic_radio to R.drawable.icon_circle_radio
             ContentType.FUN -> R.drawable.ic_fun to R.drawable.icon_circle_fun
             ContentType.DOCS -> R.drawable.ic_docs to R.drawable.icon_circle_docs
+            ContentType.POWER_OUTAGE -> R.drawable.ic_power to R.drawable.icon_circle_power
+            ContentType.NEWSPAPER -> R.drawable.ic_newspaper to R.drawable.icon_circle_newspaper
+            ContentType.PRICE -> R.drawable.ic_price to R.drawable.icon_circle_price
+            ContentType.SERVICES -> R.drawable.ic_services to R.drawable.icon_circle_services
+            ContentType.HOME_BANNER -> R.drawable.ic_image to R.drawable.icon_circle_image
         }
         binding.imgTypeIcon.setImageResource(iconRes)
         binding.iconBg.setBackgroundResource(bgRes)

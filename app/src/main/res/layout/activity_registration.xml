@@ -157,6 +157,22 @@
                     android:inputType="textPassword"
                     android:hint="@string/hint_password"/>
 
+                <TextView
+                    android:id="@+id/txt_forgot_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/forgot_password_link"
+                    android:textColor="@color/primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"
+                    android:visibility="gone"/>
+
                 <LinearLayout
                     android:id="@+id/extra_fields_group3"
                     android:layout_width="match_parent"

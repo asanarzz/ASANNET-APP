@@ -56,6 +56,12 @@
     <string name="cat_radio">رادیو</string>
     <string name="cat_fun">سرگرمی</string>
     <string name="cat_docs">ارسال مدارک</string>
+    <string name="cat_power">خاموشی برق</string>
+    <string name="cat_newspaper">روزنامه‌ها</string>
+    <string name="cat_price">قیمت دلار و طلا</string>
+    <string name="cat_services">کلیه خدمات</string>
+    <string name="banner_detail_fallback_title">جزئیات</string>
+    <string name="banner_more">بیشتر</string>
 
     <!-- صفحه‌ی ارسال مدارک -->
     <string name="docs_intro">اطلاعات متقاضی را وارد کن، مدارک لازم را اضافه کن و برای ما ارسال کن.</string>
@@ -117,6 +123,13 @@
     <string name="hint_password">حداقل ۶ کاراکتر</string>
     <string name="label_password_confirm">تکرار رمز عبور</string>
     <string name="hint_password_confirm">رمز عبور را دوباره وارد کن</string>
+    <string name="forgot_password_link">رمز عبور را فراموش کرده‌اید؟</string>
+    <string name="forgot_password_title">بازیابی رمز عبور</string>
+    <string name="forgot_password_intro">برای بازیابی رمز، اطلاعاتی که هنگام ثبت‌نام وارد کردی رو دقیقاً وارد کن.</string>
+    <string name="label_new_password">رمز عبور جدید</string>
+    <string name="btn_reset_password">تغییر رمز عبور</string>
+    <string name="forgot_password_success">رمز عبور با موفقیت تغییر کرد. حالا می‌تونی با رمز جدید وارد بشی.</string>
+    <string name="forgot_password_no_match">اطلاعات وارد‌شده با هیچ حسابی مطابقت نداره. کد ملی، موبایل و تاریخ تولد رو دوباره چک کن.</string>
     <string name="btn_register">ثبت‌نام و ورود به برنامه</string>
     <string name="btn_login">ورود به برنامه</string>
     <string name="toggle_to_login">قبلاً ثبت‌نام کرده‌ای؟ ورود</string>
