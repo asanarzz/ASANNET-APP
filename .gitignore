@@ -9,3 +9,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# فایل کلید امضای برنامه هیچ‌وقت نباید وارد گیت بشه — به‌جاش از GitHub Secrets استفاده می‌شه
+*.keystore
+*.jks
+

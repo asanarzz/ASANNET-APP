@@ -30,8 +30,20 @@ jobs:
         with:
           gradle-version: 8.9
 
+      - name: Decode signing keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/kafinet-release.keystore
+
       - name: Build debug APK
+        env:
+          KAFINET_KEYSTORE_PATH: kafinet-release.keystore
+          KAFINET_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KAFINET_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KAFINET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: gradle assembleDebug --no-daemon
+
+      - name: Remove keystore from runner
+        if: always()
+        run: rm -f app/kafinet-release.keystore
 
       - name: Rename APK
         run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/ASANNET.apk
