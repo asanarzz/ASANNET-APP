@@ -11,16 +11,20 @@ android {
         applicationId "com.kafinet.asannet"
         minSdk 26
         targetSdk 34
-        versionCode 9
-        versionName "1.8"
+        versionCode 10
+        versionName "1.9"
     }
 
     signingConfigs {
         debug {
-            storeFile file("kafinet-release.keystore")
-            storePassword "kafinet1404"
-            keyAlias "kafinet"
-            keyPassword "kafinet1404"
+            // این مقادیر هیچ‌وقت مستقیم تو کد نوشته نمی‌شن — موقع بیلد از
+            // متغیرهای محیطی (که GitHub Actions از GitHub Secrets پر می‌کنه) خونده می‌شن.
+            // برای بیلد لوکال (روی گوشی/کامپیوتر خودت)، همین مقادیر رو به‌صورت
+            // متغیر محیطی ست کن، یا این بلاک رو موقتاً با کلید دیباگ پیش‌فرض جایگزین کن.
+            storeFile file(System.getenv("KAFINET_KEYSTORE_PATH") ?: "kafinet-release.keystore")
+            storePassword System.getenv("KAFINET_KEYSTORE_PASSWORD") ?: ""
+            keyAlias System.getenv("KAFINET_KEY_ALIAS") ?: "kafinet"
+            keyPassword System.getenv("KAFINET_KEY_PASSWORD") ?: ""
         }
     }
 
