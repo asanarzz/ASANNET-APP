@@ -29,7 +29,6 @@ class CategoryGridAdapter(
         val item = items[position]
         val binding = holder.binding
         binding.imgIcon.setImageResource(item.iconRes)
-        binding.iconBg.setBackgroundResource(item.bgRes)
         binding.txtLabel.text = item.label
         binding.root.setOnClickListener { onClick(item) }
     }
