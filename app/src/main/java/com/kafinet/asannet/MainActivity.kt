@@ -47,14 +47,6 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerBanners.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerBanners.adapter = bannerAdapter
-        binding.recyclerBanners.post {
-            // عرض هر بنر رو تقریباً ۹۰٪ عرض صفحه می‌کنیم تا هم بزرگ و خوانا باشه، هم یه‌خرده
-            // از بنر بعدی گوشه‌ی صفحه دیده بشه (مثل اپ بازار)
-            val screenWidth = binding.recyclerBanners.width
-            if (screenWidth > 0) {
-                bannerAdapter.setItemWidth((screenWidth * 0.9).toInt())
-            }
-        }
         loadBanners(bannerAdapter)
 
         binding.recyclerCategories.layoutManager = GridLayoutManager(this, 4)
@@ -107,6 +99,14 @@ class MainActivity : AppCompatActivity() {
 
     /** بنرهای تبلیغاتی بالای صفحه‌ی اصلی را از همان منبع محتوای اصلی (نوع home_banner) می‌خواند. */
     private fun loadBanners(adapter: BannerCarouselAdapter) {
+        // عرض هر بنر رو مستقیماً از عرض فیزیکی صفحه‌ی گوشی حساب می‌کنیم (نه از عرض خودِ
+        // RecyclerView)، چون اون ویو تا وقتی بنری براش نیومده با visibility=gone مخفیه و
+        // اندازه‌گیری‌اش صفره؛ این‌طوری صرف‌نظر از حالت نمایش، همیشه درست محاسبه می‌شه.
+        val screenWidthPx = resources.displayMetrics.widthPixels
+        val horizontalPaddingPx = (16 * resources.displayMetrics.density).toInt() // 8dp x2
+        val bannerWidthPx = ((screenWidthPx - horizontalPaddingPx) * 0.92).toInt()
+        adapter.setItemWidth(bannerWidthPx)
+
         lifecycleScope.launch {
             val result = ContentRepository.load(this@MainActivity)
             val banners = result.items.filter { it.type == ContentType.HOME_BANNER }
