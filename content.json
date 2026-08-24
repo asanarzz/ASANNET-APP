@@ -63,13 +63,6 @@
     "url": "https://asanarzz.github.io/-/estedad_motevaset2"
   },
   {
-    "id": "item_1787303398538",
-    "type": "test",
-    "title": "غربالگری متوسطه اول",
-    "description": "جواب بدین",
-    "url": "https://asanarzz.github.io/-/gharbal_motevasete1/"
-  },
-  {
     "id": "item_1787519192964",
     "type": "home_banner",
     "title": "آزمون استعداد یابی و غربالگری",
@@ -96,5 +89,21 @@
     "title": "رادیو اینترنتی",
     "description": "رادیو اینترنتی سرچشمه\nپخش 24 ساعته موزیک",
     "url": "https://radio.sarcheshmeh.us/"
+  },
+  {
+    "id": "item_1787605410922",
+    "type": "link",
+    "title": "آزمون غربالگری ابتدایی اول تا سوم",
+    "description": "مخصوص دانش آموزان کلاس اول تا سوم",
+    "url": "https://asanarzz.github.io/-/gharbal_ebtdaei",
+    "section": "آزمون غربالگری ابتدایی اول تا سوم"
+  },
+  {
+    "id": "item_1787605479615",
+    "type": "link",
+    "title": "آزمون غربالگری ابتدایی اول تا سوم",
+    "description": "مخصوص دانش آموزان ابتدایی اول تا سوم",
+    "url": "https://asanarzz.github.io/-/gharbal_ebtedaei1ta3",
+    "section": "آزمون غربالگری ابتدایی اول تا سوم"
   }
 ]
