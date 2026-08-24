@@ -25,22 +25,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val categories = listOf(
-            CategoryEntry(ContentType.IMAGE, getString(R.string.cat_image), R.drawable.ic_image, R.drawable.icon_circle_image),
-            CategoryEntry(ContentType.VIDEO, getString(R.string.cat_video), R.drawable.ic_video, R.drawable.icon_circle_video),
-            CategoryEntry(ContentType.BANNER, getString(R.string.cat_banner), R.drawable.ic_banner, R.drawable.icon_circle_banner),
-            CategoryEntry(ContentType.LINK, getString(R.string.cat_link), R.drawable.ic_link, R.drawable.icon_circle_link),
-            CategoryEntry(ContentType.FILE, getString(R.string.cat_file), R.drawable.ic_file, R.drawable.icon_circle_file),
-            CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.ic_test, R.drawable.icon_circle_test),
-            CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.ic_poll, R.drawable.icon_circle_poll),
-            CategoryEntry(ContentType.SOFTWARE, getString(R.string.cat_software), R.drawable.ic_software, R.drawable.icon_circle_software),
-            CategoryEntry(ContentType.MUSIC, getString(R.string.cat_music), R.drawable.ic_music, R.drawable.icon_circle_music),
-            CategoryEntry(ContentType.RADIO, getString(R.string.cat_radio), R.drawable.ic_radio, R.drawable.icon_circle_radio),
-            CategoryEntry(ContentType.FUN, getString(R.string.cat_fun), R.drawable.ic_fun, R.drawable.icon_circle_fun),
-            CategoryEntry(ContentType.POWER_OUTAGE, getString(R.string.cat_power), R.drawable.ic_power, R.drawable.icon_circle_power),
-            CategoryEntry(ContentType.NEWSPAPER, getString(R.string.cat_newspaper), R.drawable.ic_newspaper, R.drawable.icon_circle_newspaper),
-            CategoryEntry(ContentType.PRICE, getString(R.string.cat_price), R.drawable.ic_price, R.drawable.icon_circle_price),
-            CategoryEntry(ContentType.SERVICES, getString(R.string.cat_services), R.drawable.ic_services, R.drawable.icon_circle_services),
-            CategoryEntry(null, getString(R.string.cat_docs), R.drawable.ic_docs, R.drawable.icon_circle_docs, isSubmit = true)
+            CategoryEntry(ContentType.IMAGE, getString(R.string.cat_image), R.drawable.ic_photo_image, 0),
+            CategoryEntry(ContentType.VIDEO, getString(R.string.cat_video), R.drawable.ic_photo_video, 0),
+            CategoryEntry(ContentType.BANNER, getString(R.string.cat_banner), R.drawable.ic_photo_banner, 0),
+            CategoryEntry(ContentType.LINK, getString(R.string.cat_link), R.drawable.ic_photo_link, 0),
+            CategoryEntry(ContentType.FILE, getString(R.string.cat_file), R.drawable.ic_photo_file, 0),
+            CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.ic_photo_test, 0),
+            CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.ic_photo_poll, 0),
+            CategoryEntry(ContentType.SOFTWARE, getString(R.string.cat_software), R.drawable.ic_photo_software, 0),
+            CategoryEntry(ContentType.MUSIC, getString(R.string.cat_music), R.drawable.ic_photo_music, 0),
+            CategoryEntry(ContentType.RADIO, getString(R.string.cat_radio), R.drawable.ic_photo_radio, 0),
+            CategoryEntry(ContentType.FUN, getString(R.string.cat_fun), R.drawable.ic_photo_fun, 0),
+            CategoryEntry(ContentType.POWER_OUTAGE, getString(R.string.cat_power), R.drawable.ic_photo_power, 0),
+            CategoryEntry(ContentType.NEWSPAPER, getString(R.string.cat_newspaper), R.drawable.ic_photo_newspaper, 0),
+            CategoryEntry(ContentType.PRICE, getString(R.string.cat_price), R.drawable.ic_photo_price, 0),
+            CategoryEntry(ContentType.SERVICES, getString(R.string.cat_services), R.drawable.ic_photo_services, 0),
+            CategoryEntry(null, getString(R.string.cat_docs), R.drawable.ic_photo_docs, 0, isSubmit = true)
         )
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerBanners.adapter = bannerAdapter
         loadBanners(bannerAdapter)
 
-        binding.recyclerCategories.layoutManager = GridLayoutManager(this, 4)
+        binding.recyclerCategories.layoutManager = GridLayoutManager(this, 5)
         binding.recyclerCategories.adapter = CategoryGridAdapter(categories) { entry ->
             if (entry.isSubmit) {
                 startActivity(Intent(this, SubmitDocumentsActivity::class.java))
@@ -99,13 +99,11 @@ class MainActivity : AppCompatActivity() {
 
     /** بنرهای تبلیغاتی بالای صفحه‌ی اصلی را از همان منبع محتوای اصلی (نوع home_banner) می‌خواند. */
     private fun loadBanners(adapter: BannerCarouselAdapter) {
-        // عرض هر بنر رو مستقیماً از عرض فیزیکی صفحه‌ی گوشی حساب می‌کنیم (نه از عرض خودِ
-        // RecyclerView)، چون اون ویو تا وقتی بنری براش نیومده با visibility=gone مخفیه و
-        // اندازه‌گیری‌اش صفره؛ این‌طوری صرف‌نظر از حالت نمایش، همیشه درست محاسبه می‌شه.
+        // عرض هر بنر رو دقیقاً برابر عرض کامل صفحه‌ی گوشی می‌کنیم (بدون فاصله‌ی کناری) —
+        // این ویو تا وقتی بنری براش نیومده با visibility=gone مخفیه و اندازه‌گیری‌اش صفره،
+        // برای همین از عرض فیزیکی صفحه استفاده می‌کنیم نه از عرض خودِ RecyclerView.
         val screenWidthPx = resources.displayMetrics.widthPixels
-        val horizontalPaddingPx = (16 * resources.displayMetrics.density).toInt() // 8dp x2
-        val bannerWidthPx = ((screenWidthPx - horizontalPaddingPx) * 0.92).toInt()
-        adapter.setItemWidth(bannerWidthPx)
+        adapter.setItemWidth(screenWidthPx)
 
         lifecycleScope.launch {
             val result = ContentRepository.load(this@MainActivity)

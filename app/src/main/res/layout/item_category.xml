@@ -3,36 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_margin="4dp"
     android:orientation="vertical"
     android:gravity="center"
-    android:paddingVertical="10dp"
-    android:paddingHorizontal="4dp"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="2dp"
     android:background="@drawable/ripple_transparent"
     android:clickable="true"
     android:focusable="true">
 
-    <FrameLayout
-        android:id="@+id/icon_bg"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="@drawable/icon_circle_test">
-
-        <ImageView
-            android:id="@+id/img_icon"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_test"
-            android:contentDescription="@null"/>
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/img_icon"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:src="@drawable/ic_photo_test"
+        android:contentDescription="@null"/>
 
     <TextView
         android:id="@+id/txt_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="15.5sp"
+        android:layout_marginTop="10dp"
+        android:textSize="12.5sp"
         android:textStyle="bold"
         android:textColor="@color/text_main"
         android:maxLines="2"
