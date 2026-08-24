@@ -100,6 +100,8 @@
     <string name="section_misc">سایر</string>
     <string name="error_loading">خطا در دریافت محتوا — نسخه‌ی ذخیره‌شده نمایش داده شد</string>
     <string name="open_in_browser">باز کردن در مرورگر</string>
+    <string name="webview_error_message">این صفحه بارگذاری نشد. ممکنه سرور موقتاً در دسترس نباشه یا اینترنت قطع باشه.</string>
+    <string name="btn_retry">تلاش دوباره</string>
     <string name="search_hint">جستجو…</string>
 
     <!--

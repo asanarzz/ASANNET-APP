@@ -56,9 +56,52 @@
         android:max="100"
         android:progressTint="@color/accent"/>
 
-    <WebView
-        android:id="@+id/web_view"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:id="@+id/layout_web_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_empty"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/webview_error_message"
+                android:textColor="@color/text_muted"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/btn_retry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/btn_retry"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>
