@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,14 +17,22 @@ class CategoryListActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_TYPE = "extra_type"
         const val EXTRA_LABEL = "extra_label"
+        private const val SECTION_MISC = "__misc__"
     }
 
     private lateinit var binding: ActivityCategoryListBinding
     private lateinit var adapter: ContentAdapter
+    private lateinit var sectionAdapter: SectionFolderAdapter
 
     private var allItems: List<ContentItem> = emptyList()
     private var typeFilter: ContentType? = null
     private var currentQuery: String = ""
+    private var categoryLabel: String = ""
+
+    // اگه این دسته حداقل یک آیتم با «بخش» مشخص داشته باشه، حالت پوشه‌ای فعال می‌شه
+    private var hasSections: Boolean = false
+    // بخشی که الان توش هستیم؛ null یعنی تو لیست پوشه‌ها (یا حالت تخت قدیمی) هستیم
+    private var currentSection: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +41,18 @@ class CategoryListActivity : AppCompatActivity() {
 
         val typeKey = intent.getStringExtra(EXTRA_TYPE)
         typeFilter = if (typeKey != null) ContentType.fromKey(typeKey) else null
-        binding.txtTitle.text = intent.getStringExtra(EXTRA_LABEL).orEmpty()
+        categoryLabel = intent.getStringExtra(EXTRA_LABEL).orEmpty()
+        binding.txtTitle.text = categoryLabel
 
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { handleBackPress() }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { handleBackPress() }
+        })
 
         adapter = ContentAdapter(emptyList()) { item -> openItem(item) }
+        sectionAdapter = SectionFolderAdapter(emptyList()) { folder -> openSection(folder) }
+
         binding.recyclerContent.layoutManager = LinearLayoutManager(this)
         binding.recyclerContent.adapter = adapter
 
@@ -54,6 +70,17 @@ class CategoryListActivity : AppCompatActivity() {
         loadContent()
     }
 
+    private fun handleBackPress() {
+        if (hasSections && currentSection != null) {
+            currentSection = null
+            binding.txtTitle.text = categoryLabel
+            binding.editSearch.text?.clear()
+            applyFilters()
+        } else {
+            finish()
+        }
+    }
+
     private fun loadContent() {
         lifecycleScope.launch {
             val result = ContentRepository.load(this@CategoryListActivity)
@@ -67,8 +94,61 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun applyFilters() {
-        var filtered = allItems
-        typeFilter?.let { type -> filtered = filtered.filter { it.type == type } }
+        var typeFiltered = allItems
+        typeFilter?.let { type -> typeFiltered = typeFiltered.filter { it.type == type } }
+
+        hasSections = typeFiltered.any { !it.section.isNullOrBlank() }
+
+        if (hasSections && currentSection == null) {
+            showFolderList(typeFiltered)
+        } else {
+            val scoped = if (hasSections) {
+                typeFiltered.filter { (it.section ?: SECTION_MISC) == currentSection }
+            } else {
+                typeFiltered
+            }
+            showItemList(scoped)
+        }
+    }
+
+    private fun showFolderList(items: List<ContentItem>) {
+        binding.recyclerContent.adapter = sectionAdapter
+        binding.recyclerContent.layoutManager = LinearLayoutManager(this)
+
+        val grouped = LinkedHashMap<String, MutableList<ContentItem>>()
+        for (item in items) {
+            val key = item.section?.takeIf { it.isNotBlank() } ?: SECTION_MISC
+            grouped.getOrPut(key) { mutableListOf() }.add(item)
+        }
+        // «سایر» همیشه آخرین پوشه نشون داده می‌شه
+        val orderedKeys = grouped.keys.filter { it != SECTION_MISC } + grouped.keys.filter { it == SECTION_MISC }
+
+        var folders = orderedKeys.map { key ->
+            val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else key
+            SectionFolder(key, displayName, grouped[key]?.size ?: 0)
+        }
+
+        if (currentQuery.isNotBlank()) {
+            val q = currentQuery.trim()
+            folders = folders.filter { it.displayName.contains(q, ignoreCase = true) }
+        }
+
+        sectionAdapter.updateFolders(folders)
+        binding.layoutEmpty.visibility = if (folders.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+    }
+
+    private fun openSection(folder: SectionFolder) {
+        currentSection = folder.name
+        binding.txtTitle.text = folder.displayName
+        binding.editSearch.text?.clear()
+        applyFilters()
+    }
+
+    private fun showItemList(items: List<ContentItem>) {
+        binding.recyclerContent.adapter = adapter
+        binding.recyclerContent.layoutManager = LinearLayoutManager(this)
+
+        var filtered = items
         if (currentQuery.isNotBlank()) {
             val q = currentQuery.trim()
             filtered = filtered.filter {

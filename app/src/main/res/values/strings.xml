@@ -96,6 +96,8 @@
     <string name="btn_cancel">انصراف</string>
 
     <string name="empty_state">فعلاً محتوایی اضافه نشده است</string>
+    <string name="section_item_count">%d مورد</string>
+    <string name="section_misc">سایر</string>
     <string name="error_loading">خطا در دریافت محتوا — نسخه‌ی ذخیره‌شده نمایش داده شد</string>
     <string name="open_in_browser">باز کردن در مرورگر</string>
     <string name="search_hint">جستجو…</string>
