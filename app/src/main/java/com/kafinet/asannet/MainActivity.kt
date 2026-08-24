@@ -47,6 +47,14 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerBanners.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerBanners.adapter = bannerAdapter
+        binding.recyclerBanners.post {
+            // عرض هر بنر رو تقریباً ۹۰٪ عرض صفحه می‌کنیم تا هم بزرگ و خوانا باشه، هم یه‌خرده
+            // از بنر بعدی گوشه‌ی صفحه دیده بشه (مثل اپ بازار)
+            val screenWidth = binding.recyclerBanners.width
+            if (screenWidth > 0) {
+                bannerAdapter.setItemWidth((screenWidth * 0.9).toInt())
+            }
+        }
         loadBanners(bannerAdapter)
 
         binding.recyclerCategories.layoutManager = GridLayoutManager(this, 4)
@@ -64,6 +72,8 @@ class MainActivity : AppCompatActivity() {
         binding.txtAppVersion.text = getString(R.string.app_version_label, BuildConfig.VERSION_NAME)
         binding.txtDrawerNationalCode.text =
             SessionManager.getFullName(this) ?: getString(R.string.drawer_username_fallback)
+
+        binding.swipeRefresh.setOnRefreshListener { loadBanners(bannerAdapter) }
 
         binding.btnMenu.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
@@ -102,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             val banners = result.items.filter { it.type == ContentType.HOME_BANNER }
             adapter.updateItems(banners)
             binding.recyclerBanners.visibility = if (banners.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+            binding.swipeRefresh.isRefreshing = false
         }
     }
 

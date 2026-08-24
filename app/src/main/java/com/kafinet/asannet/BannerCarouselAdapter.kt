@@ -15,6 +15,11 @@ class BannerCarouselAdapter(
     private val onClick: (ContentItem) -> Unit
 ) : RecyclerView.Adapter<BannerCarouselAdapter.ViewHolder>() {
 
+    // اگه صفر باشه، اندازه‌ی ثابت تعریف‌شده در item_banner.xml استفاده می‌شه.
+    // در غیر این صورت، اندازه‌ی هر کارت متناسب با عرض واقعی صفحه محاسبه و جایگزین می‌شه
+    // (نسبت ۲ به ۱، هم‌راستا با سایز پیشنهادی تصویر بنرها یعنی ۱۶۰۰×۸۰۰).
+    private var itemWidthPx: Int = 0
+
     inner class ViewHolder(val binding: ItemBannerBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,6 +29,14 @@ class BannerCarouselAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+
+        if (itemWidthPx > 0) {
+            val params = holder.binding.root.layoutParams
+            params.width = itemWidthPx
+            params.height = itemWidthPx / 2
+            holder.binding.root.layoutParams = params
+        }
+
         Glide.with(holder.binding.imgBanner.context)
             .load(item.url)
             .centerCrop()
@@ -39,4 +52,13 @@ class BannerCarouselAdapter(
         items = newItems
         notifyDataSetChanged()
     }
+
+    /** عرض هر کارت بنر را بر حسب پیکسل ست می‌کند (برای پر کردن بهتر عرض صفحه در هر گوشی). */
+    fun setItemWidth(widthPx: Int) {
+        if (widthPx > 0 && widthPx != itemWidthPx) {
+            itemWidthPx = widthPx
+            notifyDataSetChanged()
+        }
+    }
 }
+
