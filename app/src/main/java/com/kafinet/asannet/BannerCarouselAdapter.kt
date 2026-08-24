@@ -33,7 +33,8 @@ class BannerCarouselAdapter(
         if (itemWidthPx > 0) {
             val params = holder.binding.root.layoutParams
             params.width = itemWidthPx
-            params.height = itemWidthPx / 2
+            // نسبت بنر ۱۶۰۰ در ۱۲۰۰ (یعنی ارتفاع برابر ۷۵٪ عرض)
+            params.height = (itemWidthPx * 0.75).toInt()
             holder.binding.root.layoutParams = params
         }
 
