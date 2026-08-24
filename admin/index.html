@@ -224,6 +224,14 @@
       <label>توضیح کوتاه (اختیاری)</label>
       <textarea id="in-desc" placeholder="یک خط توضیح درباره‌ی این محتوا"></textarea>
 
+      <label>بخش (اختیاری)</label>
+      <input type="text" id="in-section" placeholder="مثلاً: آزمون‌های غربالگری">
+      <p class="muted">
+        اگه پر کنی، این مورد داخل یه پوشه با همین اسم قرار می‌گیره (مثلاً تو دسته‌ی «آزمون» می‌تونی
+        چند بخش مثل «آزمون‌های غربالگری» و «نمونه سوالات» بسازی). اگه خالی بذاری، مثل قبل مستقیم
+        تو لیست دسته نشون داده می‌شه.
+      </p>
+
       <label>منبع محتوا</label>
       <div class="source-tabs">
         <div class="source-tab active" data-src="url">لینک (URL)</div>
@@ -534,7 +542,7 @@ function renderList() {
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
-        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}</div>
+        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}</div>
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
@@ -613,6 +621,7 @@ async function handleAdd() {
       url = rawUrl(path);
     }
 
+    const sectionValue = $('in-section').value.trim();
     const newItem = {
       id: 'item_' + Date.now(),
       type: selectedType,
@@ -620,6 +629,7 @@ async function handleAdd() {
       description,
       url,
     };
+    if (sectionValue) newItem.section = sectionValue;
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -641,6 +651,7 @@ async function handleAdd() {
 function resetForm() {
   $('in-title').value = '';
   $('in-desc').value = '';
+  $('in-section').value = '';
   $('in-url').value = '';
   selectedFile = null;
   $('in-file').value = '';

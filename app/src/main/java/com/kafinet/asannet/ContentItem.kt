@@ -33,7 +33,8 @@ data class ContentItem(
     val type: ContentType,
     val title: String,
     val description: String,
-    val url: String
+    val url: String,
+    val section: String? = null
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -41,13 +42,15 @@ data class ContentItem(
             val result = mutableListOf<ContentItem>()
             for (i in 0 until array.length()) {
                 val obj: JSONObject = array.getJSONObject(i)
+                val sectionValue = obj.optString("section", "").trim()
                 result.add(
                     ContentItem(
                         id = obj.optString("id", "item_$i"),
                         type = ContentType.fromKey(obj.optString("type")),
                         title = obj.optString("title", ""),
                         description = obj.optString("description", ""),
-                        url = obj.optString("url", "")
+                        url = obj.optString("url", ""),
+                        section = if (sectionValue.isBlank()) null else sectionValue
                     )
                 )
             }
