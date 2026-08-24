@@ -45,19 +45,26 @@ jobs:
         if: always()
         run: rm -f app/kafinet-release.keystore
 
+      - name: Read version name
+        id: appversion
+        run: |
+          VERSION=$(grep -m1 'versionName' app/build.gradle | sed -E 's/.*versionName *"([^"]+)".*/\1/')
+          echo "برای این بیلد ورژن پیدا شد: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/ASANNET.apk
+        run: cp app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ASANNET
-          path: app/build/outputs/apk/debug/ASANNET.apk
+          name: ASANNET-v${{ steps.appversion.outputs.version }}
+          path: app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk
 
       - name: Create GitHub Release with APK
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/debug/ASANNET.apk
+          files: app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
