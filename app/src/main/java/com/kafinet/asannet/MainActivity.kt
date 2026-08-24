@@ -99,11 +99,11 @@ class MainActivity : AppCompatActivity() {
 
     /** بنرهای تبلیغاتی بالای صفحه‌ی اصلی را از همان منبع محتوای اصلی (نوع home_banner) می‌خواند. */
     private fun loadBanners(adapter: BannerCarouselAdapter) {
-        // عرض هر بنر رو دقیقاً برابر عرض کامل صفحه‌ی گوشی می‌کنیم (بدون فاصله‌ی کناری) —
-        // این ویو تا وقتی بنری براش نیومده با visibility=gone مخفیه و اندازه‌گیری‌اش صفره،
-        // برای همین از عرض فیزیکی صفحه استفاده می‌کنیم نه از عرض خودِ RecyclerView.
+        // عرض هر بنر رو ۹۵٪ عرض صفحه می‌کنیم (نه تمام‌عرض) تا لبه‌ی بنر بعدی هم کمی
+        // از گوشه‌ی صفحه دیده بشه — همین یه تکه پیدا بودن، به کاربر می‌فهمونه که
+        // می‌تونه ورق بزنه و بنرهای بیشتری هم هست.
         val screenWidthPx = resources.displayMetrics.widthPixels
-        adapter.setItemWidth(screenWidthPx)
+        adapter.setItemWidth((screenWidthPx * 0.95).toInt())
 
         lifecycleScope.launch {
             val result = ContentRepository.load(this@MainActivity)
