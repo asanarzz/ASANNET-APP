@@ -196,7 +196,7 @@
 
     <!-- Add item -->
     <div class="card">
-      <h2 id="form-card-title">افزودن محتوای جدید</h2>
+      <h2>افزودن محتوای جدید</h2>
 
       <label>نوع محتوا</label>
       <div class="type-tabs" id="type-tabs">
@@ -257,7 +257,6 @@
       </div>
 
       <button class="btn-primary btn-full" id="btn-add">افزودن به برنامه</button>
-      <button class="btn-outline btn-full hidden" id="btn-cancel-edit" style="margin-top:8px;">لغو ویرایش</button>
     </div>
 
     <!-- Content list -->
@@ -523,10 +522,27 @@ async function loadContentList() {
   }
 }
 
-async function saveContentList(commitMessage) {
-  const text = JSON.stringify(contentItems, null, 2);
-  const result = await ghPutFile('content.json', b64EncodeUnicode(text), commitMessage, contentSha);
-  contentSha = result.content.sha;
+async function saveContentList(commitMessage, mutateFn) {
+  try {
+    const text = JSON.stringify(contentItems, null, 2);
+    const result = await ghPutFile('content.json', b64EncodeUnicode(text), commitMessage, contentSha);
+    contentSha = result.content.sha;
+  } catch (e) {
+    // اگه یه‌جای دیگه (مثلاً یه تب دیگه یا خودِ اپ) بین این مدت content.json رو عوض کرده باشه،
+    // گیت‌هاب خطای ۴۰۹ می‌ده. به‌جای نمایش خطای خام، نسخه‌ی تازه رو می‌گیریم، تغییری که
+    // کاربر می‌خواست (افزودن/حذف) رو روی همون نسخه‌ی تازه اعمال می‌کنیم و یه‌بار دیگه ذخیره می‌کنیم.
+    if (String(e.message).includes('(409)') && mutateFn) {
+      const file = await ghGetFile('content.json');
+      const freshItems = file ? JSON.parse(b64DecodeUnicode(file.content.replace(/\n/g, ''))) : [];
+      contentItems = mutateFn(freshItems);
+      contentSha = file ? file.sha : null;
+      const text2 = JSON.stringify(contentItems, null, 2);
+      const result2 = await ghPutFile('content.json', b64EncodeUnicode(text2), commitMessage, contentSha);
+      contentSha = result2.content.sha;
+    } else {
+      throw e;
+    }
+  }
 }
 
 function renderList() {
@@ -536,64 +552,23 @@ function renderList() {
     return;
   }
   area.innerHTML = '';
-
-  // گروه‌بندی بر اساس نوع محتوا (همون ترتیبی که در TYPE_META تعریف شده)
-  const groups = {};
-  contentItems.forEach((item) => {
-    const key = TYPE_META[item.type] ? item.type : 'link';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-
-  Object.keys(TYPE_META).forEach((typeKey) => {
-    const items = groups[typeKey];
-    if (!items || !items.length) return;
-    const meta = TYPE_META[typeKey];
-
-    const folderEl = document.createElement('div');
-    folderEl.className = 'doc-folder type-folder';
-
-    const header = document.createElement('div');
-    header.className = 'doc-folder-header';
-    header.innerHTML = `
-      <div class="folder-icon" style="background:${meta.color}22; color:${meta.color};">${escapeHtml(meta.abbr)}</div>
-      <div>
-        <div class="folder-name">${escapeHtml(meta.label)}</div>
-        <div class="folder-count">${items.length} مورد</div>
+  contentItems.slice().reverse().forEach((item) => {
+    const meta = TYPE_META[item.type] || TYPE_META.link;
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.innerHTML = `
+      <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
+      <div class="info">
+        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}</div>
+        <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
-      <div class="chevron">▾</div>
-    `;
-    header.addEventListener('click', () => folderEl.classList.toggle('open'));
-
-    const body = document.createElement('div');
-    body.className = 'doc-folder-body';
-
-    items.slice().reverse().forEach((item) => {
-      const row = document.createElement('div');
-      row.className = 'item';
-      row.innerHTML = `
-        <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
-        <div class="info">
-          <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}</div>
-          <div class="d">${escapeHtml(item.description || item.url || '')}</div>
-        </div>
-        <div class="actions">
-          <button class="btn-outline btn-small" data-edit="${item.id}">ادیت</button>
-          <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
-        </div>`;
-      body.appendChild(row);
-    });
-
-    folderEl.appendChild(header);
-    folderEl.appendChild(body);
-    area.appendChild(folderEl);
+      <div class="actions">
+        <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
+      </div>`;
+    area.appendChild(row);
   });
-
   area.querySelectorAll('[data-del]').forEach((btn) => {
-    btn.addEventListener('click', (e) => { e.stopPropagation(); deleteItem(btn.getAttribute('data-del')); });
-  });
-  area.querySelectorAll('[data-edit]').forEach((btn) => {
-    btn.addEventListener('click', (e) => { e.stopPropagation(); editItem(btn.getAttribute('data-edit')); });
+    btn.addEventListener('click', () => deleteItem(btn.getAttribute('data-del')));
   });
 }
 
@@ -605,57 +580,13 @@ async function deleteItem(id) {
   if (!confirm('این مورد از برنامه حذف شود؟')) return;
   contentItems = contentItems.filter((i) => i.id !== id);
   try {
-    await saveContentList('حذف محتوا: ' + id);
+    await saveContentList('حذف محتوا: ' + id, (fresh) => fresh.filter((i) => i.id !== id));
     toast('حذف شد', 'success');
     renderList();
   } catch (e) {
     toast(e.message, 'error');
     loadContentList();
   }
-}
-
-let editingId = null; // اگه غیر null باشه، یعنی داریم یه آیتم موجود رو ویرایش می‌کنیم نه اینکه جدید بسازیم
-
-function editItem(id) {
-  const item = contentItems.find((i) => i.id === id);
-  if (!item) return;
-
-  editingId = id;
-
-  // نوع محتوا رو در تب‌ها فعال کن
-  selectedType = item.type;
-  document.querySelectorAll('.type-tab').forEach((t) => {
-    t.classList.toggle('active', t.getAttribute('data-type') === item.type);
-  });
-  const hint = document.getElementById('banner-size-hint');
-  if (hint) hint.style.display = (selectedType === 'home_banner') ? 'block' : 'none';
-
-  // موقع ویرایش، همیشه از طریق لینک ادیت می‌کنیم (نه آپلود دوباره‌ی فایل)
-  selectedSource = 'url';
-  document.querySelectorAll('.source-tab').forEach((t) => t.classList.toggle('active', t.getAttribute('data-src') === 'url'));
-  $('src-url-box').classList.remove('hidden');
-  $('src-upload-box').classList.add('hidden');
-
-  $('in-title').value = item.title || '';
-  $('in-desc').value = item.description || '';
-  $('in-section').value = item.section || '';
-  $('in-url').value = item.url || '';
-
-  $('btn-add').textContent = 'ذخیره تغییرات';
-  $('btn-cancel-edit').classList.remove('hidden');
-
-  $('form-card-title').textContent = 'ویرایش محتوا';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function cancelEdit() {
-  editingId = null;
-  resetForm();
-  $('btn-add').textContent = 'افزودن به برنامه';
-  $('btn-cancel-edit').classList.add('hidden');
-  $('form-card-title').textContent = 'افزودن محتوای جدید';
-  document.querySelectorAll('.type-tab').forEach((t) => t.classList.toggle('active', t.getAttribute('data-type') === 'link'));
-  selectedType = 'link';
 }
 
 // ---------- add item flow ----------
@@ -708,23 +639,6 @@ async function handleAdd() {
     }
 
     const sectionValue = $('in-section').value.trim();
-
-    if (editingId) {
-      const idx = contentItems.findIndex((i) => i.id === editingId);
-      if (idx === -1) throw new Error('این مورد دیگر پیدا نشد — شاید از جای دیگری حذف شده');
-      const updated = { ...contentItems[idx], type: selectedType, title, description, url };
-      if (sectionValue) updated.section = sectionValue; else delete updated.section;
-      contentItems[idx] = updated;
-
-      btn.textContent = 'در حال ذخیره...';
-      await saveContentList('ویرایش محتوا: ' + title);
-
-      toast('تغییرات ذخیره شد ✔', 'success');
-      cancelEdit();
-      renderList();
-      return;
-    }
-
     const newItem = {
       id: 'item_' + Date.now(),
       type: selectedType,
@@ -736,7 +650,7 @@ async function handleAdd() {
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
-    await saveContentList('افزودن محتوا: ' + title);
+    await saveContentList('افزودن محتوا: ' + title, (fresh) => [...fresh, newItem]);
 
     toast('با موفقیت اضافه شد ✔', 'success');
     resetForm();
@@ -802,7 +716,6 @@ function initTabs() {
   });
 
   $('btn-add').addEventListener('click', handleAdd);
-  $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
   $('btn-logout').addEventListener('click', () => {
