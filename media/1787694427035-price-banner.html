@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بنرساز قیمت آسان‌نت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --panel2:#f1f3f6;
+    --cyan:#00a896; --magenta:#e91e63; --gold:#b8860b;
+    --text:#1a2130; --muted:#6b7280; --border:#e3e6eb;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(0,168,150,0.06), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(233,30,99,0.05), transparent 40%),
+      var(--bg);
+    color:var(--text); font-family:'Vazirmatn', sans-serif;
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; padding:28px 16px 60px;
+  }
+  header{ text-align:center; margin-bottom:20px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.15em; color:var(--gold); text-transform:uppercase;
+    margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .eyebrow::before, .eyebrow::after{ content:''; width:24px; height:1px; background:var(--gold); opacity:0.5; }
+  h1{
+    font-size:23px; font-weight:900;
+    background:linear-gradient(90deg, var(--text), var(--gold));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .sub{ color:var(--muted); font-size:12.5px; margin-top:6px; }
+
+  .card{
+    width:100%; max-width:480px; background:var(--panel);
+    border:1px solid var(--border); border-radius:20px; padding:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4); margin-bottom:16px;
+  }
+  #bannerCard{ max-width:none; padding:12px; }
+  .card-title{
+    font-size:11.5px; color:var(--muted); font-weight:600; margin-bottom:10px;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .field{ margin-bottom:10px; }
+  .field label{ font-size:11.5px; color:var(--muted); display:block; margin-bottom:6px; }
+
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; }
+  .section-title{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .switch{ position:relative; width:42px; height:24px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider-switch{
+    position:absolute; cursor:pointer; inset:0; background:var(--panel2);
+    border:1px solid var(--border); border-radius:24px; transition:.2s;
+  }
+  .slider-switch::before{
+    content:''; position:absolute; height:16px; width:16px; right:3px; bottom:3px;
+    background:var(--muted); border-radius:50%; transition:.2s;
+  }
+  .switch input:checked + .slider-switch{ background:rgba(0,168,150,0.15); border-color:var(--cyan); }
+  .switch input:checked + .slider-switch::before{ background:var(--cyan); transform:translateX(-18px); }
+  input[type=text]{
+    width:100%; background:var(--panel2); border:1px solid var(--border);
+    border-radius:10px; padding:10px 12px; color:var(--text);
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; outline:none;
+  }
+  input[type=text]:focus{ border-color:var(--gold); }
+
+  button{
+    font-family:'Vazirmatn', sans-serif; font-weight:700; font-size:13px;
+    border-radius:12px; border:none; padding:12px 16px; cursor:pointer;
+    transition:all .2s; width:100%;
+  }
+  .btn-primary{ background:linear-gradient(90deg, var(--cyan), #00b8a0); color:#04120f; }
+  .btn-primary:hover{ filter:brightness(1.1); transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+  .btn-gold{ background:linear-gradient(90deg, var(--gold), #a5811f); color:#1a1400; margin-top:10px; }
+  .btn-gold:hover{ filter:brightness(1.1); transform:translateY(-1px); }
+  .btn-gold:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+  #statusMsg{
+    margin-top:10px; font-size:12px; text-align:center; padding:10px;
+    border-radius:10px; display:none;
+  }
+  #statusMsg.error{ display:block; background:rgba(233,30,99,0.08); border:1px solid rgba(233,30,99,0.3); color:var(--magenta); }
+  #statusMsg.loading{ display:block; background:rgba(0,168,150,0.08); border:1px solid rgba(0,168,150,0.3); color:var(--cyan); }
+  #statusMsg.ok{ display:block; background:rgba(0,168,150,0.08); border:1px solid rgba(0,168,150,0.3); color:var(--cyan); }
+
+  #priceGrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+  .price-item{
+    background:var(--panel2); border:1px solid var(--border); border-radius:12px;
+    padding:12px; display:flex; align-items:center; gap:8px;
+  }
+  .price-item input[type=checkbox]{ accent-color:var(--gold); width:16px; height:16px; flex-shrink:0; }
+  .price-item .pi-body{ flex:1; min-width:0; }
+  .price-item .pi-label{ font-size:11px; color:var(--muted); }
+  .price-item .pi-value{
+    font-family:'JetBrains Mono', monospace; font-size:14px; font-weight:700; color:var(--gold);
+    margin-top:2px; direction:ltr; text-align:right;
+  }
+  .empty-note{ color:var(--muted); font-size:12px; text-align:center; padding:16px 0; grid-column:1/-1; }
+
+  #bannerPreviewWrap{ display:none; margin-top:14px; text-align:center; }
+  #bannerCanvas{ width:100%; border-radius:14px; border:1px solid var(--border); }
+  .dl-banner{
+    display:block; margin-top:10px; background:linear-gradient(90deg, var(--magenta), #c2185b);
+    color:#fff; text-decoration:none; border-radius:12px; padding:12px; font-weight:700; font-size:13px;
+  }
+
+  details{ margin-top:8px; }
+  summary{ font-size:11px; color:var(--muted); cursor:pointer; }
+  pre{
+    font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--muted);
+    background:var(--panel2); border-radius:10px; padding:10px; margin-top:8px;
+    max-height:180px; overflow:auto; white-space:pre-wrap; word-break:break-all;
+    text-align:left; direction:ltr;
+  }
+
+  canvas#hiddenCanvas{ display:none; }
+  footer{ margin-top:6px; color:var(--muted); font-size:11px; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">آسان‌نت</div>
+  <h1>بنرساز قیمت لحظه‌ای</h1>
+  <div class="sub">دلار، یورو، طلا و سکه — بگیر، انتخاب کن، بنر بساز</div>
+</header>
+
+<div class="card">
+  <div class="card-title">تنظیمات اتصال</div>
+  <div class="toggle-row" style="margin-bottom:10px;">
+    <div class="section-title">ورود دستی کد API</div>
+    <label class="switch">
+      <input type="checkbox" id="manualModeToggle">
+      <span class="slider-switch"></span>
+    </label>
+  </div>
+  <div class="field" id="apiFieldWrap" style="display:none;">
+    <label>کد API (navasan.tech)</label>
+    <input type="text" id="apiCode" placeholder="کد API خودت رو اینجا بذار" dir="ltr">
+  </div>
+  <button class="btn-primary" id="fetchBtn">دریافت قیمت لحظه‌ای</button>
+  <div id="statusMsg"></div>
+  <details id="debugDetails" style="display:none;">
+    <summary>خروجی خام (برای عیب‌یابی)</summary>
+    <pre id="rawOutput"></pre>
+  </details>
+</div>
+
+<div class="card" id="priceCard" style="display:none;">
+  <div class="card-title">قیمت‌ها — انتخاب کن کدوم‌ها روی بنر باشه</div>
+  <div id="priceGrid"></div>
+  <button class="btn-gold" id="makeBannerBtn" disabled>ساخت بنر</button>
+</div>
+
+<div class="card" id="bannerCard" style="display:none;">
+  <div class="card-title">پیش‌نمایش بنر</div>
+  <div id="bannerPreviewWrap">
+    <canvas id="bannerCanvas"></canvas>
+    <a class="dl-banner" id="downloadBanner" download="asannett-banner.png">دانلود بنر</a>
+  </div>
+</div>
+
+<footer>کد API فقط داخل همین صفحه (روی گوشی خودت) ذخیره می‌شه</footer>
+
+<canvas id="hiddenCanvas" width="1080" height="1080"></canvas>
+
+<script>
+// ============================================================
+// برای عوض کردن کد API، فقط مقدار بین کوتیشن‌های خط زیر رو عوض کن.
+// سرویس فعلی: navasan.tech (کلید رایگان از بات تلگرام @navasan_contact_bot)
+const DEFAULT_API_CODE = 'freeasNWkJGSuOSDKpRBYY2rgDAQegrg';
+// ============================================================
+
+const STORAGE_KEY = 'asannett_nerkh_api_code';
+const apiCodeInput = document.getElementById('apiCode');
+const apiFieldWrap = document.getElementById('apiFieldWrap');
+const manualModeToggle = document.getElementById('manualModeToggle');
+const fetchBtn = document.getElementById('fetchBtn');
+const statusMsg = document.getElementById('statusMsg');
+const priceCard = document.getElementById('priceCard');
+const priceGrid = document.getElementById('priceGrid');
+const makeBannerBtn = document.getElementById('makeBannerBtn');
+const bannerCard = document.getElementById('bannerCard');
+const bannerPreviewWrap = document.getElementById('bannerPreviewWrap');
+const bannerCanvas = document.getElementById('bannerCanvas');
+const downloadBanner = document.getElementById('downloadBanner');
+const rawOutput = document.getElementById('rawOutput');
+const debugDetails = document.getElementById('debugDetails');
+const hiddenCanvas = document.getElementById('hiddenCanvas');
+const hctx = hiddenCanvas.getContext('2d');
+
+// Manual mode is OFF by default: the API field stays hidden and the
+// built-in DEFAULT_API_CODE is used automatically. Turning the switch on
+// reveals the field so a different code can be typed in for this session.
+manualModeToggle.addEventListener('change', ()=>{
+  const isManual = manualModeToggle.checked;
+  apiFieldWrap.style.display = isManual ? 'block' : 'none';
+  if(isManual && !apiCodeInput.value){
+    try{ apiCodeInput.value = localStorage.getItem(STORAGE_KEY) || ''; }catch(e){}
+  }
+});
+
+function getActiveApiCode(){
+  if(manualModeToggle.checked){
+    return apiCodeInput.value.trim();
+  }
+  return DEFAULT_API_CODE;
+}
+
+let currentPrices = []; // [{key, label, value, unit}]
+
+function setStatus(text, type){
+  statusMsg.className = type;
+  statusMsg.textContent = text;
+}
+
+// Field name mapping — nerkh-api's exact JSON keys aren't publicly documented,
+// so this tries the common possibilities. If the raw output (debug box) shows
+// different key names, tell me and I will adjust this mapping.
+const LABELS = {
+  usd: 'دلار آمریکا', eur: 'یورو', gbp: 'پوند انگلیس', aed: 'درهم امارات',
+  try: 'لیر ترکیه', cad: 'دلار کانادا', aud: 'دلار استرالیا', chf: 'فرانک سوئیس',
+  cny: 'یوان چین', jpy: 'ین ژاپن', kwd: 'دینار کویت', sar: 'ریال عربستان',
+  qar: 'ریال قطر', omr: 'ریال عمان', iqd: 'دینار عراق', hkd: 'دلار هنگ‌کنگ',
+  inr: 'روپیه هند', nzd: 'دلار نیوزیلند', afn: 'افغانی افغانستان', bhd: 'دینار بحرین',
+  syp: 'لیر سوریه', pkr: 'روپیه پاکستان', sgd: 'دلار سنگاپور', myr: 'رینگیت مالزی',
+  thb: 'بات تایلند', rub: 'روبل روسیه', azn: 'مانات آذربایجان', amd: 'درام ارمنستان',
+  gel: 'لاری گرجستان', dkk: 'کرون دانمارک', sek: 'کرون سوئد', nok: 'کرون نروژ',
+  gol18: 'طلای ۱۸ عیار', geram18: 'طلای ۱۸ عیار', gold18: 'طلای ۱۸ عیار',
+  gol24: 'طلای ۲۴ عیار', geram24: 'طلای ۲۴ عیار', gold24: 'طلای ۲۴ عیار',
+  mesghal: 'مثقال طلا', ons: 'انس جهانی', ounce: 'انس جهانی',
+  emami: 'سکه امامی', sekee: 'سکه امامی', sekee_emami: 'سکه امامی',
+  azadi1: 'بهار آزادی', bahar: 'بهار آزادی', seke_bahar: 'بهار آزادی',
+  nim: 'نیم سکه', rob: 'ربع سکه', gerami: 'سکه گرمی',
+  // navasan.tech-specific codes
+  '18ayar': 'طلای ۱۸ عیار', abshodeh: 'طلای آب‌شده', xau: 'انس جهانی',
+  sekkeh: 'سکه امامی', usd_sherkat: 'دلار شرکتی', usd_shakhs: 'دلار شخصی'
+};
+
+const DEFAULT_SELECTED_KEYS = ['usd','18ayar','sekkeh'];
+
+const META_BLACKLIST = ['status','message','msg','success','ok','error','code','api_code',
+  'date','time','updated_at','timestamp','ver','version','result_code','count'];
+
+function fmtNumber(n){
+  const num = Number(n);
+  if(isNaN(num)) return String(n);
+  return num.toLocaleString('en-US');
+}
+
+function prettifyKey(k){
+  return k.replace(/_/g, ' ').toUpperCase();
+}
+
+// Finds the sub-object that actually holds the price entries, drilling
+// through nested wrapper keys like data -> prices, skipping metadata.
+function findDataRoot(obj){
+  if(!obj || typeof obj !== 'object') return null;
+  const wrapperKeys = ['data','result','currencies','currency','gold','prices','rates','items'];
+  let current = obj;
+  for(let depth = 0; depth < 5; depth++){
+    let moved = false;
+    for(const w of wrapperKeys){
+      if(current[w] && typeof current[w] === 'object' && !Array.isArray(current[w])){
+        current = current[w];
+        moved = true;
+        break;
+      }
+    }
+    if(!moved) break;
+  }
+  return current;
+}
+
+// Handles shapes like { USD: { min, max, current } } or { usd: 123456 }
+// while ignoring metadata fields such as status/message/date.
+function extractItems(rawObj){
+  const out = [];
+  const obj = findDataRoot(rawObj);
+  if(!obj || typeof obj !== 'object') return out;
+
+  Object.keys(obj).forEach(k=>{
+    const lowerKey = k.toLowerCase();
+    if(META_BLACKLIST.includes(lowerKey)) return;
+
+    const val = obj[k];
+    let priceValue = null;
+
+    if(val && typeof val === 'object' && !Array.isArray(val)){
+      if('current' in val) priceValue = val.current;
+      else if('price' in val) priceValue = val.price;
+      else if('value' in val) priceValue = val.value;
+      else return; // unknown nested shape, skip
+    } else if(typeof val === 'number' || (typeof val === 'string' && !isNaN(Number(val)) && val.trim() !== '')){
+      priceValue = val;
+    } else {
+      return;
+    }
+
+    const label = LABELS[lowerKey] || prettifyKey(k);
+    out.push({ key: lowerKey, label, value: priceValue });
+  });
+  return out;
+}
+
+// Handles array-of-objects responses too, e.g.
+// [ { symbol: "USD", price: 188132, ... }, { name: "gol18", value: ... } ]
+// which is the common shape for brsapi-style services, in addition to the
+// nested-object shape ({ USD: { current: ... } }) used by nerkh-api.
+function extractItemsAny(data){
+  if(Array.isArray(data)){
+    const out = [];
+    const idFields = ['symbol','code','name_en'];
+    const priceFields = ['price','value','current','close','last','rate','sell'];
+    data.forEach(entry=>{
+      if(!entry || typeof entry !== 'object') return;
+      let id = null;
+      for(const f of idFields){ if(entry[f]){ id = entry[f]; break; } }
+      if(!id) return;
+      const lowerKey = String(id).toLowerCase();
+      if(lowerKey.includes('usdt') || lowerKey === 'btc' || lowerKey === 'eth') return; // no crypto/tether
+
+      let price = null;
+      for(const f of priceFields){ if(entry[f] !== undefined && entry[f] !== null && entry[f] !== ''){ price = entry[f]; break; } }
+      if(price === null || isNaN(Number(price))) return;
+
+      // prefer the API's own Persian name field over our lookup table
+      const label = (entry.name && typeof entry.name === 'string' && /[\u0600-\u06FF]/.test(entry.name))
+        ? entry.name
+        : (LABELS[lowerKey] || prettifyKey(String(id)));
+
+      out.push({ key: lowerKey, label, value: price, unit: entry.unit || null });
+    });
+    return out;
+  }
+  if(data && typeof data === 'object'){
+    let combined = [];
+    let foundArray = false;
+    Object.keys(data).forEach(k=>{
+      if(k.toLowerCase() === 'cryptocurrency') return; // excluded per earlier decision
+      if(Array.isArray(data[k])){
+        foundArray = true;
+        combined = combined.concat(extractItemsAny(data[k]));
+      }
+    });
+    if(foundArray) return combined;
+    return extractItems(data); // fallback: nested-object shape (e.g. nerkh-api style)
+  }
+  return [];
+}
+
+async function fetchPrices(){
+  const code = getActiveApiCode();
+  if(!code){
+    setStatus('حالت دستی روشنه ولی کد API خالیه — یه کد وارد کن', 'error');
+    return;
+  }
+  if(manualModeToggle.checked){
+    try{ localStorage.setItem(STORAGE_KEY, code); }catch(e){}
+  }
+
+  fetchBtn.disabled = true;
+  setStatus('در حال دریافت قیمت‌ها…', 'loading');
+  priceCard.style.display = 'none';
+  bannerCard.style.display = 'none';
+
+  // cache-buster (_ts) + no-store: without these, the browser (or a CDN in
+  // front of the API) can silently serve an old cached response for this
+  // exact URL, which is why prices could look "stuck" on an older price.
+  const cacheBust = '&_ts=' + Date.now();
+  const urlHttps = 'https://api.navasan.tech/latest/?api_key=' + encodeURIComponent(code) + cacheBust;
+  const urlHttp = 'http://api.navasan.tech/latest/?api_key=' + encodeURIComponent(code) + cacheBust;
+  const fetchOpts = { cache: 'no-store' };
+
+  try{
+    let res;
+    try{
+      res = await fetch(urlHttps, fetchOpts);
+      if(!res.ok) throw new Error('HTTP_' + res.status);
+    }catch(e){
+      res = await fetch(urlHttp, fetchOpts); // fallback in case https isn't supported by this endpoint
+      if(!res.ok) throw new Error('HTTP_' + res.status);
+    }
+    const data = await res.json();
+
+    rawOutput.textContent = JSON.stringify(data, null, 2);
+    debugDetails.style.display = 'block';
+
+    const items = extractItemsAny(data);
+    currentPrices = items.map(it => ({ ...it, selected: DEFAULT_SELECTED_KEYS.includes(it.key) }));
+    renderPriceGrid();
+
+    if(currentPrices.length === 0){
+      setStatus('داده دریافت شد ولی فیلدهای شناخته‌شده پیدا نشد — خروجی خام رو باز کن و برام بفرست تا مپینگ رو تنظیم کنم', 'error');
+    } else {
+      setStatus('قیمت‌ها با موفقیت دریافت شد', 'ok');
+    }
+    priceCard.style.display = 'block';
+
+  }catch(err){
+    console.error(err);
+    setStatus('اتصال ناموفق بود. اگه این صفحه با https باز شده و سرویس http هست، مرورگر جلوی درخواست رو گرفته (Mixed Content). این خطا رو برام بفرست.', 'error');
+  }finally{
+    fetchBtn.disabled = false;
+  }
+}
+
+function renderPriceGrid(){
+  if(currentPrices.length === 0){
+    priceGrid.innerHTML = '<div class="empty-note">آیتمی برای نمایش نیست</div>';
+    makeBannerBtn.disabled = true;
+    return;
+  }
+  priceGrid.innerHTML = currentPrices.map((it, idx) => `
+    <label class="price-item">
+      <input type="checkbox" data-idx="${idx}" ${it.selected ? 'checked' : ''}>
+      <div class="pi-body">
+        <div class="pi-label">${it.label}</div>
+        <div class="pi-value">${fmtNumber(it.value)}</div>
+      </div>
+    </label>
+  `).join('');
+
+  priceGrid.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const idx = Number(e.target.dataset.idx);
+      currentPrices[idx].selected = e.target.checked;
+    });
+  });
+
+  makeBannerBtn.disabled = false;
+}
+
+fetchBtn.addEventListener('click', fetchPrices);
+
+// ---- Jalali date: try the browser's native Persian calendar first,
+// fall back to a manual (verified-correct) conversion if unsupported ----
+const JALALI_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const WEEKDAY_FA = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه']; // JS getDay(): 0=Sunday
+function toFaDigits(s){ return String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+
+function toJalaliManual(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy;
+  if(gy <= 1600){ jy = 0; gy -= 621; }
+  else { jy = 979; gy -= 1600; }
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100)
+    + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+  jy += 33 * Math.floor(days / 12053);
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    jy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
+  }
+  let jm, jd;
+  if (days < 186) { jm = 1 + Math.floor(days / 31); jd = 1 + (days % 31); }
+  else { jm = 7 + Math.floor((days - 186) / 30); jd = 1 + ((days - 186) % 30); }
+  return [jy, jm, jd];
+}
+
+function todayJalaliParts(){
+  const now = new Date();
+  try{
+    const fmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    if(fmt.resolvedOptions().calendar === 'persian'){
+      const map = {};
+      fmt.formatToParts(now).forEach(p => { map[p.type] = p.value; });
+      if(map.day && map.month && map.year) return map;
+    }
+  }catch(e){}
+  const [jy, jm, jd] = toJalaliManual(now.getFullYear(), now.getMonth()+1, now.getDate());
+  return { weekday: WEEKDAY_FA[now.getDay()], day: toFaDigits(jd), month: JALALI_MONTHS[jm-1], year: toFaDigits(jy) };
+}
+function todayJalaliString(){
+  const p = todayJalaliParts();
+  return `${p.weekday}، ${p.day} ${p.month} ${p.year}`;
+}
+
+// Shrinks font size until text fits maxWidth, so large text never overflows its box.
+function fitFontSize(c, text, maxWidth, startSize, weight, family, minSize){
+  let size = startSize;
+  const floor = minSize || 24;
+  while(size > floor){
+    c.font = `${weight} ${size}px ${family}`;
+    if(c.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
+// ---- Banner rendering ----
+makeBannerBtn.addEventListener('click', ()=>{
+  const selected = currentPrices.filter(it => it.selected);
+  if(selected.length === 0){
+    setStatus('حداقل یه آیتم رو انتخاب کن', 'error');
+    return;
+  }
+  drawBanner(selected);
+  bannerCard.style.display = 'block';
+  bannerPreviewWrap.style.display = 'block';
+  bannerCard.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// ---- Card style classification: currency / gold / coin ----
+function getCardStyle(key){
+  const goldKeys = ['ir_gold_18k','ir_gold_24k','ir_gold_melted','xauusd','geram18','geram24','gol18','gol24','gold18','gold24','mesghal','ons','ounce','18ayar','abshodeh','xau'];
+  const coinKeys = ['ir_coin_1g','ir_coin_quarter','ir_coin_half','ir_coin_emami','ir_coin_bahar','sekee_emami','emami','sekee','seke_bahar','azadi1','bahar','nim','rob','gerami','sekkeh'];
+  if(goldKeys.includes(key)) return { type:'gold', border:'#d4af37', text:'#b8860b', icon:'gold' };
+  if(coinKeys.includes(key)) return { type:'coin', border:'#2563eb', text:'#1d4ed8', icon:'coin' };
+  return { type:'currency', border:'#16a34a', text:'#15803d', icon:'cash' };
+}
+
+function unitFor(key){
+  return 'تومان';
+}
+
+// navasan.tech quirk, confirmed against real market prices on 1405-05-31:
+//  - usd, gold-per-gram (18ayar/24ayar), gold ounce (xau), and crypto (btc/eth/...)
+//    all come back ALREADY in full Toman (e.g. usd:"192600" = 192,600 Toman/USD,
+//    18ayar:"20961260" = ~20.96M Toman/gram — both match real prices as-is).
+//  - physical coins (sekkeh/bahar/nim/rob/gerami) come back scaled down by 1000
+//    (e.g. sekkeh:"209000" when the real emami coin price that day was ~209,000,000
+//    Toman) — these need ×1000.
+// brsapi.ir-style sources give ready-to-display values with their own "unit" field,
+// which is trusted as-is.
+const NAVASAN_COIN_KEYS = ['sekkeh','bahar','azadi1','seke_bahar','nim','rob','gerami','emami','sekee','sekee_emami','ir_coin_1g','ir_coin_quarter','ir_coin_half','ir_coin_emami','ir_coin_bahar'];
+function displayValueFor(item){
+  if(item.unit) return item.value;
+  const num = Number(item.value);
+  if(isNaN(num)) return item.value;
+  if(NAVASAN_COIN_KEYS.includes(item.key)) return num * 1000;
+  return num;
+}
+
+// ---- Simple drawn icons (flat style, no external images) ----
+function drawIcon(c, type, cx, cy, r){
+  c.save();
+  if(type === 'cash'){
+    c.fillStyle = '#e8f5e9';
+    roundRect(c, cx-r, cy-r*0.62, r*2, r*1.24, 8);
+    c.fill();
+    c.strokeStyle = '#2e7d32'; c.lineWidth = 3;
+    roundRect(c, cx-r, cy-r*0.62, r*2, r*1.24, 8);
+    c.stroke();
+    c.fillStyle = '#2e7d32';
+    c.font = `700 ${r*0.9}px "JetBrains Mono", monospace`;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('$', cx, cy+2);
+  } else if(type === 'gold'){
+    c.strokeStyle = '#d4af37'; c.lineWidth = r*0.22;
+    c.beginPath(); c.arc(cx, cy+r*0.15, r*0.62, 0.15*Math.PI, 1.5*Math.PI); c.stroke();
+    c.beginPath(); c.arc(cx+r*0.15, cy-r*0.25, r*0.32, 0, Math.PI*2); c.stroke();
+    c.fillStyle = '#d4af37';
+    c.beginPath();
+    c.moveTo(cx-r*0.05, cy-r*0.6);
+    c.lineTo(cx+r*0.28, cy-r*0.25);
+    c.lineTo(cx-r*0.02, cy+r*0.02);
+    c.lineTo(cx-r*0.32, cy-r*0.28);
+    c.closePath();
+    c.fill();
+  } else if(type === 'coin'){
+    let grad = c.createLinearGradient(cx-r,cy-r,cx+r,cy+r);
+    grad.addColorStop(0,'#ffe27a'); grad.addColorStop(1,'#c99b1f');
+    c.fillStyle = grad;
+    c.beginPath(); c.arc(cx, cy, r*0.85, 0, Math.PI*2); c.fill();
+    c.strokeStyle = '#8a6d1a'; c.lineWidth = 3;
+    c.beginPath(); c.arc(cx, cy, r*0.85, 0, Math.PI*2); c.stroke();
+    c.strokeStyle = 'rgba(138,109,26,0.5)'; c.lineWidth = 2;
+    c.beginPath(); c.arc(cx, cy, r*0.6, 0, Math.PI*2); c.stroke();
+    c.fillStyle = '#8a6d1a';
+    c.beginPath();
+    c.moveTo(cx-r*0.32, cy+r*0.18);
+    c.lineTo(cx-r*0.32, cy-r*0.08);
+    c.lineTo(cx, cy-r*0.32);
+    c.lineTo(cx+r*0.32, cy-r*0.08);
+    c.lineTo(cx+r*0.32, cy+r*0.18);
+    c.closePath();
+    c.fill();
+  }
+  c.restore();
+}
+
+function drawCalendarIcon(c, x, y, s){
+  c.strokeStyle = '#00e5c7'; c.lineWidth = 2.5;
+  roundRect(c, x, y, s, s*0.85, 4); c.stroke();
+  c.beginPath(); c.moveTo(x, y+s*0.28); c.lineTo(x+s, y+s*0.28); c.stroke();
+  c.beginPath(); c.moveTo(x+s*0.25, y-s*0.12); c.lineTo(x+s*0.25, y+s*0.12); c.stroke();
+  c.beginPath(); c.moveTo(x+s*0.75, y-s*0.12); c.lineTo(x+s*0.75, y+s*0.12); c.stroke();
+}
+function drawClockIcon(c, x, y, r){
+  c.strokeStyle = '#00e5c7'; c.lineWidth = 2.5;
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI*2); c.stroke();
+  c.beginPath(); c.moveTo(x, y); c.lineTo(x, y-r*0.55); c.stroke();
+  c.beginPath(); c.moveTo(x, y); c.lineTo(x+r*0.4, y+r*0.15); c.stroke();
+}
+
+function drawCandlestickBg(c, W, H){
+  const bandH = Math.min(H*0.32, 360);
+  let bg = c.createLinearGradient(0,0,0,bandH);
+  bg.addColorStop(0,'#0d1b2a'); bg.addColorStop(1,'#0a0d13');
+  c.fillStyle = bg; c.fillRect(0,0,W,bandH);
+
+  const n = 26;
+  const colW = W / n;
+  for(let i=0;i<n;i++){
+    const cx = i*colW + colW*0.5;
+    const up = Math.random() > 0.45;
+    const bodyH = 20 + Math.random()*90;
+    const baseY = bandH*0.35 + Math.random()*bandH*0.4;
+    const color = up ? 'rgba(0,229,199,0.35)' : 'rgba(255,45,120,0.3)';
+    c.strokeStyle = color; c.fillStyle = color; c.lineWidth = 1.5;
+    c.beginPath();
+    c.moveTo(cx, baseY - bodyH*0.5 - 14);
+    c.lineTo(cx, baseY + bodyH*0.5 + 14);
+    c.stroke();
+    c.fillRect(cx-colW*0.24, baseY-bodyH*0.5, colW*0.48, bodyH);
+  }
+  // fade the candlestick band into the background
+  let fade = c.createLinearGradient(0,bandH*0.5,0,bandH);
+  fade.addColorStop(0,'rgba(10,13,19,0)'); fade.addColorStop(1,'rgba(10,13,19,1)');
+  c.fillStyle = fade; c.fillRect(0,bandH*0.5,W,bandH*0.5);
+}
+
+function drawBanner(selected){
+  const W = 1080;
+  // Calibrated so 8 selected prices ⇒ ~2000px total. Height is otherwise fully
+  // variable: more items ⇒ taller, fewer items ⇒ shorter (topH/bottomH/gap are
+  // fixed; only the number of cards changes the total).
+  const cardH = 175;
+  const gap = 18;
+  const topH = 310;   // title + one compact merged date/time bar
+  const bottomH = 164; // slim disclaimer + slim channel footer
+
+  const n = Math.max(selected.length, 1);
+  const H = topH + n*cardH + (n-1)*gap + bottomH;
+
+  hiddenCanvas.width = W; hiddenCanvas.height = H;
+  const c = hctx;
+
+  // base background
+  c.fillStyle = '#0a0d13';
+  c.fillRect(0,0,W,H);
+  drawCandlestickBg(c, W, H);
+
+  // ---- Title ----
+  c.textAlign = 'center';
+  c.direction = 'rtl';
+  c.fillStyle = '#f4f6f8';
+  c.font = '900 72px Vazirmatn, sans-serif';
+  c.fillText('قیمت روز', W/2, 88);
+  c.fillStyle = '#f2c14e';
+  c.font = '900 72px Vazirmatn, sans-serif';
+  c.fillText('ارز و طلا', W/2, 158);
+
+  // ---- Date + time merged into a single compact bar ----
+  const badgeX = 16;
+  const badgeW = W - 32;
+  const badgeY = 195;
+  const badgeH = 96;
+  c.strokeStyle = 'rgba(0,229,199,0.45)'; c.lineWidth = 3;
+  roundRect(c, badgeX, badgeY, badgeW, badgeH, 20); c.stroke();
+
+  const midX = badgeX + badgeW/2;
+  c.strokeStyle = 'rgba(0,229,199,0.25)'; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(midX, badgeY+16); c.lineTo(midX, badgeY+badgeH-16); c.stroke();
+
+  drawCalendarIcon(c, badgeX+56, badgeY+badgeH/2-14, 34);
+  const dateStr = todayJalaliString();
+  const dateMaxW = (badgeW/2) - 110;
+  const dateSize = fitFontSize(c, dateStr, dateMaxW, 40, 700, 'Vazirmatn, sans-serif', 22);
+  c.fillStyle = '#e8ecf1';
+  c.font = `700 ${dateSize}px Vazirmatn, sans-serif`;
+  c.textAlign = 'center';
+  c.fillText(dateStr, badgeX+96+(badgeW/2-96)/2, badgeY+badgeH/2+dateSize*0.32);
+
+  const now = new Date();
+  const hh = toFaDigits(String(now.getHours()).padStart(2,'0'));
+  const mm = toFaDigits(String(now.getMinutes()).padStart(2,'0'));
+  const timeStr = 'ساعت ' + hh + ':' + mm;
+  drawClockIcon(c, midX+56, badgeY+badgeH/2, 24);
+  const timeMaxW = (badgeW/2) - 110;
+  const timeSize = fitFontSize(c, timeStr, timeMaxW, 40, 700, 'Vazirmatn, sans-serif', 22);
+  c.fillStyle = '#e8ecf1';
+  c.font = `700 ${timeSize}px Vazirmatn, sans-serif`;
+  c.fillText(timeStr, midX+96+(badgeW/2-96)/2, badgeY+badgeH/2+timeSize*0.32);
+
+  // ---- Price cards ----
+  const startY = topH;
+  const cardW = W - 32;
+  const cardX = 16;
+
+  selected.forEach((item, i)=>{
+    const y = startY + i * (cardH + gap);
+    const style = getCardStyle(item.key);
+
+    // card shadow + bg
+    c.save();
+    c.shadowColor = 'rgba(0,0,0,0.35)';
+    c.shadowBlur = 20;
+    c.shadowOffsetY = 8;
+    c.fillStyle = '#fafafa';
+    roundRect(c, cardX, y, cardW, cardH, 20);
+    c.fill();
+    c.restore();
+
+    c.strokeStyle = style.border; c.lineWidth = 4;
+    roundRect(c, cardX, y, cardW, cardH, 20); c.stroke();
+
+    // icon
+    drawIcon(c, style.icon, cardX + 100, y + cardH/2, 58);
+
+    // label — doubled and bolder, still shrinks to fit the left column
+    const labelMaxW = cardW*0.68 - 190 - 16;
+    const labelSize = fitFontSize(c, item.label, labelMaxW, 82, 800, 'Vazirmatn, sans-serif', 30);
+    c.textAlign = 'center';
+    c.direction = 'rtl';
+    c.fillStyle = '#2a2a2a';
+    c.font = `800 ${labelSize}px Vazirmatn, sans-serif`;
+    c.fillText(item.label, cardX + cardW*0.53, y + cardH/2 + labelSize*0.32);
+
+    // divider
+    c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(cardX + cardW*0.68, y + 20);
+    c.lineTo(cardX + cardW*0.68, y + cardH - 20);
+    c.stroke();
+
+    // value — doubled and bolder, shrinks to fit the right column so long
+    // numbers like BTC/ETH stay inside the card
+    const valueMaxW = cardW*0.32 - 50;
+    const valueText = toFaDigits(fmtNumber(displayValueFor(item)));
+    const valueSize = fitFontSize(c, valueText, valueMaxW, 100, 900, 'Vazirmatn, sans-serif', 26);
+    c.fillStyle = style.text;
+    c.font = `900 ${valueSize}px Vazirmatn, sans-serif`;
+    c.textAlign = 'center';
+    c.fillText(valueText, cardX + cardW*0.855, y + cardH/2 - 14);
+
+    const unitText = item.unit || unitFor(item.key);
+    const unitSize = fitFontSize(c, unitText, valueMaxW, 40, 700, 'Vazirmatn, sans-serif', 18);
+    c.fillStyle = '#333';
+    c.font = `700 ${unitSize}px Vazirmatn, sans-serif`;
+    c.fillText(unitText, cardX + cardW*0.855, y + cardH/2 + 50);
+  });
+
+  // ---- Disclaimer bar (single compact line) ----
+  const discY = startY + n * (cardH + gap) - gap + 18;
+  const discH = 46;
+  c.fillStyle = 'rgba(255,255,255,0.05)';
+  roundRect(c, 16, discY, W-32, discH, 12); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,0.15)'; c.lineWidth = 1.5;
+  roundRect(c, 16, discY, W-32, discH, 12); c.stroke();
+  c.fillStyle = '#c7ccd4';
+  const discText = 'قیمت‌ها بر اساس آخرین نرخ بازار آزاد است و ممکن است تغییر کند.';
+  const discSize = fitFontSize(c, discText, W-70, 22, 500, 'Vazirmatn, sans-serif', 15);
+  c.font = `500 ${discSize}px Vazirmatn, sans-serif`;
+  c.textAlign = 'center';
+  c.fillText(discText, W/2, discY+discH/2+discSize*0.32);
+
+  // ---- Channel footer (compact) ----
+  const footY = discY + discH + 12;
+  const footH = H - footY - 14;
+  c.fillStyle = '#f4f4f4';
+  roundRect(c, 16, footY, W-32, footH, 18); c.fill();
+
+  const iconR = 36;
+  const iconCx = 90, iconCy = footY + footH/2;
+  let ig = c.createLinearGradient(iconCx-iconR,iconCy-iconR,iconCx+iconR,iconCy+iconR);
+  ig.addColorStop(0,'#ff7a3d'); ig.addColorStop(1,'#e64a19');
+  c.fillStyle = ig;
+  roundRect(c, iconCx-iconR, iconCy-iconR, iconR*2, iconR*2, 16); c.fill();
+  c.fillStyle = '#ffffff';
+  c.font = '700 34px Vazirmatn, sans-serif';
+  c.textAlign = 'center';
+  c.fillText('آ', iconCx, iconCy+12);
+
+  const textCx = (iconCx+iconR+18) + (W-32 - (iconCx+iconR+18-16))/2;
+  const footTextMaxW = W - 40 - (iconCx+iconR+18);
+  c.textAlign = 'center';
+  c.direction = 'rtl';
+  c.fillStyle = '#3a4a63';
+  c.font = '600 22px Vazirmatn, sans-serif';
+  c.fillText('ما را در کانال ایتا دنبال کنید', textCx, footY + footH*0.28);
+
+  c.fillStyle = '#e64a19';
+  c.font = '900 32px Vazirmatn, sans-serif';
+  c.direction = 'ltr';
+  c.fillText('@ASANNETT', textCx, footY + footH*0.58);
+  c.direction = 'rtl';
+
+  const subtitle = 'کافی‌نت آسان‌نت';
+  const subtitleSize = fitFontSize(c, subtitle, footTextMaxW, 26, 700, 'Vazirmatn, sans-serif', 16);
+  c.fillStyle = '#6b7280';
+  c.font = `700 ${subtitleSize}px Vazirmatn, sans-serif`;
+  c.fillText(subtitle, textCx, footY + footH*0.86);
+
+  // ---- render to visible canvas ----
+  bannerCanvas.width = W;
+  bannerCanvas.height = H;
+  const vctx = bannerCanvas.getContext('2d');
+  vctx.clearRect(0,0,W,H);
+  vctx.drawImage(hiddenCanvas, 0, 0);
+
+  hiddenCanvas.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    downloadBanner.href = url;
+  }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>
