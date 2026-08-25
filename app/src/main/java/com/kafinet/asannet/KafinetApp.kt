@@ -6,5 +6,7 @@ class KafinetApp : Application() {
     override fun onCreate() {
         super.onCreate()
         ThemeManager.applySavedTheme(this)
+        NotificationHelper.createChannel(this)
+        ContentCheckWorker.schedule(this)
     }
 }
