@@ -196,7 +196,7 @@
 
     <!-- Add item -->
     <div class="card">
-      <h2>افزودن محتوای جدید</h2>
+      <h2 id="form-mode-title">افزودن محتوای جدید</h2>
 
       <label>نوع محتوا</label>
       <div class="type-tabs" id="type-tabs">
@@ -257,6 +257,7 @@
       </div>
 
       <button class="btn-primary btn-full" id="btn-add">افزودن به برنامه</button>
+      <button class="btn-outline btn-full hidden" id="btn-cancel-edit" style="margin-top:8px;">لغو ویرایش</button>
     </div>
 
     <!-- Content list -->
@@ -305,6 +306,7 @@ let contentItems = [];   // parsed array
 let selectedType = 'link';
 let selectedSource = 'url';
 let selectedFile = null;
+let editingId = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -563,12 +565,16 @@ function renderList() {
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
+        <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
         <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
       </div>`;
     area.appendChild(row);
   });
   area.querySelectorAll('[data-del]').forEach((btn) => {
     btn.addEventListener('click', () => deleteItem(btn.getAttribute('data-del')));
+  });
+  area.querySelectorAll('[data-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => startEdit(btn.getAttribute('data-edit')));
   });
 }
 
@@ -639,6 +645,32 @@ async function handleAdd() {
     }
 
     const sectionValue = $('in-section').value.trim();
+
+    if (editingId) {
+      const id = editingId;
+      const updatedItem = {
+        id,
+        type: selectedType,
+        title,
+        description,
+        url,
+      };
+      if (sectionValue) updatedItem.section = sectionValue;
+
+      contentItems = contentItems.map((i) => (i.id === id ? updatedItem : i));
+
+      btn.textContent = 'در حال ذخیره...';
+      await saveContentList(
+        'ویرایش محتوا: ' + title,
+        (fresh) => fresh.map((i) => (i.id === id ? updatedItem : i))
+      );
+
+      toast('تغییرات ذخیره شد ✔', 'success');
+      cancelEdit();
+      renderList();
+      return;
+    }
+
     const newItem = {
       id: 'item_' + Date.now(),
       type: selectedType,
@@ -663,6 +695,43 @@ async function handleAdd() {
     $('progress-wrap').style.display = 'none';
     $('progress-bar').style.width = '0%';
   }
+}
+
+function startEdit(id) {
+  const item = contentItems.find((i) => i.id === id);
+  if (!item) return;
+
+  editingId = id;
+
+  document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
+  const typeTab = document.querySelector(`.type-tab[data-type="${item.type}"]`);
+  if (typeTab) typeTab.classList.add('active');
+  selectedType = item.type;
+
+  document.querySelectorAll('.source-tab').forEach((t) => t.classList.remove('active'));
+  document.querySelector('.source-tab[data-src="url"]').classList.add('active');
+  selectedSource = 'url';
+  $('src-url-box').classList.remove('hidden');
+  $('src-upload-box').classList.add('hidden');
+
+  $('in-title').value = item.title || '';
+  $('in-desc').value = item.description || '';
+  $('in-section').value = item.section || '';
+  $('in-url').value = item.url || '';
+
+  $('btn-add').textContent = 'ذخیره‌ی تغییرات';
+  $('form-mode-title').textContent = 'ویرایش محتوا';
+  $('btn-cancel-edit').classList.remove('hidden');
+
+  $('section-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEdit() {
+  editingId = null;
+  resetForm();
+  $('btn-add').textContent = 'افزودن به برنامه';
+  $('form-mode-title').textContent = 'افزودن محتوای جدید';
+  $('btn-cancel-edit').classList.add('hidden');
 }
 
 function resetForm() {
@@ -716,6 +785,7 @@ function initTabs() {
   });
 
   $('btn-add').addEventListener('click', handleAdd);
+  $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
   $('btn-logout').addEventListener('click', () => {
