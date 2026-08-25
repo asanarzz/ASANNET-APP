@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +15,7 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.kafinet.asannet.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +25,20 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var bannerAdapter: BannerCarouselAdapter
+
+    private val bannerAutoScrollHandler = Handler(Looper.getMainLooper())
+    private var bannerAutoScrollIndex = 0
+    private val bannerAutoScrollRunnable = object : Runnable {
+        override fun run() {
+            val count = bannerAdapter.itemCount
+            if (count > 1) {
+                bannerAutoScrollIndex = (bannerAutoScrollIndex + 1) % count
+                binding.recyclerBanners.smoothScrollToPosition(bannerAutoScrollIndex)
+            }
+            bannerAutoScrollHandler.postDelayed(this, 3000)
+        }
+    }
 
     private val requestNotificationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -63,9 +80,11 @@ class MainActivity : AppCompatActivity() {
         )
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
+        this.bannerAdapter = bannerAdapter
         binding.recyclerBanners.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerBanners.adapter = bannerAdapter
+        PagerSnapHelper().attachToRecyclerView(binding.recyclerBanners)
         loadBanners(bannerAdapter)
 
         binding.recyclerCategories.layoutManager = GridLayoutManager(this, 5)
@@ -126,11 +145,26 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val result = ContentRepository.load(this@MainActivity)
-            val banners = result.items.filter { it.type == ContentType.HOME_BANNER }
+            // آیتم‌های تازه‌تر به انتهای فهرست اضافه می‌شوند؛ برعکسش می‌کنیم تا
+            // آخرین بنر آپلودشده همیشه اول (و اولین چیزی که کاربر می‌بیند) باشد.
+            val banners = result.items.filter { it.type == ContentType.HOME_BANNER }.reversed()
             adapter.updateItems(banners)
             binding.recyclerBanners.visibility = if (banners.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
             binding.swipeRefresh.isRefreshing = false
+            bannerAutoScrollIndex = 0
+            binding.recyclerBanners.scrollToPosition(0)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bannerAutoScrollHandler.removeCallbacks(bannerAutoScrollRunnable)
+        bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        bannerAutoScrollHandler.removeCallbacks(bannerAutoScrollRunnable)
     }
 
     private fun openBanner(banner: ContentItem) {
