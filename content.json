@@ -113,5 +113,13 @@
     "description": "فاکتور آنلاین سفارشی\nمناسب موبایل و کامپیوتر با طرح دلخواه شما",
     "url": "https://asanarzz.github.io/ASANNETT/",
     "section": "برنامه های تحت وب"
+  },
+  {
+    "id": "item_1787694429932",
+    "type": "software",
+    "title": "بنر ساز قیمت",
+    "description": "با این برنامه تحت وب میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظه ای روی بنر تبلیغاتی با لینک سایت و کانال و شماره تماس لوگو و همه مشخصات دلخواه بسازین و انتشار بدین",
+    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787694427035-price-banner.html",
+    "section": "برنامه های تحت وب"
   }
 ]
