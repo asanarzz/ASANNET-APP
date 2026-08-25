@@ -29,7 +29,7 @@ class SectionFolderAdapter(
         val context = holder.binding.root.context
         holder.binding.txtSectionCount.text =
             context.getString(R.string.section_item_count, folder.count)
-        holder.binding.root.setOnClickListener { onClick(folder) }
+        holder.binding.rowRoot.setOnClickListener { onClick(folder) }
     }
 
     override fun getItemCount(): Int = folders.size
