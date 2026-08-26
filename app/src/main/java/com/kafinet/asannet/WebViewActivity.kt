@@ -13,7 +13,13 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 class WebViewActivity : AppCompatActivity() {
 
@@ -66,7 +72,44 @@ class WebViewActivity : AppCompatActivity() {
 
         setupWebView()
         if (currentUrl.isNotBlank()) {
-            binding.webView.loadUrl(currentUrl)
+            loadSmart(currentUrl)
+        }
+    }
+
+    /**
+     * گیت‌هاب فایل‌های خام (raw.githubusercontent.com) را همیشه با نوع «متن ساده»
+     * می‌فرستد، حتی اگر پسوندشان .html باشد — در نتیجه وب‌ویو به‌جای رندر کردن
+     * صفحه، خودِ کدش را مثل متن نشان می‌دهد. برای فایل‌های .html/.htm، محتوا را
+     * دستی می‌گیریم و با نوع درست (text/html) به وب‌ویو می‌دهیم.
+     */
+    private fun loadSmart(url: String) {
+        val clean = url.substringBefore("?").substringBefore("#").lowercase()
+        if (clean.endsWith(".html") || clean.endsWith(".htm")) {
+            lifecycleScope.launch {
+                val html = withContext(Dispatchers.IO) { fetchTextOrNull(url) }
+                if (html != null) {
+                    val baseUrl = url.substringBeforeLast('/') + "/"
+                    binding.webView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
+                } else {
+                    binding.webView.loadUrl(url)
+                }
+            }
+        } else {
+            binding.webView.loadUrl(url)
+        }
+    }
+
+    private fun fetchTextOrNull(url: String): String? {
+        return try {
+            val connection = URL(url).openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            connection.setRequestProperty("User-Agent", DESKTOP_USER_AGENT)
+            if (connection.responseCode !in 200..299) return null
+            connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -134,7 +177,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun reload() {
         showError(false)
-        binding.webView.loadUrl(currentUrl)
+        loadSmart(currentUrl)
     }
 
     private fun showError(visible: Boolean) {
