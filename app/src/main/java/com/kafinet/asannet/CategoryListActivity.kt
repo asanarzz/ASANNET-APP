@@ -179,8 +179,22 @@ class CategoryListActivity : AppCompatActivity() {
                 intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
-            ContentType.FILE, ContentType.SOFTWARE, ContentType.MUSIC -> {
+            ContentType.FILE, ContentType.MUSIC -> {
                 if (DownloadHelper.ensureStoragePermission(this)) {
+                    DownloadHelper.downloadUrl(this, item.url, item.title)
+                }
+            }
+            ContentType.SOFTWARE -> {
+                val lowerUrl = item.url.substringBefore("?").substringBefore("#").lowercase()
+                if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
+                    // یه صفحه‌ی وبی مثل یه ابزار HTML — مستقیم داخل اپ باز می‌شه، ولی دکمه‌ی
+                    // دانلود هم بالای صفحه هست اگه کسی خواست خودِ فایل رو ذخیره کنه
+                    val intent = Intent(this, WebViewActivity::class.java)
+                    intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
+                    intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+                    intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
+                    startActivity(intent)
+                } else if (DownloadHelper.ensureStoragePermission(this)) {
                     DownloadHelper.downloadUrl(this, item.url, item.title)
                 }
             }

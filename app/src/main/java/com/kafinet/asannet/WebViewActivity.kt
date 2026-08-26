@@ -20,6 +20,7 @@ class WebViewActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_TITLE = "extra_title"
+        const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
 
         // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
         // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
@@ -40,6 +41,16 @@ class WebViewActivity : AppCompatActivity() {
         currentUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
         val title = intent.getStringExtra(EXTRA_TITLE).orEmpty()
         binding.txtToolbarTitle.text = title
+
+        val allowDownload = intent.getBooleanExtra(EXTRA_ALLOW_DOWNLOAD, false)
+        if (allowDownload) {
+            binding.btnDownload.visibility = View.VISIBLE
+            binding.btnDownload.setOnClickListener {
+                if (DownloadHelper.ensureStoragePermission(this)) {
+                    DownloadHelper.downloadUrl(this, currentUrl, title)
+                }
+            }
+        }
 
         binding.btnBack.setOnClickListener {
             if (binding.webView.canGoBack()) binding.webView.goBack() else finish()

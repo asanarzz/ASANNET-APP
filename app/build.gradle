@@ -11,8 +11,8 @@ android {
         applicationId "com.kafinet.asannet"
         minSdk 26
         targetSdk 34
-        versionCode 24
-        versionName "2.9.4"
+        versionCode 25
+        versionName "2.9.5"
     }
 
     signingConfigs {
@@ -66,5 +66,4 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'androidx.work:work-runtime-ktx:2.9.1'
 }
