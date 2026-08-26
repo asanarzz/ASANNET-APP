@@ -39,6 +39,16 @@
             xmlns:tools="http://schemas.android.com/tools"/>
 
         <ImageView
+            android:id="@+id/btn_download"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:src="@drawable/ic_download"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/btn_download"
+            android:visibility="gone"/>
+
+        <ImageView
             android:id="@+id/btn_open_browser"
             android:layout_width="40dp"
             android:layout_height="40dp"
