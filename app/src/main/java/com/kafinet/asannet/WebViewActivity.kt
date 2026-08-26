@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
@@ -71,9 +73,58 @@ class WebViewActivity : AppCompatActivity() {
         binding.btnRetry.setOnClickListener { reload() }
 
         setupWebView()
+        setupDownloadHandling(title)
         if (currentUrl.isNotBlank()) {
             loadSmart(currentUrl)
         }
+    }
+
+    /**
+     * ابزارهای HTML (بنرساز، فاکتورساز و...) وقتی کاربر دکمه‌ی «دانلود» را می‌زند،
+     * از طریق جاوااسکریپت یک فایل (data: یا blob:) می‌سازند. وب‌ویو به‌خودی‌خود این
+     * درخواست‌ها را نمی‌شنود؛ اینجا هر دو حالت را می‌گیریم و با DownloadHelper ذخیره می‌کنیم.
+     */
+    private fun setupDownloadHandling(pageTitle: String) {
+        binding.webView.addJavascriptInterface(object {
+            @JavascriptInterface
+            fun onBlobReady(base64DataUri: String, suggestedName: String) {
+                runOnUiThread { saveGeneratedFile(base64DataUri, suggestedName.ifBlank { pageTitle }) }
+            }
+        }, "AndroidDownloader")
+
+        binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
+            when {
+                url.startsWith("data:") -> {
+                    saveGeneratedFile(url, pageTitle)
+                }
+                url.startsWith("blob:") -> {
+                    val js = """
+                        (function() {
+                            fetch('$url').then(r => r.blob()).then(blob => {
+                                var reader = new FileReader();
+                                reader.onloadend = function() {
+                                    AndroidDownloader.onBlobReady(reader.result, '');
+                                };
+                                reader.readAsDataURL(blob);
+                            });
+                        })();
+                    """.trimIndent()
+                    binding.webView.evaluateJavascript(js, null)
+                }
+                else -> {
+                    if (DownloadHelper.ensureStoragePermission(this)) {
+                        DownloadHelper.downloadUrl(this, url, pageTitle)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun saveGeneratedFile(dataUri: String, suggestedName: String) {
+        if (!DownloadHelper.ensureStoragePermission(this)) return
+        val success = DownloadHelper.saveDataUri(this, dataUri, suggestedName)
+        val message = if (success) getString(R.string.download_saved) else getString(R.string.error_loading)
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     /**
