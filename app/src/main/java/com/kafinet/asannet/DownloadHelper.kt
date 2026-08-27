@@ -61,4 +61,44 @@ object DownloadHelper {
         val lastSlash = clean.lastIndexOf('/')
         return if (lastDot > lastSlash && lastDot != -1) clean.substring(lastDot) else ""
     }
+
+    /** یک data URI (مثل data:application/pdf;base64,...) را در پوشه‌ی عمومی Downloads ذخیره می‌کند. */
+    fun saveDataUri(context: Context, dataUri: String, suggestedName: String): Boolean {
+        return try {
+            if (!dataUri.startsWith("data:")) return false
+            val commaIndex = dataUri.indexOf(',')
+            if (commaIndex == -1) return false
+            val header = dataUri.substring(5, commaIndex)
+            val payload = dataUri.substring(commaIndex + 1)
+            val isBase64 = header.contains("base64")
+            val mimeType = header.substringBefore(";").ifBlank { "application/octet-stream" }
+
+            val bytes: ByteArray = if (isBase64) {
+                android.util.Base64.decode(payload, android.util.Base64.DEFAULT)
+            } else {
+                java.net.URLDecoder.decode(payload, "UTF-8").toByteArray(Charsets.UTF_8)
+            }
+
+            val fileName = suggestedName.ifBlank { "kafinet_file" }
+
+            if (Build.VERSION.SDK_INT >= 29) {
+                val resolver = context.contentResolver
+                val values = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return false
+                resolver.openOutputStream(uri)?.use { it.write(bytes) } ?: return false
+            } else {
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!downloadsDir.exists()) downloadsDir.mkdirs()
+                val file = java.io.File(downloadsDir, fileName)
+                java.io.FileOutputStream(file).use { it.write(bytes) }
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
