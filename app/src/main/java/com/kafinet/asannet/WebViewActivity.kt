@@ -90,6 +90,11 @@ class WebViewActivity : AppCompatActivity() {
             fun onBlobReady(base64DataUri: String, suggestedName: String) {
                 runOnUiThread { saveGeneratedFile(base64DataUri, suggestedName.ifBlank { pageTitle }) }
             }
+
+            @JavascriptInterface
+            fun requestPrint() {
+                runOnUiThread { printCurrentPage(pageTitle) }
+            }
         }, "AndroidDownloader")
 
         binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
@@ -125,6 +130,21 @@ class WebViewActivity : AppCompatActivity() {
         val success = DownloadHelper.saveDataUri(this, dataUri, suggestedName)
         val message = if (success) getString(R.string.download_saved) else getString(R.string.error_loading)
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /** دیالوگ چاپ اندروید را برای صفحه‌ی فعلی باز می‌کند؛ کاربر از همان‌جا «Save as PDF» را انتخاب می‌کند. */
+    private fun printCurrentPage(jobName: String) {
+        try {
+            val printManager = getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
+            val adapter = binding.webView.createPrintDocumentAdapter(jobName.ifBlank { "document" })
+            printManager.print(
+                jobName.ifBlank { "document" },
+                adapter,
+                android.print.PrintAttributes.Builder().build()
+            )
+        } catch (e: Exception) {
+            Toast.makeText(this, R.string.error_loading, Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -189,6 +209,10 @@ class WebViewActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 didAutoRetry = false
+                // WebView به window.print() هیچ واکنشی نشون نمی‌ده؛ آن را به دیالوگ چاپ اندروید وصل می‌کنیم
+                view?.evaluateJavascript(
+                    "window.print = function() { AndroidDownloader.requestPrint(); };", null
+                )
             }
 
             override fun onReceivedError(
