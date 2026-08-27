@@ -174,7 +174,13 @@ class CategoryListActivity : AppCompatActivity() {
 
     private fun openItem(item: ContentItem) {
         when (item.type) {
-            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.RADIO, ContentType.FUN -> {
+            ContentType.RADIO -> {
+                val intent = Intent(this, RadioPlayerActivity::class.java)
+                intent.putExtra(RadioPlayerActivity.EXTRA_URL, item.url)
+                intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
+                startActivity(intent)
+            }
+            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.FUN -> {
                 val intent = Intent(this, WebViewActivity::class.java)
                 intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
                 intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)

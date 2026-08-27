@@ -54,6 +54,10 @@
     <string name="cat_software">نرم‌افزار</string>
     <string name="cat_music">آهنگ</string>
     <string name="cat_radio">رادیو</string>
+    <string name="radio_playing">در حال پخش</string>
+    <string name="radio_paused">مکث شده</string>
+    <string name="radio_background_hint">پخش با ترک این صفحه یا خاموش‌کردن صفحه‌ی گوشی قطع نمی‌شود</string>
+    <string name="btn_stop">توقف</string>
     <string name="cat_fun">سرگرمی</string>
     <string name="cat_docs">ارسال مدارک</string>
     <string name="cat_power">خاموشی برق</string>
