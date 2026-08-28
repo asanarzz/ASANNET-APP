@@ -31,8 +31,10 @@ class RadioPlayerService : Service() {
         private const val CHANNEL_ID = "radio_playback"
         private const val NOTIFICATION_ID = 501
 
-        @Volatile var isPlaying = false
+        @Volatile var isPlayingNow = false
+            private set
         @Volatile var currentTitle = ""
+            private set
     }
 
     private var mediaPlayer: MediaPlayer? = null
@@ -62,7 +64,7 @@ class RadioPlayerService : Service() {
                 val title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.cat_radio)
                 if (!url.isNullOrBlank()) startStream(url, title)
             }
-            ACTION_TOGGLE -> if (isPlaying) pausePlayback() else resumeOrStart()
+            ACTION_TOGGLE -> if (isPlayingNow) pausePlayback() else resumeOrStart()
             ACTION_STOP -> stopPlayback()
         }
         return START_STICKY
@@ -89,7 +91,7 @@ class RadioPlayerService : Service() {
                 setDataSource(url)
                 setOnPreparedListener {
                     it.start()
-                    isPlaying = true
+                    isPlayingNow = true
                     updateNotification()
                 }
                 setOnErrorListener { _, _, _ -> true }
@@ -108,7 +110,7 @@ class RadioPlayerService : Service() {
         }
         if (!requestAudioFocus()) return
         mediaPlayer?.start()
-        isPlaying = true
+        isPlayingNow = true
         updateNotification()
     }
 
@@ -116,7 +118,7 @@ class RadioPlayerService : Service() {
         try {
             mediaPlayer?.pause()
         } catch (e: Exception) { /* بی‌اهمیت */ }
-        isPlaying = false
+        isPlayingNow = false
         updateNotification()
     }
 
@@ -133,7 +135,7 @@ class RadioPlayerService : Service() {
             release()
         }
         mediaPlayer = null
-        isPlaying = false
+        isPlayingNow = false
     }
 
     private fun requestAudioFocus(): Boolean {
@@ -166,7 +168,7 @@ class RadioPlayerService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val playPauseIcon = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        val playPauseIcon = if (isPlayingNow) R.drawable.ic_pause else R.drawable.ic_play
         val toggleIntent = PendingIntent.getService(
             this, 0, Intent(this, RadioPlayerService::class.java).setAction(ACTION_TOGGLE),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -183,7 +185,7 @@ class RadioPlayerService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val statusText = getString(if (isPlaying) R.string.radio_playing else R.string.radio_paused)
+        val statusText = getString(if (isPlayingNow) R.string.radio_playing else R.string.radio_paused)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_radio)
@@ -194,10 +196,10 @@ class RadioPlayerService : Service() {
             .addAction(R.drawable.ic_close, getString(R.string.btn_stop), stopIntent)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mediaSession?.sessionToken)
+                    .setMediaSession(mediaSession!!.sessionToken)
                     .setShowActionsInCompactView(0, 1)
             )
-            .setOngoing(isPlaying)
+            .setOngoing(isPlayingNow)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

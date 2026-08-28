@@ -30,7 +30,7 @@ class RadioPlayerActivity : AppCompatActivity() {
         binding.btnPlayPause.setOnClickListener { togglePlayback() }
 
         // اگر همین ایستگاه از قبل در حال پخش است، فقط وضعیت را نشان بده؛ وگرنه پخش را شروع کن
-        if (RadioPlayerService.isPlaying && RadioPlayerService.currentTitle == stationTitle) {
+        if (RadioPlayerService.isPlayingNow && RadioPlayerService.currentTitle == stationTitle) {
             updatePlayPauseIcon(true)
         } else {
             startPlayback()
@@ -52,7 +52,7 @@ class RadioPlayerActivity : AppCompatActivity() {
             action = RadioPlayerService.ACTION_TOGGLE
         }
         startService(serviceIntent)
-        updatePlayPauseIcon(!RadioPlayerService.isPlaying)
+        updatePlayPauseIcon(!RadioPlayerService.isPlayingNow)
     }
 
     private fun updatePlayPauseIcon(playing: Boolean) {
