@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ensureNotificationPermission()
+        lifecycleScope.launch { SupabaseClient.logVisit(this@MainActivity, null) }
 
 
         val categories = listOf(
