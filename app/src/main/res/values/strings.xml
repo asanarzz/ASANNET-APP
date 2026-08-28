@@ -159,4 +159,7 @@
     <string name="notif_new_content_title">محتوای جدید در آسان‌نت</string>
     <string name="notif_multiple_new">%1$d مورد جدید اضافه شد</string>
     <string name="download_saved">فایل در پوشه‌ی Downloads ذخیره شد</string>
+    <string name="label_profile_photo">عکس پروفایل</string>
+    <string name="btn_choose_photo">انتخاب عکس</string>
+    <string name="err_photo_required">لطفاً یک عکس پروفایل انتخاب کن</string>
 </resources>
