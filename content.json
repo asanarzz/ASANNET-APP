@@ -136,5 +136,13 @@
     "title": "قیمت لحظه‌ای دلار و طلا",
     "description": "اگه کانال یا گروهی دارین که قیمت طلا و دلار رو میذارین از این فایل استفاده کنین قیمت لحظه‌ای رو بهتون بصورت عکس میده فقط در عوض تبلیغ کانال آسان نت روش هست",
     "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787951455208-price-banner.html"
+  },
+  {
+    "id": "item_1787951935766",
+    "type": "software",
+    "title": "رضایتنامه آنلاین",
+    "description": "رضایتنامه اردوهای مدرسه، ورزشی و غیره\nمناسب معلمان و مدیران و مربیان ورزشی",
+    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787951925587--.html",
+    "section": "برنامه های تحت وب"
   }
 ]
