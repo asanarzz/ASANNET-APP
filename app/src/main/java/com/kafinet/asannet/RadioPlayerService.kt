@@ -32,9 +32,7 @@ class RadioPlayerService : Service() {
         private const val NOTIFICATION_ID = 501
 
         @Volatile var isPlaying = false
-            private set
         @Volatile var currentTitle = ""
-            private set
     }
 
     private var mediaPlayer: MediaPlayer? = null
