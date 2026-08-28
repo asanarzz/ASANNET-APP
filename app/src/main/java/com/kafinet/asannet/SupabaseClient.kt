@@ -10,6 +10,77 @@ import java.net.URL
 object SupabaseClient {
 
     /**
+     * عکس پروفایل را در باکت «profile-photos» آپلود می‌کند و در صورت موفقیت آدرس عمومی آن را برمی‌گرداند.
+     */
+    suspend fun uploadProfilePhoto(
+        context: Context,
+        nationalCode: String,
+        mimeType: String,
+        bytes: ByteArray
+    ): String? = withContext(Dispatchers.IO) {
+        val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+        val anonKey = context.getString(R.string.supabase_anon_key)
+
+        if (baseUrl.isBlank() || anonKey.isBlank()) {
+            throw IllegalStateException(context.getString(R.string.error_backend_not_configured))
+        }
+
+        val extension = if (mimeType.contains("png")) "png" else "jpg"
+        val path = "$nationalCode-${System.currentTimeMillis()}.$extension"
+
+        val uploadUrl = URL("$baseUrl/storage/v1/object/profile-photos/$path")
+        val uploadConn = uploadUrl.openConnection() as HttpURLConnection
+        uploadConn.requestMethod = "POST"
+        uploadConn.doOutput = true
+        uploadConn.connectTimeout = 15000
+        uploadConn.readTimeout = 15000
+        uploadConn.setRequestProperty("apikey", anonKey)
+        uploadConn.setRequestProperty("Authorization", "Bearer $anonKey")
+        uploadConn.setRequestProperty("Content-Type", mimeType.ifBlank { "image/jpeg" })
+        uploadConn.outputStream.use { it.write(bytes) }
+        val uploadCode = uploadConn.responseCode
+        uploadConn.disconnect()
+        if (uploadCode !in 200..299) return@withContext null
+
+        "$baseUrl/storage/v1/object/public/profile-photos/$path"
+    }
+
+    /**
+     * یک بازدید (باز شدن اپ یا ورود به یک دسته) را در جدول visit_logs ثبت می‌کند.
+     * category=null یعنی باز شدن کلی برنامه (نه یک بخش خاص). خطاها بی‌صدا نادیده گرفته می‌شوند
+     * چون این فقط برای آمار است و نباید تجربه‌ی کاربر را مختل کند.
+     */
+    suspend fun logVisit(context: Context, category: String?) = withContext(Dispatchers.IO) {
+        try {
+            val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+            val anonKey = context.getString(R.string.supabase_anon_key)
+            val nationalCode = SessionManager.getNationalCode(context)
+            if (baseUrl.isBlank() || anonKey.isBlank() || nationalCode.isNullOrBlank()) return@withContext
+
+            val url = URL("$baseUrl/rest/v1/visit_logs")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            connection.connectTimeout = 6000
+            connection.readTimeout = 6000
+            connection.setRequestProperty("apikey", anonKey)
+            connection.setRequestProperty("Authorization", "Bearer $anonKey")
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Prefer", "return=minimal")
+
+            val body = JSONObject().apply {
+                put("national_code", nationalCode)
+                put("category", category ?: JSONObject.NULL)
+            }
+            connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+            connection.responseCode
+            connection.disconnect()
+        } catch (e: Exception) {
+            // ثبت آمار نباید هیچ‌وقت باعث خرابی تجربه‌ی کاربر بشه
+        }
+    }
+
+    /**
      * کاربر جدید را در جدول users در Supabase ثبت می‌کند.
      * اگر کد ملی از قبل ثبت شده باشد (خطای ۴۰۹ به‌خاطر محدودیت unique)، همچنان موفق
      * در نظر گرفته می‌شود — یعنی کاربر از قبل جزو ثبت‌نامی‌هاست و اجازه‌ی ورود به اپ دارد.
@@ -22,7 +93,8 @@ object SupabaseClient {
         nationalCode: String,
         phoneNumber: String,
         birthDate: String,
-        passwordHash: String
+        passwordHash: String,
+        profilePhotoUrl: String
     ): Boolean = withContext(Dispatchers.IO) {
         val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
         val anonKey = context.getString(R.string.supabase_anon_key)
@@ -49,6 +121,7 @@ object SupabaseClient {
             put("phone_number", phoneNumber)
             put("birth_date", birthDate)
             put("password_hash", passwordHash)
+            put("profile_photo_url", profilePhotoUrl)
         }
 
         connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }

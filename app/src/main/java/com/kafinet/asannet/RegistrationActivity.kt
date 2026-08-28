@@ -1,16 +1,30 @@
 package com.kafinet.asannet
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.kafinet.asannet.databinding.ActivityRegistrationBinding
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 class RegistrationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationBinding
     private var isLoginMode = false
+    private var selectedPhotoUri: Uri? = null
+
+    private val pickPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedPhotoUri = uri
+            Glide.with(this).load(uri).into(binding.imgProfilePreview)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +45,7 @@ class RegistrationActivity : AppCompatActivity() {
         binding.txtForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
+        binding.btnChoosePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
     }
 
     private fun toggleMode() {
@@ -105,6 +120,10 @@ class RegistrationActivity : AppCompatActivity() {
             showError(getString(R.string.err_required_fields))
             return
         }
+        if (selectedPhotoUri == null) {
+            showError(getString(R.string.err_photo_required))
+            return
+        }
         if (!NationalCodeValidator.isValid(nationalCode)) {
             showError(getString(R.string.err_invalid_national_code))
             return
@@ -127,9 +146,21 @@ class RegistrationActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                val photoBytes = compressPhoto(selectedPhotoUri!!)
+                if (photoBytes == null) {
+                    showError(getString(R.string.err_network))
+                    return@launch
+                }
+                val photoUrl = SupabaseClient.uploadProfilePhoto(
+                    this@RegistrationActivity, nationalCode, "image/jpeg", photoBytes
+                )
+                if (photoUrl == null) {
+                    showError(getString(R.string.err_network))
+                    return@launch
+                }
                 val passwordHash = PasswordHasher.hash(password)
                 val success = SupabaseClient.registerUser(
-                    this@RegistrationActivity, firstName, lastName, nationalCode, phone, birthDate, passwordHash
+                    this@RegistrationActivity, firstName, lastName, nationalCode, phone, birthDate, passwordHash, photoUrl
                 )
                 if (success) {
                     SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
@@ -143,6 +174,36 @@ class RegistrationActivity : AppCompatActivity() {
             } finally {
                 setLoading(false)
             }
+        }
+    }
+
+    /** عکس انتخاب‌شده را برای آپلود سریع‌تر، کوچک و فشرده می‌کند. */
+    private fun compressPhoto(uri: Uri): ByteArray? {
+        return try {
+            val input = contentResolver.openInputStream(uri) ?: return null
+            val original = BitmapFactory.decodeStream(input)
+            input.close()
+            if (original == null) return null
+
+            val maxDimension = 800
+            val ratio = minOf(
+                maxDimension.toFloat() / original.width,
+                maxDimension.toFloat() / original.height,
+                1f
+            )
+            val scaled = if (ratio < 1f) {
+                Bitmap.createScaledBitmap(
+                    original, (original.width * ratio).toInt(), (original.height * ratio).toInt(), true
+                )
+            } else {
+                original
+            }
+
+            val output = ByteArrayOutputStream()
+            scaled.compress(Bitmap.CompressFormat.JPEG, 80, output)
+            output.toByteArray()
+        } catch (e: Exception) {
+            null
         }
     }
 

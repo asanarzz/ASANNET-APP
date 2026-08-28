@@ -43,6 +43,7 @@ class CategoryListActivity : AppCompatActivity() {
         typeFilter = if (typeKey != null) ContentType.fromKey(typeKey) else null
         categoryLabel = intent.getStringExtra(EXTRA_LABEL).orEmpty()
         binding.txtTitle.text = categoryLabel
+        lifecycleScope.launch { SupabaseClient.logVisit(this@CategoryListActivity, categoryLabel) }
 
         binding.btnBack.setOnClickListener { handleBackPress() }
 
