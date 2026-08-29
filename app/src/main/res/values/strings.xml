@@ -134,6 +134,9 @@
     <string name="forgot_password_title">بازیابی رمز عبور</string>
     <string name="forgot_password_intro">برای بازیابی رمز، اطلاعاتی که هنگام ثبت‌نام وارد کردی رو دقیقاً وارد کن.</string>
     <string name="label_new_password">رمز عبور جدید</string>
+    <string name="label_profile_photo">عکس پروفایل (اختیاری)</string>
+    <string name="btn_choose_photo">انتخاب عکس</string>
+    <string name="radio_background_hint">رادیو حتی با خروج از این صفحه، در پس‌زمینه پخش می‌شود</string>
     <string name="btn_reset_password">تغییر رمز عبور</string>
     <string name="forgot_password_success">رمز عبور با موفقیت تغییر کرد. حالا می‌تونی با رمز جدید وارد بشی.</string>
     <string name="forgot_password_no_match">اطلاعات وارد‌شده با هیچ حسابی مطابقت نداره. کد ملی، موبایل و تاریخ تولد رو دوباره چک کن.</string>
