@@ -55,31 +55,33 @@ object DownloadHelper {
         }
     }
 
-    private fun guessExtension(url: String): String {
-        val clean = url.substringBefore("?").substringBefore("#")
-        val lastDot = clean.lastIndexOf('.')
-        val lastSlash = clean.lastIndexOf('/')
-        return if (lastDot > lastSlash && lastDot != -1) clean.substring(lastDot) else ""
-    }
-
-    /** یک data URI (مثل data:application/pdf;base64,...) را در پوشه‌ی عمومی Downloads ذخیره می‌کند. */
+    /** یک data URI (مثل خروجی canvas.toDataURL که ابزارهای HTML تولید می‌کنند) را
+     *  در پوشه‌ی عمومی Downloads ذخیره می‌کند. */
     fun saveDataUri(context: Context, dataUri: String, suggestedName: String): Boolean {
         return try {
-            if (!dataUri.startsWith("data:")) return false
             val commaIndex = dataUri.indexOf(',')
-            if (commaIndex == -1) return false
-            val header = dataUri.substring(5, commaIndex)
-            val payload = dataUri.substring(commaIndex + 1)
-            val isBase64 = header.contains("base64")
-            val mimeType = header.substringBefore(";").ifBlank { "application/octet-stream" }
+            if (!dataUri.startsWith("data:") || commaIndex == -1) return false
 
-            val bytes: ByteArray = if (isBase64) {
+            val header = dataUri.substring(5, commaIndex)
+            val mimeType = header.substringBefore(';').ifBlank { "application/octet-stream" }
+            val isBase64 = header.contains("base64")
+            val payload = dataUri.substring(commaIndex + 1)
+            val bytes = if (isBase64) {
                 android.util.Base64.decode(payload, android.util.Base64.DEFAULT)
             } else {
-                java.net.URLDecoder.decode(payload, "UTF-8").toByteArray(Charsets.UTF_8)
+                Uri.decode(payload).toByteArray(Charsets.UTF_8)
             }
 
-            val fileName = suggestedName.ifBlank { "kafinet_file" }
+            val ext = when {
+                mimeType.contains("png") -> ".png"
+                mimeType.contains("jpeg") || mimeType.contains("jpg") -> ".jpg"
+                mimeType.contains("pdf") -> ".pdf"
+                mimeType.contains("webp") -> ".webp"
+                else -> ""
+            }
+            val baseName = suggestedName.substringBeforeLast('.').ifBlank { "kafinet_file" }
+                .replace(Regex("[^A-Za-z0-9آ-ی_\\- ]"), "_")
+            val fileName = baseName + ext
 
             if (Build.VERSION.SDK_INT >= 29) {
                 val resolver = context.contentResolver
@@ -91,14 +93,20 @@ object DownloadHelper {
                 val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return false
                 resolver.openOutputStream(uri)?.use { it.write(bytes) } ?: return false
             } else {
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (!downloadsDir.exists()) downloadsDir.mkdirs()
-                val file = java.io.File(downloadsDir, fileName)
-                java.io.FileOutputStream(file).use { it.write(bytes) }
+                val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!dir.exists()) dir.mkdirs()
+                java.io.File(dir, fileName).outputStream().use { it.write(bytes) }
             }
             true
         } catch (e: Exception) {
             false
         }
+    }
+
+    private fun guessExtension(url: String): String {
+        val clean = url.substringBefore("?").substringBefore("#")
+        val lastDot = clean.lastIndexOf('.')
+        val lastSlash = clean.lastIndexOf('/')
+        return if (lastDot > lastSlash && lastDot != -1) clean.substring(lastDot) else ""
     }
 }
