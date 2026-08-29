@@ -54,10 +54,6 @@
     <string name="cat_software">نرم‌افزار</string>
     <string name="cat_music">آهنگ</string>
     <string name="cat_radio">رادیو</string>
-    <string name="radio_playing">در حال پخش</string>
-    <string name="radio_paused">مکث شده</string>
-    <string name="radio_background_hint">پخش با ترک این صفحه یا خاموش‌کردن صفحه‌ی گوشی قطع نمی‌شود</string>
-    <string name="btn_stop">توقف</string>
     <string name="cat_fun">سرگرمی</string>
     <string name="cat_docs">ارسال مدارک</string>
     <string name="cat_power">خاموشی برق</string>
@@ -107,6 +103,8 @@
     <string name="webview_error_message">این صفحه بارگذاری نشد. ممکنه سرور موقتاً در دسترس نباشه یا اینترنت قطع باشه.</string>
     <string name="btn_retry">تلاش دوباره</string>
     <string name="btn_download">دانلود</string>
+    <string name="btn_open_link">باز کردن لینک</string>
+    <string name="page_indicator_format">%1$d / %2$d</string>
     <string name="search_hint">جستجو…</string>
 
     <!--
@@ -152,15 +150,4 @@
     <string name="err_password_mismatch">رمز عبور و تکرار آن یکسان نیستند</string>
     <string name="err_network">خطا در برقراری ارتباط — اتصال اینترنت را بررسی کن و دوباره تلاش کن</string>
     <string name="error_backend_not_configured">تنظیمات سرور ثبت‌نام هنوز کامل نشده است</string>
-
-    <!-- نوتیفیکیشن محتوای جدید -->
-    <string name="notif_channel_name">محتوای جدید</string>
-    <string name="notif_channel_desc">اطلاع‌رسانی وقتی محتوای جدیدی به آسان‌نت اضافه می‌شود</string>
-    <string name="notif_new_content_title">محتوای جدید در آسان‌نت</string>
-    <string name="notif_multiple_new">%1$d مورد جدید اضافه شد</string>
-    <string name="download_saved">فایل در پوشه‌ی Downloads ذخیره شد</string>
-    <string name="label_profile_photo">عکس پروفایل</string>
-    <string name="btn_choose_photo">انتخاب عکس</string>
-    <string name="err_photo_required">لطفاً یک عکس پروفایل انتخاب کن</string>
-    <string name="err_app_not_installed">این لینک نیاز به اپلیکیشنی دارد که روی گوشیت نصب نیست</string>
 </resources>

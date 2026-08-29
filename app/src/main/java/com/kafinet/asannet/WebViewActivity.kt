@@ -6,22 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
 
 class WebViewActivity : AppCompatActivity() {
 
@@ -73,94 +65,8 @@ class WebViewActivity : AppCompatActivity() {
         binding.btnRetry.setOnClickListener { reload() }
 
         setupWebView()
-        setupDownloadHandling(title)
         if (currentUrl.isNotBlank()) {
-            loadSmart(currentUrl)
-        }
-    }
-
-    /**
-     * ابزارهای HTML (بنرساز، فاکتورساز و...) وقتی کاربر دکمه‌ی «دانلود» را می‌زند،
-     * از طریق جاوااسکریپت یک فایل (data: یا blob:) می‌سازند. وب‌ویو به‌خودی‌خود این
-     * درخواست‌ها را نمی‌شنود؛ اینجا هر دو حالت را می‌گیریم و با DownloadHelper ذخیره می‌کنیم.
-     */
-    private fun setupDownloadHandling(pageTitle: String) {
-        binding.webView.addJavascriptInterface(object {
-            @JavascriptInterface
-            fun onBlobReady(base64DataUri: String, suggestedName: String) {
-                runOnUiThread { saveGeneratedFile(base64DataUri, suggestedName.ifBlank { pageTitle }) }
-            }
-        }, "AndroidDownloader")
-
-        binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
-            when {
-                url.startsWith("data:") -> {
-                    saveGeneratedFile(url, pageTitle)
-                }
-                url.startsWith("blob:") -> {
-                    val js = """
-                        (function() {
-                            fetch('$url').then(r => r.blob()).then(blob => {
-                                var reader = new FileReader();
-                                reader.onloadend = function() {
-                                    AndroidDownloader.onBlobReady(reader.result, '');
-                                };
-                                reader.readAsDataURL(blob);
-                            });
-                        })();
-                    """.trimIndent()
-                    binding.webView.evaluateJavascript(js, null)
-                }
-                else -> {
-                    if (DownloadHelper.ensureStoragePermission(this)) {
-                        DownloadHelper.downloadUrl(this, url, pageTitle)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun saveGeneratedFile(dataUri: String, suggestedName: String) {
-        if (!DownloadHelper.ensureStoragePermission(this)) return
-        val success = DownloadHelper.saveDataUri(this, dataUri, suggestedName)
-        val message = if (success) getString(R.string.download_saved) else getString(R.string.error_loading)
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    /**
-     * گیت‌هاب فایل‌های خام (raw.githubusercontent.com) را همیشه با نوع «متن ساده»
-     * می‌فرستد، حتی اگر پسوندشان .html باشد — در نتیجه وب‌ویو به‌جای رندر کردن
-     * صفحه، خودِ کدش را مثل متن نشان می‌دهد. برای فایل‌های .html/.htm، محتوا را
-     * دستی می‌گیریم و با نوع درست (text/html) به وب‌ویو می‌دهیم.
-     */
-    private fun loadSmart(url: String) {
-        val clean = url.substringBefore("?").substringBefore("#").lowercase()
-        if (clean.endsWith(".html") || clean.endsWith(".htm")) {
-            lifecycleScope.launch {
-                val html = withContext(Dispatchers.IO) { fetchTextOrNull(url) }
-                if (html != null) {
-                    val baseUrl = url.substringBeforeLast('/') + "/"
-                    binding.webView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
-                } else {
-                    binding.webView.loadUrl(url)
-                }
-            }
-        } else {
-            binding.webView.loadUrl(url)
-        }
-    }
-
-    private fun fetchTextOrNull(url: String): String? {
-        return try {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-            connection.setRequestProperty("User-Agent", DESKTOP_USER_AGENT)
-            if (connection.responseCode !in 200..299) return null
-            connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-        } catch (e: Exception) {
-            null
+            binding.webView.loadUrl(currentUrl)
         }
     }
 
@@ -228,7 +134,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun reload() {
         showError(false)
-        loadSmart(currentUrl)
+        binding.webView.loadUrl(currentUrl)
     }
 
     private fun showError(visible: Boolean) {
