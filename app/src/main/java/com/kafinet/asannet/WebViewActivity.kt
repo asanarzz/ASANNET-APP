@@ -30,8 +30,6 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
 
-        // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
-        // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -79,11 +77,6 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * ابزارهای HTML (بنرساز، فاکتورساز و...) وقتی کاربر دکمه‌ی «دانلود» را می‌زند،
-     * از طریق جاوااسکریپت یک فایل (data: یا blob:) می‌سازند. وب‌ویو به‌خودی‌خود این
-     * درخواست‌ها را نمی‌شنود؛ اینجا هر دو حالت را می‌گیریم و با DownloadHelper ذخیره می‌کنیم.
-     */
     private fun setupDownloadHandling(pageTitle: String) {
         binding.webView.addJavascriptInterface(object {
             @JavascriptInterface
@@ -132,7 +125,6 @@ class WebViewActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    /** دیالوگ چاپ اندروید را برای صفحه‌ی فعلی باز می‌کند؛ کاربر از همان‌جا «Save as PDF» را انتخاب می‌کند. */
     private fun printCurrentPage(jobName: String) {
         try {
             val printManager = getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
@@ -147,12 +139,6 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * گیت‌هاب فایل‌های خام (raw.githubusercontent.com) را همیشه با نوع «متن ساده»
-     * می‌فرستد، حتی اگر پسوندشان .html باشد — در نتیجه وب‌ویو به‌جای رندر کردن
-     * صفحه، خودِ کدش را مثل متن نشان می‌دهد. برای فایل‌های .html/.htm، محتوا را
-     * دستی می‌گیریم و با نوع درست (text/html) به وب‌ویو می‌دهیم.
-     */
     private fun loadSmart(url: String) {
         val clean = url.substringBefore("?").substringBefore("#").lowercase()
         if (clean.endsWith(".html") || clean.endsWith(".htm")) {
@@ -198,7 +184,17 @@ class WebViewActivity : AppCompatActivity() {
 
         binding.webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return false
+                if (url == null) return false
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    return false
+                }
+                return try {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    true
+                } catch (e: Exception) {
+                    Toast.makeText(this@WebViewActivity, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
+                    true
+                }
             }
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
@@ -209,7 +205,6 @@ class WebViewActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 didAutoRetry = false
-                // WebView به window.print() هیچ واکنشی نشون نمی‌ده؛ آن را به دیالوگ چاپ اندروید وصل می‌کنیم
                 view?.evaluateJavascript(
                     "window.print = function() { AndroidDownloader.requestPrint(); };", null
                 )
@@ -221,7 +216,6 @@ class WebViewActivity : AppCompatActivity() {
                 error: WebResourceError?
             ) {
                 super.onReceivedError(view, request, error)
-                // فقط برای بارگذاری صفحه‌ی اصلی خطا رو نشون بده، نه برای زیرمنابع (عکس، فونت و...)
                 if (request?.isForMainFrame == true) {
                     handleLoadFailure()
                 }
@@ -236,11 +230,6 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * خیلی از خطاهای «net::ERR_CONNECTION_RESET» موقتی و لحظه‌ای هستن (مثلاً یه ری‌ست کوتاه
-     * تو شبکه). برای همین یه‌بار خودکار و بی‌سروصدا بعد از یک‌ونیم ثانیه دوباره تلاش می‌کنیم؛
-     * اگه بازم شکست خورد، به کاربر پیام و دکمه‌ی تلاش دوباره نشون می‌دیم.
-     */
     private fun handleLoadFailure() {
         if (!didAutoRetry) {
             didAutoRetry = true
