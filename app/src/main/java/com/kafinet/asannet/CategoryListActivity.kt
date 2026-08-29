@@ -43,7 +43,6 @@ class CategoryListActivity : AppCompatActivity() {
         typeFilter = if (typeKey != null) ContentType.fromKey(typeKey) else null
         categoryLabel = intent.getStringExtra(EXTRA_LABEL).orEmpty()
         binding.txtTitle.text = categoryLabel
-        lifecycleScope.launch { SupabaseClient.logVisit(this@CategoryListActivity, categoryLabel) }
 
         binding.btnBack.setOnClickListener { handleBackPress() }
 
@@ -160,34 +159,25 @@ class CategoryListActivity : AppCompatActivity() {
         binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
-    /** پسوندهایی که واقعاً باید دانلود بشن (فایل‌های باینری)؛ هر چیز دیگه‌ای —
-     *  از جمله لینک‌های ساده و فایل‌های HTML — با مرورگر داخلی باز می‌شود. */
-    private val DOWNLOAD_EXTENSIONS = setOf(
-        "apk", "zip", "rar", "7z", "pdf", "doc", "docx", "xls", "xlsx",
-        "ppt", "pptx", "mp3", "wav", "ogg", "ipa"
-    )
-
-    private fun isDownloadableFile(url: String): Boolean {
-        val clean = url.substringBefore("?").substringBefore("#").lowercase()
-        val ext = clean.substringAfterLast('.', missingDelimiterValue = "")
-        return ext in DOWNLOAD_EXTENSIONS
-    }
-
     private fun openItem(item: ContentItem) {
         when (item.type) {
-            ContentType.RADIO -> {
-                val intent = Intent(this, RadioPlayerActivity::class.java)
-                intent.putExtra(RadioPlayerActivity.EXTRA_URL, item.url)
-                intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
-                startActivity(intent)
-            }
-            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.FUN -> {
+            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.RADIO, ContentType.FUN -> {
                 val intent = Intent(this, WebViewActivity::class.java)
                 intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
                 intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
-            ContentType.IMAGE, ContentType.BANNER -> {
+            ContentType.IMAGE -> {
+                val images = if (item.images.isNotEmpty()) item.images else listOf(item.url)
+                val linkUrl = if (item.images.isNotEmpty()) item.url else ""
+                val intent = Intent(this, MediaDetailActivity::class.java)
+                intent.putExtra(MediaDetailActivity.EXTRA_TITLE, item.title)
+                intent.putExtra(MediaDetailActivity.EXTRA_DESCRIPTION, item.description)
+                intent.putStringArrayListExtra(MediaDetailActivity.EXTRA_IMAGES, ArrayList(images))
+                intent.putExtra(MediaDetailActivity.EXTRA_URL, linkUrl)
+                startActivity(intent)
+            }
+            ContentType.BANNER -> {
                 val intent = Intent(this, ImageViewerActivity::class.java)
                 intent.putExtra(ImageViewerActivity.EXTRA_URL, item.url)
                 intent.putExtra(ImageViewerActivity.EXTRA_TITLE, item.title)
@@ -199,24 +189,23 @@ class CategoryListActivity : AppCompatActivity() {
                 intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
-            ContentType.MUSIC -> {
+            ContentType.FILE, ContentType.MUSIC -> {
                 if (DownloadHelper.ensureStoragePermission(this)) {
                     DownloadHelper.downloadUrl(this, item.url, item.title)
                 }
             }
-            ContentType.FILE, ContentType.SOFTWARE -> {
-                if (isDownloadableFile(item.url)) {
-                    if (DownloadHelper.ensureStoragePermission(this)) {
-                        DownloadHelper.downloadUrl(this, item.url, item.title)
-                    }
-                } else {
-                    // لینک ساده یا صفحه‌ی HTML — با مرورگر داخلی باز می‌شود؛
-                    // دکمه‌ی دانلود هم بالای صفحه هست اگه کسی خواست خودِ فایل رو ذخیره کنه
+            ContentType.SOFTWARE -> {
+                val lowerUrl = item.url.substringBefore("?").substringBefore("#").lowercase()
+                if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
+                    // یه صفحه‌ی وبی مثل یه ابزار HTML — مستقیم داخل اپ باز می‌شه، ولی دکمه‌ی
+                    // دانلود هم بالای صفحه هست اگه کسی خواست خودِ فایل رو ذخیره کنه
                     val intent = Intent(this, WebViewActivity::class.java)
                     intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
                     intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
                     intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
                     startActivity(intent)
+                } else if (DownloadHelper.ensureStoragePermission(this)) {
+                    DownloadHelper.downloadUrl(this, item.url, item.title)
                 }
             }
             ContentType.NEWSPAPER -> {
