@@ -13,7 +13,7 @@ import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
-import android.support.v4.media.session.MediaSessionCompat
+import androidx.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 
 /**
