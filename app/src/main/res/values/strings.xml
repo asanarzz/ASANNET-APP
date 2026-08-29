@@ -162,4 +162,5 @@
     <string name="label_profile_photo">عکس پروفایل</string>
     <string name="btn_choose_photo">انتخاب عکس</string>
     <string name="err_photo_required">لطفاً یک عکس پروفایل انتخاب کن</string>
+    <string name="err_app_not_installed">این لینک نیاز به اپلیکیشنی دارد که روی گوشیت نصب نیست</string>
 </resources>
