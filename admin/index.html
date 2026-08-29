@@ -257,6 +257,15 @@
         <div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
       </div>
 
+      <label>گالری عکس (اختیاری، حداکثر ۵۰ تصویر)</label>
+      <p class="muted">این بخش مستقل از لینک/فایل بالاست — می‌تونی هم‌زمان لینک/فایل و چند عکس با هم روی یک مورد بذاری.</p>
+      <div class="file-drop" id="gallery-drop-zone">
+        <div id="gallery-drop-label">برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)</div>
+        <div class="muted" id="gallery-existing-note" style="display:none; margin-top:4px;"></div>
+        <input type="file" id="in-gallery" multiple accept="image/*">
+      </div>
+      <div class="progress-wrap" id="gallery-progress-wrap"><div class="progress-bar" id="gallery-progress-bar"></div></div>
+
       <button class="btn-primary btn-full" id="btn-add">افزودن به برنامه</button>
       <button class="btn-outline btn-full hidden" id="btn-cancel-edit" style="margin-top:8px;">لغو ویرایش</button>
     </div>
@@ -324,6 +333,7 @@ let contentItems = [];   // parsed array
 let selectedType = 'link';
 let selectedSource = 'url';
 let selectedFile = null;
+let selectedGalleryFiles = [];
 let editingId = null;
 
 const $ = (id) => document.getElementById(id);
@@ -771,6 +781,26 @@ async function handleAdd() {
 
     const sectionValue = $('in-section').value.trim();
 
+    let images = [];
+    if (selectedGalleryFiles.length) {
+      btn.textContent = 'در حال آپلود گالری… (0/' + selectedGalleryFiles.length + ')';
+      $('gallery-progress-wrap').style.display = 'block';
+      for (let idx = 0; idx < selectedGalleryFiles.length; idx++) {
+        const f = selectedGalleryFiles[idx];
+        const filename = Date.now() + '-' + idx + '-' + slugify(f.name);
+        const path = 'media/' + filename;
+        const dataUrl = await readFileAsDataUrl(f);
+        const base64 = dataUrl.split(',')[1];
+        await ghPutFile(path, base64, 'افزودن عکس گالری: ' + filename, null);
+        images.push(rawUrl(path));
+        btn.textContent = 'در حال آپلود گالری… (' + (idx + 1) + '/' + selectedGalleryFiles.length + ')';
+        $('gallery-progress-bar').style.width = Math.round(((idx + 1) / selectedGalleryFiles.length) * 100) + '%';
+      }
+    } else if (editingId) {
+      const existing = contentItems.find((i) => i.id === editingId);
+      if (existing && existing.images) images = existing.images;
+    }
+
     if (editingId) {
       const id = editingId;
       const updatedItem = {
@@ -781,6 +811,7 @@ async function handleAdd() {
         url,
       };
       if (sectionValue) updatedItem.section = sectionValue;
+      if (images.length) updatedItem.images = images;
 
       contentItems = contentItems.map((i) => (i.id === id ? updatedItem : i));
 
@@ -804,6 +835,7 @@ async function handleAdd() {
       url,
     };
     if (sectionValue) newItem.section = sectionValue;
+    if (images.length) newItem.images = images;
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -844,6 +876,15 @@ function startEdit(id) {
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
 
+  selectedGalleryFiles = [];
+  $('in-gallery').value = '';
+  if (item.images && item.images.length) {
+    $('gallery-existing-note').style.display = 'block';
+    $('gallery-existing-note').textContent = 'این مورد الان ' + item.images.length + ' عکس گالری دارد — اگه عکس جدید انتخاب کنی، جایگزین همه‌شون می‌شه';
+  } else {
+    $('gallery-existing-note').style.display = 'none';
+  }
+
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
   $('btn-cancel-edit').classList.remove('hidden');
@@ -867,6 +908,12 @@ function resetForm() {
   selectedFile = null;
   $('in-file').value = '';
   $('drop-label').textContent = 'برای انتخاب فایل کلیک کن، یا فایل را اینجا رها کن';
+  selectedGalleryFiles = [];
+  $('in-gallery').value = '';
+  $('gallery-drop-label').textContent = 'برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)';
+  $('gallery-existing-note').style.display = 'none';
+  $('gallery-progress-wrap').style.display = 'none';
+  $('gallery-progress-bar').style.width = '0%';
 }
 
 // ---------- UI wiring ----------
@@ -907,6 +954,21 @@ function initTabs() {
       selectedFile = e.dataTransfer.files[0];
       $('drop-label').textContent = 'انتخاب شد: ' + selectedFile.name;
     }
+  });
+
+  const galleryDropZone = $('gallery-drop-zone');
+  const galleryInput = $('in-gallery');
+  galleryDropZone.addEventListener('click', () => galleryInput.click());
+  galleryInput.addEventListener('change', () => {
+    let files = Array.from(galleryInput.files);
+    if (files.length > 50) {
+      toast('حداکثر ۵۰ عکس مجاز است — فقط ۵۰ تای اول انتخاب شد', 'error');
+      files = files.slice(0, 50);
+    }
+    selectedGalleryFiles = files;
+    $('gallery-drop-label').textContent = selectedGalleryFiles.length
+      ? selectedGalleryFiles.length + ' عکس انتخاب شد'
+      : 'برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)';
   });
 
   $('btn-add').addEventListener('click', handleAdd);

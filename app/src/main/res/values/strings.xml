@@ -163,4 +163,5 @@
     <string name="btn_choose_photo">انتخاب عکس</string>
     <string name="err_photo_required">لطفاً یک عکس پروفایل انتخاب کن</string>
     <string name="err_app_not_installed">این لینک نیاز به اپلیکیشنی دارد که روی گوشیت نصب نیست</string>
+    <string name="image_counter_format">%1$d از %2$d</string>
 </resources>

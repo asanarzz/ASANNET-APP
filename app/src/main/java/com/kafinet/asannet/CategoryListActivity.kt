@@ -174,6 +174,16 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openItem(item: ContentItem) {
+        if (item.images.isNotEmpty()) {
+            val intent = Intent(this, GalleryDetailActivity::class.java)
+            intent.putExtra(GalleryDetailActivity.EXTRA_TITLE, item.title)
+            intent.putExtra(GalleryDetailActivity.EXTRA_DESCRIPTION, item.description)
+            intent.putStringArrayListExtra(GalleryDetailActivity.EXTRA_IMAGES, ArrayList(item.images))
+            intent.putExtra(GalleryDetailActivity.EXTRA_URL, item.url)
+            intent.putExtra(GalleryDetailActivity.EXTRA_IS_FILE, item.type == ContentType.FILE)
+            startActivity(intent)
+            return
+        }
         when (item.type) {
             ContentType.RADIO -> {
                 val intent = Intent(this, RadioPlayerActivity::class.java)
