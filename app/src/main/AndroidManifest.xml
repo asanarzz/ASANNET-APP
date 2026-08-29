@@ -6,6 +6,10 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".KafinetApp"
@@ -84,6 +88,15 @@
         <activity
             android:name=".MediaDetailActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".RadioPlayerActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".RadioPlayerService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <activity
             android:name=".VideoPlayerActivity"
