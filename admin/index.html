@@ -190,7 +190,6 @@
     <div class="main-tabs">
       <div class="main-tab active" id="main-tab-content">افزودن محتوا</div>
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
-      <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
     </div>
 
     <div id="section-content">
@@ -233,38 +232,23 @@
         تو لیست دسته نشون داده می‌شه.
       </p>
 
-      <label>منبع محتوا</label>
-      <div class="source-tabs">
-        <div class="source-tab active" data-src="url">لینک (URL)</div>
-        <div class="source-tab" data-src="upload">آپلود فایل از گوشی/کامپیوتر</div>
-      </div>
+      <label>لینک (اختیاری)</label>
+      <input type="url" id="in-url" placeholder="https://...">
+      <p class="muted">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
 
       <div class="muted" id="banner-size-hint" style="margin-top:6px; display:none;">
         اندازه‌ی پیشنهادی تصویر برای بنر صفحه‌ی اصلی: ۱۶۰۰ × ۱۲۰۰ پیکسل (نسبت ۴ به ۳)
       </div>
 
-      <div id="src-url-box">
-        <label>آدرس لینک</label>
-        <input type="url" id="in-url" placeholder="https://...">
-      </div>
-
-      <div id="src-upload-box" class="hidden">
+      <label style="margin-top:14px; display:block;">عکس یا فایل (اختیاری، تا ۵۰ تا هم‌زمان)</label>
+      <div id="src-upload-box">
         <div class="file-drop" id="drop-zone">
-          <div id="drop-label">برای انتخاب فایل کلیک کن، یا فایل را اینجا رها کن</div>
-          <div class="muted" style="margin-top:4px;">حجم پیشنهادی: کمتر از ۲۰ مگابایت</div>
-          <input type="file" id="in-file">
+          <div id="drop-label">برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)</div>
+          <div class="muted" style="margin-top:4px;">حجم پیشنهادی هر فایل: کمتر از ۲۰ مگابایت — حداکثر ۵۰ فایل</div>
+          <input type="file" id="in-file" multiple>
         </div>
         <div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
       </div>
-
-      <label>گالری عکس (اختیاری، حداکثر ۵۰ تصویر)</label>
-      <p class="muted">این بخش مستقل از لینک/فایل بالاست — می‌تونی هم‌زمان لینک/فایل و چند عکس با هم روی یک مورد بذاری.</p>
-      <div class="file-drop" id="gallery-drop-zone">
-        <div id="gallery-drop-label">برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)</div>
-        <div class="muted" id="gallery-existing-note" style="display:none; margin-top:4px;"></div>
-        <input type="file" id="in-gallery" multiple accept="image/*">
-      </div>
-      <div class="progress-wrap" id="gallery-progress-wrap"><div class="progress-bar" id="gallery-progress-bar"></div></div>
 
       <button class="btn-primary btn-full" id="btn-add">افزودن به برنامه</button>
       <button class="btn-outline btn-full hidden" id="btn-cancel-edit" style="margin-top:8px;">لغو ویرایش</button>
@@ -282,23 +266,6 @@
       <div class="card">
         <h2>مدارک ارسالی کاربران <button class="link-btn" id="btn-refresh-docs" style="float:left;">بارگذاری مجدد</button></h2>
         <div id="docs-area"><div class="empty-msg">در حال بارگذاری…</div></div>
-      </div>
-    </div>
-
-    <div id="section-stats" class="hidden">
-      <div class="card">
-        <h2>خلاصه‌ی امروز <button class="link-btn" id="btn-refresh-stats" style="float:left;">بارگذاری مجدد</button></h2>
-        <div id="stats-summary"><div class="empty-msg">در حال بارگذاری…</div></div>
-      </div>
-
-      <div class="card">
-        <h2>بازدید هر بخش</h2>
-        <div id="stats-by-category"></div>
-      </div>
-
-      <div class="card">
-        <h2>لیست بازدیدکنندگان <input type="text" id="in-stats-search" placeholder="جستجو با نام یا شماره…" style="width:auto; display:inline-block; float:left; padding:6px 10px; font-size:13px;"></h2>
-        <div id="stats-table"></div>
       </div>
     </div>
 
@@ -331,10 +298,9 @@ let cfg = null;          // {owner, repo, branch, token}
 let contentSha = null;   // sha of content.json for updates
 let contentItems = [];   // parsed array
 let selectedType = 'link';
-let selectedSource = 'url';
-let selectedFile = null;
-let selectedGalleryFiles = [];
+let selectedFiles = []; // آرایه‌ی فایل‌های انتخاب‌شده (حداکثر ۵۰ تا)
 let editingId = null;
+let editingExistingImages = []; // عکس‌های قبلی موقع ویرایش، تا با فایل‌های جدید جمع بشن
 
 const $ = (id) => document.getElementById(id);
 
@@ -532,113 +498,6 @@ function renderDocuments(rows) {
   });
 }
 
-// ---------- Supabase: آمار بازدید ----------
-let statsRowsCache = [];
-
-async function loadVisitStats() {
-  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    $('stats-summary').innerHTML = '<div class="empty-msg">آدرس و کلید Supabase تنظیم نشده — از «تغییر تنظیمات» واردشان کن</div>';
-    return;
-  }
-  $('stats-summary').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
-  $('stats-by-category').innerHTML = '';
-  $('stats-table').innerHTML = '';
-  try {
-    const url = `${cfg.supabaseUrl}/rest/v1/rpc/get_visit_report`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { ...sbHeaders(), 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    if (!res.ok) throw new Error('خطا در دریافت آمار (' + res.status + ') — شاید هنوز تابع get_visit_report را در Supabase نساخته‌ای');
-    statsRowsCache = await res.json();
-    renderVisitStats(statsRowsCache);
-  } catch (e) {
-    $('stats-summary').innerHTML = '<div class="empty-msg">خطا در بارگذاری آمار</div>';
-    toast(e.message, 'error');
-  }
-}
-
-function isSameLocalDay(iso, ref) {
-  const d = new Date(iso);
-  return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate();
-}
-
-function renderVisitStats(rows) {
-  const now = new Date();
-  const todayRows = rows.filter((r) => r.viewed_at && isSameLocalDay(r.viewed_at, now));
-  const todayUnique = new Set(todayRows.map((r) => r.national_code)).size;
-  const allUnique = new Set(rows.map((r) => r.national_code)).size;
-
-  $('stats-summary').innerHTML = `
-    <div style="display:flex; gap:24px; flex-wrap:wrap;">
-      <div><div class="muted" style="font-size:12px;">بازدید امروز (نفر یکتا)</div><div style="font-size:24px; font-weight:700; color:var(--primary);">${todayUnique}</div></div>
-      <div><div class="muted" style="font-size:12px;">کل بازدیدکنندگان یکتا</div><div style="font-size:24px; font-weight:700;">${allUnique}</div></div>
-      <div><div class="muted" style="font-size:12px;">کل رویدادهای ثبت‌شده</div><div style="font-size:24px; font-weight:700;">${rows.length}</div></div>
-    </div>
-  `;
-
-  const catCounts = {};
-  rows.forEach((r) => {
-    const key = r.category || 'باز کردن برنامه';
-    catCounts[key] = (catCounts[key] || 0) + 1;
-  });
-  const catEntries = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
-  $('stats-by-category').innerHTML = catEntries.length
-    ? catEntries.map(([name, count]) => `
-        <div class="item" style="justify-content:space-between;">
-          <div class="info"><div class="t">${escapeHtml(name)}</div></div>
-          <div style="font-weight:700; color:var(--primary);">${count}</div>
-        </div>
-      `).join('')
-    : '<div class="empty-msg">هنوز بازدیدی ثبت نشده</div>';
-
-  renderStatsTable(rows);
-}
-
-function renderStatsTable(rows) {
-  const area = $('stats-table');
-  if (!rows.length) {
-    area.innerHTML = '<div class="empty-msg">هنوز بازدیدی ثبت نشده</div>';
-    return;
-  }
-  const header = `
-    <div class="item" style="background:var(--bg); font-weight:700; font-size:12px;">
-      <div class="info" style="display:flex; gap:10px;">
-        <div style="flex:1;">نام و نام‌خانوادگی</div>
-        <div style="flex:1;">موبایل</div>
-        <div style="flex:1;">بخش</div>
-        <div style="flex:1;">زمان</div>
-      </div>
-    </div>
-  `;
-  const body = rows.map((r) => {
-    const fullName = [r.first_name, r.last_name].filter(Boolean).join(' ').trim() || '—';
-    return `
-      <div class="item">
-        <div class="info" style="display:flex; gap:10px;">
-          <div style="flex:1;">${escapeHtml(fullName)}</div>
-          <div style="flex:1;">${escapeHtml(r.phone_number || '—')}</div>
-          <div style="flex:1;">${escapeHtml(r.category || 'باز کردن برنامه')}</div>
-          <div style="flex:1; font-size:12px;">${escapeHtml(formatPersianDateTime(r.viewed_at))}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-  area.innerHTML = header + body;
-}
-
-function filterStatsTable(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) { renderStatsTable(statsRowsCache); return; }
-  const filtered = statsRowsCache.filter((r) => {
-    const fullName = [r.first_name, r.last_name].filter(Boolean).join(' ').toLowerCase();
-    const phone = (r.phone_number || '').toLowerCase();
-    return fullName.includes(q) || phone.includes(q);
-  });
-  renderStatsTable(filtered);
-}
-
 // ---------- content.json ----------
 async function loadContentList() {
   $('list-area').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
@@ -696,7 +555,7 @@ function renderList() {
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
-        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}</div>
+        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}</div>
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
@@ -750,56 +609,42 @@ async function handleAdd() {
 
   if (!title) { toast('عنوان را وارد کن', 'error'); return; }
 
-  let url = '';
+  let url = $('in-url').value.trim();
   const btn = $('btn-add');
   btn.disabled = true;
   const originalText = btn.textContent;
 
   try {
-    if (selectedSource === 'url') {
-      url = $('in-url').value.trim();
-      if (!url) { toast('آدرس لینک را وارد کن', 'error'); btn.disabled = false; return; }
-    } else {
-      if (!selectedFile) { toast('یک فایل انتخاب کن', 'error'); btn.disabled = false; return; }
-      btn.textContent = 'در حال آپلود…';
+    let newImages = [];
+    if (selectedFiles.length > 0) {
       $('progress-wrap').style.display = 'block';
-      $('progress-bar').style.width = '30%';
-
       const folder = selectedType === 'test' ? 'tests' : 'media';
-      const filename = Date.now() + '-' + slugify(selectedFile.name);
-      const path = folder + '/' + filename;
 
-      const dataUrl = await readFileAsDataUrl(selectedFile);
-      const base64 = dataUrl.split(',')[1];
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        btn.textContent = `در حال آپلود… (${i + 1}/${selectedFiles.length})`;
+        $('progress-bar').style.width = Math.round(((i + 0.5) / selectedFiles.length) * 100) + '%';
 
-      $('progress-bar').style.width = '70%';
-      await ghPutFile(path, base64, 'افزودن فایل: ' + filename, null);
-      $('progress-bar').style.width = '100%';
+        const filename = Date.now() + '-' + i + '-' + slugify(file.name);
+        const path = folder + '/' + filename;
+        const dataUrl = await readFileAsDataUrl(file);
+        const base64 = dataUrl.split(',')[1];
+        await ghPutFile(path, base64, 'افزودن فایل: ' + filename, null);
+        newImages.push(rawUrl(path));
 
-      url = rawUrl(path);
+        $('progress-bar').style.width = Math.round(((i + 1) / selectedFiles.length) * 100) + '%';
+      }
+    }
+
+    const combinedImages = editingId ? editingExistingImages.concat(newImages) : newImages;
+
+    if (!url && combinedImages.length === 0) {
+      toast('حداقل یه لینک یا یه فایل وارد کن', 'error');
+      btn.disabled = false;
+      return;
     }
 
     const sectionValue = $('in-section').value.trim();
-
-    let images = [];
-    if (selectedGalleryFiles.length) {
-      btn.textContent = 'در حال آپلود گالری… (0/' + selectedGalleryFiles.length + ')';
-      $('gallery-progress-wrap').style.display = 'block';
-      for (let idx = 0; idx < selectedGalleryFiles.length; idx++) {
-        const f = selectedGalleryFiles[idx];
-        const filename = Date.now() + '-' + idx + '-' + slugify(f.name);
-        const path = 'media/' + filename;
-        const dataUrl = await readFileAsDataUrl(f);
-        const base64 = dataUrl.split(',')[1];
-        await ghPutFile(path, base64, 'افزودن عکس گالری: ' + filename, null);
-        images.push(rawUrl(path));
-        btn.textContent = 'در حال آپلود گالری… (' + (idx + 1) + '/' + selectedGalleryFiles.length + ')';
-        $('gallery-progress-bar').style.width = Math.round(((idx + 1) / selectedGalleryFiles.length) * 100) + '%';
-      }
-    } else if (editingId) {
-      const existing = contentItems.find((i) => i.id === editingId);
-      if (existing && existing.images) images = existing.images;
-    }
 
     if (editingId) {
       const id = editingId;
@@ -811,7 +656,7 @@ async function handleAdd() {
         url,
       };
       if (sectionValue) updatedItem.section = sectionValue;
-      if (images.length) updatedItem.images = images;
+      if (combinedImages.length) updatedItem.images = combinedImages;
 
       contentItems = contentItems.map((i) => (i.id === id ? updatedItem : i));
 
@@ -835,7 +680,7 @@ async function handleAdd() {
       url,
     };
     if (sectionValue) newItem.section = sectionValue;
-    if (images.length) newItem.images = images;
+    if (combinedImages.length) newItem.images = combinedImages;
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -865,25 +710,17 @@ function startEdit(id) {
   if (typeTab) typeTab.classList.add('active');
   selectedType = item.type;
 
-  document.querySelectorAll('.source-tab').forEach((t) => t.classList.remove('active'));
-  document.querySelector('.source-tab[data-src="url"]').classList.add('active');
-  selectedSource = 'url';
-  $('src-url-box').classList.remove('hidden');
-  $('src-upload-box').classList.add('hidden');
+  editingExistingImages = Array.isArray(item.images) ? item.images.slice() : [];
+  selectedFiles = [];
+  $('in-file').value = '';
+  $('drop-label').textContent = editingExistingImages.length
+    ? `این مورد الان ${editingExistingImages.length} عکس/فایل داره — فایل جدید انتخاب کن تا اضافه بشه`
+    : 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
 
   $('in-title').value = item.title || '';
   $('in-desc').value = item.description || '';
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
-
-  selectedGalleryFiles = [];
-  $('in-gallery').value = '';
-  if (item.images && item.images.length) {
-    $('gallery-existing-note').style.display = 'block';
-    $('gallery-existing-note').textContent = 'این مورد الان ' + item.images.length + ' عکس گالری دارد — اگه عکس جدید انتخاب کنی، جایگزین همه‌شون می‌شه';
-  } else {
-    $('gallery-existing-note').style.display = 'none';
-  }
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -905,15 +742,25 @@ function resetForm() {
   $('in-desc').value = '';
   $('in-section').value = '';
   $('in-url').value = '';
-  selectedFile = null;
+  selectedFiles = [];
+  editingExistingImages = [];
   $('in-file').value = '';
-  $('drop-label').textContent = 'برای انتخاب فایل کلیک کن، یا فایل را اینجا رها کن';
-  selectedGalleryFiles = [];
-  $('in-gallery').value = '';
-  $('gallery-drop-label').textContent = 'برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)';
-  $('gallery-existing-note').style.display = 'none';
-  $('gallery-progress-wrap').style.display = 'none';
-  $('gallery-progress-bar').style.width = '0%';
+  $('drop-label').textContent = 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
+}
+
+function addFilesToSelection(fileList) {
+  const incoming = Array.from(fileList);
+  const room = 50 - selectedFiles.length;
+  if (room <= 0) {
+    toast('حداکثر ۵۰ فایل هم‌زمان قابل انتخابه', 'error');
+    return;
+  }
+  const accepted = incoming.slice(0, room);
+  if (incoming.length > accepted.length) {
+    toast('فقط ' + accepted.length + ' تا از فایل‌ها اضافه شد (سقف ۵۰ تا)', 'error');
+  }
+  selectedFiles = selectedFiles.concat(accepted);
+  $('drop-label').textContent = selectedFiles.length + ' فایل انتخاب شد';
 }
 
 // ---------- UI wiring ----------
@@ -928,55 +775,22 @@ function initTabs() {
     });
   });
 
-  document.querySelectorAll('.source-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.source-tab').forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      selectedSource = tab.getAttribute('data-src');
-      $('src-url-box').classList.toggle('hidden', selectedSource !== 'url');
-      $('src-upload-box').classList.toggle('hidden', selectedSource !== 'upload');
-    });
-  });
-
   const dropZone = $('drop-zone');
   const fileInput = $('in-file');
   dropZone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) {
-      selectedFile = fileInput.files[0];
-      $('drop-label').textContent = 'انتخاب شد: ' + selectedFile.name;
-    }
+    if (fileInput.files.length) addFilesToSelection(fileInput.files);
   });
   ['dragover'].forEach((ev) => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }));
   ['dragleave', 'drop'].forEach((ev) => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
   dropZone.addEventListener('drop', (e) => {
-    if (e.dataTransfer.files[0]) {
-      selectedFile = e.dataTransfer.files[0];
-      $('drop-label').textContent = 'انتخاب شد: ' + selectedFile.name;
-    }
-  });
-
-  const galleryDropZone = $('gallery-drop-zone');
-  const galleryInput = $('in-gallery');
-  galleryDropZone.addEventListener('click', () => galleryInput.click());
-  galleryInput.addEventListener('change', () => {
-    let files = Array.from(galleryInput.files);
-    if (files.length > 50) {
-      toast('حداکثر ۵۰ عکس مجاز است — فقط ۵۰ تای اول انتخاب شد', 'error');
-      files = files.slice(0, 50);
-    }
-    selectedGalleryFiles = files;
-    $('gallery-drop-label').textContent = selectedGalleryFiles.length
-      ? selectedGalleryFiles.length + ' عکس انتخاب شد'
-      : 'برای انتخاب چند عکس کلیک کن (حداکثر ۵۰ تا)';
+    if (e.dataTransfer.files.length) addFilesToSelection(e.dataTransfer.files);
   });
 
   $('btn-add').addEventListener('click', handleAdd);
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
-  $('btn-refresh-stats').addEventListener('click', (e) => { e.preventDefault(); loadVisitStats(); });
-  $('in-stats-search').addEventListener('input', (e) => filterStatsTable(e.target.value));
   $('btn-logout').addEventListener('click', () => {
     if (confirm('اطلاعات اتصال از این مرورگر پاک شود؟')) {
       clearConfig();
@@ -986,25 +800,17 @@ function initTabs() {
 
   $('main-tab-content').addEventListener('click', () => switchMainTab('content'));
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
-  $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
 }
 
 let docsLoaded = false;
-let statsLoaded = false;
 function switchMainTab(which) {
   $('main-tab-content').classList.toggle('active', which === 'content');
   $('main-tab-docs').classList.toggle('active', which === 'docs');
-  $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('section-content').classList.toggle('hidden', which !== 'content');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
-  $('section-stats').classList.toggle('hidden', which !== 'stats');
   if (which === 'docs' && !docsLoaded) {
     docsLoaded = true;
     loadDocuments();
-  }
-  if (which === 'stats' && !statsLoaded) {
-    statsLoaded = true;
-    loadVisitStats();
   }
 }
 
