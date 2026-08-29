@@ -45,11 +45,11 @@ data class ContentItem(
                 val obj: JSONObject = array.getJSONObject(i)
                 val sectionValue = obj.optString("section", "").trim()
                 val imagesArray = obj.optJSONArray("images")
-                val imagesList = mutableListOf<String>()
+                val images = mutableListOf<String>()
                 if (imagesArray != null) {
                     for (j in 0 until imagesArray.length()) {
-                        val img = imagesArray.optString(j, "").trim()
-                        if (img.isNotBlank()) imagesList.add(img)
+                        val imgUrl = imagesArray.optString(j, "").trim()
+                        if (imgUrl.isNotBlank()) images.add(imgUrl)
                     }
                 }
                 result.add(
@@ -60,7 +60,7 @@ data class ContentItem(
                         description = obj.optString("description", ""),
                         url = obj.optString("url", ""),
                         section = if (sectionValue.isBlank()) null else sectionValue,
-                        images = imagesList
+                        images = images
                     )
                 )
             }

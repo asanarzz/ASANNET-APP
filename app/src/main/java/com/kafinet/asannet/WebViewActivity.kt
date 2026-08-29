@@ -6,22 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
 
 class WebViewActivity : AppCompatActivity() {
 
@@ -30,6 +22,8 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
 
+        // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
+        // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -71,102 +65,8 @@ class WebViewActivity : AppCompatActivity() {
         binding.btnRetry.setOnClickListener { reload() }
 
         setupWebView()
-        setupDownloadHandling(title)
         if (currentUrl.isNotBlank()) {
-            loadSmart(currentUrl)
-        }
-    }
-
-    private fun setupDownloadHandling(pageTitle: String) {
-        binding.webView.addJavascriptInterface(object {
-            @JavascriptInterface
-            fun onBlobReady(base64DataUri: String, suggestedName: String) {
-                runOnUiThread { saveGeneratedFile(base64DataUri, suggestedName.ifBlank { pageTitle }) }
-            }
-
-            @JavascriptInterface
-            fun requestPrint() {
-                runOnUiThread { printCurrentPage(pageTitle) }
-            }
-        }, "AndroidDownloader")
-
-        binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
-            when {
-                url.startsWith("data:") -> {
-                    saveGeneratedFile(url, pageTitle)
-                }
-                url.startsWith("blob:") -> {
-                    val js = """
-                        (function() {
-                            fetch('$url').then(r => r.blob()).then(blob => {
-                                var reader = new FileReader();
-                                reader.onloadend = function() {
-                                    AndroidDownloader.onBlobReady(reader.result, '');
-                                };
-                                reader.readAsDataURL(blob);
-                            });
-                        })();
-                    """.trimIndent()
-                    binding.webView.evaluateJavascript(js, null)
-                }
-                else -> {
-                    if (DownloadHelper.ensureStoragePermission(this)) {
-                        DownloadHelper.downloadUrl(this, url, pageTitle)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun saveGeneratedFile(dataUri: String, suggestedName: String) {
-        if (!DownloadHelper.ensureStoragePermission(this)) return
-        val success = DownloadHelper.saveDataUri(this, dataUri, suggestedName)
-        val message = if (success) getString(R.string.download_saved) else getString(R.string.error_loading)
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun printCurrentPage(jobName: String) {
-        try {
-            val printManager = getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
-            val adapter = binding.webView.createPrintDocumentAdapter(jobName.ifBlank { "document" })
-            printManager.print(
-                jobName.ifBlank { "document" },
-                adapter,
-                android.print.PrintAttributes.Builder().build()
-            )
-        } catch (e: Exception) {
-            Toast.makeText(this, R.string.error_loading, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun loadSmart(url: String) {
-        val clean = url.substringBefore("?").substringBefore("#").lowercase()
-        if (clean.endsWith(".html") || clean.endsWith(".htm")) {
-            lifecycleScope.launch {
-                val html = withContext(Dispatchers.IO) { fetchTextOrNull(url) }
-                if (html != null) {
-                    val baseUrl = url.substringBeforeLast('/') + "/"
-                    binding.webView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
-                } else {
-                    binding.webView.loadUrl(url)
-                }
-            }
-        } else {
-            binding.webView.loadUrl(url)
-        }
-    }
-
-    private fun fetchTextOrNull(url: String): String? {
-        return try {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-            connection.setRequestProperty("User-Agent", DESKTOP_USER_AGENT)
-            if (connection.responseCode !in 200..299) return null
-            connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-        } catch (e: Exception) {
-            null
+            binding.webView.loadUrl(currentUrl)
         }
     }
 
@@ -184,17 +84,7 @@ class WebViewActivity : AppCompatActivity() {
 
         binding.webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                if (url == null) return false
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    return false
-                }
-                return try {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    true
-                } catch (e: Exception) {
-                    Toast.makeText(this@WebViewActivity, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
-                    true
-                }
+                return false
             }
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
@@ -205,9 +95,6 @@ class WebViewActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 didAutoRetry = false
-                view?.evaluateJavascript(
-                    "window.print = function() { AndroidDownloader.requestPrint(); };", null
-                )
             }
 
             override fun onReceivedError(
@@ -216,6 +103,7 @@ class WebViewActivity : AppCompatActivity() {
                 error: WebResourceError?
             ) {
                 super.onReceivedError(view, request, error)
+                // فقط برای بارگذاری صفحه‌ی اصلی خطا رو نشون بده، نه برای زیرمنابع (عکس، فونت و...)
                 if (request?.isForMainFrame == true) {
                     handleLoadFailure()
                 }
@@ -230,6 +118,11 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * خیلی از خطاهای «net::ERR_CONNECTION_RESET» موقتی و لحظه‌ای هستن (مثلاً یه ری‌ست کوتاه
+     * تو شبکه). برای همین یه‌بار خودکار و بی‌سروصدا بعد از یک‌ونیم ثانیه دوباره تلاش می‌کنیم؛
+     * اگه بازم شکست خورد، به کاربر پیام و دکمه‌ی تلاش دوباره نشون می‌دیم.
+     */
     private fun handleLoadFailure() {
         if (!didAutoRetry) {
             didAutoRetry = true
@@ -241,7 +134,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun reload() {
         showError(false)
-        loadSmart(currentUrl)
+        binding.webView.loadUrl(currentUrl)
     }
 
     private fun showError(visible: Boolean) {
