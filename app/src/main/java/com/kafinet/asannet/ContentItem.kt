@@ -34,7 +34,8 @@ data class ContentItem(
     val title: String,
     val description: String,
     val url: String,
-    val section: String? = null
+    val section: String? = null,
+    val images: List<String> = emptyList()
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -43,6 +44,14 @@ data class ContentItem(
             for (i in 0 until array.length()) {
                 val obj: JSONObject = array.getJSONObject(i)
                 val sectionValue = obj.optString("section", "").trim()
+                val imagesArray = obj.optJSONArray("images")
+                val imagesList = mutableListOf<String>()
+                if (imagesArray != null) {
+                    for (j in 0 until imagesArray.length()) {
+                        val img = imagesArray.optString(j, "").trim()
+                        if (img.isNotBlank()) imagesList.add(img)
+                    }
+                }
                 result.add(
                     ContentItem(
                         id = obj.optString("id", "item_$i"),
@@ -50,7 +59,8 @@ data class ContentItem(
                         title = obj.optString("title", ""),
                         description = obj.optString("description", ""),
                         url = obj.optString("url", ""),
-                        section = if (sectionValue.isBlank()) null else sectionValue
+                        section = if (sectionValue.isBlank()) null else sectionValue,
+                        images = imagesList
                     )
                 )
             }

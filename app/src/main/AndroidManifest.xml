@@ -92,6 +92,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".GalleryDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
 
