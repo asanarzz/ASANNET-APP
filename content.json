@@ -163,5 +163,24 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066712081-0--7.html",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066714668-1--.jpg"
     ]
+  },
+  {
+    "id": "item_1788123316214",
+    "type": "power_outage",
+    "title": "برنامه قطعی برق",
+    "description": "یکشنبه 8 مرداد 1405",
+    "url": "",
+    "section": "استان سمنان",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123281410-0-img-20260830-080024-406.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123285641-1-img-20260830-080025-930.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123289772-2-img-20260830-080027-262.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123292827-3-img-20260830-080042-944.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123299584-4-img-20260830-080044-363.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123303201-5-img-20260830-080046-100.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123306530-6-img-20260830-080049-807.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123310530-7-img-20260830-080051-190.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788123313070-8-img-20260830-080052-616.jpg"
+    ]
   }
 ]
