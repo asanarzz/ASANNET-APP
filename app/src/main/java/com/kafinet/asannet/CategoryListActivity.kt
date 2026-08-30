@@ -160,21 +160,19 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openItem(item: ContentItem) {
-        if (item.images.isNotEmpty()) {
-            val intent = Intent(this, GalleryDetailActivity::class.java)
-            intent.putExtra(GalleryDetailActivity.EXTRA_TITLE, item.title)
-            intent.putExtra(GalleryDetailActivity.EXTRA_DESCRIPTION, item.description)
-            intent.putStringArrayListExtra(GalleryDetailActivity.EXTRA_IMAGES, ArrayList(item.images))
-            intent.putExtra(GalleryDetailActivity.EXTRA_URL, item.url)
-            intent.putExtra(GalleryDetailActivity.EXTRA_IS_FILE, item.type == ContentType.FILE)
-            startActivity(intent)
-            return
-        }
         when (item.type) {
-            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.RADIO, ContentType.FUN -> {
+            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.FUN -> {
                 val intent = Intent(this, WebViewActivity::class.java)
                 intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
                 intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+                startActivity(intent)
+            }
+            ContentType.RADIO -> {
+                // پخش با سرویس پس‌زمینه‌ی رادیو (RadioPlayerService) — با خاموش‌شدن صفحه یا
+                // خروج از اپ قطع نمی‌شه، برخلاف باز کردن لینک تو وب‌ویو
+                val intent = Intent(this, RadioPlayerActivity::class.java)
+                intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
+                intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
             ContentType.IMAGE -> {
@@ -199,12 +197,7 @@ class CategoryListActivity : AppCompatActivity() {
                 intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
-            ContentType.FILE, ContentType.MUSIC -> {
-                if (DownloadHelper.ensureStoragePermission(this)) {
-                    DownloadHelper.downloadUrl(this, item.url, item.title)
-                }
-            }
-            ContentType.SOFTWARE -> {
+            ContentType.FILE, ContentType.MUSIC, ContentType.SOFTWARE -> {
                 val lowerUrl = item.url.substringBefore("?").substringBefore("#").lowercase()
                 if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
                     // یه صفحه‌ی وبی مثل یه ابزار HTML — مستقیم داخل اپ باز می‌شه، ولی دکمه‌ی
