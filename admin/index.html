@@ -190,6 +190,7 @@
     <div class="main-tabs">
       <div class="main-tab active" id="main-tab-content">افزودن محتوا</div>
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
+      <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
     </div>
 
     <div id="section-content">
@@ -266,6 +267,23 @@
       <div class="card">
         <h2>مدارک ارسالی کاربران <button class="link-btn" id="btn-refresh-docs" style="float:left;">بارگذاری مجدد</button></h2>
         <div id="docs-area"><div class="empty-msg">در حال بارگذاری…</div></div>
+      </div>
+    </div>
+
+    <div id="section-stats" class="hidden">
+      <div class="card">
+        <h2>خلاصه‌ی امروز <button class="link-btn" id="btn-refresh-stats" style="float:left;">بارگذاری مجدد</button></h2>
+        <div id="stats-summary"><div class="empty-msg">در حال بارگذاری…</div></div>
+      </div>
+
+      <div class="card">
+        <h2>بازدید هر بخش</h2>
+        <div id="stats-by-category"></div>
+      </div>
+
+      <div class="card">
+        <h2>لیست بازدیدکنندگان <input type="text" id="in-stats-search" placeholder="جستجو با نام یا شماره…" style="width:auto; display:inline-block; float:left; padding:6px 10px; font-size:13px;"></h2>
+        <div id="stats-table"></div>
       </div>
     </div>
 
@@ -496,6 +514,113 @@ function renderDocuments(rows) {
     if (idx === 0) folderEl.classList.add('open');
     area.appendChild(folderEl);
   });
+}
+
+// ---------- Supabase: آمار بازدید ----------
+let statsRowsCache = [];
+
+async function loadVisitStats() {
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    $('stats-summary').innerHTML = '<div class="empty-msg">آدرس و کلید Supabase تنظیم نشده — از «تغییر تنظیمات» واردشان کن</div>';
+    return;
+  }
+  $('stats-summary').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
+  $('stats-by-category').innerHTML = '';
+  $('stats-table').innerHTML = '';
+  try {
+    const url = `${cfg.supabaseUrl}/rest/v1/rpc/get_visit_report`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { ...sbHeaders(), 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    if (!res.ok) throw new Error('خطا در دریافت آمار (' + res.status + ') — شاید هنوز تابع get_visit_report را در Supabase نساخته‌ای');
+    statsRowsCache = await res.json();
+    renderVisitStats(statsRowsCache);
+  } catch (e) {
+    $('stats-summary').innerHTML = '<div class="empty-msg">خطا در بارگذاری آمار</div>';
+    toast(e.message, 'error');
+  }
+}
+
+function isSameLocalDay(iso, ref) {
+  const d = new Date(iso);
+  return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate();
+}
+
+function renderVisitStats(rows) {
+  const now = new Date();
+  const todayRows = rows.filter((r) => r.viewed_at && isSameLocalDay(r.viewed_at, now));
+  const todayUnique = new Set(todayRows.map((r) => r.national_code)).size;
+  const allUnique = new Set(rows.map((r) => r.national_code)).size;
+
+  $('stats-summary').innerHTML = `
+    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+      <div><div class="muted" style="font-size:12px;">بازدید امروز (نفر یکتا)</div><div style="font-size:24px; font-weight:700; color:var(--primary);">${todayUnique}</div></div>
+      <div><div class="muted" style="font-size:12px;">کل بازدیدکنندگان یکتا</div><div style="font-size:24px; font-weight:700;">${allUnique}</div></div>
+      <div><div class="muted" style="font-size:12px;">کل رویدادهای ثبت‌شده</div><div style="font-size:24px; font-weight:700;">${rows.length}</div></div>
+    </div>
+  `;
+
+  const catCounts = {};
+  rows.forEach((r) => {
+    const key = r.category || 'باز کردن برنامه';
+    catCounts[key] = (catCounts[key] || 0) + 1;
+  });
+  const catEntries = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+  $('stats-by-category').innerHTML = catEntries.length
+    ? catEntries.map(([name, count]) => `
+        <div class="item" style="justify-content:space-between;">
+          <div class="info"><div class="t">${escapeHtml(name)}</div></div>
+          <div style="font-weight:700; color:var(--primary);">${count}</div>
+        </div>
+      `).join('')
+    : '<div class="empty-msg">هنوز بازدیدی ثبت نشده</div>';
+
+  renderStatsTable(rows);
+}
+
+function renderStatsTable(rows) {
+  const area = $('stats-table');
+  if (!rows.length) {
+    area.innerHTML = '<div class="empty-msg">هنوز بازدیدی ثبت نشده</div>';
+    return;
+  }
+  const header = `
+    <div class="item" style="background:var(--bg); font-weight:700; font-size:12px;">
+      <div class="info" style="display:flex; gap:10px;">
+        <div style="flex:1;">نام و نام‌خانوادگی</div>
+        <div style="flex:1;">موبایل</div>
+        <div style="flex:1;">بخش</div>
+        <div style="flex:1;">زمان</div>
+      </div>
+    </div>
+  `;
+  const body = rows.map((r) => {
+    const fullName = [r.first_name, r.last_name].filter(Boolean).join(' ').trim() || '—';
+    return `
+      <div class="item">
+        <div class="info" style="display:flex; gap:10px;">
+          <div style="flex:1;">${escapeHtml(fullName)}</div>
+          <div style="flex:1;">${escapeHtml(r.phone_number || '—')}</div>
+          <div style="flex:1;">${escapeHtml(r.category || 'باز کردن برنامه')}</div>
+          <div style="flex:1; font-size:12px;">${escapeHtml(formatPersianDateTime(r.viewed_at))}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  area.innerHTML = header + body;
+}
+
+function filterStatsTable(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) { renderStatsTable(statsRowsCache); return; }
+  const filtered = statsRowsCache.filter((r) => {
+    const fullName = [r.first_name, r.last_name].filter(Boolean).join(' ').toLowerCase();
+    const phone = (r.phone_number || '').toLowerCase();
+    return fullName.includes(q) || phone.includes(q);
+  });
+  renderStatsTable(filtered);
 }
 
 // ---------- content.json ----------
@@ -791,6 +916,8 @@ function initTabs() {
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
+  $('btn-refresh-stats').addEventListener('click', (e) => { e.preventDefault(); loadVisitStats(); });
+  $('in-stats-search').addEventListener('input', (e) => filterStatsTable(e.target.value));
   $('btn-logout').addEventListener('click', () => {
     if (confirm('اطلاعات اتصال از این مرورگر پاک شود؟')) {
       clearConfig();
@@ -800,17 +927,25 @@ function initTabs() {
 
   $('main-tab-content').addEventListener('click', () => switchMainTab('content'));
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
+  $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
 }
 
 let docsLoaded = false;
+let statsLoaded = false;
 function switchMainTab(which) {
   $('main-tab-content').classList.toggle('active', which === 'content');
   $('main-tab-docs').classList.toggle('active', which === 'docs');
+  $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('section-content').classList.toggle('hidden', which !== 'content');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
+  $('section-stats').classList.toggle('hidden', which !== 'stats');
   if (which === 'docs' && !docsLoaded) {
     docsLoaded = true;
     loadDocuments();
+  }
+  if (which === 'stats' && !statsLoaded) {
+    statsLoaded = true;
+    loadVisitStats();
   }
 }
 
