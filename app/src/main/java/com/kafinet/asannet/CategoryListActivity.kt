@@ -1,6 +1,7 @@
 package com.kafinet.asannet
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -161,19 +162,21 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openItem(item: ContentItem) {
+        if (item.images.isNotEmpty()) {
+            val intent = Intent(this, GalleryDetailActivity::class.java)
+            intent.putExtra(GalleryDetailActivity.EXTRA_TITLE, item.title)
+            intent.putExtra(GalleryDetailActivity.EXTRA_DESCRIPTION, item.description)
+            intent.putStringArrayListExtra(GalleryDetailActivity.EXTRA_IMAGES, ArrayList(item.images))
+            intent.putExtra(GalleryDetailActivity.EXTRA_URL, item.url)
+            intent.putExtra(GalleryDetailActivity.EXTRA_IS_FILE, item.type == ContentType.FILE)
+            startActivity(intent)
+            return
+        }
         when (item.type) {
-            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.FUN -> {
+            ContentType.TEST, ContentType.LINK, ContentType.POLL, ContentType.RADIO, ContentType.FUN -> {
                 val intent = Intent(this, WebViewActivity::class.java)
                 intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
                 intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
-                startActivity(intent)
-            }
-            ContentType.RADIO -> {
-                // پخش با سرویس پس‌زمینه‌ی رادیو (RadioPlayerService) — با خاموش‌شدن صفحه یا
-                // خروج از اپ قطع نمی‌شه، برخلاف باز کردن لینک تو وب‌ویو
-                val intent = Intent(this, RadioPlayerActivity::class.java)
-                intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
-                intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
             ContentType.IMAGE -> {
@@ -198,20 +201,8 @@ class CategoryListActivity : AppCompatActivity() {
                 intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, item.title)
                 startActivity(intent)
             }
-            ContentType.FILE, ContentType.MUSIC, ContentType.SOFTWARE -> {
-                val lowerUrl = item.url.substringBefore("?").substringBefore("#").lowercase()
-                if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
-                    // یه صفحه‌ی وبی مثل یه ابزار HTML — مستقیم داخل اپ باز می‌شه، ولی دکمه‌ی
-                    // دانلود هم بالای صفحه هست اگه کسی خواست خودِ فایل رو ذخیره کنه
-                    val intent = Intent(this, WebViewActivity::class.java)
-                    intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
-                    intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
-                    intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
-                    startActivity(intent)
-                } else if (DownloadHelper.ensureStoragePermission(this)) {
-                    DownloadHelper.downloadUrl(this, item.url, item.title)
-                }
-            }
+            ContentType.FILE, ContentType.MUSIC -> openFileSmart(item)
+            ContentType.SOFTWARE -> openFileSmart(item)
             ContentType.NEWSPAPER -> {
                 val intent = Intent(this, ImageViewerActivity::class.java)
                 intent.putExtra(ImageViewerActivity.EXTRA_URL, item.url)
@@ -225,6 +216,49 @@ class CategoryListActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             ContentType.DOCS, ContentType.HOME_BANNER -> { /* این نوع‌ها در این لیست ظاهر نمی‌شوند */ }
+        }
+    }
+
+    /**
+     * تشخیص می‌دهد که آیا فایل قابل‌نمایش در مرورگر داخلی است (HTML، عکس، پی‌دی‌اف)،
+     * یک فایل نصبی APK است (که مستقیم نصب می‌شود)، یا باید مثل قبل دانلود شود
+     * (فرمت‌هایی مثل zip که راهی برای نمایششان نیست).
+     */
+    private fun openFileSmart(item: ContentItem) {
+        val cleanUrl = item.url.substringBefore("?").substringBefore("#").lowercase()
+        val extension = cleanUrl.substringAfterLast('.', "")
+
+        when (extension) {
+            "html", "htm" -> {
+                val intent = Intent(this, WebViewActivity::class.java)
+                intent.putExtra(WebViewActivity.EXTRA_URL, resolveUrl(item.url))
+                intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+                intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
+                startActivity(intent)
+            }
+            "jpg", "jpeg", "png", "gif", "webp", "bmp" -> {
+                val intent = Intent(this, ImageViewerActivity::class.java)
+                intent.putExtra(ImageViewerActivity.EXTRA_URL, item.url)
+                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, item.title)
+                startActivity(intent)
+            }
+            "pdf" -> {
+                // خود WebView اندروید پی‌دی‌اف را نمایش نمی‌دهد؛ از نمایشگر آنلاین گوگل استفاده می‌کنیم
+                val viewerUrl = "https://docs.google.com/gview?embedded=true&url=" + Uri.encode(item.url)
+                val intent = Intent(this, WebViewActivity::class.java)
+                intent.putExtra(WebViewActivity.EXTRA_URL, viewerUrl)
+                intent.putExtra(WebViewActivity.EXTRA_TITLE, item.title)
+                intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
+                startActivity(intent)
+            }
+            "apk" -> {
+                DownloadHelper.downloadAndInstallApk(this, item.url, item.title)
+            }
+            else -> {
+                if (DownloadHelper.ensureStoragePermission(this)) {
+                    DownloadHelper.downloadUrl(this, item.url, item.title)
+                }
+            }
         }
     }
 
