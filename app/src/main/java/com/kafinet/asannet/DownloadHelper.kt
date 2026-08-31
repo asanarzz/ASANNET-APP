@@ -109,4 +109,45 @@ object DownloadHelper {
         val lastSlash = clean.lastIndexOf('/')
         return if (lastDot > lastSlash && lastDot != -1) clean.substring(lastDot) else ""
     }
+
+    /**
+     * فایل APK را دانلود و مستقیم صفحه‌ی نصب اندروید را باز می‌کند —
+     * به‌جای اینکه فقط تو پوشه‌ی Downloads ذخیره بشه و کاربر خودش دنبالش بگرده.
+     */
+    fun downloadAndInstallApk(context: Context, url: String, title: String) {
+        Toast.makeText(context, "در حال دانلود…", Toast.LENGTH_SHORT).show()
+        Thread {
+            try {
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+                connection.connect()
+
+                val shareDir = java.io.File(context.cacheDir, "share")
+                if (!shareDir.exists()) shareDir.mkdirs()
+                val fileName = title.ifBlank { "app" }.replace(Regex("[^A-Za-z0-9آ-ی_\\- ]"), "_") + ".apk"
+                val file = java.io.File(shareDir, fileName)
+
+                connection.inputStream.use { input ->
+                    file.outputStream().use { output -> input.copyTo(output) }
+                }
+
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context, "${context.packageName}.fileprovider", file
+                )
+                val installIntent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(installIntent)
+            } catch (e: Exception) {
+                if (context is Activity) {
+                    context.runOnUiThread {
+                        Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }.start()
+    }
 }
