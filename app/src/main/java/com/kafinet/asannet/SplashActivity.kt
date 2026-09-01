@@ -21,9 +21,14 @@ class SplashActivity : AppCompatActivity() {
         // لوگو با سرعت دور خودش می‌چرخد و به‌تدریج می‌ایستد
         val logo = binding.imgSplashLogo
         val rotate = ObjectAnimator.ofFloat(logo, "rotation", 0f, 1080f)
-        rotate.duration = 1400
+        rotate.duration = 1200
         rotate.interpolator = DecelerateInterpolator(1.8f)
         rotate.start()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            logo.setImageResource(R.drawable.splash_22)
+            logo.rotation = 0f
+        }, 1200)
 
         Handler(Looper.getMainLooper()).postDelayed({
             val next = if (SessionManager.isRegistered(this)) MainActivity::class.java else RegistrationActivity::class.java
