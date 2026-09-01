@@ -45,7 +45,7 @@
 
     <!-- برچسب دسته‌های صفحه‌ی اصلی (گرید) -->
     <string name="cat_image">عکس</string>
-    <string name="cat_video">ویدئو</string>
+    <string name="cat_video">فیلم</string>
     <string name="cat_banner">بنر</string>
     <string name="cat_link">لینک</string>
     <string name="cat_file">فایل</string>
@@ -58,7 +58,7 @@
     <string name="cat_docs">ارسال مدارک</string>
     <string name="cat_power">خاموشی برق</string>
     <string name="cat_newspaper">روزنامه‌ها</string>
-    <string name="cat_price">قیمت دلار و طلا</string>
+    <string name="cat_price">طلا و دلار</string>
     <string name="cat_services">کلیه خدمات</string>
     <string name="banner_detail_fallback_title">جزئیات</string>
     <string name="banner_more">بیشتر</string>
@@ -105,7 +105,6 @@
     <string name="btn_download">دانلود</string>
     <string name="btn_open_link">باز کردن لینک</string>
     <string name="page_indicator_format">%1$d / %2$d</string>
-    <string name="image_counter_format">%1$d / %2$d</string>
     <string name="search_hint">جستجو…</string>
 
     <!--
@@ -135,14 +134,6 @@
     <string name="forgot_password_title">بازیابی رمز عبور</string>
     <string name="forgot_password_intro">برای بازیابی رمز، اطلاعاتی که هنگام ثبت‌نام وارد کردی رو دقیقاً وارد کن.</string>
     <string name="label_new_password">رمز عبور جدید</string>
-    <string name="err_photo_required">لطفاً یک عکس انتخاب کن</string>
-    <string name="radio_playing">در حال پخش</string>
-    <string name="radio_paused">متوقف‌شده</string>
-    <string name="btn_stop">توقف</string>
-    <string name="notif_channel_name">محتوای جدید</string>
-    <string name="notif_channel_desc">اطلاع‌رسانی وقتی محتوای جدیدی به برنامه اضافه می‌شود</string>
-    <string name="notif_new_content_title">محتوای جدید اضافه شد</string>
-    <string name="notif_multiple_new">%d مورد جدید اضافه شد</string>
     <string name="label_profile_photo">عکس پروفایل (اختیاری)</string>
     <string name="btn_choose_photo">انتخاب عکس</string>
     <string name="radio_background_hint">رادیو حتی با خروج از این صفحه، در پس‌زمینه پخش می‌شود</string>
