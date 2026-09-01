@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_multiple_new">%1$d محتوای جدید</string>
+    <string name="notif_new_content_title">محتوای جدید آسان‌نت</string>
+    <string name="image_counter_format">%1$d / %2$d</string>
+    <string name="notif_channel_name">اعلان‌های آسان‌نت</string>
+    <string name="notif_channel_desc">اعلان‌های مربوط به محتوای جدید</string>
+    <string name="radio_playing">در حال پخش</string>
+    <string name="radio_paused">متوقف شده</string>
+    <string name="btn_stop">توقف</string>
+    <string name="err_photo_required">لطفاً عکس پروفایل را انتخاب کن</string>
+</resources>
