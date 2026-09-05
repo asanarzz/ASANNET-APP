@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openBanner(banner: ContentItem) {
         val intent = Intent(this, BannerDetailActivity::class.java)
-        intent.putExtra(BannerDetailActivity.EXTRA_IMAGE_URL, banner.url)
+        intent.putExtra(BannerDetailActivity.EXTRA_IMAGE_URL, banner.images.firstOrNull() ?: banner.url)
         intent.putExtra(BannerDetailActivity.EXTRA_TITLE, banner.title)
         intent.putExtra(BannerDetailActivity.EXTRA_DESCRIPTION, banner.description)
         startActivity(intent)
