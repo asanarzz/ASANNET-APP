@@ -153,18 +153,6 @@
     "url": "https://eitaa.com/asannett/11"
   },
   {
-    "id": "item_1788066716597",
-    "type": "file",
-    "title": "فاکتور آنلاین",
-    "description": "فاکتور",
-    "url": "https://eitaa.com/asannett/3175",
-    "section": "فاکتور آنلاین",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066712081-0--7.html",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066714668-1--.jpg"
-    ]
-  },
-  {
     "id": "item_1788123316214",
     "type": "power_outage",
     "title": "برنامه قطعی برق",
