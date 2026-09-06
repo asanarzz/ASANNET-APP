@@ -1,7 +1,5 @@
 package com.kafinet.asannet
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -86,26 +84,6 @@ class MediaDetailActivity : AppCompatActivity() {
     }
 
     private fun openLink(url: String, title: String) {
-        val lowerUrl = url.substringBefore("?").substringBefore("#").lowercase()
-        val isDirectFile = lowerUrl.endsWith(".apk") || lowerUrl.endsWith(".pdf") ||
-            lowerUrl.endsWith(".zip") || lowerUrl.endsWith(".mp3") || lowerUrl.endsWith(".mp4")
-
-        if (isDirectFile) {
-            if (DownloadHelper.ensureStoragePermission(this)) {
-                DownloadHelper.downloadUrl(this, url, title)
-            }
-        } else if (url.startsWith("http://") || url.startsWith("https://")) {
-            val intent = Intent(this, WebViewActivity::class.java)
-            intent.putExtra(WebViewActivity.EXTRA_URL, url)
-            intent.putExtra(WebViewActivity.EXTRA_TITLE, title)
-            intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, true)
-            startActivity(intent)
-        } else {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            } catch (e: Exception) {
-                // ignore
-            }
-        }
+        ContentOpener.open(this, url, title)
     }
 }

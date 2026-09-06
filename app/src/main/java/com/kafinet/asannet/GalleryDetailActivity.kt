@@ -1,7 +1,5 @@
 package com.kafinet.asannet
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -51,14 +49,9 @@ class GalleryDetailActivity : AppCompatActivity() {
             binding.btnAction.text = getString(if (isFile) R.string.btn_download else R.string.open_in_browser)
             binding.btnAction.setOnClickListener {
                 if (isFile) {
-                    if (DownloadHelper.ensureStoragePermission(this)) {
-                        DownloadHelper.downloadUrl(this, url, title)
-                    }
+                    ContentOpener.openFile(this, url, title)
                 } else {
-                    val intent = Intent(this, WebViewActivity::class.java)
-                    intent.putExtra(WebViewActivity.EXTRA_URL, url)
-                    intent.putExtra(WebViewActivity.EXTRA_TITLE, title)
-                    startActivity(intent)
+                    ContentOpener.open(this, url, title)
                 }
             }
         }
