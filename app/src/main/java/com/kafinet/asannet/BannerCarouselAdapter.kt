@@ -38,8 +38,9 @@ class BannerCarouselAdapter(
             holder.binding.root.layoutParams = params
         }
 
+        val imageUrl = item.images.firstOrNull() ?: item.url
         Glide.with(holder.binding.imgBanner.context)
-            .load(item.url)
+            .load(imageUrl)
             .centerCrop()
             .into(holder.binding.imgBanner)
 
