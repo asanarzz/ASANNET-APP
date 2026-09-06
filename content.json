@@ -107,20 +107,16 @@
     "section": "بازی با طرح دلخواه شما"
   },
   {
-    "id": "item_1787694047319",
-    "type": "software",
-    "title": "فاکتور آنلاین",
-    "description": "فاکتور آنلاین سفارشی\nمناسب موبایل و کامپیوتر با طرح دلخواه شما",
-    "url": "https://asanarzz.github.io/ASANNETT/",
-    "section": "برنامه های تحت وب"
-  },
-  {
     "id": "item_1787694429932",
     "type": "software",
     "title": "بنر ساز قیمت",
     "description": "با این برنامه تحت وب میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظه ای روی بنر تبلیغاتی با لینک سایت و کانال و شماره تماس لوگو و همه مشخصات دلخواه بسازین و انتشار بدین",
-    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787694427035-price-banner.html",
-    "section": "برنامه های تحت وب"
+    "url": "https://github.com/asanarzz/ASANNET-APP/blob/main/media/price-banner-2.html",
+    "section": "برنامه های تحت وب",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693023870-0-price-banner-2.html",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693027027-1-asannett-banner-3-.png"
+    ]
   },
   {
     "id": "item_1787893325193",
@@ -151,18 +147,6 @@
     "title": "بیمه نامه خودرو",
     "description": "صدور انواع بیمه شخص ثالث شرکت های بیمه ای برای خودرو و موتور سیکلت \nبصورت نقد و اقساط \n\nاقساط 5 و 7 و 11 ماهه \n\nثبت مدارک و مشخصات و صدور بیمه نامه کاملا رايگان انجام می‌شود \nشما فقط هزینه بیمه نامه رو پرداخت میکنید \nپرداخت نقدی و اقساط \n\nارتباط با ادمین 👈\n@ASAN_NETT\nلینک کانال 👈\n 🆑 @ASANNETT",
     "url": "https://eitaa.com/asannett/11"
-  },
-  {
-    "id": "item_1788066716597",
-    "type": "file",
-    "title": "فاکتور آنلاین",
-    "description": "فاکتور",
-    "url": "https://eitaa.com/asannett/3175",
-    "section": "فاکتور آنلاین",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066712081-0--7.html",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788066714668-1--.jpg"
-    ]
   },
   {
     "id": "item_1788123316214",
