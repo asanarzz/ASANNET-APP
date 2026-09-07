@@ -38,6 +38,9 @@ class RadioPlayerService : Service() {
     }
 
     private var mediaPlayer: MediaPlayer? = null
+
+        @JvmStatic
+        var currentPlayer: MediaPlayer? = null
     private var mediaSession: MediaSessionCompat? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var audioManager: AudioManager? = null
@@ -110,6 +113,7 @@ class RadioPlayerService : Service() {
         }
         if (!requestAudioFocus()) return
         mediaPlayer?.start()
+        currentPlayer = mediaPlayer
         isPlayingNow = true
         updateNotification()
     }
@@ -135,6 +139,7 @@ class RadioPlayerService : Service() {
             release()
         }
         mediaPlayer = null
+        currentPlayer = null
         isPlayingNow = false
     }
 
