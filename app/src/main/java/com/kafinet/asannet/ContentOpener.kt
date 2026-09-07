@@ -28,7 +28,7 @@ object ContentOpener {
             "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
             in imageExtensions -> openImage(activity, url, title)
             in audioExtensions -> openAudio(activity, url, title)
-            "m3u", "m3u8" -> openM3u(activity, url, title)
+            "m3u" -> openWeb(activity, url, title, allowDownload = false)
             in videoExtensions -> openVideo(activity, url, title)
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
