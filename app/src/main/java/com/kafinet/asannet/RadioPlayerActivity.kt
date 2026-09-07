@@ -17,6 +17,35 @@ class RadioPlayerActivity : AppCompatActivity() {
     private var streamUrl = ""
     private var stationTitle = ""
 
+
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private val progressTask = object : Runnable {
+        override fun run() {
+            val player = RadioPlayerService.currentPlayer
+            if (player != null) {
+                try {
+                    val duration = player.duration
+                    val position = player.currentPosition
+
+                    if (duration > 0) {
+                        binding.progressAudio.max = duration
+                        binding.progressAudio.progress = position
+                        binding.txtCurrentTime.text = formatTime(position)
+                        binding.txtTotalTime.text = formatTime(duration)
+                    }
+                } catch (_: Exception) {
+                }
+            }
+            handler.postDelayed(this, 500)
+        }
+    }
+
+    private fun formatTime(ms: Int): String {
+        val seconds = ms / 1000
+        return "%02d:%02d".format(seconds / 60, seconds % 60)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRadioPlayerBinding.inflate(layoutInflater)
