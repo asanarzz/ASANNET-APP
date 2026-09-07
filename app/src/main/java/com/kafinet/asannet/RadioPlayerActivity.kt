@@ -64,6 +64,8 @@ class RadioPlayerActivity : AppCompatActivity() {
         } else {
             startPlayback()
         }
+
+        handler.post(progressTask)
     }
 
     private fun startPlayback() {
@@ -86,5 +88,10 @@ class RadioPlayerActivity : AppCompatActivity() {
 
     private fun updatePlayPauseIcon(playing: Boolean) {
         binding.btnPlayPause.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacks(progressTask)
+        super.onDestroy()
     }
 }

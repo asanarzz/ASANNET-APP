@@ -35,12 +35,12 @@ class RadioPlayerService : Service() {
             private set
         @Volatile var currentTitle = ""
             private set
-    }
-
-    private var mediaPlayer: MediaPlayer? = null
 
         @JvmStatic
         var currentPlayer: MediaPlayer? = null
+    }
+
+    private var mediaPlayer: MediaPlayer? = null
     private var mediaSession: MediaSessionCompat? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var audioManager: AudioManager? = null
@@ -93,6 +93,7 @@ class RadioPlayerService : Service() {
                 )
                 setDataSource(url)
                 setOnPreparedListener {
+                    currentPlayer = it
                     it.start()
                     isPlayingNow = true
                     updateNotification()
