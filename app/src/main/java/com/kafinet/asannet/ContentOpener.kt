@@ -14,7 +14,7 @@ object ContentOpener {
 
     private val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "webp", "bmp")
     private val audioExtensions = setOf("mp3", "m4a", "wav", "ogg", "aac", "flac")
-    private val videoExtensions = setOf("mp4", "mkv", "webm", "3gp", "m3u", "m3u8")
+    private val videoExtensions = setOf("mp4", "mkv", "webm", "3gp", "m3u8")
 
     fun open(activity: AppCompatActivity, url: String, title: String) {
         if (url.isBlank()) return
@@ -28,6 +28,7 @@ object ContentOpener {
             "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
             in imageExtensions -> openImage(activity, url, title)
             in audioExtensions -> openAudio(activity, url, title)
+            "m3u" -> openAudio(activity, url, title)
             in videoExtensions -> openVideo(activity, url, title)
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
