@@ -42,7 +42,7 @@ class GalleryDetailActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        setupImageGallery(images)
+        setupImageGallery(images, title)
 
         if (url.isNotBlank()) {
             binding.btnAction.visibility = View.VISIBLE
@@ -57,7 +57,7 @@ class GalleryDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupImageGallery(images: List<String>) {
+    private fun setupImageGallery(images: List<String>, title: String) {
         binding.recyclerImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerImages.adapter = GalleryImageAdapter(images) { fileUrl ->
             ContentOpener.open(this, fileUrl, title)
