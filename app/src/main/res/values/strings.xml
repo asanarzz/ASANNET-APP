@@ -104,6 +104,20 @@
     <string name="btn_retry">تلاش دوباره</string>
     <string name="btn_download">دانلود</string>
     <string name="btn_open_link">باز کردن لینک</string>
+    <string name="image_counter_format">%1$d / %2$d</string>
+    <string name="err_photo_required">لطفاً یک عکس انتخاب کن</string>
+    <string name="radio_playing">در حال پخش</string>
+    <string name="radio_paused">متوقف‌شده</string>
+    <string name="btn_stop">توقف</string>
+    <string name="notif_channel_name">محتوای جدید</string>
+    <string name="notif_channel_desc">اطلاع‌رسانی وقتی محتوای جدیدی به برنامه اضافه می‌شود</string>
+    <string name="notif_new_content_title">محتوای جدید اضافه شد</string>
+    <string name="notif_multiple_new">%d مورد جدید اضافه شد</string>
+    <string name="gallery_file_audio">فایل صوتی — برای پخش لمس کن</string>
+    <string name="gallery_file_video">فایل ویدیویی — برای پخش لمس کن</string>
+    <string name="gallery_file_pdf">سند PDF — برای باز کردن لمس کن</string>
+    <string name="gallery_file_html">صفحه‌ی وب — برای باز کردن لمس کن</string>
+    <string name="gallery_file_generic">فایل — برای باز کردن لمس کن</string>
     <string name="page_indicator_format">%1$d / %2$d</string>
     <string name="search_hint">جستجو…</string>
 
