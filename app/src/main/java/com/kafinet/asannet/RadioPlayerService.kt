@@ -85,6 +85,7 @@ class RadioPlayerService : Service() {
 
         try {
             mediaPlayer = MediaPlayer().apply {
+                currentPlayer = this
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)

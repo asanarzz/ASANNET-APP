@@ -58,6 +58,32 @@ class RadioPlayerActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnPlayPause.setOnClickListener { togglePlayback() }
 
+        binding.progressAudio.setOnSeekBarChangeListener(
+            object : android.widget.SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: android.widget.SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (fromUser) {
+                        binding.txtCurrentTime.text = formatTime(progress)
+                    }
+                }
+
+                override fun onStartTrackingTouch(
+                    seekBar: android.widget.SeekBar
+                ) {}
+
+                override fun onStopTrackingTouch(
+                    seekBar: android.widget.SeekBar
+                ) {
+                    try {
+                        RadioPlayerService.currentPlayer?.seekTo(seekBar.progress)
+                    } catch (_: Exception) {}
+                }
+            }
+        )
+
         // اگر همین ایستگاه از قبل در حال پخش است، فقط وضعیت را نشان بده؛ وگرنه پخش را شروع کن
         if (RadioPlayerService.isPlayingNow && RadioPlayerService.currentTitle == stationTitle) {
             updatePlayPauseIcon(true)
