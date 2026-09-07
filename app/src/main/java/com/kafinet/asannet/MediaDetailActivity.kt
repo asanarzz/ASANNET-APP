@@ -45,7 +45,9 @@ class MediaDetailActivity : AppCompatActivity() {
             binding.progress.visibility = View.GONE
             binding.recyclerGallery.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            binding.recyclerGallery.adapter = GalleryImageAdapter(images)
+            binding.recyclerGallery.adapter = GalleryImageAdapter(images) { fileUrl ->
+                ContentOpener.open(this, fileUrl, title)
+            }
             PagerSnapHelper().attachToRecyclerView(binding.recyclerGallery)
 
             if (images.size > 1) {

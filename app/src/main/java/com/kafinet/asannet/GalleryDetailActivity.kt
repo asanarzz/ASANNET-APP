@@ -59,7 +59,9 @@ class GalleryDetailActivity : AppCompatActivity() {
 
     private fun setupImageGallery(images: List<String>) {
         binding.recyclerImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclerImages.adapter = GalleryImageAdapter(images)
+        binding.recyclerImages.adapter = GalleryImageAdapter(images) { fileUrl ->
+            ContentOpener.open(this, fileUrl, title)
+        }
         LinearSnapHelper().attachToRecyclerView(binding.recyclerImages)
 
         if (images.size <= 1) {

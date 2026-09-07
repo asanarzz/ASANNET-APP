@@ -11,4 +11,37 @@
         android:scaleType="fitCenter"
         android:contentDescription="@null"/>
 
+    <LinearLayout
+        android:id="@+id/layout_file_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/img_file_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:tint="@color/white"
+            android:contentDescription="@null"
+            xmlns:app="http://schemas.android.com/apk/res-auto"/>
+
+        <TextView
+            android:id="@+id/txt_file_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:gravity="center"
+            tools:text="فایل صوتی — برای پخش لمس کن"
+            xmlns:tools="http://schemas.android.com/tools"/>
+    </LinearLayout>
+
 </FrameLayout>
