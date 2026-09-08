@@ -32,6 +32,25 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/edit_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_margin="10dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:background="@drawable/bg_search_box"
+        android:hint="@string/hint_search_channel"
+        android:inputType="text"
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:textSize="14sp"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_main" />
+
     <ProgressBar
         android:id="@+id/progress"
         android:layout_width="wrap_content"
@@ -39,10 +58,25 @@
         android:layout_gravity="center"
         android:layout_margin="20dp" />
 
-    <ListView
-        android:id="@+id/list_channels"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:dividerHeight="1dp" />
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/list_channels"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:dividerHeight="1dp" />
+
+        <TextView
+            android:id="@+id/txt_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/empty_search_result"
+            android:textColor="@color/text_muted"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>

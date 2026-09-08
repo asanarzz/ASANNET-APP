@@ -1,10 +1,16 @@
 package com.kafinet.asannet
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import com.kafinet.asannet.databinding.ActivityRadioPlayerBinding
+import kotlin.concurrent.thread
 
 class RadioPlayerActivity : AppCompatActivity() {
 
@@ -92,6 +98,52 @@ class RadioPlayerActivity : AppCompatActivity() {
         }
 
         handler.post(progressTask)
+
+        loadCoverArt(streamUrl)
+    }
+
+    /**
+     * سعی می‌کنه کاور آهنگ رو از تگ‌های خود فایل صوتی بخونه (برای فایل mp3 و مشابه).
+     * اگه کاوری پیدا نشد، به‌جاش اسم آهنگ/خواننده رو (اگه تو تگ‌ها بود) نشون می‌ده؛
+     * برای رادیوهای زنده معمولاً هیچ‌کدوم پیدا نمی‌شه و همون آیکون و عنوان پیش‌فرض می‌مونه.
+     */
+    private fun loadCoverArt(url: String) {
+        if (url.isBlank()) return
+
+        thread {
+            try {
+                val retriever = MediaMetadataRetriever()
+                retriever.setDataSource(url, HashMap<String, String>())
+
+                val artBytes = retriever.embeddedPicture
+                val metaTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                val metaArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                retriever.release()
+
+                runOnUiThread { applyCoverMetadata(artBytes, metaTitle, metaArtist) }
+            } catch (e: Exception) {
+                // فایل صوتی معمولی نیست (مثلاً استریم زنده‌ی رادیو) — همون ظاهر پیش‌فرض می‌مونه
+            }
+        }
+    }
+
+    private fun applyCoverMetadata(artBytes: ByteArray?, metaTitle: String?, metaArtist: String?) {
+        val bitmap = artBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+
+        if (bitmap != null) {
+            ImageViewCompat.setImageTintList(binding.imgCover, null)
+            binding.imgCover.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.imgCover.setPadding(0, 0, 0, 0)
+            binding.imgCover.setImageBitmap(bitmap)
+        } else {
+            if (!metaTitle.isNullOrBlank()) {
+                binding.txtTitle.text = metaTitle
+            }
+            if (!metaArtist.isNullOrBlank()) {
+                binding.txtArtist.text = metaArtist
+                binding.txtArtist.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun startPlayback() {

@@ -2,6 +2,8 @@ package com.kafinet.asannet
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -18,8 +20,17 @@ class M3uPlaylistActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityM3uPlaylistBinding
+
+    // فهرست کامل همه‌ی کانال‌های خوانده‌شده از فایل M3U (بدون تغییر)
     private val channelNames = ArrayList<String>()
     private val channelUrls = ArrayList<String>()
+
+    // فهرست نمایش داده‌شده روی صفحه — همون فهرست کامله مگراینکه کاربر جستجو کرده باشه،
+    // که اونوقت فقط زیرمجموعه‌ی مطابق با متن جستجو رو نگه می‌داره
+    private val filteredNames = ArrayList<String>()
+    private val filteredUrls = ArrayList<String>()
+
+    private lateinit var listAdapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,26 +62,40 @@ class M3uPlaylistActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-                        binding.listChannels.adapter = ArrayAdapter(
+                        filteredNames.addAll(channelNames)
+                        filteredUrls.addAll(channelUrls)
+
+                        listAdapter = ArrayAdapter(
                             this,
                             android.R.layout.simple_list_item_1,
-                            channelNames
+                            filteredNames
                         )
+                        binding.listChannels.adapter = listAdapter
+                        binding.listChannels.emptyView = binding.txtEmpty
+                        binding.editSearch.visibility = View.VISIBLE
 
                         binding.listChannels.setOnItemClickListener { _, _, position, _ ->
                             startActivity(
                                 Intent(this, VideoPlayerActivity::class.java).apply {
                                     putExtra(
                                         VideoPlayerActivity.EXTRA_URL,
-                                        channelUrls[position]
+                                        filteredUrls[position]
                                     )
                                     putExtra(
                                         VideoPlayerActivity.EXTRA_TITLE,
-                                        channelNames[position]
+                                        filteredNames[position]
                                     )
                                 }
                             )
                         }
+
+                        binding.editSearch.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                            override fun afterTextChanged(s: Editable?) {
+                                filterChannels(s?.toString().orEmpty())
+                            }
+                        })
                     }
                 }
             } catch (_: Exception) {
@@ -84,6 +109,27 @@ class M3uPlaylistActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /** فهرست نمایش‌داده‌شده رو بر اساس متن جستجو (بدون حساسیت به بزرگی/کوچکی حروف) فیلتر می‌کنه. */
+    private fun filterChannels(query: String) {
+        filteredNames.clear()
+        filteredUrls.clear()
+
+        if (query.isBlank()) {
+            filteredNames.addAll(channelNames)
+            filteredUrls.addAll(channelUrls)
+        } else {
+            val needle = query.trim()
+            for (i in channelNames.indices) {
+                if (channelNames[i].contains(needle, ignoreCase = true)) {
+                    filteredNames.add(channelNames[i])
+                    filteredUrls.add(channelUrls[i])
+                }
+            }
+        }
+
+        listAdapter.notifyDataSetChanged()
     }
 
     private fun parsePlaylist(text: String) {
