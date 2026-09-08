@@ -96,6 +96,10 @@
             android:name=".RadioPlayerActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".M3uPlaylistActivity"
+            android:exported="false" />
+
         <service
             android:name=".RadioPlayerService"
             android:exported="false"
