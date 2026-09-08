@@ -43,6 +43,7 @@ class RadioPlayerActivity : AppCompatActivity() {
                 } catch (_: Exception) {
                 }
             }
+            updatePlayPauseIcon(RadioPlayerService.isPlayingNow)
             handler.postDelayed(this, 500)
         }
     }
