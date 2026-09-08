@@ -74,9 +74,9 @@ object ContentOpener {
     private fun openAudio(activity: AppCompatActivity, url: String, title: String) {
         // همون سرویس پخش پس‌زمینه‌ای که برای رادیو استفاده می‌شه، برای هر فایل صوتی
         // دیگه‌ای هم کار می‌کنه — با خروج از اپ یا خاموش‌شدن صفحه قطع نمی‌شه
-        val intent = Intent(activity, RadioPlayerActivity::class.java)
-        intent.putExtra(RadioPlayerActivity.EXTRA_URL, url)
-        intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, title)
+        val intent = Intent(activity, Mp3PlayerActivity::class.java)
+        intent.putExtra(Mp3PlayerActivity.EXTRA_URL, url)
+        intent.putExtra(Mp3PlayerActivity.EXTRA_TITLE, title)
         activity.startActivity(intent)
     }
 
