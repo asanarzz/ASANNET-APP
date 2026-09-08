@@ -35,6 +35,9 @@ class RadioPlayerService : Service() {
             private set
         @Volatile var currentTitle = ""
             private set
+        // وقتی آهنگ کامل تا آخر پخش بشه true می‌شه؛ یعنی دفعه‌ی بعد باید کاملاً
+        // از نو (نه ادامه‌ی همون پخش‌کننده‌ی قبلی) شروع بشه
+        @Volatile private var trackCompleted = false
 
         @JvmStatic
         var currentPlayer: MediaPlayer? = null
@@ -46,6 +49,7 @@ class RadioPlayerService : Service() {
     private var audioManager: AudioManager? = null
     private var focusRequest: AudioFocusRequest? = null
     private var streamUrl = ""
+    private var pausedPositionMs = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -73,9 +77,11 @@ class RadioPlayerService : Service() {
         return START_STICKY
     }
 
-    private fun startStream(url: String, title: String) {
+    private fun startStream(url: String, title: String, startPositionMs: Int = 0) {
         streamUrl = url
         currentTitle = title
+        trackCompleted = false
+        val seekTarget = startPositionMs
         releaseMediaPlayerOnly()
 
         createChannelIfNeeded()
@@ -95,17 +101,26 @@ class RadioPlayerService : Service() {
                 setDataSource(url)
                 setOnPreparedListener {
                     currentPlayer = it
+                    if (seekTarget > 0) {
+                        try { it.seekTo(seekTarget) } catch (e: Exception) { /* بی‌اهمیت */ }
+                    }
                     it.start()
                     isPlayingNow = true
                     updateNotification()
                 }
                 setOnCompletionListener {
-                    // آهنگ تا آخر پخش شد؛ برگردون به اول تا اگه دوباره پلی زد، از نو شنیده بشه
-                    try { it.seekTo(0) } catch (e: Exception) { /* بی‌اهمیت */ }
+                    // آهنگ تا آخر پخش شد — دفعه‌ی بعد که پلی زده بشه، باید کاملاً از نو شروع بشه
+                    trackCompleted = true
                     isPlayingNow = false
                     updateNotification()
                 }
-                setOnErrorListener { _, _, _ -> true }
+                setOnErrorListener { _, _, _ ->
+                    // هر خطایی تو پخش (قطعی شبکه، فرمت نامعتبر و...) — پخش‌کننده رو کاملاً
+                    // آزاد کن تا تلاش بعدی برای پلی، از صفر و تمیز شروع بشه، نه رو یه
+                    // پخش‌کننده‌ی خراب
+                    releaseMediaPlayerOnly()
+                    true
+                }
                 prepareAsync()
             }
             acquireWifiLock()
@@ -115,29 +130,16 @@ class RadioPlayerService : Service() {
     }
 
     private fun resumeOrStart() {
-        if (mediaPlayer == null) {
-            if (streamUrl.isNotBlank()) startStream(streamUrl, currentTitle)
-            return
-        }
-        if (!requestAudioFocus()) return
-        try {
-            val mp = mediaPlayer
-            // اگه آهنگ قبلاً تا آخر رفته بود (یا خیلی نزدیک به انتهاست)، اول برگردون به اول
-            if (mp != null && mp.duration > 0 && mp.currentPosition >= mp.duration - 300) {
-                mp.seekTo(0)
-            }
-        } catch (e: Exception) { /* بی‌اهمیت */ }
-        mediaPlayer?.start()
-        currentPlayer = mediaPlayer
-        isPlayingNow = true
-        updateNotification()
+        if (streamUrl.isBlank()) return
+        // به‌جای تلاش برای ادامه‌دادن یه پخش‌کننده‌ی احتمالاً بافرش قطع‌شده (که رو
+        // استریم‌های آنلاین بعد از pause بی‌صدا می‌مونه)، از همون‌جایی که مکث کرده
+        // بودیم یه پخش‌کننده‌ی کاملاً تازه می‌سازیم
+        startStream(streamUrl, currentTitle, pausedPositionMs)
     }
 
     private fun pausePlayback() {
-        try {
-            mediaPlayer?.pause()
-        } catch (e: Exception) { /* بی‌اهمیت */ }
-        isPlayingNow = false
+        pausedPositionMs = try { mediaPlayer?.currentPosition ?: 0 } catch (e: Exception) { 0 }
+        releaseMediaPlayerOnly()
         updateNotification()
     }
 
