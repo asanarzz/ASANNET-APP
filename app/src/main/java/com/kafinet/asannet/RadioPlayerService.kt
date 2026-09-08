@@ -99,6 +99,12 @@ class RadioPlayerService : Service() {
                     isPlayingNow = true
                     updateNotification()
                 }
+                setOnCompletionListener {
+                    // آهنگ تا آخر پخش شد؛ برگردون به اول تا اگه دوباره پلی زد، از نو شنیده بشه
+                    try { it.seekTo(0) } catch (e: Exception) { /* بی‌اهمیت */ }
+                    isPlayingNow = false
+                    updateNotification()
+                }
                 setOnErrorListener { _, _, _ -> true }
                 prepareAsync()
             }
@@ -114,6 +120,13 @@ class RadioPlayerService : Service() {
             return
         }
         if (!requestAudioFocus()) return
+        try {
+            val mp = mediaPlayer
+            // اگه آهنگ قبلاً تا آخر رفته بود (یا خیلی نزدیک به انتهاست)، اول برگردون به اول
+            if (mp != null && mp.duration > 0 && mp.currentPosition >= mp.duration - 300) {
+                mp.seekTo(0)
+            }
+        } catch (e: Exception) { /* بی‌اهمیت */ }
         mediaPlayer?.start()
         currentPlayer = mediaPlayer
         isPlayingNow = true
