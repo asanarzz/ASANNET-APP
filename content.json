@@ -192,5 +192,13 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726411809-4-1983209798-.pdf",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788889553408-0-playlist-6-.m3u"
     ]
+  },
+  {
+    "id": "item_1788897025391",
+    "type": "file",
+    "title": "تست 2",
+    "description": "شبکه",
+    "url": "https://iptv-org.github.io/iptv/index.m3u",
+    "section": "تست"
   }
 ]
