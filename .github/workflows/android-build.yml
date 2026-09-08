@@ -25,6 +25,18 @@ jobs:
         with:
           gradle-version: "8.7"
 
+      - name: Create debug keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore app/kafinet-release.keystore \
+            -storepass android \
+            -keypass android \
+            -alias kafinet \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=ASANNET, OU=Android, O=ASANNET, L=Unknown, ST=Unknown, C=US"
+
       - name: Build APK
         run: gradle assembleDebug --no-daemon
 
