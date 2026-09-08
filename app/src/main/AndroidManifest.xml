@@ -93,6 +93,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".Mp3PlayerActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".RadioPlayerActivity"
             android:exported="false" />
 
