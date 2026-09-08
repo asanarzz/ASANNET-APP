@@ -151,6 +151,8 @@
     <string name="label_profile_photo">عکس پروفایل (اختیاری)</string>
     <string name="btn_choose_photo">انتخاب عکس</string>
     <string name="radio_background_hint">رادیو حتی با خروج از این صفحه، در پس‌زمینه پخش می‌شود</string>
+    <string name="hint_search_channel">جستجوی شبکه…</string>
+    <string name="empty_search_result">کانالی با این نام پیدا نشد</string>
     <string name="btn_reset_password">تغییر رمز عبور</string>
     <string name="forgot_password_success">رمز عبور با موفقیت تغییر کرد. حالا می‌تونی با رمز جدید وارد بشی.</string>
     <string name="forgot_password_no_match">اطلاعات وارد‌شده با هیچ حسابی مطابقت نداره. کد ملی، موبایل و تاریخ تولد رو دوباره چک کن.</string>
