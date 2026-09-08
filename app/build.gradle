@@ -22,9 +22,9 @@ android {
             // برای بیلد لوکال (روی گوشی/کامپیوتر خودت)، همین مقادیر رو به‌صورت
             // متغیر محیطی ست کن، یا این بلاک رو موقتاً با کلید دیباگ پیش‌فرض جایگزین کن.
             storeFile file(System.getenv("KAFINET_KEYSTORE_PATH") ?: "kafinet-release.keystore")
-            storePassword System.getenv("KAFINET_KEYSTORE_PASSWORD") ?: ""
+            storePassword System.getenv("KAFINET_KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("KAFINET_KEY_ALIAS") ?: "kafinet"
-            keyPassword System.getenv("KAFINET_KEY_PASSWORD") ?: ""
+            keyPassword System.getenv("KAFINET_KEY_PASSWORD") ?: "android"
         }
     }
 
@@ -68,4 +68,5 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
     implementation 'androidx.media:media:1.7.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:21.5.0'
 }
