@@ -200,5 +200,16 @@
     "description": "شبکه",
     "url": "https://iptv-org.github.io/iptv/index.m3u",
     "section": "تست"
+  },
+  {
+    "id": "item_1788902071872",
+    "type": "file",
+    "title": "تست 3",
+    "description": "شبکه کشورها",
+    "url": "",
+    "section": "تست",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788902062760-0-all-countries.m3u"
+    ]
   }
 ]
