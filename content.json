@@ -189,27 +189,7 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726397550-1-1759565832759.jpg",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726400836-2-ir.m3u",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726402068-3-bomrani-pari.mp3",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726411809-4-1983209798-.pdf",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788889553408-0-playlist-6-.m3u"
-    ]
-  },
-  {
-    "id": "item_1788897025391",
-    "type": "file",
-    "title": "تست 2",
-    "description": "شبکه",
-    "url": "https://iptv-org.github.io/iptv/index.m3u",
-    "section": "تست"
-  },
-  {
-    "id": "item_1788902071872",
-    "type": "file",
-    "title": "تست 3",
-    "description": "شبکه کشورها",
-    "url": "",
-    "section": "تست",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788902062760-0-all-countries.m3u"
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726411809-4-1983209798-.pdf"
     ]
   }
 ]
