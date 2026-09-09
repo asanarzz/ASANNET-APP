@@ -382,6 +382,38 @@ function rawUrl(path) {
   return `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${path}`;
 }
 
+// ---------- Supabase: آپلود فایل‌های صوتی/ویدیویی ----------
+// فایل‌های صوتی و ویدیویی رو مستقیم رو گیت‌هاب آپلود نمی‌کنیم، چون سرورهای
+// raw.githubusercontent.com برای پخش استریم (که پلیر اندروید بهش نیاز داره) مناسب
+// نیستن و باعث قطع‌شدن پخش می‌شن؛ به‌جاش رو باکت «media» ی Supabase آپلود می‌شن.
+function isStreamableMedia(file) {
+  if (/^(audio|video)\//i.test(file.type)) return true;
+  return /\.(mp3|m4a|wav|ogg|aac|flac|opus|mp4|mkv|mov|webm|avi)$/i.test(file.name);
+}
+function sbPublicUrl(path) {
+  return `${cfg.supabaseUrl}/storage/v1/object/public/media/${path}`;
+}
+async function sbUploadFile(path, file) {
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    throw new Error('برای آپلود فایل صوتی/ویدیویی، اول آدرس و کلید Supabase رو از «تغییر تنظیمات» وارد کن');
+  }
+  const url = `${cfg.supabaseUrl}/storage/v1/object/media/${path}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': cfg.supabaseAnonKey,
+      'Authorization': 'Bearer ' + cfg.supabaseAnonKey,
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'true',
+    },
+    body: file,
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error('آپلود به Supabase ناموفق بود (' + res.status + '): ' + errText.slice(0, 200));
+  }
+}
+
 // ---------- Supabase: مدارک ارسالی ----------
 function sbHeaders() {
   return {
@@ -752,10 +784,16 @@ async function handleAdd() {
 
         const filename = Date.now() + '-' + i + '-' + slugify(file.name);
         const path = folder + '/' + filename;
-        const dataUrl = await readFileAsDataUrl(file);
-        const base64 = dataUrl.split(',')[1];
-        await ghPutFile(path, base64, 'افزودن فایل: ' + filename, null);
-        newImages.push(rawUrl(path));
+
+        if (isStreamableMedia(file)) {
+          await sbUploadFile(path, file);
+          newImages.push(sbPublicUrl(path));
+        } else {
+          const dataUrl = await readFileAsDataUrl(file);
+          const base64 = dataUrl.split(',')[1];
+          await ghPutFile(path, base64, 'افزودن فایل: ' + filename, null);
+          newImages.push(rawUrl(path));
+        }
 
         $('progress-bar').style.width = Math.round(((i + 1) / selectedFiles.length) * 100) + '%';
       }
