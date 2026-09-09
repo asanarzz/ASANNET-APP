@@ -50,6 +50,8 @@ class RadioPlayerService : Service() {
     private var focusRequest: AudioFocusRequest? = null
     private var streamUrl = ""
     private var pausedPositionMs = 0
+    private var retryCount = 0
+    private val retryHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
@@ -77,10 +79,11 @@ class RadioPlayerService : Service() {
         return START_STICKY
     }
 
-    private fun startStream(url: String, title: String, startPositionMs: Int = 0) {
+    private fun startStream(url: String, title: String, startPositionMs: Int = 0, isRetry: Boolean = false) {
         streamUrl = url
         currentTitle = title
         trackCompleted = false
+        if (!isRetry) retryCount = 0
         val seekTarget = startPositionMs
         releaseMediaPlayerOnly()
 
@@ -103,6 +106,7 @@ class RadioPlayerService : Service() {
                 setDataSource(url)
                 setOnPreparedListener {
                     currentPlayer = it
+                    retryCount = 0
                     if (seekTarget > 0) {
                         try { it.seekTo(seekTarget) } catch (e: Exception) { /* بی‌اهمیت */ }
                     }
@@ -117,27 +121,42 @@ class RadioPlayerService : Service() {
                     updateNotification()
                 }
                 setOnErrorListener { _, what, extra ->
-                    // هر خطایی تو پخش (قطعی شبکه، فرمت نامعتبر و...) — پخش‌کننده رو کاملاً
-                    // آزاد کن تا تلاش بعدی برای پلی، از صفر و تمیز شروع بشه، نه رو یه
-                    // پخش‌کننده‌ی خراب
-                    releaseMediaPlayerOnly()
-                    android.widget.Toast.makeText(
-                        applicationContext,
-                        "خطا در پخش (کد $what/$extra)",
-                        android.widget.Toast.LENGTH_LONG
-                    ).show()
+                    // خطاهای مربوط به قطعی/ضعف اتصال شبکه (مثل -38) رو خودکار و بی‌سروصدا
+                    // دوباره امتحان کن، قبل از اینکه واقعاً به کاربر خطا نشون بدیم
+                    val savedPosition = seekTarget
+                    if (retryCount < 2) {
+                        retryCount++
+                        releaseMediaPlayerOnly()
+                        retryHandler.postDelayed({
+                            startStream(url, title, savedPosition, isRetry = true)
+                        }, 800)
+                    } else {
+                        releaseMediaPlayerOnly()
+                        android.widget.Toast.makeText(
+                            applicationContext,
+                            "خطا در پخش، اتصال اینترنت رو چک کن (کد $what/$extra)",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
                     true
                 }
                 prepareAsync()
             }
             acquireWifiLock()
         } catch (e: Exception) {
-            android.widget.Toast.makeText(
-                applicationContext,
-                "خطا در شروع پخش: ${e.message}",
-                android.widget.Toast.LENGTH_LONG
-            ).show()
-            stopPlayback()
+            if (retryCount < 2) {
+                retryCount++
+                retryHandler.postDelayed({
+                    startStream(url, title, seekTarget, isRetry = true)
+                }, 800)
+            } else {
+                android.widget.Toast.makeText(
+                    applicationContext,
+                    "خطا در شروع پخش: ${e.message}",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                stopPlayback()
+            }
         }
     }
 
