@@ -10,8 +10,6 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.util.Log
-import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
@@ -95,7 +93,6 @@ class RadioPlayerService : Service() {
 
         try {
             mediaPlayer = MediaPlayer().apply {
-                    setAudioStreamType(AudioManager.STREAM_MUSIC)
                 currentPlayer = this
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -103,14 +100,7 @@ class RadioPlayerService : Service() {
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )
-                setDataSource(
-                    this@RadioPlayerService,
-                    Uri.parse(url),
-                    mapOf(
-                        "User-Agent" to "Mozilla/5.0",
-                        "Accept" to "audio/*,*/*;q=0.8"
-                    )
-                )
+                setDataSource(url)
                 setOnPreparedListener {
                     currentPlayer = it
                     if (seekTarget > 0) {
