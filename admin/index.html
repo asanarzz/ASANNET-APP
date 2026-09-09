@@ -391,13 +391,13 @@ function isStreamableMedia(file) {
   return /\.(mp3|m4a|wav|ogg|aac|flac|opus|mp4|mkv|mov|webm|avi)$/i.test(file.name);
 }
 function sbPublicUrl(path) {
-  return `${cfg.supabaseUrl}/storage/v1/object/public/media/${path}`;
+  return `${cfg.supabaseUrl}/storage/v1/object/public/Media/${path}`;
 }
 async function sbUploadFile(path, file) {
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
     throw new Error('برای آپلود فایل صوتی/ویدیویی، اول آدرس و کلید Supabase رو از «تغییر تنظیمات» وارد کن');
   }
-  const url = `${cfg.supabaseUrl}/storage/v1/object/media/${path}`;
+  const url = `${cfg.supabaseUrl}/storage/v1/object/Media/${path}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
