@@ -87,7 +87,9 @@ class RadioPlayerService : Service() {
         createChannelIfNeeded()
         startForeground(NOTIFICATION_ID, buildNotification())
 
-        if (!requestAudioFocus()) return
+        // توجه: حتی اگه گرفتن AudioFocus هم به هر دلیلی ناموفق باشه، بازم پخش رو
+        // شروع کن — نباید کل پخش بی‌صدا و بدون هیچ خطایی متوقف بشه
+        requestAudioFocus()
 
         try {
             mediaPlayer = MediaPlayer().apply {
@@ -114,17 +116,27 @@ class RadioPlayerService : Service() {
                     isPlayingNow = false
                     updateNotification()
                 }
-                setOnErrorListener { _, _, _ ->
+                setOnErrorListener { _, what, extra ->
                     // هر خطایی تو پخش (قطعی شبکه، فرمت نامعتبر و...) — پخش‌کننده رو کاملاً
                     // آزاد کن تا تلاش بعدی برای پلی، از صفر و تمیز شروع بشه، نه رو یه
                     // پخش‌کننده‌ی خراب
                     releaseMediaPlayerOnly()
+                    android.widget.Toast.makeText(
+                        applicationContext,
+                        "خطا در پخش (کد $what/$extra)",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
                     true
                 }
                 prepareAsync()
             }
             acquireWifiLock()
         } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                applicationContext,
+                "خطا در شروع پخش: ${e.message}",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
             stopPlayback()
         }
     }
