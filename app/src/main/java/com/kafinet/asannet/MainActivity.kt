@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity() {
         val (jy, jm, jd) = PersianDateUtils.gregorianToJalali(gy, gm, gd).let { Triple(it[0], it[1], it[2]) }
         binding.txtHeaderDateJalali.text = PersianDateUtils.formatDate(jy, jm, jd)
         binding.txtHeaderDateGregorian.text = PersianDateUtils.formatDate(gy, gm, gd)
+        binding.txtHeaderWeekday.text = PersianDateUtils.todayWeekDayName()
     }
 
     override fun onPause() {
