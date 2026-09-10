@@ -17,11 +17,16 @@ class RadioPlayerActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_TITLE = "extra_title"
+        // اگه true باشه یعنی این یه فایل صوتی معمولیه (نه رادیوی زنده‌ی پیوسته) و
+        // پخش‌کننده اول کامل دانلودش می‌کنه، بعد از روی خود گوشی پخشش می‌کنه —
+        // چون بعضی سرورها (مثل Supabase) پخش تکه‌تکه‌ی مستقیم رو درست جواب نمی‌دن
+        const val EXTRA_DOWNLOADABLE = "extra_downloadable"
     }
 
     private lateinit var binding: ActivityRadioPlayerBinding
     private var streamUrl = ""
     private var stationTitle = ""
+    private var downloadable = false
 
 
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -60,6 +65,7 @@ class RadioPlayerActivity : AppCompatActivity() {
 
         streamUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
         stationTitle = intent.getStringExtra(EXTRA_TITLE).orEmpty().ifBlank { getString(R.string.cat_radio) }
+        downloadable = intent.getBooleanExtra(EXTRA_DOWNLOADABLE, false)
         binding.txtTitle.text = stationTitle
 
         binding.btnBack.setOnClickListener { finish() }
@@ -152,6 +158,7 @@ class RadioPlayerActivity : AppCompatActivity() {
             action = RadioPlayerService.ACTION_PLAY
             putExtra(RadioPlayerService.EXTRA_URL, streamUrl)
             putExtra(RadioPlayerService.EXTRA_TITLE, stationTitle)
+            putExtra(RadioPlayerService.EXTRA_DOWNLOADABLE, downloadable)
         }
         ContextCompat.startForegroundService(this, serviceIntent)
         updatePlayPauseIcon(true)

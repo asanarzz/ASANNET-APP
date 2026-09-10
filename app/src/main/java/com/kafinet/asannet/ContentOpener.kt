@@ -77,6 +77,8 @@ object ContentOpener {
         val intent = Intent(activity, RadioPlayerActivity::class.java)
         intent.putExtra(RadioPlayerActivity.EXTRA_URL, url)
         intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, title)
+        // این یه فایل صوتی معمولی (نه رادیوی زنده) هست — اول کامل دانلود بشه، بعد پخش
+        intent.putExtra(RadioPlayerActivity.EXTRA_DOWNLOADABLE, true)
         activity.startActivity(intent)
     }
 
