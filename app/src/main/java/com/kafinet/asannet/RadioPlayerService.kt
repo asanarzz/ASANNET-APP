@@ -15,6 +15,10 @@ import android.os.Build
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
 
 /**
  * پخش رادیوی اینترنتی به‌صورت واقعی و در پس‌زمینه (سرویس فورگراند) —
@@ -28,6 +32,7 @@ class RadioPlayerService : Service() {
         const val ACTION_STOP = "com.kafinet.asannet.radio.STOP"
         const val EXTRA_URL = "extra_url"
         const val EXTRA_TITLE = "extra_title"
+        const val EXTRA_DOWNLOADABLE = "extra_downloadable"
         private const val CHANNEL_ID = "radio_playback"
         private const val NOTIFICATION_ID = 501
 
@@ -51,6 +56,8 @@ class RadioPlayerService : Service() {
     private var streamUrl = ""
     private var pausedPositionMs = 0
     private var retryCount = 0
+    private var isDownloadableSource = false
+    private var localFilePath: String? = null
     private val retryHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreate() {
@@ -71,6 +78,7 @@ class RadioPlayerService : Service() {
             ACTION_PLAY -> {
                 val url = intent.getStringExtra(EXTRA_URL)
                 val title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.cat_radio)
+                isDownloadableSource = intent.getBooleanExtra(EXTRA_DOWNLOADABLE, false)
                 if (!url.isNullOrBlank()) startStream(url, title)
             }
             ACTION_TOGGLE -> if (isPlayingNow) pausePlayback() else resumeOrStart()
@@ -84,6 +92,66 @@ class RadioPlayerService : Service() {
         currentTitle = title
         trackCompleted = false
         if (!isRetry) retryCount = 0
+        val seekTarget = startPositionMs
+
+        // برای فایل‌های صوتی معمولی (نه رادیوی زنده)، اول کامل دانلودش کن و از روی
+        // خود گوشی پخش کن — چون بعضی سرورها (مثل Supabase) پخش تکه‌تکه‌ی مستقیم رو
+        // درست جواب نمی‌دن و باعث قطعی پخش می‌شن
+        if (isDownloadableSource && (url.startsWith("http://") || url.startsWith("https://"))) {
+            downloadThenPlay(url, title, seekTarget)
+            return
+        }
+
+        playFromSource(url, title, seekTarget, isRetry)
+    }
+
+    private fun downloadThenPlay(url: String, title: String, seekTarget: Int) {
+        releaseMediaPlayerOnly()
+        createChannelIfNeeded()
+        startForeground(NOTIFICATION_ID, buildNotification())
+        requestAudioFocus()
+
+        val cacheFile = File(cacheDir, "radio_dl_" + url.hashCode() + ".dat")
+        if (cacheFile.exists() && cacheFile.length() > 0L) {
+            playFromSource(cacheFile.absolutePath, title, seekTarget, isRetry = false)
+            return
+        }
+
+        android.widget.Toast.makeText(applicationContext, "در حال آماده‌سازی فایل…", android.widget.Toast.LENGTH_SHORT).show()
+
+        thread {
+            try {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+                connection.connect()
+                connection.inputStream.use { input ->
+                    cacheFile.outputStream().use { output -> input.copyTo(output) }
+                }
+                retryHandler.post {
+                    if (streamUrl == url) playFromSource(cacheFile.absolutePath, title, seekTarget, isRetry = false)
+                }
+            } catch (e: Exception) {
+                cacheFile.delete()
+                retryHandler.post {
+                    if (streamUrl != url) return@post
+                    if (retryCount < 2) {
+                        retryCount++
+                        downloadThenPlay(url, title, seekTarget)
+                    } else {
+                        android.widget.Toast.makeText(
+                            applicationContext,
+                            "دانلود فایل ناموفق بود: ${e.message}",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun playFromSource(url: String, title: String, startPositionMs: Int = 0, isRetry: Boolean = false) {
+        currentTitle = title
         val seekTarget = startPositionMs
         releaseMediaPlayerOnly()
 
@@ -128,7 +196,7 @@ class RadioPlayerService : Service() {
                         retryCount++
                         releaseMediaPlayerOnly()
                         retryHandler.postDelayed({
-                            startStream(url, title, savedPosition, isRetry = true)
+                            playFromSource(url, title, savedPosition, isRetry = true)
                         }, 800)
                     } else {
                         releaseMediaPlayerOnly()
@@ -147,7 +215,7 @@ class RadioPlayerService : Service() {
             if (retryCount < 2) {
                 retryCount++
                 retryHandler.postDelayed({
-                    startStream(url, title, seekTarget, isRetry = true)
+                    playFromSource(url, title, seekTarget, isRetry = true)
                 }, 800)
             } else {
                 android.widget.Toast.makeText(
