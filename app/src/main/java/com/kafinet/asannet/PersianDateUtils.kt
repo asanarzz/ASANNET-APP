@@ -9,6 +9,17 @@ object PersianDateUtils {
 
     private val leapRemainders = setOf(1, 5, 9, 13, 17, 22, 26, 30)
 
+    // اندیس ۱ تا ۷ مطابق java.util.Calendar.DAY_OF_WEEK (یکشنبه=۱ ... شنبه=۷)
+    private val weekDayNames = arrayOf(
+        "", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"
+    )
+
+    /** نام روز هفته‌ی امروز را برمی‌گرداند، مثلاً "پنجشنبه" */
+    fun todayWeekDayName(): String {
+        val cal = java.util.Calendar.getInstance()
+        return weekDayNames[cal.get(java.util.Calendar.DAY_OF_WEEK)]
+    }
+
     fun isLeapYear(year: Int): Boolean {
         val mod = ((year % 33) + 33) % 33
         return mod in leapRemainders
