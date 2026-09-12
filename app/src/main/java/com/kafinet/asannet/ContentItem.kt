@@ -28,6 +28,8 @@ enum class ContentType(val key: String) {
     }
 }
 
+data class DownloadLink(val label: String, val url: String)
+
 data class ContentItem(
     val id: String,
     val type: ContentType,
@@ -35,7 +37,8 @@ data class ContentItem(
     val description: String,
     val url: String,
     val section: String? = null,
-    val images: List<String> = emptyList()
+    val images: List<String> = emptyList(),
+    val links: List<DownloadLink> = emptyList()
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -52,6 +55,17 @@ data class ContentItem(
                         if (imgUrl.isNotBlank()) images.add(imgUrl)
                     }
                 }
+                val linksArray = obj.optJSONArray("links")
+                val links = mutableListOf<DownloadLink>()
+                if (linksArray != null) {
+                    for (k in 0 until linksArray.length()) {
+                        val linkObj = linksArray.optJSONObject(k) ?: continue
+                        val linkUrl = linkObj.optString("url", "").trim()
+                        if (linkUrl.isBlank()) continue
+                        val linkLabel = linkObj.optString("label", "").trim()
+                        links.add(DownloadLink(linkLabel, linkUrl))
+                    }
+                }
                 result.add(
                     ContentItem(
                         id = obj.optString("id", "item_$i"),
@@ -60,9 +74,15 @@ data class ContentItem(
                         description = obj.optString("description", ""),
                         url = obj.optString("url", ""),
                         section = if (sectionValue.isBlank()) null else sectionValue,
-                        images = images
+                        images = images,
+                        links = links
                     )
                 )
+            }
+            return result
+        }
+    }
+}
             }
             return result
         }
