@@ -84,6 +84,9 @@
             android:name=".GalleryDetailActivity"
             android:exported="false" />
 
+        <activity    android:name=".VideoDetailActivity"
+    android:exported="false" />
+        
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />

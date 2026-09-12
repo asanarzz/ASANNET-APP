@@ -23,11 +23,16 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCategoryListBinding
     private lateinit var adapter: ContentAdapter
     private lateinit var sectionAdapter: SectionFolderAdapter
+    private lateinit var moviesAdapter: PosterCarouselAdapter
+    private lateinit var seriesAdapter: PosterCarouselAdapter
 
     private var allItems: List<ContentItem> = emptyList()
     private var typeFilter: ContentType? = null
     private var currentQuery: String = ""
     private var categoryLabel: String = ""
+
+    // دسته‌ی «فیلم» به‌جای لیست معمولی، با دو ردیف افقی (فیلم/سریال) نمایش داده می‌شه
+    private var isVideoGalleryMode: Boolean = false
 
     // اگه این دسته حداقل یک آیتم با «بخش» مشخص داشته باشه، حالت پوشه‌ای فعال می‌شه
     private var hasSections: Boolean = false
@@ -41,6 +46,7 @@ class CategoryListActivity : AppCompatActivity() {
 
         val typeKey = intent.getStringExtra(EXTRA_TYPE)
         typeFilter = if (typeKey != null) ContentType.fromKey(typeKey) else null
+        isVideoGalleryMode = typeFilter == ContentType.VIDEO
         categoryLabel = intent.getStringExtra(EXTRA_LABEL).orEmpty()
         binding.txtTitle.text = categoryLabel
         lifecycleScope.launch { SupabaseClient.logVisit(this@CategoryListActivity, categoryLabel) }
@@ -53,9 +59,22 @@ class CategoryListActivity : AppCompatActivity() {
 
         adapter = ContentAdapter(emptyList()) { item -> openItem(item) }
         sectionAdapter = SectionFolderAdapter(emptyList()) { folder -> openSection(folder) }
+        moviesAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
+        seriesAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
 
         binding.recyclerContent.layoutManager = LinearLayoutManager(this)
         binding.recyclerContent.adapter = adapter
+
+        if (isVideoGalleryMode) {
+            binding.layoutListMode.visibility = android.view.View.GONE
+            binding.scrollVideoGallery.visibility = android.view.View.VISIBLE
+            binding.recyclerMovies.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerMovies.adapter = moviesAdapter
+            binding.recyclerSeries.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerSeries.adapter = seriesAdapter
+        }
 
         binding.swipeRefresh.setOnRefreshListener { loadContent() }
 
@@ -72,7 +91,9 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun handleBackPress() {
-        if (hasSections && currentSection != null) {
+        if (isVideoGalleryMode) {
+            finish()
+        } else if (hasSections && currentSection != null) {
             currentSection = null
             binding.txtTitle.text = categoryLabel
             binding.editSearch.text?.clear()
@@ -95,6 +116,11 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun applyFilters() {
+        if (isVideoGalleryMode) {
+            applyVideoFilters()
+            return
+        }
+
         var typeFiltered = allItems
         typeFilter?.let { type -> typeFiltered = typeFiltered.filter { it.type == type } }
 
@@ -110,6 +136,30 @@ class CategoryListActivity : AppCompatActivity() {
             }
             showItemList(scoped)
         }
+    }
+
+    /** دسته‌ی «فیلم» رو به دو ردیف افقی فیلم و سریال تقسیم می‌کنه (بر اساس فیلد «بخش»؛
+     *  section == "سریال" میره تو ردیف سریال، بقیه (فیلم یا خالی) میرن تو ردیف فیلم)،
+     *  و جستجو رو رو عنوان/توضیحات هر دو ردیف همزمان اعمال می‌کنه. */
+    private fun applyVideoFilters() {
+        var videos = allItems.filter { it.type == ContentType.VIDEO }
+
+        if (currentQuery.isNotBlank()) {
+            val q = currentQuery.trim()
+            videos = videos.filter {
+                it.title.contains(q, ignoreCase = true) || it.description.contains(q, ignoreCase = true)
+            }
+        }
+
+        val series = videos.filter { it.section?.trim() == "سریال" }
+        val movies = videos.filter { it.section?.trim() != "سریال" }
+
+        moviesAdapter.updateItems(movies)
+        seriesAdapter.updateItems(series)
+
+        binding.sectionMovies.visibility = if (movies.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        binding.sectionSeries.visibility = if (series.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        binding.layoutVideoEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun showFolderList(items: List<ContentItem>) {
@@ -160,8 +210,22 @@ class CategoryListActivity : AppCompatActivity() {
         binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
+    /** با تپ روی پوستر فیلم/سریال، صفحه‌ی جزئیات (پوستر بزرگ + توضیحات + دکمه‌ی
+     *  دانلود فیلم) باز می‌شه — به‌جای پخش مستقیم. */
+    private fun openVideoDetail(item: ContentItem) {
+        val posterUrl = item.images.firstOrNull().orEmpty()
+        val intent = Intent(this, VideoDetailActivity::class.java)
+        intent.putExtra(VideoDetailActivity.EXTRA_TITLE, item.title)
+        intent.putExtra(VideoDetailActivity.EXTRA_DESCRIPTION, item.description)
+        intent.putExtra(VideoDetailActivity.EXTRA_POSTER_URL, posterUrl)
+        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_URL, item.url)
+        startActivity(intent)
+    }
+
     private fun openItem(item: ContentItem) {
-        if (item.images.isNotEmpty()) {
+        // برای دسته‌ی ویدیو، تصویر (پوستر) فقط برای نمایش تو کارته؛ با تپ کردن باید
+        // ویدیو پخش بشه، نه اینکه چون عکس پوستر داره ببرتش تو گالری عکس.
+        if (item.images.isNotEmpty() && item.type != ContentType.VIDEO) {
             val intent = Intent(this, GalleryDetailActivity::class.java)
             intent.putExtra(GalleryDetailActivity.EXTRA_TITLE, item.title)
             intent.putExtra(GalleryDetailActivity.EXTRA_DESCRIPTION, item.description)
