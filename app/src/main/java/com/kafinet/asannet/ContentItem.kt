@@ -83,8 +83,3 @@ data class ContentItem(
         }
     }
 }
-            }
-            return result
-        }
-    }
-}
