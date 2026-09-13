@@ -39,6 +39,13 @@ class DownloadsActivity : AppCompatActivity() {
                 }
             },
             onRemove = { record ->
+                val status = AppDownloadManager.queryStatus(this, record.downloadId)
+                val stillActive = status.state == DownloadState.RUNNING ||
+                    status.state == DownloadState.PENDING ||
+                    status.state == DownloadState.PAUSED
+                if (stillActive) {
+                    AppDownloadManager.cancelDownload(this, record.downloadId)
+                }
                 AppDownloadManager.removeRecord(this, record.downloadId)
                 loadDownloads()
             }

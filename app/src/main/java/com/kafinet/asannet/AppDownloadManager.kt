@@ -112,6 +112,16 @@ object AppDownloadManager {
         return DownloadStatus(DownloadState.UNKNOWN, 0L, 0L)
     }
 
+    /** دانلودی که هنوز در حال انجامه رو واقعاً لغو می‌کنه (نه فقط از لیست اپ حذفش می‌کنه). */
+    fun cancelDownload(context: Context, downloadId: Long) {
+        try {
+            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.remove(downloadId)
+        } catch (e: Exception) {
+            // اگه از قبل تو سیستم وجود نداشت، مشکلی نیست
+        }
+    }
+
     /** فایل دانلودشده رو با اپ مناسب (بر اساس نوعش) باز می‌کنه. */
     fun openDownload(context: Context, downloadId: Long) {
         try {
