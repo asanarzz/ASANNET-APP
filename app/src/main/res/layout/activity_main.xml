@@ -258,6 +258,43 @@
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/bg"/>
 
         <LinearLayout
+            android:id="@+id/nav_item_update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/primary"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="@string/menu_check_update"
+                android:textColor="@color/text_main"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <View
+                android:id="@+id/dot_update_available"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/dot_green"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/bg"/>
+
+        <LinearLayout
             android:id="@+id/nav_item_downloads"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
