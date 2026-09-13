@@ -1,5 +1,6 @@
 package com.kafinet.asannet
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -59,9 +60,18 @@ class GalleryDetailActivity : AppCompatActivity() {
 
     private fun setupImageGallery(images: List<String>, title: String) {
         binding.recyclerImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclerImages.adapter = GalleryImageAdapter(images) { fileUrl ->
-            ContentOpener.open(this, fileUrl, title)
-        }
+        binding.recyclerImages.adapter = GalleryImageAdapter(
+            images,
+            onImageClick = { imageUrl ->
+                val intent = Intent(this, ImageViewerActivity::class.java)
+                intent.putExtra(ImageViewerActivity.EXTRA_URL, imageUrl)
+                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, title)
+                startActivity(intent)
+            },
+            onOpenFile = { fileUrl ->
+                ContentOpener.open(this, fileUrl, title)
+            }
+        )
         LinearSnapHelper().attachToRecyclerView(binding.recyclerImages)
 
         if (images.size <= 1) {
@@ -79,7 +89,6 @@ class GalleryDetailActivity : AppCompatActivity() {
     }
 
     private fun updateImageCounter(position: Int, total: Int) {
-        binding.txtImageCounter.text =
-            String.format(java.util.Locale.US, getString(R.string.image_counter_format), position + 1, total)
+        binding.txtImageCounter.text = getString(R.string.image_counter_format, position + 1, total)
     }
 }
