@@ -48,7 +48,8 @@ object DownloadHelper {
                 .setAllowedOverRoaming(true)
 
             val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
+            val id = manager.enqueue(request)
+            AppDownloadManager.registerDownload(context, id, fileName, url)
             Toast.makeText(context, "در حال دانلود در پوشه‌ی Downloads…", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
