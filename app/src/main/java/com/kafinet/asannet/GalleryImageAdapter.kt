@@ -14,6 +14,7 @@ import com.kafinet.asannet.databinding.ItemGalleryImageBinding
  */
 class GalleryImageAdapter(
     private val files: List<String>,
+    private val onImageClick: (String) -> Unit,
     private val onOpenFile: (String) -> Unit
 ) : RecyclerView.Adapter<GalleryImageAdapter.ViewHolder>() {
 
@@ -38,6 +39,7 @@ class GalleryImageAdapter(
             holder.binding.imgSlide.visibility = View.VISIBLE
             holder.binding.layoutFileOverlay.visibility = View.GONE
             Glide.with(context).load(url).into(holder.binding.imgSlide)
+            holder.binding.imgSlide.setOnClickListener { onImageClick(url) }
         } else {
             holder.binding.imgSlide.visibility = View.GONE
             holder.binding.layoutFileOverlay.visibility = View.VISIBLE
