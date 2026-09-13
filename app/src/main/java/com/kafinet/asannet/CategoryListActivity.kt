@@ -219,6 +219,14 @@ class CategoryListActivity : AppCompatActivity() {
         intent.putExtra(VideoDetailActivity.EXTRA_DESCRIPTION, item.description)
         intent.putExtra(VideoDetailActivity.EXTRA_POSTER_URL, posterUrl)
         intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_URL, item.url)
+        intent.putStringArrayListExtra(
+            VideoDetailActivity.EXTRA_LINK_LABELS,
+            ArrayList(item.links.map { it.label })
+        )
+        intent.putStringArrayListExtra(
+            VideoDetailActivity.EXTRA_LINK_URLS,
+            ArrayList(item.links.map { it.url })
+        )
         startActivity(intent)
     }
 
