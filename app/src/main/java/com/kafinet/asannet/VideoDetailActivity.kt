@@ -65,6 +65,11 @@ class VideoDetailActivity : AppCompatActivity() {
         button.text = label.ifBlank { getString(R.string.btn_download) }
         button.textDirection = android.view.View.TEXT_DIRECTION_LTR
         button.textLocales = android.os.LocaleList(java.util.Locale.US)
+        // فونت پیش‌فرض برنامه (yekan_boom) اعداد رو تو محیط راست‌به‌چپ خودکار به فارسی
+        // تبدیل می‌کنه؛ برای این دکمه‌ها که باید عدد انگلیسی نشون بدن، فونت ساده‌ی
+        // خودِ سیستم رو می‌ذاریم که این ویژگی رو نداره.
+        button.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        button.fontFeatureSettings = "tnum"
         button.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)))
         button.setTextColor(ContextCompat.getColor(this, R.color.white))
         button.textSize = 15f
