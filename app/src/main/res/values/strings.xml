@@ -9,6 +9,7 @@
     <string name="menu_about">درباره آسان‌نت</string>
     <string name="menu_share_apk">اشتراک‌گذاری فایل نصب برنامه</string>
     <string name="menu_downloads">دانلودها</string>
+    <string name="menu_check_update">به‌روزرسانی برنامه</string>
     <string name="downloads_empty">هنوز چیزی دانلود نکردی</string>
     <string name="download_status_running">در حال دانلود…</string>
     <string name="download_status_paused">متوقف‌شده — منتظر اتصال اینترنت</string>
