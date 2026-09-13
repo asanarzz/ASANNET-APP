@@ -63,6 +63,7 @@ class VideoDetailActivity : AppCompatActivity() {
         val density = resources.displayMetrics.density
         val button = Button(this)
         button.text = label.ifBlank { getString(R.string.btn_download) }
+        button.textDirection = android.view.View.TEXT_DIRECTION_LTR
         button.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)))
         button.setTextColor(ContextCompat.getColor(this, R.color.white))
         button.textSize = 15f
