@@ -124,6 +124,10 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
             startActivity(Intent(this, ContactActivity::class.java))
         }
+        binding.navItemDownloads.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            startActivity(Intent(this, DownloadsActivity::class.java))
+        }
         binding.navItemShareApk.setOnClickListener {
             binding.drawerLayout.closeDrawers()
             shareApk()
@@ -138,12 +142,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** بنرهای تبلیغاتی بالای صفحه‌ی اصلی را از همان منبع محتوای اصلی (نوع home_banner) می‌خواند. */
     private fun loadBanners(adapter: BannerCarouselAdapter) {
+        // عرض هر بنر رو ۹۵٪ عرض صفحه می‌کنیم (نه تمام‌عرض) تا لبه‌ی بنر بعدی هم کمی
+        // از گوشه‌ی صفحه دیده بشه — همین یه تکه پیدا بودن، به کاربر می‌فهمونه که
+        // می‌تونه ورق بزنه و بنرهای بیشتری هم هست.
         val screenWidthPx = resources.displayMetrics.widthPixels
         adapter.setItemWidth((screenWidthPx * 0.95).toInt())
 
         lifecycleScope.launch {
             val result = ContentRepository.load(this@MainActivity)
+            // آیتم‌های تازه‌تر به انتهای فهرست اضافه می‌شوند؛ برعکسش می‌کنیم تا
+            // آخرین بنر آپلودشده همیشه اول (و اولین چیزی که کاربر می‌بیند) باشد.
             val banners = result.items.filter { it.type == ContentType.HOME_BANNER }.reversed()
             adapter.updateItems(banners)
             binding.recyclerBanners.visibility = if (banners.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
@@ -160,6 +170,9 @@ class MainActivity : AppCompatActivity() {
         bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
     }
 
+    /** تاریخ شمسی و میلادی امروز را در هدر می‌نویسد. چون هر بار که صفحه‌ی اصلی
+     *  دوباره باز می‌شود (onResume) این تابع صدا زده می‌شود، همیشه تاریخِ «همان روزی
+     *  که کاربر اپ را باز کرده» نمایش داده می‌شود و نیازی به تایمر جداگانه نیست. */
     private fun updateHeaderDate() {
         val (gy, gm, gd) = PersianDateUtils.todayGregorian().let { Triple(it[0], it[1], it[2]) }
         val (jy, jm, jd) = PersianDateUtils.gregorianToJalali(gy, gm, gd).let { Triple(it[0], it[1], it[2]) }
@@ -181,6 +194,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    /** فایل نصب (APK) فعلی برنامه را در حافظه‌ی موقت کپی و از طریق FileProvider به اشتراک می‌گذارد. */
     private fun shareApk() {
         lifecycleScope.launch {
             try {
