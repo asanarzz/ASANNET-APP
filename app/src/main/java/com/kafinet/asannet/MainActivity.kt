@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bannerAdapter: BannerCarouselAdapter
+    private var pendingUpdate: AppUpdateInfo? = null
 
     private val bannerAutoScrollHandler = Handler(Looper.getMainLooper())
     private var bannerAutoScrollIndex = 0
@@ -128,6 +129,18 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
             startActivity(Intent(this, DownloadsActivity::class.java))
         }
+        binding.navItemUpdate.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            val update = pendingUpdate
+            if (update != null) {
+                Toast.makeText(this, "در حال دانلود نسخه‌ی ${update.versionName}…", Toast.LENGTH_SHORT).show()
+                DownloadHelper.downloadAndInstallApk(this, update.apkUrl, "ASANNET-${update.versionName}")
+            } else {
+                Toast.makeText(this, "برنامه به‌روزه", Toast.LENGTH_SHORT).show()
+            }
+        }
+        checkForAppUpdate()
+
         binding.navItemShareApk.setOnClickListener {
             binding.drawerLayout.closeDrawers()
             shareApk()
@@ -179,6 +192,18 @@ class MainActivity : AppCompatActivity() {
         binding.txtHeaderDateJalali.text = PersianDateUtils.formatDate(jy, jm, jd)
         binding.txtHeaderDateGregorian.text = PersianDateUtils.formatDate(gy, gm, gd)
         binding.txtHeaderWeekday.text = PersianDateUtils.todayWeekDayName()
+    }
+
+    /** چک می‌کنه آیا نسخه‌ی جدیدتری از اپ منتشر شده یا نه (از فایل version.json که
+     *  خودِ بیلد گیت‌هاب بعد از هر بیلد موفق می‌سازه)؛ اگه بود، رو آیتم «به‌روزرسانی
+     *  برنامه» تو منو یه نقطه‌ی سبز نشون میده. */
+    private fun checkForAppUpdate() {
+        lifecycleScope.launch {
+            val update = AppUpdateChecker.checkForUpdate(BuildConfig.VERSION_CODE)
+            pendingUpdate = update
+            binding.dotUpdateAvailable.visibility =
+                if (update != null) android.view.View.VISIBLE else android.view.View.GONE
+        }
     }
 
     override fun onPause() {
