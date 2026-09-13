@@ -79,6 +79,7 @@ class GalleryDetailActivity : AppCompatActivity() {
     }
 
     private fun updateImageCounter(position: Int, total: Int) {
-        binding.txtImageCounter.text = getString(R.string.image_counter_format, position + 1, total)
+        binding.txtImageCounter.text =
+            String.format(java.util.Locale.US, getString(R.string.image_counter_format), position + 1, total)
     }
 }

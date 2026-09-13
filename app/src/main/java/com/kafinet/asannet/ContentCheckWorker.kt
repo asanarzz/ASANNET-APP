@@ -30,7 +30,11 @@ class ContentCheckWorker(context: Context, params: WorkerParameters) : Coroutine
                     val message = if (newItems.size == 1) {
                         newItems.first().title
                     } else {
-                        applicationContext.getString(R.string.notif_multiple_new, newItems.size)
+                        String.format(
+                            java.util.Locale.US,
+                            applicationContext.getString(R.string.notif_multiple_new),
+                            newItems.size
+                        )
                     }
                     NotificationHelper.showNewContentNotification(
                         applicationContext,
