@@ -111,13 +111,21 @@ jobs:
           mkdir -p apk
           cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/latest.apk
           cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk"
+          VERSION_CODE=$(grep -m1 'versionCode' app/build.gradle | grep -oE '[0-9]+')
+          cat > apk/version.json << JSON_EOF
+          {
+            "versionCode": ${VERSION_CODE},
+            "versionName": "${{ steps.appversion.outputs.version }}",
+            "apkUrl": "https://asanarzz.github.io/ASANNET-APP/apk/latest.apk"
+          }
+          JSON_EOF
 
       - name: Commit APK and bumped version to repo
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apk/latest.apk "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk" app/build.gradle
+          git add apk/latest.apk "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/version.json app/build.gradle
           git commit -m "بیلد موفق: نسخه v${{ steps.appversion.outputs.version }} [skip ci]" || echo "چیزی برای کامیت نبود"
           git pull --no-rebase --no-edit || true
           git push
