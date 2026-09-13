@@ -8,6 +8,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,6 +18,37 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # فقط موقع پوش مستقیم به main (یا اجرای دستی)، قبل از بیلد نسخه رو بالا می‌بریم.
+      # اگه بیلد شکست بخوره، این تغییر هیچ‌وقت کامیت نمی‌شه (چون مرحله‌ی کامیت آخر کاره).
+      - name: Bump version
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          CURRENT_CODE=$(grep -m1 'versionCode' app/build.gradle | grep -oE '[0-9]+')
+          CURRENT_NAME=$(grep -m1 'versionName' app/build.gradle | sed -E 's/.*versionName *"([^"]+)".*/\1/')
+
+          NEW_CODE=$((CURRENT_CODE + 1))
+
+          MAJOR=$(echo "$CURRENT_NAME" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT_NAME" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT_NAME" | cut -d. -f3)
+
+          PATCH=$((PATCH + 1))
+          if [ "$PATCH" -gt 9 ]; then
+            PATCH=0
+            MINOR=$((MINOR + 1))
+            if [ "$MINOR" -gt 9 ]; then
+              MINOR=0
+              MAJOR=$((MAJOR + 1))
+            fi
+          fi
+
+          NEW_NAME="${MAJOR}.${MINOR}.${PATCH}"
+
+          sed -i "s/versionCode $CURRENT_CODE/versionCode $NEW_CODE/" app/build.gradle
+          sed -i "s/versionName \"$CURRENT_NAME\"/versionName \"$NEW_NAME\"/" app/build.gradle
+
+          echo "نسخه‌ی قبلی: $CURRENT_NAME ($CURRENT_CODE)  ->  نسخه‌ی جدید: $NEW_NAME ($NEW_CODE)"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -68,3 +102,22 @@ jobs:
           files: app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # از اینجا به بعد: کپی APK به یه مسیر ثابت، و کامیت خودِ نسخه‌ی بالارفته —
+      # هردو با هم، فقط وقتی که بیلد تا اینجا با موفقیت رسیده باشه.
+      - name: Copy APK for Pages download
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p apk
+          cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/latest.apk
+          cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk"
+
+      - name: Commit APK and bumped version to repo
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apk/latest.apk "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk" app/build.gradle
+          git commit -m "بیلد موفق: نسخه v${{ steps.appversion.outputs.version }} [skip ci]" || echo "چیزی برای کامیت نبود"
+          git pull --no-rebase --no-edit || true
+          git push
