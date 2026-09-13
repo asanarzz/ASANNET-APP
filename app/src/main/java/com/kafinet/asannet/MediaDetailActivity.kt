@@ -1,6 +1,5 @@
 package com.kafinet.asannet
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -46,18 +45,9 @@ class MediaDetailActivity : AppCompatActivity() {
             binding.progress.visibility = View.GONE
             binding.recyclerGallery.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            binding.recyclerGallery.adapter = GalleryImageAdapter(
-                images,
-                onImageClick = { imageUrl ->
-                    val intent = Intent(this, ImageViewerActivity::class.java)
-                    intent.putExtra(ImageViewerActivity.EXTRA_URL, imageUrl)
-                    intent.putExtra(ImageViewerActivity.EXTRA_TITLE, title)
-                    startActivity(intent)
-                },
-                onOpenFile = { fileUrl ->
-                    ContentOpener.open(this, fileUrl, title)
-                }
-            )
+            binding.recyclerGallery.adapter = GalleryImageAdapter(images) { fileUrl ->
+                ContentOpener.open(this, fileUrl, title)
+            }
             PagerSnapHelper().attachToRecyclerView(binding.recyclerGallery)
 
             if (images.size > 1) {
@@ -92,7 +82,11 @@ class MediaDetailActivity : AppCompatActivity() {
     }
 
     private fun updatePageIndicator(position: Int, total: Int) {
-        binding.txtPageIndicator.text = getString(R.string.page_indicator_format, position + 1, total)
+        binding.txtPageIndicator.text =
+            String.format(java.util.Locale.US, getString(R.string.page_indicator_format), position + 1, total)
+        binding.txtPageIndicator.textDirection = android.view.View.TEXT_DIRECTION_LTR
+        binding.txtPageIndicator.textLocales = android.os.LocaleList(java.util.Locale.US)
+        binding.txtPageIndicator.fontFeatureSettings = "tnum"
     }
 
     private fun openLink(url: String, title: String) {

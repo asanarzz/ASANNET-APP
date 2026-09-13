@@ -29,6 +29,11 @@ class SectionFolderAdapter(
         val context = holder.binding.root.context
         holder.binding.txtSectionCount.text =
             String.format(java.util.Locale.US, context.getString(R.string.section_item_count), folder.count)
+        // فونت سفارشی برنامه تو محیط راست‌به‌چپ اعداد رو خودکار به فارسی تبدیل می‌کنه؛
+        // برای این‌که تعداد همیشه انگلیسی نشون داده بشه، جهت/زبان/فونتش رو صریح می‌کنیم.
+        holder.binding.txtSectionCount.textDirection = android.view.View.TEXT_DIRECTION_LTR
+        holder.binding.txtSectionCount.textLocales = android.os.LocaleList(java.util.Locale.US)
+        holder.binding.txtSectionCount.fontFeatureSettings = "tnum"
         holder.binding.rowRoot.setOnClickListener { onClick(folder) }
     }
 
