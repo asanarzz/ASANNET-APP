@@ -82,7 +82,8 @@ class MediaDetailActivity : AppCompatActivity() {
     }
 
     private fun updatePageIndicator(position: Int, total: Int) {
-        binding.txtPageIndicator.text = getString(R.string.page_indicator_format, position + 1, total)
+        binding.txtPageIndicator.text =
+            String.format(java.util.Locale.US, getString(R.string.page_indicator_format), position + 1, total)
     }
 
     private fun openLink(url: String, title: String) {

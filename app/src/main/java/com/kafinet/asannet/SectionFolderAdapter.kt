@@ -28,7 +28,7 @@ class SectionFolderAdapter(
         holder.binding.txtSectionName.text = folder.displayName
         val context = holder.binding.root.context
         holder.binding.txtSectionCount.text =
-            context.getString(R.string.section_item_count, folder.count)
+            String.format(java.util.Locale.US, context.getString(R.string.section_item_count), folder.count)
         holder.binding.rowRoot.setOnClickListener { onClick(folder) }
     }
 
