@@ -1,5 +1,6 @@
 package com.kafinet.asannet
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -34,7 +35,7 @@ class MediaDetailActivity : AppCompatActivity() {
         val linkUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
 
         binding.txtTitle.text = forceEnglishDigits(title)
-        binding.txtHeadline.text = title
+        binding.txtHeadline.text = forceEnglishDigits(title)
 
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
         binding.txtDescription.text = forceEnglishDigits(description)
@@ -45,9 +46,18 @@ class MediaDetailActivity : AppCompatActivity() {
             binding.progress.visibility = View.GONE
             binding.recyclerGallery.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            binding.recyclerGallery.adapter = GalleryImageAdapter(images) { fileUrl ->
-                ContentOpener.open(this, fileUrl, title)
-            }
+            binding.recyclerGallery.adapter = GalleryImageAdapter(
+                files = images,
+                onImageClick = { imageUrl ->
+                    val intent = Intent(this, ImageViewerActivity::class.java)
+                    intent.putExtra(ImageViewerActivity.EXTRA_URL, imageUrl)
+                    intent.putExtra(ImageViewerActivity.EXTRA_TITLE, title)
+                    startActivity(intent)
+                },
+                onOpenFile = { fileUrl ->
+                    ContentOpener.open(this, fileUrl, title)
+                }
+            )
             PagerSnapHelper().attachToRecyclerView(binding.recyclerGallery)
 
             if (images.size > 1) {
