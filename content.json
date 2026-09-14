@@ -272,5 +272,13 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1789321274665-7-bd4c9ab7.webp",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1789321277017-8-f29c21d4.webp"
     ]
+  },
+  {
+    "id": "item_1789383774612",
+    "type": "radio",
+    "title": "رادیو آوا",
+    "description": "رادیو آوا اینترنتی",
+    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE",
+    "section": "رادیو آوا"
   }
 ]
