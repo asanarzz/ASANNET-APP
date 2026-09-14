@@ -79,7 +79,7 @@ class RadioPlayerActivity : AppCompatActivity() {
                     fromUser: Boolean
                 ) {
                     if (fromUser) {
-                        binding.txtCurrentTime.text = formatTime(progress)
+                        binding.txtCurrentTime.text = formatTime(progress.toLong())
                     }
                 }
 
