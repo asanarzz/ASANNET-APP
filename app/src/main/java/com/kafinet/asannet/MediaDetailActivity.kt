@@ -33,11 +33,11 @@ class MediaDetailActivity : AppCompatActivity() {
         val images = intent.getStringArrayListExtra(EXTRA_IMAGES).orEmpty()
         val linkUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
 
-        binding.txtTitle.text = title
+        binding.txtTitle.text = forceEnglishDigits(title)
         binding.txtHeadline.text = title
 
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
-        binding.txtDescription.text = description
+        binding.txtDescription.text = forceEnglishDigits(description)
 
         binding.btnBack.setOnClickListener { finish() }
 

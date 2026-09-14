@@ -36,9 +36,9 @@ class VideoDetailActivity : AppCompatActivity() {
         val linkLabels = intent.getStringArrayListExtra(EXTRA_LINK_LABELS) ?: arrayListOf()
         val linkUrls = intent.getStringArrayListExtra(EXTRA_LINK_URLS) ?: arrayListOf()
 
-        binding.txtHeaderTitle.text = itemTitle
-        binding.txtTitle.text = itemTitle
-        binding.txtDescription.text = description
+        binding.txtHeaderTitle.text = forceEnglishDigits(itemTitle)
+        binding.txtTitle.text = forceEnglishDigits(itemTitle)
+        binding.txtDescription.text = forceEnglishDigits(description)
         binding.txtDescription.visibility =
             if (description.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
 
