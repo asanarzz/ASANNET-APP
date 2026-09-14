@@ -218,7 +218,12 @@ class RadioPlayerService : Service() {
             })
 
             player.setMediaItem(MediaItem.fromUri(url))
-            if (startPositionMs > 0) player.seekTo(startPositionMs)
+            // برای رادیوی زنده، وصل‌شدن دوباره همیشه باید از «همین الانِ» پخش زنده
+            // باشه، نه یه نقطه‌ی زمانی گذشته (که دیگه تو استریم زنده وجود نداره) —
+            // فقط برای فایل صوتی معمولی (که واقعاً قابل ادامه‌دادنه) این کار درسته.
+            if (startPositionMs > 0 && isDownloadableSource) {
+                player.seekTo(startPositionMs)
+            }
             player.playWhenReady = true
             player.prepare()
 
