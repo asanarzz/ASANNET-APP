@@ -35,10 +35,6 @@ class RadioPlayerService : Service() {
         const val EXTRA_DOWNLOADABLE = "extra_downloadable"
         private const val CHANNEL_ID = "radio_playback"
         private const val NOTIFICATION_ID = 501
-        // اگه سرور وصل بشه ولی هیچ‌وقت آماده‌ی پخش نشه (نه خطا بده نه دیتا بفرسته)،
-        // MediaPlayer برای همیشه ساکت می‌مونه بدون هیچ پیام خطایی؛ این سقف زمانی
-        // جلوی این حالت رو می‌گیره و بعد از این مدت، وضعیت رو «قطع» در نظر می‌گیره
-        private const val PREPARE_TIMEOUT_MS = 12000L
 
         @Volatile var isPlayingNow = false
             private set
@@ -176,10 +172,17 @@ class RadioPlayerService : Service() {
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )
-                setDataSource(url)
+                // استریم‌های رادیوی زنده (Shoutcast/Icecast) معمولاً همراه با صدا،
+                // متادیتای متنی (اسم آهنگ فعلی و...) هم قاطی می‌فرستن که MediaPlayer
+                // اندروید نمی‌تونه پردازشش کنه و باعث قطع بی‌صدا و بدون خطا می‌شه؛ با
+                // این هدر صریحاً به سرور می‌گیم فقط صدای خام رو بفرسته.
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    setDataSource(applicationContext, android.net.Uri.parse(url), mapOf("Icy-MetaData" to "0"))
+                } else {
+                    setDataSource(url)
+                }
                 setOnPreparedListener {
                     prepareTimeoutRunnable?.let { r -> retryHandler.removeCallbacks(r) }
-                    prepareTimeoutRunnable = null
                     currentPlayer = it
                     retryCount = 0
                     if (seekTarget > 0) {
@@ -197,27 +200,43 @@ class RadioPlayerService : Service() {
                 }
                 setOnErrorListener { _, what, extra ->
                     prepareTimeoutRunnable?.let { r -> retryHandler.removeCallbacks(r) }
-                    prepareTimeoutRunnable = null
                     // خطاهای مربوط به قطعی/ضعف اتصال شبکه (مثل -38) رو خودکار و بی‌سروصدا
                     // دوباره امتحان کن، قبل از اینکه واقعاً به کاربر خطا نشون بدیم
-                    handleStreamFailure(url, title, seekTarget, "خطا در پخش، اتصال اینترنت رو چک کن (کد $what/$extra)")
+                    val savedPosition = seekTarget
+                    if (retryCount < 2) {
+                        retryCount++
+                        releaseMediaPlayerOnly()
+                        retryHandler.postDelayed({
+                            playFromSource(url, title, savedPosition, isRetry = true)
+                        }, 800)
+                    } else {
+                        releaseMediaPlayerOnly()
+                        android.widget.Toast.makeText(
+                            applicationContext,
+                            "خطا در پخش، اتصال اینترنت رو چک کن (کد $what/$extra)",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
                     true
                 }
                 prepareAsync()
             }
             acquireWifiLock()
 
-            // سقف زمانی: اگه تا این مدت onPrepared یا onError هیچ‌کدوم صدا زده نشن
-            // (یعنی وصل شده ولی سرور هیچ دیتایی نمی‌فرسته)، به‌جای سکوت همیشگی
-            // وضعیت رو قطع در نظر بگیر و دوباره امتحان کن یا خطا نشون بده
-            val watchedPlayer = mediaPlayer
+            // اگه ظرف ۱۲ ثانیه نه پخش شروع بشه نه خطایی اعلام بشه (حالت «بی‌صدا گیر
+            // کردن»)، دیگه کاربر رو تو بلاتکلیفی نذار و یه پیام نشون بده.
             val timeoutRunnable = Runnable {
-                if (mediaPlayer === watchedPlayer && !isPlayingNow) {
-                    handleStreamFailure(url, title, seekTarget, "اتصال به رادیو برقرار نشد (سرور جواب نداد)")
+                if (!isPlayingNow) {
+                    releaseMediaPlayerOnly()
+                    android.widget.Toast.makeText(
+                        applicationContext,
+                        "اتصال به رادیو برقرار نشد، دوباره امتحان کن",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
                 }
             }
             prepareTimeoutRunnable = timeoutRunnable
-            retryHandler.postDelayed(timeoutRunnable, PREPARE_TIMEOUT_MS)
+            retryHandler.postDelayed(timeoutRunnable, 12000)
         } catch (e: Exception) {
             if (retryCount < 2) {
                 retryCount++
@@ -232,24 +251,6 @@ class RadioPlayerService : Service() {
                 ).show()
                 stopPlayback()
             }
-        }
-    }
-
-    /**
-     * منطق مشترک وقتی پخش شکست می‌خوره (چه با خطای واقعی MediaPlayer، چه با تایم‌اوت
-     * سکوت): چند بار خودکار دوباره امتحان می‌کنه، و اگه بازم جواب نداد، خطا رو به
-     * کاربر نشون می‌ده و پخش رو کامل متوقف می‌کنه.
-     */
-    private fun handleStreamFailure(url: String, title: String, seekTarget: Int, message: String) {
-        if (streamUrl != url) return // کاربر از اون موقع ایستگاه دیگه‌ای رو باز کرده
-        releaseMediaPlayerOnly()
-        if (retryCount < 2) {
-            retryCount++
-            retryHandler.postDelayed({
-                playFromSource(url, title, seekTarget, isRetry = true)
-            }, 800)
-        } else {
-            android.widget.Toast.makeText(applicationContext, message, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
@@ -275,8 +276,6 @@ class RadioPlayerService : Service() {
     }
 
     private fun releaseMediaPlayerOnly() {
-        prepareTimeoutRunnable?.let { retryHandler.removeCallbacks(it) }
-        prepareTimeoutRunnable = null
         mediaPlayer?.apply {
             try { stop() } catch (e: Exception) { /* بی‌اهمیت */ }
             release()
