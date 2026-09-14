@@ -40,8 +40,8 @@ class RadioPlayerActivity : AppCompatActivity() {
                     val position = player.currentPosition
 
                     if (duration > 0) {
-                        binding.progressAudio.max = duration
-                        binding.progressAudio.progress = position
+                        binding.progressAudio.max = duration.toInt()
+                        binding.progressAudio.progress = position.toInt()
                         binding.txtCurrentTime.text = formatTime(position)
                         binding.txtTotalTime.text = formatTime(duration)
                     }
@@ -53,7 +53,7 @@ class RadioPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun formatTime(ms: Int): String {
+    private fun formatTime(ms: Long): String {
         val seconds = ms / 1000
         return "%02d:%02d".format(seconds / 60, seconds % 60)
     }
@@ -91,7 +91,7 @@ class RadioPlayerActivity : AppCompatActivity() {
                     seekBar: android.widget.SeekBar
                 ) {
                     try {
-                        RadioPlayerService.currentPlayer?.seekTo(seekBar.progress)
+                        RadioPlayerService.currentPlayer?.seekTo(seekBar.progress.toLong())
                     } catch (_: Exception) {}
                 }
             }
