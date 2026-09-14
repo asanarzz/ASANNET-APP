@@ -34,9 +34,9 @@ class BannerDetailActivity : AppCompatActivity() {
         val description = intent.getStringExtra(EXTRA_DESCRIPTION).orEmpty()
 
         val displayTitle = title.ifBlank { getString(R.string.banner_detail_fallback_title) }
-        binding.txtTitle.text = displayTitle
-        binding.txtHeadline.text = displayTitle
-        binding.txtDescription.text = description
+        binding.txtTitle.text = forceEnglishDigits(displayTitle)
+        binding.txtHeadline.text = forceEnglishDigits(displayTitle)
+        binding.txtDescription.text = forceEnglishDigits(description)
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
 
         binding.btnBack.setOnClickListener { finish() }

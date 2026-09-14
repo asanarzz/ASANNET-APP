@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.kafinet.asannet.databinding.ItemPosterBinding
 
+/**
+ * ردیف افقی پوستر فیلم/سریال (برای صفحه‌ی دسته‌ی «فیلم» با دو بخش فیلم و سریال).
+ */
 class PosterCarouselAdapter(
     private var items: List<ContentItem>,
     private val onClick: (ContentItem) -> Unit
@@ -20,7 +23,7 @@ class PosterCarouselAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.binding.txtPosterTitle.text = item.title
+        holder.binding.txtPosterTitle.text = forceEnglishDigits(item.title)
 
         val posterUrl = item.images.firstOrNull() ?: item.url
         Glide.with(holder.binding.imgPoster.context)

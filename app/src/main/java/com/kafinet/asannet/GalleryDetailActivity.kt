@@ -35,9 +35,9 @@ class GalleryDetailActivity : AppCompatActivity() {
         val url = intent.getStringExtra(EXTRA_URL).orEmpty()
         val isFile = intent.getBooleanExtra(EXTRA_IS_FILE, false)
 
-        binding.txtTitle.text = title
+        binding.txtTitle.text = forceEnglishDigits(title)
         binding.txtHeadline.text = title
-        binding.txtDescription.text = description
+        binding.txtDescription.text = forceEnglishDigits(description)
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
 
         binding.btnBack.setOnClickListener { finish() }
