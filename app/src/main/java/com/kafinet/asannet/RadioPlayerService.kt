@@ -6,23 +6,28 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
 
 /**
- * پخش رادیوی اینترنتی به‌صورت واقعی و در پس‌زمینه (سرویس فورگراند) —
- * برخلاف پخش داخل WebView، با ترک کردن صفحه یا خاموش‌کردن صفحه‌ی گوشی قطع نمی‌شود.
+ * پخش رادیوی اینترنتی به‌صورت واقعی و در پس‌زمینه (سرویس فورگراند)، با ExoPlayer —
+ * چون MediaPlayer خودِ اندروید برای استریم‌های زنده‌ی Shoutcast/Icecast قابل‌اعتماد
+ * نیست (قطعی‌های بی‌صدا و بدون خطا). ExoPlayer دقیقاً برای همین کار ساخته شده.
  */
 class RadioPlayerService : Service() {
 
@@ -40,24 +45,21 @@ class RadioPlayerService : Service() {
             private set
         @Volatile var currentTitle = ""
             private set
-        // وقتی آهنگ کامل تا آخر پخش بشه true می‌شه؛ یعنی دفعه‌ی بعد باید کاملاً
-        // از نو (نه ادامه‌ی همون پخش‌کننده‌ی قبلی) شروع بشه
         @Volatile private var trackCompleted = false
 
         @JvmStatic
-        var currentPlayer: MediaPlayer? = null
+        var currentPlayer: ExoPlayer? = null
     }
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var exoPlayer: ExoPlayer? = null
     private var mediaSession: MediaSessionCompat? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var audioManager: AudioManager? = null
     private var focusRequest: AudioFocusRequest? = null
     private var streamUrl = ""
-    private var pausedPositionMs = 0
+    private var pausedPositionMs = 0L
     private var retryCount = 0
     private var isDownloadableSource = false
-    private var localFilePath: String? = null
     private val retryHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var prepareTimeoutRunnable: Runnable? = null
 
@@ -88,26 +90,25 @@ class RadioPlayerService : Service() {
         return START_STICKY
     }
 
-    private fun startStream(url: String, title: String, startPositionMs: Int = 0, isRetry: Boolean = false) {
+    private fun startStream(url: String, title: String, startPositionMs: Long = 0L, isRetry: Boolean = false) {
         streamUrl = url
         currentTitle = title
         trackCompleted = false
         if (!isRetry) retryCount = 0
-        val seekTarget = startPositionMs
 
         // برای فایل‌های صوتی معمولی (نه رادیوی زنده)، اول کامل دانلودش کن و از روی
         // خود گوشی پخش کن — چون بعضی سرورها (مثل Supabase) پخش تکه‌تکه‌ی مستقیم رو
         // درست جواب نمی‌دن و باعث قطعی پخش می‌شن
         if (isDownloadableSource && (url.startsWith("http://") || url.startsWith("https://"))) {
-            downloadThenPlay(url, title, seekTarget)
+            downloadThenPlay(url, title, startPositionMs)
             return
         }
 
-        playFromSource(url, title, seekTarget, isRetry)
+        playFromSource(url, title, startPositionMs, isRetry)
     }
 
-    private fun downloadThenPlay(url: String, title: String, seekTarget: Int) {
-        releaseMediaPlayerOnly()
+    private fun downloadThenPlay(url: String, title: String, seekTarget: Long) {
+        releasePlayerOnly()
         createChannelIfNeeded()
         startForeground(NOTIFICATION_ID, buildNotification())
         requestAudioFocus()
@@ -151,10 +152,9 @@ class RadioPlayerService : Service() {
         }
     }
 
-    private fun playFromSource(url: String, title: String, startPositionMs: Int = 0, isRetry: Boolean = false) {
+    private fun playFromSource(url: String, title: String, startPositionMs: Long = 0L, isRetry: Boolean = false) {
         currentTitle = title
-        val seekTarget = startPositionMs
-        releaseMediaPlayerOnly()
+        releasePlayerOnly()
 
         createChannelIfNeeded()
         startForeground(NOTIFICATION_ID, buildNotification())
@@ -164,70 +164,71 @@ class RadioPlayerService : Service() {
         requestAudioFocus()
 
         try {
-            mediaPlayer = MediaPlayer().apply {
-                currentPlayer = this
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                // استریم‌های رادیوی زنده (Shoutcast/Icecast) معمولاً همراه با صدا،
-                // متادیتای متنی (اسم آهنگ فعلی و...) هم قاطی می‌فرستن که MediaPlayer
-                // اندروید نمی‌تونه پردازشش کنه و باعث قطع بی‌صدا و بدون خطا می‌شه؛ با
-                // این هدر صریحاً به سرور می‌گیم فقط صدای خام رو بفرسته.
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    setDataSource(applicationContext, android.net.Uri.parse(url), mapOf("Icy-MetaData" to "0"))
-                } else {
-                    setDataSource(url)
-                }
-                setOnPreparedListener {
-                    prepareTimeoutRunnable?.let { r -> retryHandler.removeCallbacks(r) }
-                    currentPlayer = it
-                    retryCount = 0
-                    if (seekTarget > 0) {
-                        try { it.seekTo(seekTarget) } catch (e: Exception) { /* بی‌اهمیت */ }
+            val player = ExoPlayer.Builder(applicationContext).build()
+            exoPlayer = player
+            currentPlayer = player
+
+            player.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                    .build(),
+                false
+            )
+
+            player.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    when (state) {
+                        Player.STATE_READY -> {
+                            prepareTimeoutRunnable?.let { r -> retryHandler.removeCallbacks(r) }
+                            retryCount = 0
+                        }
+                        Player.STATE_ENDED -> {
+                            trackCompleted = true
+                            isPlayingNow = false
+                            updateNotification()
+                        }
+                        else -> {}
                     }
-                    it.start()
-                    isPlayingNow = true
+                }
+
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    isPlayingNow = isPlaying
                     updateNotification()
                 }
-                setOnCompletionListener {
-                    // آهنگ تا آخر پخش شد — دفعه‌ی بعد که پلی زده بشه، باید کاملاً از نو شروع بشه
-                    trackCompleted = true
-                    isPlayingNow = false
-                    updateNotification()
-                }
-                setOnErrorListener { _, what, extra ->
+
+                override fun onPlayerError(error: PlaybackException) {
                     prepareTimeoutRunnable?.let { r -> retryHandler.removeCallbacks(r) }
-                    // خطاهای مربوط به قطعی/ضعف اتصال شبکه (مثل -38) رو خودکار و بی‌سروصدا
-                    // دوباره امتحان کن، قبل از اینکه واقعاً به کاربر خطا نشون بدیم
-                    val savedPosition = seekTarget
+                    val savedPosition = try { player.currentPosition } catch (e: Exception) { 0L }
                     if (retryCount < 2) {
                         retryCount++
-                        releaseMediaPlayerOnly()
+                        releasePlayerOnly()
                         retryHandler.postDelayed({
                             playFromSource(url, title, savedPosition, isRetry = true)
                         }, 800)
                     } else {
-                        releaseMediaPlayerOnly()
+                        releasePlayerOnly()
                         android.widget.Toast.makeText(
                             applicationContext,
-                            "خطا در پخش، اتصال اینترنت رو چک کن (کد $what/$extra)",
+                            "خطا در پخش، اتصال اینترنت رو چک کن (${error.errorCodeName})",
                             android.widget.Toast.LENGTH_LONG
                         ).show()
                     }
-                    true
                 }
-                prepareAsync()
-            }
+            })
+
+            player.setMediaItem(MediaItem.fromUri(url))
+            if (startPositionMs > 0) player.seekTo(startPositionMs)
+            player.playWhenReady = true
+            player.prepare()
+
             acquireWifiLock()
 
             // اگه ظرف ۱۲ ثانیه نه پخش شروع بشه نه خطایی اعلام بشه (حالت «بی‌صدا گیر
             // کردن»)، دیگه کاربر رو تو بلاتکلیفی نذار و یه پیام نشون بده.
             val timeoutRunnable = Runnable {
                 if (!isPlayingNow) {
-                    releaseMediaPlayerOnly()
+                    releasePlayerOnly()
                     android.widget.Toast.makeText(
                         applicationContext,
                         "اتصال به رادیو برقرار نشد، دوباره امتحان کن",
@@ -241,7 +242,7 @@ class RadioPlayerService : Service() {
             if (retryCount < 2) {
                 retryCount++
                 retryHandler.postDelayed({
-                    playFromSource(url, title, seekTarget, isRetry = true)
+                    playFromSource(url, title, startPositionMs, isRetry = true)
                 }, 800)
             } else {
                 android.widget.Toast.makeText(
@@ -256,40 +257,37 @@ class RadioPlayerService : Service() {
 
     private fun resumeOrStart() {
         if (streamUrl.isBlank()) return
-        // به‌جای تلاش برای ادامه‌دادن یه پخش‌کننده‌ی احتمالاً بافرش قطع‌شده (که رو
-        // استریم‌های آنلاین بعد از pause بی‌صدا می‌مونه)، از همون‌جایی که مکث کرده
-        // بودیم یه پخش‌کننده‌ی کاملاً تازه می‌سازیم
         startStream(streamUrl, currentTitle, pausedPositionMs)
     }
 
     private fun pausePlayback() {
-        pausedPositionMs = try { mediaPlayer?.currentPosition ?: 0 } catch (e: Exception) { 0 }
-        releaseMediaPlayerOnly()
+        pausedPositionMs = try { exoPlayer?.currentPosition ?: 0L } catch (e: Exception) { 0L }
+        releasePlayerOnly()
         updateNotification()
     }
 
     private fun stopPlayback() {
-        releaseMediaPlayerOnly()
+        releasePlayerOnly()
         releaseWifiLock()
         stopForeground(true)
         stopSelf()
     }
 
-    private fun releaseMediaPlayerOnly() {
-        mediaPlayer?.apply {
+    private fun releasePlayerOnly() {
+        exoPlayer?.apply {
             try { stop() } catch (e: Exception) { /* بی‌اهمیت */ }
             release()
         }
-        mediaPlayer = null
+        exoPlayer = null
         currentPlayer = null
         isPlayingNow = false
     }
 
     private fun requestAudioFocus(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val attrs = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            val attrs = android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build()
             focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(attrs)
@@ -369,7 +367,7 @@ class RadioPlayerService : Service() {
     }
 
     override fun onDestroy() {
-        releaseMediaPlayerOnly()
+        releasePlayerOnly()
         releaseWifiLock()
         mediaSession?.release()
         super.onDestroy()
