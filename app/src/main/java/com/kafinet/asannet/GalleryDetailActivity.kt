@@ -1,5 +1,6 @@
 package com.kafinet.asannet
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -36,7 +37,7 @@ class GalleryDetailActivity : AppCompatActivity() {
         val isFile = intent.getBooleanExtra(EXTRA_IS_FILE, false)
 
         binding.txtTitle.text = forceEnglishDigits(title)
-        binding.txtHeadline.text = title
+        binding.txtHeadline.text = forceEnglishDigits(title)
         binding.txtDescription.text = forceEnglishDigits(description)
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
 
@@ -59,9 +60,18 @@ class GalleryDetailActivity : AppCompatActivity() {
 
     private fun setupImageGallery(images: List<String>, title: String) {
         binding.recyclerImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclerImages.adapter = GalleryImageAdapter(images) { fileUrl ->
-            ContentOpener.open(this, fileUrl, title)
-        }
+        binding.recyclerImages.adapter = GalleryImageAdapter(
+            files = images,
+            onImageClick = { imageUrl ->
+                val intent = Intent(this, ImageViewerActivity::class.java)
+                intent.putExtra(ImageViewerActivity.EXTRA_URL, imageUrl)
+                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, title)
+                startActivity(intent)
+            },
+            onOpenFile = { fileUrl ->
+                ContentOpener.open(this, fileUrl, title)
+            }
+        )
         LinearSnapHelper().attachToRecyclerView(binding.recyclerImages)
 
         if (images.size <= 1) {
