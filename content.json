@@ -280,5 +280,16 @@
     "description": "رادیو آوا اینترنتی",
     "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE",
     "section": "رادیو آوا"
+  },
+  {
+    "id": "item_1789445803830",
+    "type": "music",
+    "title": "جدید",
+    "description": "تست",
+    "url": "",
+    "section": "آرون افشار",
+    "images": [
+      "https://ceqkbqcohkflvzlhylij.supabase.co/storage/v1/object/public/Media/media/1789445796272-0-aron-afshar-khandehato-ghorboon.mp3"
+    ]
   }
 ]
