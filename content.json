@@ -280,16 +280,5 @@
     "description": "رادیو آوا اینترنتی",
     "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE",
     "section": "رادیو آوا"
-  },
-  {
-    "id": "item_1789402424218",
-    "type": "music",
-    "title": "خندهاتو قربون - آرون افشار",
-    "description": "آهنگ خندهاتو قربون خواننده آرون افشار",
-    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726402068-3-bomrani-pari.mp3",
-    "section": "موزیک تست",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1789162174270-0-img-20260912-005632-591.jpg"
-    ]
   }
 ]
