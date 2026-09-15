@@ -36,7 +36,8 @@ object ContentOpener {
                     }
                 )
             }
-            in videoExtensions -> openVideo(activity, url, title)
+            "m3u8" -> openVideo(activity, url, title)
+            in videoExtensions -> DownloadHelper.downloadAndOpenExternally(activity, resolveUrl(url), title, "video/*")
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
                     openWeb(activity, url, title, allowDownload = false)

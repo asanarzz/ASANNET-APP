@@ -255,17 +255,11 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
 
-        // موزیک از همون پخش‌کننده‌ی داخلی رادیو استفاده می‌کنه (نه یه اپ بیرونی) —
-        // چون raw.githubusercontent.com همیشه نوع فایل رو «متن ساده» اعلام می‌کنه
-        // (حتی برای mp3)، و اپ‌های بیرونی/مرورگر گیج می‌شن و پخشش نمی‌کنن. پخش‌کننده‌ی
-        // داخلی ما (ExoPlayer) بر اساس محتوای واقعی فایل تشخیص می‌ده، نه سرآیند سرور.
-        // EXTRA_DOWNLOADABLE هم فعاله تا اول کامل دانلود بشه، همین مشکل رو کاملاً دور بزنه.
+        // موزیک با اپ پخش موزیکِ نصب‌شده‌ی خودِ گوشی باز می‌شه (نه پخش‌کننده‌ی داخلی
+        // ما) — اول دانلودش می‌کنیم (که مشکل نوع فایل اشتباهِ گیت‌هاب رو دور بزنیم)
+        // و بعد با اپ مناسب گوشی بازش می‌کنیم.
         if (item.type == ContentType.MUSIC) {
-            val intent = Intent(this, RadioPlayerActivity::class.java)
-            intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
-            intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
-            intent.putExtra(RadioPlayerActivity.EXTRA_DOWNLOADABLE, true)
-            startActivity(intent)
+            DownloadHelper.downloadAndOpenExternally(this, resolveUrl(item.url), item.title, "audio/*")
             return
         }
 

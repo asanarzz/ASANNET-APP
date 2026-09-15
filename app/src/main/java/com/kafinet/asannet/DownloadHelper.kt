@@ -151,4 +151,57 @@ object DownloadHelper {
             }
         }.start()
     }
+
+    /**
+     * فایل رو دانلود می‌کنه (تو حافظه‌ی موقت خودِ اپ) و بعد با اپ نصب‌شده‌ی مناسب
+     * گوشی (پلیر موزیک برای mp3، پلیر ویدیو برای mp4/mkv و...) بازش می‌کنه — چون
+     * بعضی سرورها (مثل گیت‌هاب) نوع فایل رو اشتباه اعلام می‌کنن و باز کردن مستقیم
+     * لینک ریموت باعث میشه گوشی نتونه اپ مناسب رو پیدا کنه.
+     */
+    fun downloadAndOpenExternally(context: Context, url: String, title: String, mimeType: String) {
+        Toast.makeText(context, "در حال آماده‌سازی فایل…", Toast.LENGTH_SHORT).show()
+        Thread {
+            try {
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+                connection.connect()
+
+                val shareDir = java.io.File(context.cacheDir, "open_external")
+                if (!shareDir.exists()) shareDir.mkdirs()
+                val safeName = title.ifBlank { "kafinet_file" }.replace(Regex("[^A-Za-z0-9آ-ی_\\- ]"), "_")
+                val file = java.io.File(shareDir, safeName + guessExtension(url))
+
+                connection.inputStream.use { input ->
+                    file.outputStream().use { output -> input.copyTo(output) }
+                }
+
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context, "${context.packageName}.fileprovider", file
+                )
+                val viewIntent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, mimeType)
+                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                if (context is Activity) {
+                    context.runOnUiThread {
+                        try {
+                            context.startActivity(android.content.Intent.createChooser(viewIntent, title))
+                        } catch (e: Exception) {
+                            Toast.makeText(context, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    context.startActivity(viewIntent)
+                }
+            } catch (e: Exception) {
+                if (context is Activity) {
+                    context.runOnUiThread {
+                        Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }.start()
+    }
 }
