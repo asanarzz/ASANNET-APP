@@ -1,6 +1,7 @@
 package com.kafinet.asannet
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -231,9 +232,9 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openItem(item: ContentItem) {
-        // برای دسته‌ی ویدیو، تصویر (پوستر) فقط برای نمایش تو کارته؛ با تپ کردن باید
-        // ویدیو پخش بشه، نه اینکه چون عکس پوستر داره ببرتش تو گالری عکس.
-        if (item.images.isNotEmpty() && item.type != ContentType.VIDEO) {
+        // برای دسته‌ی ویدیو و موزیک، تصویر (پوستر/کاور) فقط برای نمایش تو کارته؛
+        // نباید بره تو گالری عکس فقط چون عکس کاور داره.
+        if (item.images.isNotEmpty() && item.type != ContentType.VIDEO && item.type != ContentType.MUSIC) {
             val intent = Intent(this, GalleryDetailActivity::class.java)
             intent.putExtra(GalleryDetailActivity.EXTRA_TITLE, item.title)
             intent.putExtra(GalleryDetailActivity.EXTRA_DESCRIPTION, item.description)
@@ -254,16 +255,19 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
 
-        // موزیک هم از همون پخش‌کننده‌ی داخلی رادیو استفاده می‌کنه (دکمه‌ی پلی/پاز،
-        // نوار پیشرفت، و کاور آهنگ در صورت وجود تو خودِ فایل) — چون یه فایل صوتیِ
-        // معمولی و محدوده (نه یه استریم زنده‌ی بی‌پایان)، پرچم EXTRA_DOWNLOADABLE
-        // فعاله تا اول کامل دانلود بشه و بعد از رو خودِ گوشی پخش بشه.
+        // موزیک با پلیر پیش‌فرض خودِ گوشی (هر اپی که کاربر برای پخش صدا نصب داره) باز
+        // می‌شه، نه پخش‌کننده‌ی داخلی اپ — چون این یه فایل معمولیه، نه رادیوی زنده.
         if (item.type == ContentType.MUSIC) {
-            val intent = Intent(this, RadioPlayerActivity::class.java)
-            intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
-            intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
-            intent.putExtra(RadioPlayerActivity.EXTRA_DOWNLOADABLE, true)
-            startActivity(intent)
+            val url = resolveUrl(item.url)
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(Uri.parse(url), "audio/*")
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(Intent.createChooser(intent, item.title))
+            } catch (e: Exception) {
+                Toast.makeText(this, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
+            }
             return
         }
 
