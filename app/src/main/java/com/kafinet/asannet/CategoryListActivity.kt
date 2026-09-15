@@ -255,16 +255,15 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
 
-        // موزیک با پلیر پیش‌فرض خودِ گوشی (هر اپی که کاربر برای پخش صدا نصب داره) باز
-        // می‌شه، نه پخش‌کننده‌ی داخلی اپ — چون این یه فایل معمولیه، نه رادیوی زنده.
+        // موزیک دقیقاً مثل یه لینک معمولی باز می‌شه (بدون تحمیل نوع فایل) — چون بعضی
+        // از این لینک‌ها مستقیم فایل mp3 نیستن، لینک واسطه‌ی یه سرویس دانلودن؛ با این
+        // روش خودِ اندروید/مقصدِ لینک بر اساس چیزی که واقعاً هست تصمیم می‌گیره.
         if (item.type == ContentType.MUSIC) {
             val url = resolveUrl(item.url)
             try {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(url), "audio/*")
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                startActivity(Intent.createChooser(intent, item.title))
+                startActivity(intent)
             } catch (e: Exception) {
                 Toast.makeText(this, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
             }
