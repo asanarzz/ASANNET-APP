@@ -254,6 +254,19 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
 
+        // موزیک هم از همون پخش‌کننده‌ی داخلی رادیو استفاده می‌کنه (دکمه‌ی پلی/پاز،
+        // نوار پیشرفت، و کاور آهنگ در صورت وجود تو خودِ فایل) — چون یه فایل صوتیِ
+        // معمولی و محدوده (نه یه استریم زنده‌ی بی‌پایان)، پرچم EXTRA_DOWNLOADABLE
+        // فعاله تا اول کامل دانلود بشه و بعد از رو خودِ گوشی پخش بشه.
+        if (item.type == ContentType.MUSIC) {
+            val intent = Intent(this, RadioPlayerActivity::class.java)
+            intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
+            intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
+            intent.putExtra(RadioPlayerActivity.EXTRA_DOWNLOADABLE, true)
+            startActivity(intent)
+            return
+        }
+
         // برای همه‌ی بقیه‌ی دسته‌ها، بر اساس پسوند فایل تصمیم گرفته می‌شه که چطور باز بشه —
         // نه بر اساس این‌که تو کدوم دسته قرار داره
         ContentOpener.open(this, resolveUrl(item.url), item.title)
