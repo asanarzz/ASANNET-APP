@@ -255,18 +255,17 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
 
-        // موزیک دقیقاً مثل یه لینک معمولی باز می‌شه (بدون تحمیل نوع فایل) — چون بعضی
-        // از این لینک‌ها مستقیم فایل mp3 نیستن، لینک واسطه‌ی یه سرویس دانلودن؛ با این
-        // روش خودِ اندروید/مقصدِ لینک بر اساس چیزی که واقعاً هست تصمیم می‌گیره.
+        // موزیک از همون پخش‌کننده‌ی داخلی رادیو استفاده می‌کنه (نه یه اپ بیرونی) —
+        // چون raw.githubusercontent.com همیشه نوع فایل رو «متن ساده» اعلام می‌کنه
+        // (حتی برای mp3)، و اپ‌های بیرونی/مرورگر گیج می‌شن و پخشش نمی‌کنن. پخش‌کننده‌ی
+        // داخلی ما (ExoPlayer) بر اساس محتوای واقعی فایل تشخیص می‌ده، نه سرآیند سرور.
+        // EXTRA_DOWNLOADABLE هم فعاله تا اول کامل دانلود بشه، همین مشکل رو کاملاً دور بزنه.
         if (item.type == ContentType.MUSIC) {
-            val url = resolveUrl(item.url)
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(this, RadioPlayerActivity::class.java)
+            intent.putExtra(RadioPlayerActivity.EXTRA_URL, resolveUrl(item.url))
+            intent.putExtra(RadioPlayerActivity.EXTRA_TITLE, item.title)
+            intent.putExtra(RadioPlayerActivity.EXTRA_DOWNLOADABLE, true)
+            startActivity(intent)
             return
         }
 
