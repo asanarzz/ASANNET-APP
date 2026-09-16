@@ -195,6 +195,7 @@
 
     <div class="main-tabs">
       <div class="main-tab active" id="main-tab-content">افزودن محتوا</div>
+      <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
     </div>
@@ -291,6 +292,531 @@
       <div id="list-area"><div class="empty-msg">در حال بارگذاری…</div></div>
     </div>
 
+    </div>
+
+    <div id="section-linkfinder" class="hidden">
+      <div class="card" style="padding:0; overflow:hidden;">
+        <iframe id="linkfinder-frame" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fa&quot; dir=&quot;rtl&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>استخراج لینک‌های دانلود</title>
+<style>
+  :root{
+    --bg:#0f1117;
+    --card:#171a23;
+    --border:#2a2e3a;
+    --accent:#5b8cff;
+    --accent2:#4ade80;
+    --text:#e6e8ee;
+    --muted:#9aa0ad;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:&quot;Vazirmatn&quot;,&quot;Tahoma&quot;,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px 16px;
+    display:flex;
+    justify-content:center;
+  }
+  .wrap{width:100%;max-width:760px;}
+  h1{font-size:20px;margin-bottom:4px;}
+  p.desc{color:var(--muted);font-size:13px;margin-top:0;margin-bottom:20px;line-height:1.8;}
+  .row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  input[type=text]{
+    flex:1;
+    min-width:200px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text);
+    font-size:14px;
+    direction:ltr;
+    text-align:left;
+  }
+  button{
+    padding:10px 18px;
+    border-radius:10px;
+    border:none;
+    background:var(--accent);
+    color:#fff;
+    font-size:14px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  button:disabled{opacity:.6;cursor:default;}
+  button.secondary{background:var(--card);border:1px solid var(--border);color:var(--text);}
+  .status{font-size:13px;color:var(--muted);margin-bottom:16px;min-height:18px;}
+  .status.err{color:#f87171;}
+  .status.ok{color:var(--accent2);}
+  .filter{margin-bottom:14px;}
+  .filter input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;}
+  ul.links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  li.link-item{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  li.link-item .info{overflow:hidden;}
+  li.link-item .name{font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  li.link-item .filename{font-size:11px;color:var(--accent);margin-bottom:2px;direction:ltr;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  li.link-item .url{font-size:11px;color:var(--muted);direction:ltr;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
+  li.link-item a.btn{
+    flex-shrink:0;
+    background:var(--accent2);
+    color:#0f1117;
+    text-decoration:none;
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:bold;
+  }
+  li.link-item .actions{ display:flex; gap:6px; flex-shrink:0; }
+  li.link-item button.copy-btn{
+    flex-shrink:0;
+    background:transparent;
+    color:var(--accent2);
+    border:1px solid var(--accent2);
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:bold;
+    cursor:pointer;
+    font-family:inherit;
+    transition:background .15s, color .15s;
+  }
+  li.link-item button.copy-btn.copied{
+    background:var(--accent2);
+    color:#0f1117;
+  }
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0;}
+  details{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  summary{cursor:pointer;font-size:13px;color:var(--muted);}
+  .raw{margin-top:10px;max-height:200px;overflow:auto;font-size:11px;direction:ltr;text-align:left;color:var(--muted);white-space:pre-wrap;word-break:break-all;}
+</style>
+</head>
+<body>
+<div class=&quot;wrap&quot;>
+  <h1>استخراج لینک‌های دانلود</h1>
+  <p class=&quot;desc&quot;>
+    آدرس صفحه رو وارد کن و «استخراج» رو بزن. این صفحه سعی می‌کنه HTML اون آدرس رو (از طریق یک پراکسی عمومی، چون مرورگر مستقیم به خاطر CORS اجازه نمی‌ده) بخونه و لینک‌هایی که به دانلود شبیه‌ان رو لیست کنه.
+    اگه سایت مقصد جلوی خزیدن (scraping) رو گرفته باشه یا محتوا با جاوااسکریپت ساخته بشه، ممکنه نتیجه‌ای پیدا نشه.
+  </p>
+
+  <p class=&quot;desc&quot; style=&quot;background:#1c2333;border:1px solid var(--border);border-radius:10px;padding:10px 12px;&quot;>
+    ⚠️ پراکسی‌های عمومی زیر (allorigins، corsproxy و...) رایگان و از سرورهای شخص ثالث‌ان — گاهی کار می‌کنن گاهی نه، و هیچ تضمینی روشون نیست.
+    برای نتیجه‌ی همیشه پایدار، یک پراکسی اختصاصی رایگان روی Cloudflare Workers بساز (راهنما پایین صفحه) و آدرسش رو اینجا بذار؛ همیشه اول همون امتحان می‌شه.
+  </p>
+  <div class=&quot;row&quot;>
+    <input type=&quot;text&quot; id=&quot;customProxyInput&quot; value=&quot;https://myproxy.asanarz2020.workers.dev&quot; placeholder=&quot;آدرس Worker اختصاصی خودت (اختیاری) مثلا: https://your-worker.workers.dev&quot;>
+  </div>
+
+  <div class=&quot;row&quot;>
+    <input type=&quot;text&quot; id=&quot;urlInput&quot; value=&quot;https://www.bazargerd.top/series/from/#downloads&quot;>
+    <button id=&quot;goBtn&quot;>استخراج</button>
+  </div>
+
+  <div class=&quot;status&quot; id=&quot;status&quot;></div>
+
+  <div class=&quot;filter&quot;>
+    <input type=&quot;text&quot; id=&quot;filterInput&quot; placeholder=&quot;فیلتر بر اساس متن لینک یا کیفیت (مثلا 720p) ...&quot; oninput=&quot;renderList()&quot;>
+  </div>
+
+  <ul class=&quot;links&quot; id=&quot;linksList&quot;></ul>
+  <div class=&quot;empty&quot; id=&quot;emptyMsg&quot; style=&quot;display:none;&quot;>هنوز چیزی پیدا نشده.</div>
+
+  <details>
+    <summary>نمایش HTML خام دریافتی (برای دیباگ)</summary>
+    <div class=&quot;raw&quot; id=&quot;rawHtml&quot;></div>
+  </details>
+
+  <details open style=&quot;margin-top:14px;&quot;>
+    <summary>✅ راهنما: ساخت پراکسی اختصاصی رایگان و همیشه‌کار (چند دقیقه، بدون کارت بانکی)</summary>
+    <div style=&quot;font-size:13px;line-height:2;margin-top:10px;&quot;>
+      <ol style=&quot;padding-inline-start:20px;margin:0;&quot;>
+        <li>برو به <span style=&quot;direction:ltr;display:inline-block;&quot;>dash.cloudflare.com</span> و با ایمیل یه حساب رایگان بساز.</li>
+        <li>از منوی سمت چپ برو به «Workers &amp; Pages» و روی «Create» بزن، بعد «Create Worker» رو انتخاب کن.</li>
+        <li>یه اسم بهش بده (مثلا myproxy) و «Deploy» رو بزن.</li>
+        <li>بعد از دیپلوی، روی «Edit code» بزن و کل کد پیش‌فرض رو پاک کن، به‌جاش این کد رو بچسبون:</li>
+      </ol>
+      <div class=&quot;raw&quot; style=&quot;max-height:none;margin:10px 0;&quot;>export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const target = url.searchParams.get('url');
+    if (!target) {
+      return new Response('Missing url param', { status: 400 });
+    }
+    try {
+      const resp = await fetch(target, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+      });
+      const body = await resp.arrayBuffer();
+      return new Response(body, {
+        status: resp.status,
+        headers: {
+          'Content-Type': resp.headers.get('Content-Type') || 'text/html; charset=utf-8',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    } catch (e) {
+      return new Response('Fetch failed: ' + e.message, { status: 502 });
+    }
+  }
+}</div>
+      <ol start=&quot;5&quot; style=&quot;padding-inline-start:20px;margin:0;&quot;>
+        <li>روی «Deploy» یا «Save and deploy» بزن.</li>
+        <li>آدرسی که بالای صفحه‌ی worker نشون داده می‌شه (چیزی شبیه <span style=&quot;direction:ltr;display:inline-block;&quot;>https://myproxy.YOURNAME.workers.dev</span>) رو کپی کن و توی فیلد «آدرس Worker اختصاصی خودت» بالای همین صفحه بچسبون.</li>
+      </ol>
+      <p style=&quot;color:var(--muted);margin-top:10px;&quot;>
+        از این به بعد این آدرس ذخیره می‌مونه و همیشه اول همون امتحان می‌شه — چون این Worker مال خودته، هیچ‌کس دیگه‌ای نمی‌تونه کندش کنه یا محدودش کنه، و همیشه در دسترسه.
+      </p>
+    </div>
+  </details>
+</div>
+
+<script>
+const urlInput = document.getElementById('urlInput');
+const customProxyInput = document.getElementById('customProxyInput');
+const goBtn = document.getElementById('goBtn');
+const statusEl = document.getElementById('status');
+const listEl = document.getElementById('linksList');
+const emptyMsg = document.getElementById('emptyMsg');
+const filterInput = document.getElementById('filterInput');
+const rawHtmlEl = document.getElementById('rawHtml');
+
+// آدرس پراکسی اختصاصی رو از دفعه‌ی قبل بازیابی کن
+try{
+  const saved = localStorage.getItem('customProxyUrl');
+  if(saved) customProxyInput.value = saved;
+}catch(e){ /* localStorage در دسترس نیست، مشکلی نیست */ }
+
+customProxyInput.addEventListener('change', () => {
+  try{ localStorage.setItem('customProxyUrl', customProxyInput.value.trim()); }catch(e){}
+});
+
+let allLinks = [];
+
+// نشونه‌هایی که معمولا لینک/دکمه دانلود رو مشخص می‌کنن
+const DOWNLOAD_HINTS = [
+  'download', 'دانلود', '.zip', '.rar', '.7z', '.mp4', '.mkv',
+  '.avi', '.mov', '.exe', '.apk', '.iso', '.pdf', 'dl.', '/dl/'
+];
+
+function looksLikeDownload(href, text){
+  const h = (href || '').toLowerCase();
+  const t = (text || '').toLowerCase();
+  return DOWNLOAD_HINTS.some(hint => h.includes(hint) || t.includes(hint));
+}
+
+async function fetchViaProxies(targetUrl, customProxy, onAttempt){
+  const proxies = [];
+
+  if(customProxy){
+    let base = customProxy.trim().replace(/\/+$/, '');
+    // اول از طریق r.jina.ai (که صفحه رو با جاوااسکریپت رندر می‌کنه) ولی با Worker خودت به‌عنوان واسط پایدار
+    proxies.push({
+      name: 'پراکسی اختصاصی شما (رندر شده)',
+      build: u => `${base}/?url=${encodeURIComponent('https://r.jina.ai/' + u)}`,
+      raw:true,
+      slow:true
+    });
+    // اگه رندرشده جواب نداد، همون Worker رو برای گرفتن HTML خام هم امتحان کن
+    proxies.push({
+      name: 'پراکسی اختصاصی شما (خام)',
+      build: u => `${base}/?url=${encodeURIComponent(u)}`,
+      raw:false
+    });
+  }
+
+  // پراکسی‌های عمومی فقط به‌عنوان پشتیبان، در صورت نبود یا خرابی پراکسی اختصاصی
+  proxies.push(
+    { name:'مستقیم (بدون پراکسی)', build: u => u, raw:false },
+    { name:'allorigins', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, raw:false },
+    { name:'corsproxy.io', build: u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`, raw:false },
+    { name:'codetabs', build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, raw:false },
+    { name:'thingproxy', build: u => `https://thingproxy.freeboard.io/fetch/${u}`, raw:false },
+    { name:'r.jina.ai (فقط متن ساده)', build: u => `https://r.jina.ai/${u}`, raw:true, slow:true },
+    { name:'isomorphic-git cors proxy', build: u => `https://cors.isomorphic-git.org/${u}`, raw:false }
+  );
+
+  const errors = [];
+  let bestEmpty = null; // اگه هیچ روشی لینک پیدا نکرد، حداقل آخرین صفحه‌ی دریافتی رو نگه می‌داریم
+
+  for(const proxy of proxies){
+    onAttempt &amp;&amp; onAttempt(proxy.name);
+    try{
+      const controller = new AbortController();
+      const timeoutMs = proxy.slow ? 35000 : 15000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch(proxy.build(targetUrl), { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if(!res.ok){
+        errors.push(`${proxy.name}: HTTP ${res.status}`);
+        continue;
+      }
+      const txt = await res.text();
+      if(!txt || txt.length <= 50){
+        errors.push(`${proxy.name}: پاسخ خالی یا خیلی کوتاه بود`);
+        continue;
+      }
+      const links = proxy.raw ? extractLinksFromPlainText(txt, targetUrl) : extractLinks(txt, targetUrl);
+      if(links.length > 0){
+        return { html: txt, links, via: proxy.name };
+      }
+      // صفحه دریافت شد ولی لینکی توش نبود؛ به‌عنوان پشتیبان نگه دار و روش بعدی رو امتحان کن
+      if(!bestEmpty) bestEmpty = { html: txt, links: [], via: proxy.name };
+      errors.push(`${proxy.name}: صفحه گرفته شد ولی لینکی پیدا نشد`);
+    }catch(e){
+      errors.push(`${proxy.name}: ${e.name === 'AbortError' ? 'تایم‌اوت' : e.message}`);
+    }
+  }
+
+  if(bestEmpty){ bestEmpty.errors = errors; return bestEmpty; }
+  throw new Error('هیچ‌کدوم از روش‌ها جواب ندادن:\n' + errors.join('\n'));
+}
+
+function extractFilename(href){
+  try{
+    const u = new URL(href);
+    const segments = u.pathname.split('/').filter(Boolean);
+    if(segments.length === 0) return '';
+    const last = decodeURIComponent(segments[segments.length - 1]);
+    // فقط وقتی معنادار به‌نظر می‌رسه نشونش بده (مثلا اسم فایل با پسوند یا حاوی اطلاعات)
+    if(last.length > 3 &amp;&amp; /[.\-_]/.test(last)) return last;
+    return '';
+  }catch(e){ return ''; }
+}
+
+function extractLinksFromPlainText(text, baseUrl){
+  // r.jina.ai لینک‌ها رو معمولا به شکل مارک‌داون [متن](آدرس) برمی‌گردونه
+  const results = [];
+  const headingRe = /^#{1,6}\s+(.*)/;
+  // &quot;فصل&quot; + عدد یا کلمه ترتیبی فارسی (اول، دوم، سوم، ...) — با یا بدون «دوبله/زیرنویس فارسی» بعدش
+  const seasonRe = /(فصل|season)\s*(اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|[\d۰-۹]+)/i;
+  const qualityRe = /(WEB-?DL|BluRay|HDTV|WEBRip|HDRip|CAM)\s*[\d۰-۹]{3,4}p/i;
+  const mdLinkGlobalRe = /\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
+  const mdLinkCheckRe = /\[[^\]]*\]\(https?:\/\/[^\s)]+\)/;
+
+  let currentSeason = '';
+  let currentQuality = '';
+  const lines = text.split(/\r?\n/);
+
+  for(const line of lines){
+    const trimmed = line.trim();
+    if(!trimmed) continue;
+
+    const hMatch = trimmed.match(headingRe);
+    const headingText = hMatch ? hMatch[1].trim() : trimmed;
+
+    if(!mdLinkCheckRe.test(trimmed)){
+      const qMatch = headingText.match(qualityRe);
+      if(qMatch){
+        currentQuality = qMatch[0];
+        continue;
+      }
+      if(seasonRe.test(headingText) &amp;&amp; headingText.length < 60){
+        currentSeason = headingText.replace(/^\*+|\*+$/g, '').trim();
+        currentQuality = ''; // شروع گروه جدید، کیفیت قبلی دیگه معتبر نیست
+        continue;
+      }
+      if(hMatch) continue; // بقیه‌ی هدینگ‌ها رو نادیده بگیر
+    }
+
+    mdLinkGlobalRe.lastIndex = 0;
+    let m;
+    while((m = mdLinkGlobalRe.exec(line)) !== null){
+      const rawText = m[1].trim() || '(بدون متن)';
+      const href = m[2];
+      const heading = [currentSeason, currentQuality].filter(Boolean).join(' — ');
+      results.push({
+        text: heading ? `${heading} — ${rawText}` : rawText,
+        rawText,
+        href,
+        filename: extractFilename(href)
+      });
+    }
+  }
+
+  // لینک‌های خامی که توی متن افتادن رو هم بگیر
+  const bareUrlRe = /(https?:\/\/[^\s)&quot;'<>]+)/g;
+  let m2;
+  while((m2 = bareUrlRe.exec(text)) !== null){
+    if(!results.some(r => r.href === m2[1])){
+      results.push({ text: '(لینک خام)', rawText:'(لینک خام)', href: m2[1], filename: extractFilename(m2[1]) });
+    }
+  }
+  const downloadLike = results.filter(item => looksLikeDownload(item.href, item.rawText));
+  return downloadLike.length > 0 ? downloadLike : results;
+}
+
+function extractLinks(html, baseUrl){
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // اگه بخشی با id=&quot;downloads&quot; وجود داشت، اول از اونجا بگرد
+  let scope = doc.body || doc;
+  const anchorTarget = doc.getElementById('downloads');
+  if(anchorTarget) scope = anchorTarget;
+
+  const headingTagRe = /^h[1-6]$/i;
+  const seasonRe = /(فصل|season)\s*(اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|[\d۰-۹]+)/i;
+  const qualityRe = /(WEB-?DL|BluRay|HDTV|WEBRip|HDRip|CAM)\s*[\d۰-۹]{3,4}p/i;
+  let currentSeason = '';
+  let currentQuality = '';
+  const results = [];
+
+  function walk(node){
+    if(node.nodeType !== 1) return; // فقط element node
+    const tag = node.tagName.toLowerCase();
+    const isLeaf = node.children.length === 0;
+    const ownText = (node.textContent || '').trim();
+
+    if(headingTagRe.test(tag) &amp;&amp; ownText){
+      if(seasonRe.test(ownText)){ currentSeason = ownText; currentQuality = ''; }
+      else currentSeason = ownText;
+    } else if(isLeaf &amp;&amp; ownText.length < 60){
+      const qMatch = ownText.match(qualityRe);
+      if(qMatch){
+        currentQuality = qMatch[0];
+      } else if(seasonRe.test(ownText)){
+        currentSeason = ownText;
+        currentQuality = '';
+      }
+    }
+
+    if(tag === 'a' &amp;&amp; node.hasAttribute('href')){
+      const rawText = node.textContent.trim() || '(بدون متن)';
+      let href;
+      try{ href = new URL(node.getAttribute('href'), baseUrl).href; }catch(e){ href = node.getAttribute('href'); }
+      if(href &amp;&amp; !href.startsWith('javascript:')){
+        const heading = [currentSeason, currentQuality].filter(Boolean).join(' — ');
+        results.push({
+          text: heading ? `${heading} — ${rawText}` : rawText,
+          rawText,
+          href,
+          filename: extractFilename(href)
+        });
+      }
+    }
+    for(const child of Array.from(node.children)) walk(child);
+  }
+  walk(scope);
+
+  // اگه در بخش downloads چیزی پیدا نشد، کل صفحه رو با فیلتر شبه‌دانلود بگرد
+  const downloadLike = results.filter(item => looksLikeDownload(item.href, item.rawText));
+  if(downloadLike.length > 0) return downloadLike;
+  if(anchorTarget) return results; // همه لینک‌های داخل بخش downloads
+  return results.filter(item => looksLikeDownload(item.href, item.rawText));
+}
+
+function renderList(){
+  const q = filterInput.value.trim().toLowerCase();
+  const filtered = q
+    ? allLinks.filter(l => l.text.toLowerCase().includes(q) || l.href.toLowerCase().includes(q))
+    : allLinks;
+
+  listEl.innerHTML = '';
+  emptyMsg.style.display = filtered.length ? 'none' : 'block';
+
+  filtered.forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.className = 'link-item';
+    li.innerHTML = `
+      <div class=&quot;info&quot;>
+        <div class=&quot;name&quot;>${escapeHtml(item.text)}</div>
+        ${item.filename ? `<div class=&quot;filename&quot;>📄 ${escapeHtml(item.filename)}</div>` : ''}
+        <span class=&quot;url&quot;>${escapeHtml(item.href)}</span>
+      </div>
+      <div class=&quot;actions&quot;>
+        <button type=&quot;button&quot; class=&quot;copy-btn&quot; data-href=&quot;${escapeAttr(item.href)}&quot;>کپی</button>
+        <a class=&quot;btn&quot; href=&quot;${escapeAttr(item.href)}&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>باز کردن</a>
+      </div>
+    `;
+    listEl.appendChild(li);
+  });
+
+  listEl.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const href = btn.getAttribute('data-href');
+      try{
+        await navigator.clipboard.writeText(href);
+      }catch(e){
+        // fallback for browsers/contexts without Clipboard API access
+        const ta = document.createElement('textarea');
+        ta.value = href;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try{ document.execCommand('copy'); }catch(e2){}
+        document.body.removeChild(ta);
+      }
+      const original = btn.textContent;
+      btn.textContent = 'کپی شد';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1500);
+    });
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&amp;<>&quot;']/g, c => ({'&amp;':'&amp;amp;','<':'&amp;lt;','>':'&amp;gt;','&quot;':'&amp;quot;',&quot;'&quot;:'&amp;#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+
+goBtn.addEventListener('click', async () => {
+  const targetUrl = urlInput.value.trim();
+  const customProxy = customProxyInput.value.trim();
+  if(!targetUrl){ return; }
+
+  try{ localStorage.setItem('customProxyUrl', customProxy); }catch(e){}
+
+  goBtn.disabled = true;
+  statusEl.className = 'status';
+  statusEl.textContent = 'در حال تلاش...';
+  listEl.innerHTML = '';
+  emptyMsg.style.display = 'none';
+  rawHtmlEl.textContent = '';
+
+  try{
+    const result = await fetchViaProxies(targetUrl, customProxy, (name) => {
+      statusEl.textContent = `در حال امتحان روش: ${name} ...`;
+    });
+    rawHtmlEl.textContent = result.html.slice(0, 5000) + (result.html.length > 5000 ? '\n...(بریده شد)...' : '');
+    allLinks = result.links;
+    renderList();
+    statusEl.className = 'status ok';
+    if(allLinks.length){
+      statusEl.textContent = `${allLinks.length} لینک پیدا شد (از طریق: ${result.via}).`;
+    } else {
+      statusEl.style.whiteSpace = 'pre-wrap';
+      statusEl.textContent = `صفحه از طریق «${result.via}» دریافت شد ولی هیچ روشی لینک دانلودی پیدا نکرد.\n\nجزئیات هر روش:\n` + (result.errors || []).join('\n');
+    }
+  }catch(err){
+    statusEl.className = 'status err';
+    statusEl.style.whiteSpace = 'pre-wrap';
+    statusEl.textContent = 'همه‌ی روش‌ها شکست خوردن:\n' + err.message;
+  }finally{
+    goBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
+" style="width:100%; height:80vh; border:none; display:block; border-radius:16px;"></iframe>
+      </div>
     </div>
 
     <div id="section-docs" class="hidden">
@@ -1211,6 +1737,7 @@ function initTabs() {
   });
 
   $('main-tab-content').addEventListener('click', () => switchMainTab('content'));
+  $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
 }
@@ -1219,9 +1746,11 @@ let docsLoaded = false;
 let statsLoaded = false;
 function switchMainTab(which) {
   $('main-tab-content').classList.toggle('active', which === 'content');
+  $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('main-tab-docs').classList.toggle('active', which === 'docs');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('section-content').classList.toggle('hidden', which !== 'content');
+  $('section-linkfinder').classList.toggle('hidden', which !== 'linkfinder');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
   $('section-stats').classList.toggle('hidden', which !== 'stats');
   if (which === 'docs' && !docsLoaded) {
