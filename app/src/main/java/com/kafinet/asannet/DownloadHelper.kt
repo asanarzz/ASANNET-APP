@@ -167,7 +167,7 @@ object DownloadHelper {
                 connection.readTimeout = 15000
                 connection.connect()
 
-                val shareDir = java.io.File(context.cacheDir, "open_external")
+                val shareDir = java.io.File(context.cacheDir, "share")
                 if (!shareDir.exists()) shareDir.mkdirs()
                 val safeName = title.ifBlank { "kafinet_file" }.replace(Regex("[^A-Za-z0-9آ-ی_\\- ]"), "_")
                 val file = java.io.File(shareDir, safeName + guessExtension(url))
@@ -198,7 +198,7 @@ object DownloadHelper {
             } catch (e: Exception) {
                 if (context is Activity) {
                     context.runOnUiThread {
-                        Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "دانلود یا باز کردن فایل ناموفق بود", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
