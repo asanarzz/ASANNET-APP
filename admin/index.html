@@ -876,12 +876,21 @@ async function handleAdd() {
 
 async function handleBulkAdd(title, description) {
   const raw = $('in-url-bulk').value;
-  const lines = raw.split('\n').map((s) => s.trim()).filter(Boolean);
-  const links = [...new Set(lines)]; // حذف لینک‌های تکراری
+  // لینک‌ها رو با اینتر، کاما (فارسی/انگلیسی) یا فاصله از هم جدا کن — هرکدوم که کاربر استفاده کرده باشه
+  const candidates = raw.split(/[\s,،]+/).map((s) => s.trim()).filter(Boolean);
+  const invalid = candidates.filter((s) => !/^https?:\/\//i.test(s));
+  const valid = candidates.filter((s) => /^https?:\/\//i.test(s));
+  const links = [...new Set(valid)]; // حذف لینک‌های تکراری
 
-  if (links.length === 0) { toast('حداقل یه لینک وارد کن', 'error'); return; }
+  if (links.length === 0) {
+    toast('هیچ لینک معتبری (که با http شروع بشه) پیدا نشد', 'error');
+    return;
+  }
+  if (invalid.length > 0) {
+    toast(`${invalid.length} مورد چون با http شروع نمی‌شد نادیده گرفته شد`, 'error');
+  }
   if (links.length > MAX_BULK_LINKS) {
-    toast(`حداکثر ${MAX_BULK_LINKS} لینک هم‌زمان مجازه (الان ${links.length} تا نوشتی)`, 'error');
+    toast(`حداکثر ${MAX_BULK_LINKS} لینک هم‌زمان مجازه (الان ${links.length} تا معتبر پیدا شد)`, 'error');
     return;
   }
 
