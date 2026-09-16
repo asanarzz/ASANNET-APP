@@ -73,6 +73,12 @@
   .type-tab{padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; color:var(--muted);}
   .type-tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
 
+  .link-row{display:flex; gap:6px; margin-top:8px; align-items:center;}
+  .link-row input{margin-top:0;}
+  .link-row input.link-label{flex:0 0 34%;}
+  .link-row input.link-url{flex:1;}
+  .link-row .btn-remove-link{flex:0 0 auto; padding:9px 12px; border-radius:10px; border:1px solid var(--danger); color:var(--danger); background:#fff; cursor:pointer; font-size:16px; line-height:1;}
+
   .source-tabs{display:flex; gap:8px; margin-top:8px;}
   .source-tab{flex:1; text-align:center; padding:9px; border-radius:10px; border:1px solid var(--border); cursor:pointer; font-size:13px; color:var(--muted); background:#fff;}
   .source-tab.active{border-color:var(--primary); color:var(--primary); background:#EEF0FF; font-weight:600;}
@@ -242,6 +248,25 @@
       <p class="muted" id="link-hint-single">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
       <p class="muted hidden" id="link-hint-bulk">هر خط = یه لینک. به ازای هر لینک یه آیتم جدا با همین عنوان/توضیح/بخش ساخته می‌شه (اگه چندتا لینک باشه، شماره هم به عنوان اضافه می‌شه، مثلاً «عنوان ۱»، «عنوان ۲»).</p>
 
+      <div id="video-kind-box" class="hidden" style="margin-top:14px;">
+        <label>نوع</label>
+        <div class="type-tabs" id="video-kind-tabs">
+          <div class="type-tab active" data-kind="movie">فیلم</div>
+          <div class="type-tab" data-kind="series">سریال</div>
+        </div>
+        <p class="muted">این مشخص می‌کنه تو صفحه‌ی «فیلم» این مورد زیر کدوم ردیف (فیلم‌ها یا سریال‌ها) نشون داده بشه.</p>
+      </div>
+
+      <div id="links-box" class="hidden" style="margin-top:14px;">
+        <label>لینک‌های دانلود</label>
+        <p class="muted">
+          برای فیلم: هر کیفیت (۴۸۰p، ۷۲۰p، ۱۰۸۰p و...) یه ردیف. برای سریال: هر قسمت یه ردیف
+          (مثلاً «قسمت ۱»، «قسمت ۲»). تا ۵۰۰ ردیف قابل اضافه کردنه.
+        </p>
+        <div id="links-list"></div>
+        <button type="button" class="btn-outline btn-full" id="btn-add-link" style="margin-top:8px;">+ افزودن لینک</button>
+      </div>
+
       <div class="muted" id="banner-size-hint" style="margin-top:6px; display:none;">
         اندازه‌ی پیشنهادی تصویر برای بنر صفحه‌ی اصلی: ۱۶۰۰ × ۱۲۰۰ پیکسل (نسبت ۴ به ۳)
       </div>
@@ -321,6 +346,55 @@ let cfg = null;          // {owner, repo, branch, token}
 let contentSha = null;   // sha of content.json for updates
 let contentItems = [];   // parsed array
 let selectedType = 'link';
+let selectedVideoKind = 'movie';
+
+function updateVideoBoxesVisibility() {
+  const isVideo = selectedType === 'video';
+  const kindBox = document.getElementById('video-kind-box');
+  const linksBox = document.getElementById('links-box');
+  if (kindBox) kindBox.classList.toggle('hidden', !isVideo);
+  if (linksBox) linksBox.classList.toggle('hidden', !isVideo);
+}
+
+function makeLinkRow(label, url) {
+  const row = document.createElement('div');
+  row.className = 'link-row';
+  row.innerHTML = `
+    <input type="text" class="link-label" placeholder="برچسب (مثلاً 720p یا قسمت 1)">
+    <input type="url" class="link-url" placeholder="https://...">
+    <button type="button" class="btn-remove-link" title="حذف این ردیف">×</button>`;
+  row.querySelector('.link-label').value = label || '';
+  row.querySelector('.link-url').value = url || '';
+  row.querySelector('.btn-remove-link').addEventListener('click', () => {
+    row.remove();
+    if (!document.getElementById('links-list').children.length) addLinkRow();
+  });
+  return row;
+}
+
+function addLinkRow(label, url) {
+  const list = document.getElementById('links-list');
+  if (list.children.length >= 500) {
+    toast('حداکثر ۵۰۰ لینک قابل اضافه کردنه', 'error');
+    return;
+  }
+  list.appendChild(makeLinkRow(label, url));
+}
+
+function clearLinkRows() {
+  document.getElementById('links-list').innerHTML = '';
+}
+
+function collectLinks() {
+  const rows = document.querySelectorAll('#links-list .link-row');
+  const result = [];
+  rows.forEach((row) => {
+    const url = row.querySelector('.link-url').value.trim();
+    const label = row.querySelector('.link-label').value.trim();
+    if (url) result.push({ label, url });
+  });
+  return result;
+}
 let selectedFiles = []; // آرایه‌ی فایل‌های انتخاب‌شده (حداکثر ۵۰ تا)
 let editingId = null;
 let editingExistingImages = []; // عکس‌های قبلی موقع ویرایش، تا با فایل‌های جدید جمع بشن
@@ -719,7 +793,7 @@ function renderList() {
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
-        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}</div>
+        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
@@ -773,7 +847,7 @@ async function handleAdd() {
 
   if (!title) { toast('عنوان را وارد کن', 'error'); return; }
 
-  if (bulkLinkMode && !editingId) {
+  if (bulkLinkMode && !editingId && selectedType !== 'video') {
     await handleBulkAdd(title, description);
     return;
   }
@@ -813,13 +887,17 @@ async function handleAdd() {
 
     const combinedImages = editingId ? editingExistingImages.concat(newImages) : newImages;
 
-    if (!url && combinedImages.length === 0) {
+    const linksValue = selectedType === 'video' ? collectLinks() : [];
+
+    if (!url && combinedImages.length === 0 && linksValue.length === 0) {
       toast('حداقل یه لینک یا یه فایل وارد کن', 'error');
       btn.disabled = false;
       return;
     }
 
-    const sectionValue = $('in-section').value.trim();
+    const sectionValue = selectedType === 'video'
+      ? (selectedVideoKind === 'series' ? 'سریال' : '')
+      : $('in-section').value.trim();
 
     if (editingId) {
       const id = editingId;
@@ -832,6 +910,7 @@ async function handleAdd() {
       };
       if (sectionValue) updatedItem.section = sectionValue;
       if (combinedImages.length) updatedItem.images = combinedImages;
+      if (linksValue.length) updatedItem.links = linksValue;
 
       contentItems = contentItems.map((i) => (i.id === id ? updatedItem : i));
 
@@ -856,6 +935,7 @@ async function handleAdd() {
     };
     if (sectionValue) newItem.section = sectionValue;
     if (combinedImages.length) newItem.images = combinedImages;
+    if (linksValue.length) newItem.links = linksValue;
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -931,46 +1011,6 @@ async function handleBulkAdd(title, description) {
   }
 }
 
-function startEdit(id) {
-  const item = contentItems.find((i) => i.id === id);
-  if (!item) return;
-
-  editingId = id;
-
-  document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
-  const typeTab = document.querySelector(`.type-tab[data-type="${item.type}"]`);
-  if (typeTab) typeTab.classList.add('active');
-  selectedType = item.type;
-
-  editingExistingImages = Array.isArray(item.images) ? item.images.slice() : [];
-  selectedFiles = [];
-  $('in-file').value = '';
-  $('drop-label').textContent = editingExistingImages.length
-    ? `این مورد الان ${editingExistingImages.length} عکس/فایل داره — فایل جدید انتخاب کن تا اضافه بشه`
-    : 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
-
-  $('in-title').value = item.title || '';
-  $('in-desc').value = item.description || '';
-  $('in-section').value = item.section || '';
-  $('in-url').value = item.url || '';
-  $('btn-toggle-bulk-link').classList.add('hidden');
-
-  $('btn-add').textContent = 'ذخیره‌ی تغییرات';
-  $('form-mode-title').textContent = 'ویرایش محتوا';
-  $('btn-cancel-edit').classList.remove('hidden');
-
-  $('section-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function cancelEdit() {
-  editingId = null;
-  resetForm();
-  $('btn-add').textContent = 'افزودن به برنامه';
-  $('form-mode-title').textContent = 'افزودن محتوای جدید';
-  $('btn-cancel-edit').classList.add('hidden');
-  $('btn-toggle-bulk-link').classList.remove('hidden');
-}
-
 // یه تکه متن (پیست‌شده) رو تو تکست‌باکس چندلینکی طوری جا می‌ذاره که همیشه با خط جدید
 // از متن قبل و بعدش جدا باشه — چه پیست با رویداد استاندارد paste باشه، چه با راه‌های دیگه
 function insertBulkLinkChunk(ta, chunk, beforeOverride, afterOverride) {
@@ -1001,6 +1041,59 @@ function toggleBulkLinkMode() {
     : '+ افزودن چند لینک با هم';
 }
 
+function startEdit(id) {
+  const item = contentItems.find((i) => i.id === id);
+  if (!item) return;
+
+  editingId = id;
+
+  document.querySelectorAll('#type-tabs .type-tab').forEach((t) => t.classList.remove('active'));
+  const typeTab = document.querySelector(`#type-tabs .type-tab[data-type="${item.type}"]`);
+  if (typeTab) typeTab.classList.add('active');
+  selectedType = item.type;
+
+  document.querySelectorAll('#video-kind-tabs .type-tab').forEach((t) => t.classList.remove('active'));
+  selectedVideoKind = item.section === 'سریال' ? 'series' : 'movie';
+  const kindTab = document.querySelector(`#video-kind-tabs .type-tab[data-kind="${selectedVideoKind}"]`);
+  if (kindTab) kindTab.classList.add('active');
+
+  clearLinkRows();
+  if (Array.isArray(item.links) && item.links.length) {
+    item.links.forEach((l) => addLinkRow(l.label, l.url));
+  } else {
+    addLinkRow();
+  }
+  updateVideoBoxesVisibility();
+
+  editingExistingImages = Array.isArray(item.images) ? item.images.slice() : [];
+  selectedFiles = [];
+  $('in-file').value = '';
+  $('drop-label').textContent = editingExistingImages.length
+    ? `این مورد الان ${editingExistingImages.length} عکس/فایل داره — فایل جدید انتخاب کن تا اضافه بشه`
+    : 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
+
+  $('in-title').value = item.title || '';
+  $('in-desc').value = item.description || '';
+  $('in-section').value = item.section || '';
+  $('in-url').value = item.url || '';
+  $('btn-toggle-bulk-link').classList.add('hidden');
+
+  $('btn-add').textContent = 'ذخیره‌ی تغییرات';
+  $('form-mode-title').textContent = 'ویرایش محتوا';
+  $('btn-cancel-edit').classList.remove('hidden');
+
+  $('section-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEdit() {
+  editingId = null;
+  resetForm();
+  $('btn-add').textContent = 'افزودن به برنامه';
+  $('form-mode-title').textContent = 'افزودن محتوای جدید';
+  $('btn-cancel-edit').classList.add('hidden');
+  if (selectedType !== 'video') $('btn-toggle-bulk-link').classList.remove('hidden');
+}
+
 function resetForm() {
   $('in-title').value = '';
   $('in-desc').value = '';
@@ -1012,6 +1105,14 @@ function resetForm() {
   editingExistingImages = [];
   $('in-file').value = '';
   $('drop-label').textContent = 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
+
+  clearLinkRows();
+  addLinkRow();
+  selectedVideoKind = 'movie';
+  document.querySelectorAll('#video-kind-tabs .type-tab').forEach((t) => t.classList.remove('active'));
+  const movieTab = document.querySelector('#video-kind-tabs .type-tab[data-kind="movie"]');
+  if (movieTab) movieTab.classList.add('active');
+  updateVideoBoxesVisibility();
 }
 
 function addFilesToSelection(fileList) {
@@ -1031,15 +1132,35 @@ function addFilesToSelection(fileList) {
 
 // ---------- UI wiring ----------
 function initTabs() {
-  document.querySelectorAll('.type-tab').forEach((tab) => {
+  document.querySelectorAll('#type-tabs .type-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('#type-tabs .type-tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       selectedType = tab.getAttribute('data-type');
       const hint = document.getElementById('banner-size-hint');
       if (hint) hint.style.display = (selectedType === 'home_banner') ? 'block' : 'none';
+      updateVideoBoxesVisibility();
+      const bulkBtn = $('btn-toggle-bulk-link');
+      if (selectedType === 'video') {
+        if (bulkLinkMode) toggleBulkLinkMode();
+        bulkBtn.classList.add('hidden');
+      } else {
+        bulkBtn.classList.remove('hidden');
+      }
     });
   });
+
+  document.querySelectorAll('#video-kind-tabs .type-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#video-kind-tabs .type-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      selectedVideoKind = tab.getAttribute('data-kind');
+    });
+  });
+
+  const addLinkBtn = document.getElementById('btn-add-link');
+  if (addLinkBtn) addLinkBtn.addEventListener('click', () => addLinkRow());
+  if (!document.getElementById('links-list').children.length) addLinkRow();
 
   const dropZone = $('drop-zone');
   const fileInput = $('in-file');
@@ -1075,7 +1196,6 @@ function initTabs() {
     if (insertStart < 0) return;
     const before = ta.value.slice(0, insertStart);
     const after = ta.value.slice(insertEnd);
-    // متنی که خودِ مرورگر همین الان اینجا گذاشته رو برمی‌داریم و با جداکننده جایگزین می‌کنیم
     insertBulkLinkChunk(ta, e.data, before, after);
   });
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
