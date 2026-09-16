@@ -971,6 +971,24 @@ function cancelEdit() {
   $('btn-toggle-bulk-link').classList.remove('hidden');
 }
 
+// یه تکه متن (پیست‌شده) رو تو تکست‌باکس چندلینکی طوری جا می‌ذاره که همیشه با خط جدید
+// از متن قبل و بعدش جدا باشه — چه پیست با رویداد استاندارد paste باشه، چه با راه‌های دیگه
+function insertBulkLinkChunk(ta, chunk, beforeOverride, afterOverride) {
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const before = beforeOverride !== undefined ? beforeOverride : ta.value.slice(0, start);
+  const after = afterOverride !== undefined ? afterOverride : ta.value.slice(end);
+  const trimmedChunk = chunk.trim();
+  if (!trimmedChunk) return;
+  // اگه قبل از محل پیست چیزی هست که به خط جدید ختم نشده، یه خط جدید قبلش اضافه کن
+  const prefix = (before && !before.endsWith('\n')) ? '\n' : '';
+  // بعد از پیست هم همیشه یه خط جدید بذار، تا پیست بعدی بهش نچسبه
+  const inserted = prefix + trimmedChunk + '\n';
+  ta.value = before + inserted + after;
+  const cursorPos = (before + inserted).length;
+  ta.selectionStart = ta.selectionEnd = cursorPos;
+}
+
 function toggleBulkLinkMode() {
   if (editingId) return; // موقع ویرایش یه آیتم، افزودن دسته‌ای معنی نداره
   bulkLinkMode = !bulkLinkMode;
@@ -1042,19 +1060,23 @@ function initTabs() {
     const pasted = clip ? clip.getData('text') : '';
     if (!pasted) return; // چیزی برای پیست نبود، بذار رفتار پیش‌فرض انجام بشه
     e.preventDefault();
+    insertBulkLinkChunk($('in-url-bulk'), pasted);
+  });
+  // بعضی کیبوردهای اندرویدی (مثلاً نوار «کلیپ‌بورد» گوشی) موقع پیست، رویداد استاندارد
+  // paste رو صدا نمی‌زنن و مستقیم متن رو داخل فیلد می‌ذارن؛ این fallback همون حالت رو
+  // از روی رویداد input (که همیشه فایر می‌شه) تشخیص می‌ده
+  $('in-url-bulk').addEventListener('input', (e) => {
+    const isPasteLike = e.inputType === 'insertFromPaste'
+      || (e.inputType === 'insertText' && e.data && e.data.trim().length > 15);
+    if (!isPasteLike || !e.data) return;
     const ta = e.target;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const before = ta.value.slice(0, start);
-    const after = ta.value.slice(end);
-    const trimmedPaste = pasted.trim();
-    // اگه قبل از محل پیست چیزی هست که به خط جدید ختم نشده، یه خط جدید قبلش اضافه کن
-    const prefix = (before && !before.endsWith('\n')) ? '\n' : '';
-    // بعد از پیست هم همیشه یه خط جدید بذار، تا پیست بعدی بهش نچسبه
-    const inserted = prefix + trimmedPaste + '\n';
-    ta.value = before + inserted + after;
-    const cursorPos = (before + inserted).length;
-    ta.selectionStart = ta.selectionEnd = cursorPos;
+    const insertEnd = ta.selectionStart; // مکان‌نما همین الان درست بعد از متن واردشده‌ست
+    const insertStart = insertEnd - e.data.length;
+    if (insertStart < 0) return;
+    const before = ta.value.slice(0, insertStart);
+    const after = ta.value.slice(insertEnd);
+    // متنی که خودِ مرورگر همین الان اینجا گذاشته رو برمی‌داریم و با جداکننده جایگزین می‌کنیم
+    insertBulkLinkChunk(ta, e.data, before, after);
   });
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
