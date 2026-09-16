@@ -1037,6 +1037,25 @@ function initTabs() {
 
   $('btn-add').addEventListener('click', handleAdd);
   $('btn-toggle-bulk-link').addEventListener('click', toggleBulkLinkMode);
+  $('in-url-bulk').addEventListener('paste', (e) => {
+    const clip = e.clipboardData || window.clipboardData;
+    const pasted = clip ? clip.getData('text') : '';
+    if (!pasted) return; // چیزی برای پیست نبود، بذار رفتار پیش‌فرض انجام بشه
+    e.preventDefault();
+    const ta = e.target;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = ta.value.slice(0, start);
+    const after = ta.value.slice(end);
+    const trimmedPaste = pasted.trim();
+    // اگه قبل از محل پیست چیزی هست که به خط جدید ختم نشده، یه خط جدید قبلش اضافه کن
+    const prefix = (before && !before.endsWith('\n')) ? '\n' : '';
+    // بعد از پیست هم همیشه یه خط جدید بذار، تا پیست بعدی بهش نچسبه
+    const inserted = prefix + trimmedPaste + '\n';
+    ta.value = before + inserted + after;
+    const cursorPos = (before + inserted).length;
+    ta.selectionStart = ta.selectionEnd = cursorPos;
+  });
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
