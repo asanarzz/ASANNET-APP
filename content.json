@@ -782,5 +782,12 @@
     "title": "پنجشنبه 7",
     "description": "صفحه نخست روزنامه های کشور پنجشنبه 26 شهریور",
     "url": "https://static.jaaar.com/assets/images/pishkhan/1405/6/26/82aa4b0a.jpg"
+  },
+  {
+    "id": "item_1789676174787",
+    "type": "software",
+    "title": "بنر ساز قیمت",
+    "description": "با این برنامه تحت میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظه ای دریافت و بنر اونو دانلود کنید",
+    "url": "https://github.com/asanarzz/ASANNET-APP/blob/main/media/price-banner-2.html"
   }
 ]
