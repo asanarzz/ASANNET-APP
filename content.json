@@ -100,17 +100,6 @@
     "section": "بازی با طرح دلخواه شما"
   },
   {
-    "id": "item_1787694429932",
-    "type": "software",
-    "title": "بنر ساز قیمت",
-    "description": "با این برنامه تحت وب میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظ[...]",
-    "url": "https://github.com/asanarzz/ASANNET-APP/blob/main/media/price-banner-2.html",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693023870-0-price-banner-2.html",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693027027-1-asannett-banner-3-.png"
-    ]
-  },
-  {
     "id": "item_1787893325193",
     "type": "home_banner",
     "title": "بیمه زنان خانه‌دار تامین اجتماعی",
