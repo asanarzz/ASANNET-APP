@@ -105,7 +105,6 @@
     "title": "بنر ساز قیمت",
     "description": "با این برنامه تحت وب میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظ[...]",
     "url": "https://github.com/asanarzz/ASANNET-APP/blob/main/media/price-banner-2.html",
-    "section": "برنامه های تحت وب",
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693023870-0-price-banner-2.html",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788693027027-1-asannett-banner-3-.png"
@@ -131,8 +130,7 @@
     "type": "software",
     "title": "رضایتنامه آنلاین",
     "description": "رضایتنامه اردوهای مدرسه، ورزشی و غیره\nمناسب معلمان و مدیران و مربیان ورزشی",
-    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787951925587--.html",
-    "section": "برنامه های تحت وب"
+    "url": "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1787951925587--.html"
   },
   {
     "id": "item_1787952749805",
