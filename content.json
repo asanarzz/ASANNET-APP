@@ -178,21 +178,6 @@
     ]
   },
   {
-    "id": "item_1788726413510",
-    "type": "file",
-    "title": "تست",
-    "description": "تست",
-    "url": "https://eitaa.com/ASANNETT/3799",
-    "section": "تست",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726395173-0-price-banner-2.html",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726397550-1-1759565832759.jpg",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726400836-2-ir.m3u",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726402068-3-bomrani-pari.mp3",
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1788726411809-4-1983209798-.pdf"
-    ]
-  },
-  {
     "id": "item_1789162177105",
     "type": "video",
     "title": "The Electric State 2025",
