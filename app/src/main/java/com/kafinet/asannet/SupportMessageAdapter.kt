@@ -2,6 +2,7 @@ package com.kafinet.asannet
 
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
