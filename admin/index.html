@@ -195,8 +195,8 @@
 
     <div class="main-tabs">
       <div class="main-tab active" id="main-tab-content">افزودن محتوا</div>
-      <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
+      <div class="main-tab" id="main-tab-support">پیام‌ها</div>
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
     </div>
 
@@ -240,14 +240,9 @@
         تو لیست دسته نشون داده می‌شه.
       </p>
 
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <label style="margin:0;">لینک (اختیاری)</label>
-        <button type="button" class="link-btn" id="btn-toggle-bulk-link">+ افزودن چند لینک با هم</button>
-      </div>
+      <label>لینک (اختیاری)</label>
       <input type="url" id="in-url" placeholder="https://...">
-      <textarea id="in-url-bulk" class="hidden" placeholder="هر لینک رو تو یه خط جدا بنویس — حداکثر ۵۰۰ تا" style="min-height:140px;"></textarea>
-      <p class="muted" id="link-hint-single">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
-      <p class="muted hidden" id="link-hint-bulk">هر خط = یه لینک. به ازای هر لینک یه آیتم جدا با همین عنوان/توضیح/بخش ساخته می‌شه (اگه چندتا لینک باشه، شماره هم به عنوان اضافه می‌شه، مثلاً «عنوان ۱»، «عنوان ۲»).</p>
+      <p class="muted">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
 
       <div id="video-kind-box" class="hidden" style="margin-top:14px;">
         <label>نوع</label>
@@ -294,535 +289,34 @@
 
     </div>
 
-    <div id="section-linkfinder" class="hidden">
-      <div class="card" style="padding:0; overflow:hidden;">
-        <iframe id="linkfinder-frame" srcdoc="<!DOCTYPE html>
-<html lang=&quot;fa&quot; dir=&quot;rtl&quot;>
-<head>
-<meta charset=&quot;UTF-8&quot;>
-<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
-<title>استخراج لینک‌های دانلود</title>
-<style>
-  :root{
-    --bg:#0f1117;
-    --card:#171a23;
-    --border:#2a2e3a;
-    --accent:#5b8cff;
-    --accent2:#4ade80;
-    --text:#e6e8ee;
-    --muted:#9aa0ad;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:&quot;Vazirmatn&quot;,&quot;Tahoma&quot;,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    padding:24px 16px;
-    display:flex;
-    justify-content:center;
-  }
-  .wrap{width:100%;max-width:760px;}
-  h1{font-size:20px;margin-bottom:4px;}
-  p.desc{color:var(--muted);font-size:13px;margin-top:0;margin-bottom:20px;line-height:1.8;}
-  .row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-  input[type=text]{
-    flex:1;
-    min-width:200px;
-    padding:10px 12px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--text);
-    font-size:14px;
-    direction:ltr;
-    text-align:left;
-  }
-  button{
-    padding:10px 18px;
-    border-radius:10px;
-    border:none;
-    background:var(--accent);
-    color:#fff;
-    font-size:14px;
-    cursor:pointer;
-    font-family:inherit;
-  }
-  button:disabled{opacity:.6;cursor:default;}
-  button.secondary{background:var(--card);border:1px solid var(--border);color:var(--text);}
-  .status{font-size:13px;color:var(--muted);margin-bottom:16px;min-height:18px;}
-  .status.err{color:#f87171;}
-  .status.ok{color:var(--accent2);}
-  .filter{margin-bottom:14px;}
-  .filter input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;}
-  ul.links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
-  li.link-item{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:10px 12px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-  }
-  li.link-item .info{overflow:hidden;}
-  li.link-item .name{font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  li.link-item .filename{font-size:11px;color:var(--accent);margin-bottom:2px;direction:ltr;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  li.link-item .url{font-size:11px;color:var(--muted);direction:ltr;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
-  li.link-item a.btn{
-    flex-shrink:0;
-    background:var(--accent2);
-    color:#0f1117;
-    text-decoration:none;
-    padding:6px 12px;
-    border-radius:8px;
-    font-size:12px;
-    font-weight:bold;
-  }
-  li.link-item .actions{ display:flex; gap:6px; flex-shrink:0; }
-  li.link-item button.copy-btn{
-    flex-shrink:0;
-    background:transparent;
-    color:var(--accent2);
-    border:1px solid var(--accent2);
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:12px;
-    font-weight:bold;
-    cursor:pointer;
-    font-family:inherit;
-    transition:background .15s, color .15s;
-  }
-  li.link-item button.copy-btn.copied{
-    background:var(--accent2);
-    color:#0f1117;
-  }
-  .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0;}
-  details{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
-  summary{cursor:pointer;font-size:13px;color:var(--muted);}
-  .raw{margin-top:10px;max-height:200px;overflow:auto;font-size:11px;direction:ltr;text-align:left;color:var(--muted);white-space:pre-wrap;word-break:break-all;}
-</style>
-</head>
-<body>
-<div class=&quot;wrap&quot;>
-  <h1>استخراج لینک‌های دانلود</h1>
-  <p class=&quot;desc&quot;>
-    آدرس صفحه رو وارد کن و «استخراج» رو بزن. این صفحه سعی می‌کنه HTML اون آدرس رو (از طریق یک پراکسی عمومی، چون مرورگر مستقیم به خاطر CORS اجازه نمی‌ده) بخونه و لینک‌هایی که به دانلود شبیه‌ان رو لیست کنه.
-    اگه سایت مقصد جلوی خزیدن (scraping) رو گرفته باشه یا محتوا با جاوااسکریپت ساخته بشه، ممکنه نتیجه‌ای پیدا نشه.
-  </p>
-
-  <p class=&quot;desc&quot; style=&quot;background:#1c2333;border:1px solid var(--border);border-radius:10px;padding:10px 12px;&quot;>
-    ⚠️ پراکسی‌های عمومی زیر (allorigins، corsproxy و...) رایگان و از سرورهای شخص ثالث‌ان — گاهی کار می‌کنن گاهی نه، و هیچ تضمینی روشون نیست.
-    برای نتیجه‌ی همیشه پایدار، یک پراکسی اختصاصی رایگان روی Cloudflare Workers بساز (راهنما پایین صفحه) و آدرسش رو اینجا بذار؛ همیشه اول همون امتحان می‌شه.
-  </p>
-  <div class=&quot;row&quot;>
-    <input type=&quot;text&quot; id=&quot;customProxyInput&quot; value=&quot;https://myproxy.asanarz2020.workers.dev&quot; placeholder=&quot;آدرس Worker اختصاصی خودت (اختیاری) مثلا: https://your-worker.workers.dev&quot;>
-  </div>
-
-  <div class=&quot;row&quot;>
-    <input type=&quot;text&quot; id=&quot;urlInput&quot; value=&quot;https://www.bazargerd.top/series/from/#downloads&quot;>
-    <button id=&quot;goBtn&quot;>استخراج</button>
-  </div>
-
-  <div class=&quot;status&quot; id=&quot;status&quot;></div>
-
-  <div class=&quot;filter&quot;>
-    <input type=&quot;text&quot; id=&quot;filterInput&quot; placeholder=&quot;فیلتر بر اساس متن لینک یا کیفیت (مثلا 720p) ...&quot; oninput=&quot;renderList()&quot;>
-  </div>
-
-  <ul class=&quot;links&quot; id=&quot;linksList&quot;></ul>
-  <div class=&quot;empty&quot; id=&quot;emptyMsg&quot; style=&quot;display:none;&quot;>هنوز چیزی پیدا نشده.</div>
-
-  <details>
-    <summary>نمایش HTML خام دریافتی (برای دیباگ)</summary>
-    <div class=&quot;raw&quot; id=&quot;rawHtml&quot;></div>
-  </details>
-
-  <details open style=&quot;margin-top:14px;&quot;>
-    <summary>✅ راهنما: ساخت پراکسی اختصاصی رایگان و همیشه‌کار (چند دقیقه، بدون کارت بانکی)</summary>
-    <div style=&quot;font-size:13px;line-height:2;margin-top:10px;&quot;>
-      <ol style=&quot;padding-inline-start:20px;margin:0;&quot;>
-        <li>برو به <span style=&quot;direction:ltr;display:inline-block;&quot;>dash.cloudflare.com</span> و با ایمیل یه حساب رایگان بساز.</li>
-        <li>از منوی سمت چپ برو به «Workers &amp; Pages» و روی «Create» بزن، بعد «Create Worker» رو انتخاب کن.</li>
-        <li>یه اسم بهش بده (مثلا myproxy) و «Deploy» رو بزن.</li>
-        <li>بعد از دیپلوی، روی «Edit code» بزن و کل کد پیش‌فرض رو پاک کن، به‌جاش این کد رو بچسبون:</li>
-      </ol>
-      <div class=&quot;raw&quot; style=&quot;max-height:none;margin:10px 0;&quot;>export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const target = url.searchParams.get('url');
-    if (!target) {
-      return new Response('Missing url param', { status: 400 });
-    }
-    try {
-      const resp = await fetch(target, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-      });
-      const body = await resp.arrayBuffer();
-      return new Response(body, {
-        status: resp.status,
-        headers: {
-          'Content-Type': resp.headers.get('Content-Type') || 'text/html; charset=utf-8',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    } catch (e) {
-      return new Response('Fetch failed: ' + e.message, { status: 502 });
-    }
-  }
-}</div>
-      <ol start=&quot;5&quot; style=&quot;padding-inline-start:20px;margin:0;&quot;>
-        <li>روی «Deploy» یا «Save and deploy» بزن.</li>
-        <li>آدرسی که بالای صفحه‌ی worker نشون داده می‌شه (چیزی شبیه <span style=&quot;direction:ltr;display:inline-block;&quot;>https://myproxy.YOURNAME.workers.dev</span>) رو کپی کن و توی فیلد «آدرس Worker اختصاصی خودت» بالای همین صفحه بچسبون.</li>
-      </ol>
-      <p style=&quot;color:var(--muted);margin-top:10px;&quot;>
-        از این به بعد این آدرس ذخیره می‌مونه و همیشه اول همون امتحان می‌شه — چون این Worker مال خودته، هیچ‌کس دیگه‌ای نمی‌تونه کندش کنه یا محدودش کنه، و همیشه در دسترسه.
-      </p>
-    </div>
-  </details>
-</div>
-
-<script>
-const urlInput = document.getElementById('urlInput');
-const customProxyInput = document.getElementById('customProxyInput');
-const goBtn = document.getElementById('goBtn');
-const statusEl = document.getElementById('status');
-const listEl = document.getElementById('linksList');
-const emptyMsg = document.getElementById('emptyMsg');
-const filterInput = document.getElementById('filterInput');
-const rawHtmlEl = document.getElementById('rawHtml');
-
-// آدرس پراکسی اختصاصی رو از دفعه‌ی قبل بازیابی کن
-try{
-  const saved = localStorage.getItem('customProxyUrl');
-  if(saved) customProxyInput.value = saved;
-}catch(e){ /* localStorage در دسترس نیست، مشکلی نیست */ }
-
-customProxyInput.addEventListener('change', () => {
-  try{ localStorage.setItem('customProxyUrl', customProxyInput.value.trim()); }catch(e){}
-});
-
-let allLinks = [];
-
-// نشونه‌هایی که معمولا لینک/دکمه دانلود رو مشخص می‌کنن
-const DOWNLOAD_HINTS = [
-  'download', 'دانلود', '.zip', '.rar', '.7z', '.mp4', '.mkv',
-  '.avi', '.mov', '.exe', '.apk', '.iso', '.pdf', 'dl.', '/dl/'
-];
-
-function looksLikeDownload(href, text){
-  const h = (href || '').toLowerCase();
-  const t = (text || '').toLowerCase();
-  return DOWNLOAD_HINTS.some(hint => h.includes(hint) || t.includes(hint));
-}
-
-async function fetchViaProxies(targetUrl, customProxy, onAttempt){
-  const proxies = [];
-
-  if(customProxy){
-    let base = customProxy.trim().replace(/\/+$/, '');
-    // اول از طریق r.jina.ai (که صفحه رو با جاوااسکریپت رندر می‌کنه) ولی با Worker خودت به‌عنوان واسط پایدار
-    proxies.push({
-      name: 'پراکسی اختصاصی شما (رندر شده)',
-      build: u => `${base}/?url=${encodeURIComponent('https://r.jina.ai/' + u)}`,
-      raw:true,
-      slow:true
-    });
-    // اگه رندرشده جواب نداد، همون Worker رو برای گرفتن HTML خام هم امتحان کن
-    proxies.push({
-      name: 'پراکسی اختصاصی شما (خام)',
-      build: u => `${base}/?url=${encodeURIComponent(u)}`,
-      raw:false
-    });
-  }
-
-  // پراکسی‌های عمومی فقط به‌عنوان پشتیبان، در صورت نبود یا خرابی پراکسی اختصاصی
-  proxies.push(
-    { name:'مستقیم (بدون پراکسی)', build: u => u, raw:false },
-    { name:'allorigins', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, raw:false },
-    { name:'corsproxy.io', build: u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`, raw:false },
-    { name:'codetabs', build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, raw:false },
-    { name:'thingproxy', build: u => `https://thingproxy.freeboard.io/fetch/${u}`, raw:false },
-    { name:'r.jina.ai (فقط متن ساده)', build: u => `https://r.jina.ai/${u}`, raw:true, slow:true },
-    { name:'isomorphic-git cors proxy', build: u => `https://cors.isomorphic-git.org/${u}`, raw:false }
-  );
-
-  const errors = [];
-  let bestEmpty = null; // اگه هیچ روشی لینک پیدا نکرد، حداقل آخرین صفحه‌ی دریافتی رو نگه می‌داریم
-
-  for(const proxy of proxies){
-    onAttempt &amp;&amp; onAttempt(proxy.name);
-    try{
-      const controller = new AbortController();
-      const timeoutMs = proxy.slow ? 35000 : 15000;
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(proxy.build(targetUrl), { signal: controller.signal });
-      clearTimeout(timeoutId);
-      if(!res.ok){
-        errors.push(`${proxy.name}: HTTP ${res.status}`);
-        continue;
-      }
-      const txt = await res.text();
-      if(!txt || txt.length <= 50){
-        errors.push(`${proxy.name}: پاسخ خالی یا خیلی کوتاه بود`);
-        continue;
-      }
-      const links = proxy.raw ? extractLinksFromPlainText(txt, targetUrl) : extractLinks(txt, targetUrl);
-      if(links.length > 0){
-        return { html: txt, links, via: proxy.name };
-      }
-      // صفحه دریافت شد ولی لینکی توش نبود؛ به‌عنوان پشتیبان نگه دار و روش بعدی رو امتحان کن
-      if(!bestEmpty) bestEmpty = { html: txt, links: [], via: proxy.name };
-      errors.push(`${proxy.name}: صفحه گرفته شد ولی لینکی پیدا نشد`);
-    }catch(e){
-      errors.push(`${proxy.name}: ${e.name === 'AbortError' ? 'تایم‌اوت' : e.message}`);
-    }
-  }
-
-  if(bestEmpty){ bestEmpty.errors = errors; return bestEmpty; }
-  throw new Error('هیچ‌کدوم از روش‌ها جواب ندادن:\n' + errors.join('\n'));
-}
-
-function extractFilename(href){
-  try{
-    const u = new URL(href);
-    const segments = u.pathname.split('/').filter(Boolean);
-    if(segments.length === 0) return '';
-    const last = decodeURIComponent(segments[segments.length - 1]);
-    // فقط وقتی معنادار به‌نظر می‌رسه نشونش بده (مثلا اسم فایل با پسوند یا حاوی اطلاعات)
-    if(last.length > 3 &amp;&amp; /[.\-_]/.test(last)) return last;
-    return '';
-  }catch(e){ return ''; }
-}
-
-function extractLinksFromPlainText(text, baseUrl){
-  // r.jina.ai لینک‌ها رو معمولا به شکل مارک‌داون [متن](آدرس) برمی‌گردونه
-  const results = [];
-  const headingRe = /^#{1,6}\s+(.*)/;
-  // &quot;فصل&quot; + عدد یا کلمه ترتیبی فارسی (اول، دوم، سوم، ...) — با یا بدون «دوبله/زیرنویس فارسی» بعدش
-  const seasonRe = /(فصل|season)\s*(اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|[\d۰-۹]+)/i;
-  const qualityRe = /(WEB-?DL|BluRay|HDTV|WEBRip|HDRip|CAM)\s*[\d۰-۹]{3,4}p/i;
-  const mdLinkGlobalRe = /\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
-  const mdLinkCheckRe = /\[[^\]]*\]\(https?:\/\/[^\s)]+\)/;
-
-  let currentSeason = '';
-  let currentQuality = '';
-  const lines = text.split(/\r?\n/);
-
-  for(const line of lines){
-    const trimmed = line.trim();
-    if(!trimmed) continue;
-
-    const hMatch = trimmed.match(headingRe);
-    const headingText = hMatch ? hMatch[1].trim() : trimmed;
-
-    if(!mdLinkCheckRe.test(trimmed)){
-      const qMatch = headingText.match(qualityRe);
-      if(qMatch){
-        currentQuality = qMatch[0];
-        continue;
-      }
-      if(seasonRe.test(headingText) &amp;&amp; headingText.length < 60){
-        currentSeason = headingText.replace(/^\*+|\*+$/g, '').trim();
-        currentQuality = ''; // شروع گروه جدید، کیفیت قبلی دیگه معتبر نیست
-        continue;
-      }
-      if(hMatch) continue; // بقیه‌ی هدینگ‌ها رو نادیده بگیر
-    }
-
-    mdLinkGlobalRe.lastIndex = 0;
-    let m;
-    while((m = mdLinkGlobalRe.exec(line)) !== null){
-      const rawText = m[1].trim() || '(بدون متن)';
-      const href = m[2];
-      const heading = [currentSeason, currentQuality].filter(Boolean).join(' — ');
-      results.push({
-        text: heading ? `${heading} — ${rawText}` : rawText,
-        rawText,
-        href,
-        filename: extractFilename(href)
-      });
-    }
-  }
-
-  // لینک‌های خامی که توی متن افتادن رو هم بگیر
-  const bareUrlRe = /(https?:\/\/[^\s)&quot;'<>]+)/g;
-  let m2;
-  while((m2 = bareUrlRe.exec(text)) !== null){
-    if(!results.some(r => r.href === m2[1])){
-      results.push({ text: '(لینک خام)', rawText:'(لینک خام)', href: m2[1], filename: extractFilename(m2[1]) });
-    }
-  }
-  const downloadLike = results.filter(item => looksLikeDownload(item.href, item.rawText));
-  return downloadLike.length > 0 ? downloadLike : results;
-}
-
-function extractLinks(html, baseUrl){
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  // اگه بخشی با id=&quot;downloads&quot; وجود داشت، اول از اونجا بگرد
-  let scope = doc.body || doc;
-  const anchorTarget = doc.getElementById('downloads');
-  if(anchorTarget) scope = anchorTarget;
-
-  const headingTagRe = /^h[1-6]$/i;
-  const seasonRe = /(فصل|season)\s*(اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|[\d۰-۹]+)/i;
-  const qualityRe = /(WEB-?DL|BluRay|HDTV|WEBRip|HDRip|CAM)\s*[\d۰-۹]{3,4}p/i;
-  let currentSeason = '';
-  let currentQuality = '';
-  const results = [];
-
-  function walk(node){
-    if(node.nodeType !== 1) return; // فقط element node
-    const tag = node.tagName.toLowerCase();
-    const isLeaf = node.children.length === 0;
-    const ownText = (node.textContent || '').trim();
-
-    if(headingTagRe.test(tag) &amp;&amp; ownText){
-      if(seasonRe.test(ownText)){ currentSeason = ownText; currentQuality = ''; }
-      else currentSeason = ownText;
-    } else if(isLeaf &amp;&amp; ownText.length < 60){
-      const qMatch = ownText.match(qualityRe);
-      if(qMatch){
-        currentQuality = qMatch[0];
-      } else if(seasonRe.test(ownText)){
-        currentSeason = ownText;
-        currentQuality = '';
-      }
-    }
-
-    if(tag === 'a' &amp;&amp; node.hasAttribute('href')){
-      const rawText = node.textContent.trim() || '(بدون متن)';
-      let href;
-      try{ href = new URL(node.getAttribute('href'), baseUrl).href; }catch(e){ href = node.getAttribute('href'); }
-      if(href &amp;&amp; !href.startsWith('javascript:')){
-        const heading = [currentSeason, currentQuality].filter(Boolean).join(' — ');
-        results.push({
-          text: heading ? `${heading} — ${rawText}` : rawText,
-          rawText,
-          href,
-          filename: extractFilename(href)
-        });
-      }
-    }
-    for(const child of Array.from(node.children)) walk(child);
-  }
-  walk(scope);
-
-  // اگه در بخش downloads چیزی پیدا نشد، کل صفحه رو با فیلتر شبه‌دانلود بگرد
-  const downloadLike = results.filter(item => looksLikeDownload(item.href, item.rawText));
-  if(downloadLike.length > 0) return downloadLike;
-  if(anchorTarget) return results; // همه لینک‌های داخل بخش downloads
-  return results.filter(item => looksLikeDownload(item.href, item.rawText));
-}
-
-function renderList(){
-  const q = filterInput.value.trim().toLowerCase();
-  const filtered = q
-    ? allLinks.filter(l => l.text.toLowerCase().includes(q) || l.href.toLowerCase().includes(q))
-    : allLinks;
-
-  listEl.innerHTML = '';
-  emptyMsg.style.display = filtered.length ? 'none' : 'block';
-
-  filtered.forEach((item, idx) => {
-    const li = document.createElement('li');
-    li.className = 'link-item';
-    li.innerHTML = `
-      <div class=&quot;info&quot;>
-        <div class=&quot;name&quot;>${escapeHtml(item.text)}</div>
-        ${item.filename ? `<div class=&quot;filename&quot;>📄 ${escapeHtml(item.filename)}</div>` : ''}
-        <span class=&quot;url&quot;>${escapeHtml(item.href)}</span>
-      </div>
-      <div class=&quot;actions&quot;>
-        <button type=&quot;button&quot; class=&quot;copy-btn&quot; data-href=&quot;${escapeAttr(item.href)}&quot;>کپی</button>
-        <a class=&quot;btn&quot; href=&quot;${escapeAttr(item.href)}&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;>باز کردن</a>
-      </div>
-    `;
-    listEl.appendChild(li);
-  });
-
-  listEl.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const href = btn.getAttribute('data-href');
-      try{
-        await navigator.clipboard.writeText(href);
-      }catch(e){
-        // fallback for browsers/contexts without Clipboard API access
-        const ta = document.createElement('textarea');
-        ta.value = href;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try{ document.execCommand('copy'); }catch(e2){}
-        document.body.removeChild(ta);
-      }
-      const original = btn.textContent;
-      btn.textContent = 'کپی شد';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.classList.remove('copied');
-      }, 1500);
-    });
-  });
-}
-
-function escapeHtml(s){
-  return s.replace(/[&amp;<>&quot;']/g, c => ({'&amp;':'&amp;amp;','<':'&amp;lt;','>':'&amp;gt;','&quot;':'&amp;quot;',&quot;'&quot;:'&amp;#39;'}[c]));
-}
-function escapeAttr(s){ return escapeHtml(s); }
-
-goBtn.addEventListener('click', async () => {
-  const targetUrl = urlInput.value.trim();
-  const customProxy = customProxyInput.value.trim();
-  if(!targetUrl){ return; }
-
-  try{ localStorage.setItem('customProxyUrl', customProxy); }catch(e){}
-
-  goBtn.disabled = true;
-  statusEl.className = 'status';
-  statusEl.textContent = 'در حال تلاش...';
-  listEl.innerHTML = '';
-  emptyMsg.style.display = 'none';
-  rawHtmlEl.textContent = '';
-
-  try{
-    const result = await fetchViaProxies(targetUrl, customProxy, (name) => {
-      statusEl.textContent = `در حال امتحان روش: ${name} ...`;
-    });
-    rawHtmlEl.textContent = result.html.slice(0, 5000) + (result.html.length > 5000 ? '\n...(بریده شد)...' : '');
-    allLinks = result.links;
-    renderList();
-    statusEl.className = 'status ok';
-    if(allLinks.length){
-      statusEl.textContent = `${allLinks.length} لینک پیدا شد (از طریق: ${result.via}).`;
-    } else {
-      statusEl.style.whiteSpace = 'pre-wrap';
-      statusEl.textContent = `صفحه از طریق «${result.via}» دریافت شد ولی هیچ روشی لینک دانلودی پیدا نکرد.\n\nجزئیات هر روش:\n` + (result.errors || []).join('\n');
-    }
-  }catch(err){
-    statusEl.className = 'status err';
-    statusEl.style.whiteSpace = 'pre-wrap';
-    statusEl.textContent = 'همه‌ی روش‌ها شکست خوردن:\n' + err.message;
-  }finally{
-    goBtn.disabled = false;
-  }
-});
-</script>
-</body>
-</html>
-" style="width:100%; height:80vh; border:none; display:block; border-radius:16px;"></iframe>
-      </div>
-    </div>
-
     <div id="section-docs" class="hidden">
       <div class="card">
         <h2>مدارک ارسالی کاربران <button class="link-btn" id="btn-refresh-docs" style="float:left;">بارگذاری مجدد</button></h2>
         <div id="docs-area"><div class="empty-msg">در حال بارگذاری…</div></div>
+      </div>
+    </div>
+
+    <div id="section-support" class="hidden">
+      <div class="card" id="support-list-card">
+        <h2>پیام‌های پشتیبانی <button class="link-btn" id="btn-refresh-support" style="float:left;">بارگذاری مجدد</button></h2>
+        <label>نام تو (زیر پاسخ‌هات به کاربر نشون داده می‌شه)</label>
+        <input type="text" id="in-operator-name" placeholder="مثلاً: علی">
+        <div id="support-conversations" style="margin-top:10px;"><div class="empty-msg">در حال بارگذاری…</div></div>
+      </div>
+
+      <div class="card hidden" id="support-thread-card">
+        <h2>
+          <button class="link-btn" id="btn-back-to-conversations">→ بازگشت</button>
+          <span id="support-thread-title"></span>
+        </h2>
+        <div id="support-thread-messages" style="max-height:420px; overflow-y:auto; padding:4px;"></div>
+        <div style="display:flex; gap:6px; margin-top:10px; align-items:flex-end;">
+          <input type="file" id="in-support-attach" style="display:none;">
+          <button type="button" class="btn-outline btn-small" id="btn-support-attach-btn" title="پیوست فایل/عکس/ویدیو">📎</button>
+          <textarea id="in-support-reply" placeholder="پاسخت رو بنویس…" style="flex:1; min-height:40px; margin-top:0;"></textarea>
+          <button type="button" class="btn-primary btn-small" id="btn-support-send">ارسال</button>
+        </div>
+        <div class="muted" id="support-attach-name" style="margin-top:4px;"></div>
       </div>
     </div>
 
@@ -924,8 +418,6 @@ function collectLinks() {
 let selectedFiles = []; // آرایه‌ی فایل‌های انتخاب‌شده (حداکثر ۵۰ تا)
 let editingId = null;
 let editingExistingImages = []; // عکس‌های قبلی موقع ویرایش، تا با فایل‌های جدید جمع بشن
-let bulkLinkMode = false; // حالت افزودن چند لینک هم‌زمان (هر لینک = یه آیتم جدا)
-const MAX_BULK_LINKS = 500;
 
 const $ = (id) => document.getElementById(id);
 
@@ -1059,6 +551,161 @@ function groupDocumentsByBatch(rows) {
     groups[key].files.push(row);
   });
   return order.map((k) => groups[k]);
+}
+
+function operatorName() {
+  return localStorage.getItem('kafinet_operator_name') || '';
+}
+
+let supportConversations = [];
+let currentSupportNationalCode = null;
+
+async function loadSupportMessages() {
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    $('support-conversations').innerHTML = '<div class="empty-msg">آدرس و کلید Supabase تنظیم نشده</div>';
+    return;
+  }
+  try {
+    const url = `${cfg.supabaseUrl}/rest/v1/support_messages?select=*&order=created_at.asc`;
+    const res = await fetch(url, { headers: sbHeaders() });
+    if (!res.ok) throw new Error('خطا در دریافت پیام‌ها (' + res.status + ')');
+    const rows = await res.json();
+    supportConversations = groupSupportByUser(rows);
+    renderSupportConversations();
+    if (currentSupportNationalCode) renderSupportThread(currentSupportNationalCode);
+  } catch (e) {
+    $('support-conversations').innerHTML = '<div class="empty-msg">خطا در بارگذاری پیام‌ها</div>';
+  }
+}
+
+function groupSupportByUser(rows) {
+  const map = {};
+  const order = [];
+  rows.forEach((row) => {
+    const key = row.national_code;
+    if (!map[key]) {
+      map[key] = { nationalCode: key, userName: row.user_name, messages: [] };
+      order.push(key);
+    }
+    map[key].messages.push(row);
+    if (row.user_name) map[key].userName = row.user_name;
+  });
+  const list = order.map((k) => map[k]);
+  list.sort((a, b) => {
+    const at = a.messages[a.messages.length - 1].created_at;
+    const bt = b.messages[b.messages.length - 1].created_at;
+    return new Date(bt) - new Date(at);
+  });
+  return list;
+}
+
+function renderSupportConversations() {
+  const area = $('support-conversations');
+  if (!supportConversations.length) {
+    area.innerHTML = '<div class="empty-msg">هنوز پیامی نیومده</div>';
+    return;
+  }
+  area.innerHTML = supportConversations.map((conv) => {
+    const last = conv.messages[conv.messages.length - 1];
+    const preview = last.message
+      ? escapeHtml(last.message).slice(0, 40)
+      : (last.attachment_name ? '📎 ' + escapeHtml(last.attachment_name) : '');
+    const unread = last.sender === 'user';
+    return `
+      <div class="item" style="cursor:pointer;" data-code="${escapeHtml(conv.nationalCode)}">
+        <div class="info">
+          <div class="t" style="${unread ? 'font-weight:700;' : ''}">${escapeHtml(conv.userName || conv.nationalCode)} ${unread ? '<span style="color:#DC2626;">●</span>' : ''}</div>
+          <div class="d">${preview}</div>
+        </div>
+      </div>`;
+  }).join('');
+  area.querySelectorAll('[data-code]').forEach((el) => {
+    el.addEventListener('click', () => openSupportThread(el.getAttribute('data-code')));
+  });
+}
+
+function openSupportThread(nationalCode) {
+  currentSupportNationalCode = nationalCode;
+  $('support-thread-card').classList.remove('hidden');
+  renderSupportThread(nationalCode);
+  $('support-thread-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSupportThread(nationalCode) {
+  const conv = supportConversations.find((c) => c.nationalCode === nationalCode);
+  if (!conv) return;
+  $('support-thread-title').textContent = conv.userName || conv.nationalCode;
+  const area = $('support-thread-messages');
+  area.innerHTML = conv.messages.map((m) => {
+    const isUser = m.sender === 'user';
+    let content = '';
+    if (m.message) content += `<div>${escapeHtml(m.message)}</div>`;
+    if (m.attachment_url) {
+      if (m.attachment_type === 'image') {
+        content += `<img src="${m.attachment_url}" style="max-width:160px; border-radius:8px; margin-top:6px; display:block;">`;
+      } else {
+        content += `<a href="${m.attachment_url}" target="_blank" style="display:block; margin-top:6px;">📎 ${escapeHtml(m.attachment_name || 'فایل')}</a>`;
+      }
+    }
+    const who = isUser ? '' : `<div style="font-size:11px; color:var(--primary); font-weight:600;">${escapeHtml(m.operator_name || 'پشتیبانی')}</div>`;
+    const side = isUser ? 'margin-right:auto;' : 'margin-left:auto;';
+    return `<div style="max-width:80%; margin:6px 0; padding:8px 12px; border-radius:12px; background:${isUser ? '#EEF0FF' : '#F4F4F5'}; ${side}">${who}${content}</div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+}
+
+async function sendSupportReply() {
+  const nationalCode = currentSupportNationalCode;
+  if (!nationalCode) return;
+  const text = $('in-support-reply').value.trim();
+  const file = $('in-support-attach').files[0];
+  if (!text && !file) return;
+
+  const btn = $('btn-support-send');
+  btn.disabled = true;
+  try {
+    let attachmentUrl = null, attachmentType = null, attachmentName = null;
+    if (file) {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '-');
+      const path = `chat/${nationalCode}/${Date.now()}-${safeName}`;
+      const uploadRes = await fetch(`${cfg.supabaseUrl}/storage/v1/object/support-attachments/${path}`, {
+        method: 'POST',
+        headers: Object.assign({}, sbHeaders(), { 'Content-Type': file.type || 'application/octet-stream' }),
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error('آپلود فایل ناموفق بود');
+      attachmentUrl = `${cfg.supabaseUrl}/storage/v1/object/public/support-attachments/${path}`;
+      attachmentType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : 'file');
+      attachmentName = file.name;
+    }
+
+    const body = {
+      national_code: nationalCode,
+      user_name: '',
+      sender: 'admin',
+      operator_name: operatorName() || 'پشتیبانی',
+      message: text || null,
+      attachment_url: attachmentUrl,
+      attachment_type: attachmentType,
+      attachment_name: attachmentName,
+    };
+    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/support_messages`, {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(), { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('ارسال پیام ناموفق بود');
+
+    $('in-support-reply').value = '';
+    $('in-support-attach').value = '';
+    $('support-attach-name').textContent = '';
+    await loadSupportMessages();
+    renderSupportThread(nationalCode);
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // پوشه‌بندی بر اساس کد ملی متقاضی (که خود کاربر در فرم ارسال مدارک وارد کرده) — هر پوشه یک نفر
@@ -1373,11 +1020,6 @@ async function handleAdd() {
 
   if (!title) { toast('عنوان را وارد کن', 'error'); return; }
 
-  if (bulkLinkMode && !editingId && selectedType !== 'video') {
-    await handleBulkAdd(title, description);
-    return;
-  }
-
   let url = $('in-url').value.trim();
   const btn = $('btn-add');
   btn.disabled = true;
@@ -1480,93 +1122,6 @@ async function handleAdd() {
   }
 }
 
-async function handleBulkAdd(title, description) {
-  const raw = $('in-url-bulk').value;
-  // لینک‌ها رو با اینتر، کاما (فارسی/انگلیسی) یا فاصله از هم جدا کن — هرکدوم که کاربر استفاده کرده باشه
-  const candidates = raw.split(/[\s,،]+/).map((s) => s.trim()).filter(Boolean);
-  const invalid = candidates.filter((s) => !/^https?:\/\//i.test(s));
-  const valid = candidates.filter((s) => /^https?:\/\//i.test(s));
-  const links = [...new Set(valid)]; // حذف لینک‌های تکراری
-
-  if (links.length === 0) {
-    toast('هیچ لینک معتبری (که با http شروع بشه) پیدا نشد', 'error');
-    return;
-  }
-  if (invalid.length > 0) {
-    toast(`${invalid.length} مورد چون با http شروع نمی‌شد نادیده گرفته شد`, 'error');
-  }
-  if (links.length > MAX_BULK_LINKS) {
-    toast(`حداکثر ${MAX_BULK_LINKS} لینک هم‌زمان مجازه (الان ${links.length} تا معتبر پیدا شد)`, 'error');
-    return;
-  }
-
-  const sectionValue = $('in-section').value.trim();
-  const btn = $('btn-add');
-  btn.disabled = true;
-  const originalText = btn.textContent;
-
-  try {
-    const stamp = Date.now();
-    const newItems = links.map((link, i) => {
-      const item = {
-        id: 'item_' + stamp + '_' + i,
-        type: selectedType,
-        title: links.length > 1 ? `${title} ${i + 1}` : title,
-        description,
-        url: link,
-      };
-      if (sectionValue) item.section = sectionValue;
-      return item;
-    });
-
-    btn.textContent = `در حال ذخیره‌ی ${newItems.length} مورد...`;
-    contentItems = contentItems.concat(newItems);
-    await saveContentList(
-      `افزودن دسته‌ای ${newItems.length} مورد: ${title}`,
-      (fresh) => [...fresh, ...newItems]
-    );
-
-    toast(`${newItems.length} مورد با موفقیت اضافه شد ✔`, 'success');
-    resetForm();
-    renderList();
-  } catch (e) {
-    toast(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-}
-
-// یه تکه متن (پیست‌شده) رو تو تکست‌باکس چندلینکی طوری جا می‌ذاره که همیشه با خط جدید
-// از متن قبل و بعدش جدا باشه — چه پیست با رویداد استاندارد paste باشه، چه با راه‌های دیگه
-function insertBulkLinkChunk(ta, chunk, beforeOverride, afterOverride) {
-  const start = ta.selectionStart;
-  const end = ta.selectionEnd;
-  const before = beforeOverride !== undefined ? beforeOverride : ta.value.slice(0, start);
-  const after = afterOverride !== undefined ? afterOverride : ta.value.slice(end);
-  const trimmedChunk = chunk.trim();
-  if (!trimmedChunk) return;
-  // اگه قبل از محل پیست چیزی هست که به خط جدید ختم نشده، یه خط جدید قبلش اضافه کن
-  const prefix = (before && !before.endsWith('\n')) ? '\n' : '';
-  // بعد از پیست هم همیشه یه خط جدید بذار، تا پیست بعدی بهش نچسبه
-  const inserted = prefix + trimmedChunk + '\n';
-  ta.value = before + inserted + after;
-  const cursorPos = (before + inserted).length;
-  ta.selectionStart = ta.selectionEnd = cursorPos;
-}
-
-function toggleBulkLinkMode() {
-  if (editingId) return; // موقع ویرایش یه آیتم، افزودن دسته‌ای معنی نداره
-  bulkLinkMode = !bulkLinkMode;
-  $('in-url').classList.toggle('hidden', bulkLinkMode);
-  $('in-url-bulk').classList.toggle('hidden', !bulkLinkMode);
-  $('link-hint-single').classList.toggle('hidden', bulkLinkMode);
-  $('link-hint-bulk').classList.toggle('hidden', !bulkLinkMode);
-  $('btn-toggle-bulk-link').textContent = bulkLinkMode
-    ? '× بازگشت به یه لینک تکی'
-    : '+ افزودن چند لینک با هم';
-}
-
 function startEdit(id) {
   const item = contentItems.find((i) => i.id === id);
   if (!item) return;
@@ -1602,7 +1157,6 @@ function startEdit(id) {
   $('in-desc').value = item.description || '';
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
-  $('btn-toggle-bulk-link').classList.add('hidden');
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -1617,7 +1171,6 @@ function cancelEdit() {
   $('btn-add').textContent = 'افزودن به برنامه';
   $('form-mode-title').textContent = 'افزودن محتوای جدید';
   $('btn-cancel-edit').classList.add('hidden');
-  if (selectedType !== 'video') $('btn-toggle-bulk-link').classList.remove('hidden');
 }
 
 function resetForm() {
@@ -1625,8 +1178,6 @@ function resetForm() {
   $('in-desc').value = '';
   $('in-section').value = '';
   $('in-url').value = '';
-  $('in-url-bulk').value = '';
-  if (bulkLinkMode) toggleBulkLinkMode();
   selectedFiles = [];
   editingExistingImages = [];
   $('in-file').value = '';
@@ -1666,13 +1217,6 @@ function initTabs() {
       const hint = document.getElementById('banner-size-hint');
       if (hint) hint.style.display = (selectedType === 'home_banner') ? 'block' : 'none';
       updateVideoBoxesVisibility();
-      const bulkBtn = $('btn-toggle-bulk-link');
-      if (selectedType === 'video') {
-        if (bulkLinkMode) toggleBulkLinkMode();
-        bulkBtn.classList.add('hidden');
-      } else {
-        bulkBtn.classList.remove('hidden');
-      }
     });
   });
 
@@ -1701,32 +1245,26 @@ function initTabs() {
   });
 
   $('btn-add').addEventListener('click', handleAdd);
-  $('btn-toggle-bulk-link').addEventListener('click', toggleBulkLinkMode);
-  $('in-url-bulk').addEventListener('paste', (e) => {
-    const clip = e.clipboardData || window.clipboardData;
-    const pasted = clip ? clip.getData('text') : '';
-    if (!pasted) return; // چیزی برای پیست نبود، بذار رفتار پیش‌فرض انجام بشه
-    e.preventDefault();
-    insertBulkLinkChunk($('in-url-bulk'), pasted);
-  });
-  // بعضی کیبوردهای اندرویدی (مثلاً نوار «کلیپ‌بورد» گوشی) موقع پیست، رویداد استاندارد
-  // paste رو صدا نمی‌زنن و مستقیم متن رو داخل فیلد می‌ذارن؛ این fallback همون حالت رو
-  // از روی رویداد input (که همیشه فایر می‌شه) تشخیص می‌ده
-  $('in-url-bulk').addEventListener('input', (e) => {
-    const isPasteLike = e.inputType === 'insertFromPaste'
-      || (e.inputType === 'insertText' && e.data && e.data.trim().length > 15);
-    if (!isPasteLike || !e.data) return;
-    const ta = e.target;
-    const insertEnd = ta.selectionStart; // مکان‌نما همین الان درست بعد از متن واردشده‌ست
-    const insertStart = insertEnd - e.data.length;
-    if (insertStart < 0) return;
-    const before = ta.value.slice(0, insertStart);
-    const after = ta.value.slice(insertEnd);
-    insertBulkLinkChunk(ta, e.data, before, after);
-  });
   $('btn-cancel-edit').addEventListener('click', cancelEdit);
   $('btn-refresh').addEventListener('click', (e) => { e.preventDefault(); loadContentList(); });
   $('btn-refresh-docs').addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
+
+  $('btn-refresh-support').addEventListener('click', (e) => { e.preventDefault(); loadSupportMessages(); });
+  $('btn-back-to-conversations').addEventListener('click', (e) => {
+    e.preventDefault();
+    currentSupportNationalCode = null;
+    $('support-thread-card').classList.add('hidden');
+  });
+  $('btn-support-attach-btn').addEventListener('click', () => $('in-support-attach').click());
+  $('in-support-attach').addEventListener('change', () => {
+    const file = $('in-support-attach').files[0];
+    $('support-attach-name').textContent = file ? '📎 ' + file.name : '';
+  });
+  $('btn-support-send').addEventListener('click', (e) => { e.preventDefault(); sendSupportReply(); });
+  $('in-operator-name').value = operatorName();
+  $('in-operator-name').addEventListener('input', () => {
+    localStorage.setItem('kafinet_operator_name', $('in-operator-name').value.trim());
+  });
   $('btn-refresh-stats').addEventListener('click', (e) => { e.preventDefault(); loadVisitStats(); });
   $('in-stats-search').addEventListener('input', (e) => filterStatsTable(e.target.value));
   $('btn-logout').addEventListener('click', () => {
@@ -1737,25 +1275,34 @@ function initTabs() {
   });
 
   $('main-tab-content').addEventListener('click', () => switchMainTab('content'));
-  $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
+  $('main-tab-support').addEventListener('click', () => switchMainTab('support'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
 }
 
 let docsLoaded = false;
 let statsLoaded = false;
+let supportPollTimer = null;
 function switchMainTab(which) {
   $('main-tab-content').classList.toggle('active', which === 'content');
-  $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('main-tab-docs').classList.toggle('active', which === 'docs');
+  $('main-tab-support').classList.toggle('active', which === 'support');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('section-content').classList.toggle('hidden', which !== 'content');
-  $('section-linkfinder').classList.toggle('hidden', which !== 'linkfinder');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
+  $('section-support').classList.toggle('hidden', which !== 'support');
   $('section-stats').classList.toggle('hidden', which !== 'stats');
   if (which === 'docs' && !docsLoaded) {
     docsLoaded = true;
     loadDocuments();
+  }
+  if (which === 'support') {
+    loadSupportMessages();
+    if (supportPollTimer) clearInterval(supportPollTimer);
+    supportPollTimer = setInterval(loadSupportMessages, 5000);
+  } else if (supportPollTimer) {
+    clearInterval(supportPollTimer);
+    supportPollTimer = null;
   }
   if (which === 'stats' && !statsLoaded) {
     statsLoaded = true;
