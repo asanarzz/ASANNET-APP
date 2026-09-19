@@ -347,4 +347,121 @@ object SupabaseClient {
             null
         }
     }
+
+    /**
+     * یک پیام جدید (از طرف کاربر) به جدول support_messages اضافه می‌کند. اگه
+     * پیوست (عکس/ویدیو/فایل) هم باشه، اول اون رو آپلود می‌کنه.
+     */
+    suspend fun sendSupportMessage(
+        context: Context,
+        nationalCode: String,
+        userName: String,
+        message: String,
+        attachmentBytes: ByteArray? = null,
+        attachmentFileName: String? = null,
+        attachmentMimeType: String? = null,
+        attachmentType: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+            val anonKey = context.getString(R.string.supabase_anon_key)
+            if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext false
+
+            var attachmentUrl: String? = null
+            if (attachmentBytes != null && !attachmentFileName.isNullOrBlank()) {
+                val safeName = attachmentFileName.replace(Regex("[^a-zA-Z0-9._\\-]+"), "-")
+                val path = "chat/$nationalCode/${System.currentTimeMillis()}-$safeName"
+                val uploadUrl = URL("$baseUrl/storage/v1/object/support-attachments/$path")
+                val uploadConn = uploadUrl.openConnection() as HttpURLConnection
+                uploadConn.requestMethod = "POST"
+                uploadConn.doOutput = true
+                uploadConn.connectTimeout = 20000
+                uploadConn.readTimeout = 20000
+                uploadConn.setRequestProperty("apikey", anonKey)
+                uploadConn.setRequestProperty("Authorization", "Bearer $anonKey")
+                uploadConn.setRequestProperty("Content-Type", attachmentMimeType ?: "application/octet-stream")
+                uploadConn.outputStream.use { it.write(attachmentBytes) }
+                val uploadCode = uploadConn.responseCode
+                uploadConn.disconnect()
+                if (uploadCode !in 200..299) return@withContext false
+                attachmentUrl = "$baseUrl/storage/v1/object/public/support-attachments/$path"
+            }
+
+            val url = URL("$baseUrl/rest/v1/support_messages")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
+            connection.setRequestProperty("apikey", anonKey)
+            connection.setRequestProperty("Authorization", "Bearer $anonKey")
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Prefer", "return=minimal")
+
+            val body = JSONObject().apply {
+                put("national_code", nationalCode)
+                put("user_name", userName)
+                put("sender", "user")
+                put("message", message)
+                if (attachmentUrl != null) {
+                    put("attachment_url", attachmentUrl)
+                    put("attachment_type", attachmentType ?: "file")
+                    put("attachment_name", attachmentFileName)
+                }
+            }
+            connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+            val code = connection.responseCode
+            connection.disconnect()
+            code in 200..299
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * تمام پیام‌های این کاربر (خودش و جواب‌های پشتیبانی) را به ترتیب زمان برمی‌گرداند.
+     */
+    suspend fun fetchSupportMessages(context: Context, nationalCode: String): List<SupportMessage> =
+        withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+                val anonKey = context.getString(R.string.supabase_anon_key)
+                if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext emptyList()
+
+                val encodedCode = java.net.URLEncoder.encode(nationalCode, "UTF-8")
+                val url = URL("$baseUrl/rest/v1/support_messages?national_code=eq.$encodedCode&order=created_at.asc")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.setRequestProperty("apikey", anonKey)
+                connection.setRequestProperty("Authorization", "Bearer $anonKey")
+
+                val responseCode = connection.responseCode
+                val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+                val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                connection.disconnect()
+                if (responseCode !in 200..299) return@withContext emptyList()
+
+                val array = org.json.JSONArray(text)
+                val result = mutableListOf<SupportMessage>()
+                for (i in 0 until array.length()) {
+                    val row = array.getJSONObject(i)
+                    result.add(
+                        SupportMessage(
+                            sender = row.optString("sender", "user"),
+                            operatorName = row.optString("operator_name", "").ifBlank { null },
+                            message = row.optString("message", "").ifBlank { null },
+                            attachmentUrl = row.optString("attachment_url", "").ifBlank { null },
+                            attachmentType = row.optString("attachment_type", "").ifBlank { null },
+                            attachmentName = row.optString("attachment_name", "").ifBlank { null },
+                            createdAt = row.optString("created_at", "")
+                        )
+                    )
+                }
+                result
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
 }

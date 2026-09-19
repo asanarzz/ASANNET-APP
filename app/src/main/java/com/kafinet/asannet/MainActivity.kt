@@ -129,6 +129,10 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
             startActivity(Intent(this, DownloadsActivity::class.java))
         }
+        binding.navItemSupport.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            startActivity(Intent(this, SupportActivity::class.java))
+        }
         binding.navItemUpdate.setOnClickListener {
             binding.drawerLayout.closeDrawers()
             val update = pendingUpdate
@@ -140,6 +144,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         checkForAppUpdate()
+        checkForUnreadSupportReply()
 
         binding.navItemShareApk.setOnClickListener {
             binding.drawerLayout.closeDrawers()
@@ -203,6 +208,20 @@ class MainActivity : AppCompatActivity() {
             pendingUpdate = update
             binding.dotUpdateAvailable.visibility =
                 if (update != null) android.view.View.VISIBLE else android.view.View.GONE
+        }
+    }
+
+    /** اگه پشتیبانی جواب تازه‌ای داده که کاربر هنوز ندیده، رو آیتم «پیام به
+     *  پشتیبانی» تو منو یه نقطه‌ی سبز نشون میده. */
+    private fun checkForUnreadSupportReply() {
+        val nationalCode = SessionManager.getNationalCode(this) ?: return
+        lifecycleScope.launch {
+            val messages = SupabaseClient.fetchSupportMessages(this@MainActivity, nationalCode)
+            val lastAdmin = messages.lastOrNull { it.sender == "admin" } ?: return@launch
+            val lastSeen = getSharedPreferences("kafinet_support", MODE_PRIVATE)
+                .getString("last_seen_reply_at", "")
+            binding.dotSupportUnread.visibility =
+                if (lastAdmin.createdAt != lastSeen) android.view.View.VISIBLE else android.view.View.GONE
         }
     }
 
