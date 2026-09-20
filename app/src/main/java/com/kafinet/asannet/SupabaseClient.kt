@@ -10,6 +10,16 @@ import java.net.URL
 object SupabaseClient {
 
     /**
+     * برخلاف optString معمولی، وقتی مقدار تو دیتابیس واقعاً NULL باشه، رشته‌ی
+     * تحت‌اللفظی "null" برنمی‌گردونه — بلکه null واقعی کاتلین رو برمی‌گردونه.
+     */
+    private fun JSONObject.optStringOrNull(key: String): String? {
+        if (isNull(key)) return null
+        val value = optString(key, "")
+        return value.ifBlank { null }
+    }
+
+    /**
      * عکس پروفایل را در باکت «profile-photos» آپلود می‌کند و در صورت موفقیت آدرس عمومی آن را برمی‌گرداند.
      */
     suspend fun uploadProfilePhoto(
@@ -450,11 +460,11 @@ object SupabaseClient {
                     result.add(
                         SupportMessage(
                             sender = row.optString("sender", "user"),
-                            operatorName = row.optString("operator_name", "").ifBlank { null },
-                            message = row.optString("message", "").ifBlank { null },
-                            attachmentUrl = row.optString("attachment_url", "").ifBlank { null },
-                            attachmentType = row.optString("attachment_type", "").ifBlank { null },
-                            attachmentName = row.optString("attachment_name", "").ifBlank { null },
+                            operatorName = row.optStringOrNull("operator_name"),
+                            message = row.optStringOrNull("message"),
+                            attachmentUrl = row.optStringOrNull("attachment_url"),
+                            attachmentType = row.optStringOrNull("attachment_type"),
+                            attachmentName = row.optStringOrNull("attachment_name"),
                             createdAt = row.optString("created_at", "")
                         )
                     )

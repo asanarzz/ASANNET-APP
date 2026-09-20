@@ -80,7 +80,7 @@ class SupportActivity : AppCompatActivity() {
         binding.editMessage.setText("")
         lifecycleScope.launch {
             val ok = SupabaseClient.sendSupportMessage(this@SupportActivity, nationalCode, userName, text)
-            if (!ok) Toast.makeText(this@SupportActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
+            if (!ok) Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
             loadMessages()
         }
     }
@@ -92,7 +92,7 @@ class SupportActivity : AppCompatActivity() {
                 val fileName = queryFileName(uri) ?: "file"
                 val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 if (bytes == null) {
-                    Toast.makeText(this@SupportActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
                     return@launch
                 }
                 val attachmentType = when {
@@ -108,10 +108,10 @@ class SupportActivity : AppCompatActivity() {
                     attachmentMimeType = mimeType,
                     attachmentType = attachmentType
                 )
-                if (!ok) Toast.makeText(this@SupportActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                if (!ok) Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
                 loadMessages()
             } catch (e: Exception) {
-                Toast.makeText(this@SupportActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
