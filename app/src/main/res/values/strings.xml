@@ -15,6 +15,7 @@
     <string name="support_attachment_generic">فایل پیوست</string>
     <string name="support_login_required">اول باید وارد حساب کاربریت بشی</string>
     <string name="support_uploading">در حال ارسال…</string>
+    <string name="support_send_failed">ارسال ناموفق بود، دوباره امتحان کن</string>
     <string name="menu_check_update">به‌روزرسانی برنامه</string>
     <string name="downloads_empty">هنوز چیزی دانلود نکردی</string>
     <string name="download_status_running">در حال دانلود…</string>
