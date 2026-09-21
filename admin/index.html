@@ -1278,7 +1278,6 @@ function initTabs() {
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
   $('main-tab-support').addEventListener('click', () => switchMainTab('support'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
-  $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
 }
 
 let docsLoaded = false;
@@ -1289,12 +1288,10 @@ function switchMainTab(which) {
   $('main-tab-docs').classList.toggle('active', which === 'docs');
   $('main-tab-support').classList.toggle('active', which === 'support');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
-  $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('section-content').classList.toggle('hidden', which !== 'content');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
   $('section-support').classList.toggle('hidden', which !== 'support');
   $('section-stats').classList.toggle('hidden', which !== 'stats');
-  $('section-linkfinder').classList.toggle('hidden', which !== 'linkfinder');
   if (which === 'docs' && !docsLoaded) {
     docsLoaded = true;
     loadDocuments();
@@ -1357,173 +1354,6 @@ window.addEventListener('DOMContentLoaded', () => {
     showApp();
   }
 });
-
-// ---------- Bulk Link ----------
-const btnToggleBulk = $('btn-toggle-bulk-link');
-const bulkBox = $('bulk-link-box');
-if (btnToggleBulk && bulkBox) {
-  btnToggleBulk.addEventListener('click', () => {
-    bulkBox.classList.toggle('hidden');
-    btnToggleBulk.textContent = bulkBox.classList.contains('hidden') ? '+ افزودن چند لینک با هم' : '− بستن پنجره چند لینک';
-  });
-}
-
-function parseBulkLinks() {
-  const raw = $('in-url-bulk').value.trim();
-  if (!raw) { toast('حداقل یه خط وارد کن', 'error'); return; }
-  const lines = raw.split(/\n/).map(l => l.trim()).filter(Boolean);
-  let added = 0;
-  lines.forEach((line) => {
-    const parts = line.split(/\s+/);
-    const url = parts[0];
-    let label = parts.slice(1).join(' ') || '';
-    if (!url.startsWith('http')) return;
-    if (!label) {
-      const m = url.match(/[_-](\d{3,4}p)[._-]?/i);
-      label = m ? m[1] : ('لینک ' + (added + 1));
-    }
-    addLinkRow(label, url);
-    added++;
-  });
-  if (added) {
-    toast(added + ' لینک اضافه شد', 'success');
-    $('in-url-bulk').value = '';
-    bulkBox.classList.add('hidden');
-    btnToggleBulk.textContent = '+ افزودن چند لینک با هم';
-  } else {
-    toast('هیچ لینک معتبری پیدا نشد', 'error');
-  }
-}
-
-const btnParseBulk = $('btn-parse-bulk');
-if (btnParseBulk) btnParseBulk.addEventListener('click', parseBulkLinks);
-
-// ---------- Linkfinder ----------
-const lfProxyStoreKey = 'kafinet_lf_proxy';
-function lfLoadProxy() {
-  try {
-    const v = localStorage.getItem(lfProxyStoreKey);
-    if (v && $('lf-proxy')) $('lf-proxy').value = v;
-  } catch (e) {}
-}
-function lfSaveProxy() {
-  try {
-    if ($('lf-save-proxy').checked) localStorage.setItem(lfProxyStoreKey, $('lf-proxy').value.trim());
-    else localStorage.removeItem(lfProxyStoreKey);
-  } catch (e) {}
-}
-
-function lfEscapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-async function lfFetchHtml(url, proxy) {
-  let fetchUrl = url;
-  if (proxy) {
-    fetchUrl = proxy + encodeURIComponent(url);
-  }
-  const res = await fetch(fetchUrl, { method: 'GET', mode: 'cors' });
-  if (!res.ok) throw new Error('خطا در دریافت صفحه (' + res.status + ')');
-  return res.text();
-}
-
-function lfExtractLinks(htmlText, pageUrl) {
-  const base = new URL(pageUrl);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlText, 'text/html');
-  const anchors = Array.from(doc.querySelectorAll('a[href]'));
-  const seen = new Set();
-  const results = [];
-  anchors.forEach((a) => {
-    let href = a.getAttribute('href').trim();
-    if (!href) return;
-    // Resolve relative URLs
-    let absolute;
-    try { absolute = new URL(href, base).href; } catch (e) { return; }
-    if (seen.has(absolute)) return;
-    // Only keep links that look like downloadable files (common extensions)
-    const extMatch = absolute.match(/\.(mp4|mkv|avi|mov|wmv|flv|webm|m4v|mp3|m4a|wav|ogg|aac|flac|zip|rar|7z|tar|gz|pdf|apk|exe|dmg|iso)([#?].*)?$/i);
-    if (!extMatch) return;
-    seen.add(absolute);
-    const label = (a.textContent || '').trim().slice(0, 60) || extMatch[1].toUpperCase();
-    results.push({ url: absolute, label });
-  });
-  return results;
-}
-
-function lfRenderResults(results) {
-  const box = $('lf-results');
-  const actions = $('lf-actions');
-  if (!results.length) {
-    box.innerHTML = '<div class="empty-msg">هیچ لینک دانلودی پیدا نشد</div>';
-    actions.style.display = 'none';
-    return;
-  }
-  box.innerHTML = results.map((r, i) => `
-    <div class="item" style="align-items:flex-start;">
-      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; flex:1;">
-        <input type="checkbox" class="lf-check" data-i="${i}" style="width:auto; flex-shrink:0;" checked>
-        <div style="min-width:0;">
-          <div class="t" style="font-weight:600;">${lfEscapeHtml(r.label)}</div>
-          <div class="d" style="font-size:12px; direction:ltr; text-align:right;">${lfEscapeHtml(r.url)}</div>
-        </div>
-      </label>
-    </div>
-  `).join('');
-  actions.style.display = 'block';
-}
-
-async function lfRun() {
-  const url = $('lf-url').value.trim();
-  if (!url) { toast('آدرس صفحه رو وارد کن', 'error'); return; }
-  const proxy = $('lf-proxy').value.trim();
-  const status = $('lf-status');
-  const btn = $('lf-run');
-  btn.disabled = true;
-  status.textContent = 'در حال دریافت صفحه…';
-  try {
-    const htmlText = await lfFetchHtml(url, proxy);
-    status.textContent = 'در حال استخراج لینک‌ها…';
-    const results = lfExtractLinks(htmlText, url);
-    lfRenderResults(results);
-    status.textContent = results.length ? (results.length + ' لینک پیدا شد') : 'هیچ لینک دانلودی پیدا نشد';
-    lfSaveProxy();
-  } catch (e) {
-    status.textContent = '';
-    toast(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function lfAddToForm(all) {
-  const checks = document.querySelectorAll('.lf-check');
-  let added = 0;
-  checks.forEach((cb) => {
-    if (all || cb.checked) {
-      const i = parseInt(cb.getAttribute('data-i'), 10);
-      const r = lfLastResults[i];
-      if (r) { addLinkRow(r.label, r.url); added++; }
-    }
-  });
-  if (added) {
-    toast(added + ' لینک به فرم اضافه شد', 'success');
-    switchMainTab('content');
-    $('section-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    toast('هیچ لینکی انتخاب نشده', 'error');
-  }
-}
-
-let lfLastResults = [];
-
-if ($('lf-run')) $('lf-run').addEventListener('click', lfRun);
-if ($('lf-add-selected')) $('lf-add-selected').addEventListener('click', () => lfAddToForm(false));
-if ($('lf-add-all')) $('lf-add-all').addEventListener('click', () => lfAddToForm(true));
-lfLoadProxy();
-
-// ---------- end of bulk & linkfinder ----------
-
 </script>
 </body>
 </html>
