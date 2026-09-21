@@ -1,19 +1,41 @@
 name: Build Android APK
 
+# ─────────────────────────────────────────────────────────────
+# نکته‌ی مهم:
+# این ورک‌فلو فقط وقتی اجرا می‌شه که فایل‌های «کد» برنامه عوض بشن.
+# یعنی وقتی از پنل مدیریت عکس/فیلم/لینک/آزمون اضافه می‌کنی
+# (که فقط media/ و content.json رو تغییر می‌ده)، دیگه نسخه‌ی جدید ساخته نمی‌شه.
+# ─────────────────────────────────────────────────────────────
+
 on:
   push:
     branches: [ "main" ]
-    tags: [ "v*" ]
+    paths:
+      - 'app/**'
+      - '.build-trigger'
+      - '.github/workflows/android-build.yml'
+    tags: [ "v*" ]          # پوش تگ دستی همیشه بیلد می‌شه (فیلتر paths روی تگ اعمال نمی‌شه)
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
+    paths:
+      - 'app/**'
+      - '.build-trigger'
+      - '.github/workflows/android-build.yml'
+  workflow_dispatch:        # اجرای دستی و اجباری از تب Actions
 
 permissions:
   contents: write
 
+# اگه دو بیلد با هم شروع بشن، این‌ها به‌ترتیب (نه همزمان) اجرا می‌شن تا git push با هم تصادم نکنه.
+concurrency:
+  group: android-build
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    # تور اطمینان دوم: کامیت‌های خودِ ربات ([skip ci]) باعث بیلد دوباره نمی‌شن.
+    if: "!contains(github.event.head_commit.message || '', '[skip ci]')"
 
     steps:
       - name: Checkout code
@@ -56,9 +78,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ماشین‌های گیت‌هاب‌اکشن از قبل Android SDK نصب دارن؛ این مرحله حذف شده چون
-      # اکشن android-actions/setup-android سعی می‌کرد یه پکیج قدیمی و منسوخ‌شده
-      # (tools) نصب کنه که دیگه تو مخزن گوگل وجود نداره و باعث شکست بیلد می‌شد.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -103,14 +122,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # از اینجا به بعد: کپی APK به یه مسیر ثابت، و کامیت خودِ نسخه‌ی بالارفته —
-      # هردو با هم، فقط وقتی که بیلد تا اینجا با موفقیت رسیده باشه.
+      # فقط یک فایل ثابت latest.apk توی مخزن می‌مونه (برای دکمه‌ی «به‌روزرسانی برنامه»).
+      # فایل نسخه‌دار دیگه تو مخزن کامیت نمی‌شه — به‌جاش تو Artifacts و Releases هست.
       - name: Copy APK for Pages download
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           mkdir -p apk
           cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/latest.apk
-          cp "app/build/outputs/apk/debug/ASANNET-v${{ steps.appversion.outputs.version }}.apk" "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk"
           VERSION_CODE=$(grep -m1 'versionCode' app/build.gradle | grep -oE '[0-9]+')
           cat > apk/version.json << JSON_EOF
           {
@@ -125,7 +143,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apk/latest.apk "apk/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/version.json app/build.gradle
+          git add apk/latest.apk apk/version.json app/build.gradle
           git commit -m "بیلد موفق: نسخه v${{ steps.appversion.outputs.version }} [skip ci]" || echo "چیزی برای کامیت نبود"
           git pull --no-rebase --no-edit || true
           git push
