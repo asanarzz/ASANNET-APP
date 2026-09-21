@@ -1,0 +1,40 @@
+name: Clean old APKs
+
+# این ورک‌فلو فقط دستی اجرا می‌شه (تب Actions ← Clean old APKs ← Run workflow).
+# همه‌ی APKهای قدیمی داخل پوشه‌ی apk/ رو پاک می‌کنه و فقط فایل‌های
+# زیر رو نگه می‌داره:
+#   apk/latest.apk   (برای دکمه‌ی به‌روزرسانی برنامه)
+#   apk/version.json (نسخه‌ی فعلی)
+#
+# نسخه‌های قدیمی توی بخش Releases و Artifacts گیت‌هاب باقی می‌مونن، پس چیزی گم نمی‌شه.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Delete old APK files
+        run: |
+          echo "قبل از پاک‌سازی:"
+          ls -lh apk/ || true
+          find apk -maxdepth 1 -type f -name '*.apk' ! -name 'latest.apk' -print -delete
+          find apk -maxdepth 1 -type f -name 'ASANNET-v*.apk' -print -delete
+          echo "بعد از پاک‌سازی:"
+          ls -lh apk/ || true
+
+      - name: Commit removal
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A apk
+          git commit -m "پاک‌سازی APKهای قدیمی [skip ci]" || echo "چیزی برای کامیت نبود"
+          git pull --no-rebase --no-edit || true
+          git push
