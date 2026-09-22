@@ -254,7 +254,7 @@
         <p class="muted">این مشخص می‌کنه تو صفحه‌ی «فیلم» این مورد زیر کدوم ردیف (فیلم‌ها یا سریال‌ها) نشون داده بشه.</p>
       </div>
 
-      <div id="links-box" class="hidden" style="margin-top:14px;">
+      <div id="links-box" style="margin-top:14px;">
         <label>لینک‌های دانلود</label>
         <p class="muted">
           برای فیلم: هر کیفیت (۴۸۰p، ۷۲۰p، ۱۰۸۰p و...) یه ردیف. برای سریال: هر قسمت یه ردیف
@@ -405,9 +405,8 @@ let selectedVideoKind = 'movie';
 function updateVideoBoxesVisibility() {
   const isVideo = selectedType === 'video';
   const kindBox = document.getElementById('video-kind-box');
-  const linksBox = document.getElementById('links-box');
   if (kindBox) kindBox.classList.toggle('hidden', !isVideo);
-  if (linksBox) linksBox.classList.toggle('hidden', !isVideo);
+  // links-box is now always visible for all content types
 }
 
 function makeLinkRow(label, url) {
@@ -1385,6 +1384,7 @@ function showApp() {
 
 window.addEventListener('DOMContentLoaded', () => {
   initTabs();
+  updateVideoBoxesVisibility();
   $('btn-connect').addEventListener('click', connect);
   loadConfig();
   if (cfg && cfg.owner && cfg.repo && cfg.token) {
