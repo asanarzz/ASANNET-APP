@@ -198,6 +198,7 @@
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
       <div class="main-tab" id="main-tab-support">پیام‌ها</div>
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
+      <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
     </div>
 
     <div id="section-content">
@@ -253,7 +254,7 @@
         <p class="muted">این مشخص می‌کنه تو صفحه‌ی «فیلم» این مورد زیر کدوم ردیف (فیلم‌ها یا سریال‌ها) نشون داده بشه.</p>
       </div>
 
-      <div id="links-box" style="margin-top:14px;">
+      <div id="links-box" class="hidden" style="margin-top:14px;">
         <label>لینک‌های دانلود</label>
         <p class="muted">
           برای فیلم: هر کیفیت (۴۸۰p، ۷۲۰p، ۱۰۸۰p و...) یه ردیف. برای سریال: هر قسمت یه ردیف
@@ -261,6 +262,12 @@
         </p>
         <div id="links-list"></div>
         <button type="button" class="btn-outline btn-full" id="btn-add-link" style="margin-top:8px;">+ افزودن لینک</button>
+        <button type="button" class="btn-outline btn-full" id="btn-toggle-bulk-link" style="margin-top:8px; color:#2563EB; border-color:#2563EB;">+ افزودن چند لینک با هم</button>
+        <div id="bulk-link-box" class="hidden" style="margin-top:10px;">
+          <textarea id="in-url-bulk" placeholder="هر خط یه لینک&#10;https://... 720p&#10;https://... 1080p&#10;..." style="min-height:120px;"></textarea>
+          <p class="muted">هر خط: آدرس + فاصله + برچسب (مثلاً 720p یا قسمت 1). اگه برچسب نباشه، خودش می‌سازه.</p>
+          <button type="button" class="btn-primary btn-full" id="btn-parse-bulk" style="margin-top:8px;">✓ تبدیل به ردیف‌ها</button>
+        </div>
       </div>
 
       <div class="muted" id="banner-size-hint" style="margin-top:6px; display:none;">
@@ -337,6 +344,33 @@
       </div>
     </div>
 
+    <!-- Linkfinder section -->
+    <div id="section-linkfinder" class="hidden">
+      <div class="card">
+        <h2>لینک‌یاب — استخراج خودکار لینک‌ها</h2>
+        <p class="muted">آدرس صفحه‌ای که لینک‌های دانلود توش هست رو بذار، ما خودمون لینک‌ها رو پیدا می‌کنیم.</p>
+
+        <label>آدرس صفحه</label>
+        <input type="url" id="lf-url" placeholder="https://example.com/page-with-links">
+
+        <label>پروکسی (اختیاری — اگه صفحه لود می‌شه)</label>
+        <input type="text" id="lf-proxy" placeholder="https://api.allorigins.win/raw?url=">
+        <p class="muted">
+          <label style="display:inline; margin:0;"><input type="checkbox" id="lf-save-proxy" style="width:auto; vertical-align:middle;"> این پروکسی رو برای دفعه بعد یادت بمونه</label>
+        </p>
+
+        <button type="button" class="btn-primary btn-full" id="lf-run">🔍 جستجو و استخراج لینک‌ها</button>
+        <div id="lf-status" class="muted" style="margin-top:10px;"></div>
+
+        <div id="lf-results" style="margin-top:14px;"></div>
+
+        <div id="lf-actions" style="margin-top:14px; display:none;">
+          <button type="button" class="btn-primary btn-full" id="lf-add-selected">➕ افزودن لینک‌های انتخاب‌شده به فرم</button>
+          <button type="button" class="btn-outline btn-full" id="lf-add-all" style="margin-top:8px;">➕ افزودن همه‌ی لینک‌ها به فرم</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -373,8 +407,7 @@ function updateVideoBoxesVisibility() {
   const kindBox = document.getElementById('video-kind-box');
   const linksBox = document.getElementById('links-box');
   if (kindBox) kindBox.classList.toggle('hidden', !isVideo);
-  // links-box is now shown for ALL content types
-  if (linksBox) linksBox.classList.remove('hidden');
+  if (linksBox) linksBox.classList.toggle('hidden', !isVideo);
 }
 
 function makeLinkRow(label, url) {
@@ -1056,7 +1089,7 @@ async function handleAdd() {
 
     const combinedImages = editingId ? editingExistingImages.concat(newImages) : newImages;
 
-    const linksValue = collectLinks();
+    const linksValue = selectedType === 'video' ? collectLinks() : [];
 
     if (!url && combinedImages.length === 0 && linksValue.length === 0) {
       toast('حداقل یه لینک یا یه فایل وارد کن', 'error');
@@ -1279,6 +1312,7 @@ function initTabs() {
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
   $('main-tab-support').addEventListener('click', () => switchMainTab('support'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
+  $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
 }
 
 let docsLoaded = false;
@@ -1289,10 +1323,12 @@ function switchMainTab(which) {
   $('main-tab-docs').classList.toggle('active', which === 'docs');
   $('main-tab-support').classList.toggle('active', which === 'support');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
+  $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('section-content').classList.toggle('hidden', which !== 'content');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
   $('section-support').classList.toggle('hidden', which !== 'support');
   $('section-stats').classList.toggle('hidden', which !== 'stats');
+  $('section-linkfinder').classList.toggle('hidden', which !== 'linkfinder');
   if (which === 'docs' && !docsLoaded) {
     docsLoaded = true;
     loadDocuments();
@@ -1355,7 +1391,6 @@ window.addEventListener('DOMContentLoaded', () => {
     showApp();
   }
 });
-
 
 // ---------- Bulk Link ----------
 const btnToggleBulk = $('btn-toggle-bulk-link');
