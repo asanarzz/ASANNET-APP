@@ -789,5 +789,29 @@
     "title": "بنر ساز قیمت",
     "description": "با این برنامه تحت میتونید هر وقت که خواستید قیمت دلار و طلا و سکه و ارزهای دیجیتال رو بصورت لحظه ای دریافت و بنر اونو دانلود کنید",
     "url": "https://github.com/asanarzz/ASANNET-APP/blob/main/media/price-banner-2.html"
+  },
+  {
+    "id": "item_1790053032193",
+    "type": "video",
+    "title": "Black Panther 2018  IMDB 7.3",
+    "description": "پس از اتفاقات « کاپیتان آمریکا : جنگ داخلی »؛ پادشاه تچالا به واکاندا باز می‌گردد و در آنجا متوجه می‌شود که دو دشمن قوی برای نابودی او اتحاد تشکیل داده‌اند…\n\nزمان : 134 دقیقه\nاکران :\n1396/11/09\nانتشار :\n1397/12/08\nرده‌سنی : PG-13\nکشور سازنده :\nUnited States\nزبان :\nEnglish\n,\nKorean\n,\nNama\n,\nSwahili\n,\nXhosa",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1790053030060-0-uxzzxijgpiy7slzfvmotpv8wjka-360x480.jpg"
+    ],
+    "links": [
+      {
+        "label": "1080p",
+        "url": "https://gnjx4q9pgkzymnchqbc3fy74.abrtech.top/aG5p/Film/New-Server/Black.Panther.2018.480p.Farsi.Dubbed.Film2Media.mkv"
+      },
+      {
+        "label": "720p",
+        "url": "https://gnjx4q9pgkzymnchqbc3fy74.abrtech.top/aG5p/Film/New-Server/Black.Panther.2018.720p.Farsi.Dubbed.Film2Media.mkv"
+      },
+      {
+        "label": "480p",
+        "url": "https://gnjx4q9pgkzymnchqbc3fy74.abrtech.top/aG5p/Film/New-Server/Black.Panther.2018.1080p.Farsi.Dubbed.Film2Media.mkv"
+      }
+    ]
   }
 ]
