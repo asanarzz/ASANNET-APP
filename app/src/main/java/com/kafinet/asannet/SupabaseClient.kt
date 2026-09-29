@@ -459,6 +459,7 @@ object SupabaseClient {
                     val row = array.getJSONObject(i)
                     result.add(
                         SupportMessage(
+                            id = row.optLong("id", -1L),
                             sender = row.optString("sender", "user"),
                             operatorName = row.optStringOrNull("operator_name"),
                             message = row.optStringOrNull("message"),
@@ -472,6 +473,59 @@ object SupabaseClient {
                 result
             } catch (e: Exception) {
                 emptyList()
+            }
+        }
+
+    /** متن یه پیام (فقط پیام‌های خودِ کاربر) رو ویرایش می‌کنه. */
+    suspend fun editSupportMessage(context: Context, messageId: Long, newText: String): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+                val anonKey = context.getString(R.string.supabase_anon_key)
+                if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext false
+
+                val url = URL("$baseUrl/rest/v1/support_messages?id=eq.$messageId")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "PATCH"
+                connection.doOutput = true
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.setRequestProperty("apikey", anonKey)
+                connection.setRequestProperty("Authorization", "Bearer $anonKey")
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("Prefer", "return=minimal")
+
+                val body = JSONObject().apply { put("message", newText) }
+                connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+                val code = connection.responseCode
+                connection.disconnect()
+                code in 200..299
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+    /** یه پیام (فقط پیام‌های خودِ کاربر) رو حذف می‌کنه. */
+    suspend fun deleteSupportMessage(context: Context, messageId: Long): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+                val anonKey = context.getString(R.string.supabase_anon_key)
+                if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext false
+
+                val url = URL("$baseUrl/rest/v1/support_messages?id=eq.$messageId")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "DELETE"
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.setRequestProperty("apikey", anonKey)
+                connection.setRequestProperty("Authorization", "Bearer $anonKey")
+                connection.setRequestProperty("Prefer", "return=minimal")
+                val code = connection.responseCode
+                connection.disconnect()
+                code in 200..299
+            } catch (e: Exception) {
+                false
             }
         }
 }

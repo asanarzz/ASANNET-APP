@@ -10,7 +10,8 @@ import com.kafinet.asannet.databinding.ItemSupportMessageBinding
 
 class SupportMessageAdapter(
     private var items: List<SupportMessage>,
-    private val onAttachmentClick: (SupportMessage) -> Unit
+    private val onAttachmentClick: (SupportMessage) -> Unit,
+    private val onLongClick: (SupportMessage) -> Unit
 ) : RecyclerView.Adapter<SupportMessageAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemSupportMessageBinding) : RecyclerView.ViewHolder(binding.root)
@@ -77,6 +78,15 @@ class SupportMessageAdapter(
         }
 
         holder.binding.txtTime.text = formatMessageTime(item.createdAt)
+
+        holder.binding.bubble.setOnLongClickListener {
+            onLongClick(item)
+            true
+        }
+        holder.binding.root.setOnLongClickListener {
+            onLongClick(item)
+            true
+        }
     }
 
     override fun getItemCount(): Int = items.size
