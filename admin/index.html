@@ -682,9 +682,75 @@ function renderSupportThread(nationalCode) {
     }
     const who = isUser ? '' : `<div style="font-size:11px; color:var(--primary); font-weight:600;">${escapeHtml(m.operator_name || 'پشتیبانی')}</div>`;
     const side = isUser ? 'margin-right:auto;' : 'margin-left:auto;';
-    return `<div style="max-width:80%; margin:6px 0; padding:8px 12px; border-radius:12px; background:${isUser ? '#EEF0FF' : '#F4F4F5'}; ${side}">${who}${content}</div>`;
+
+    const actions = [];
+    if (m.message) actions.push(`<span class="link-btn" data-act="copy" data-id="${m.id}">کپی</span>`);
+    if (!isUser && m.message) actions.push(`<span class="link-btn" data-act="edit" data-id="${m.id}">ویرایش</span>`);
+    actions.push(`<span class="link-btn" data-act="delete" data-id="${m.id}" style="color:var(--danger);">حذف</span>`);
+    const actionsHtml = `<div style="display:flex; gap:10px; margin-top:6px; font-size:11px;">${actions.join('')}</div>`;
+
+    return `<div style="max-width:80%; margin:6px 0; padding:8px 12px; border-radius:12px; background:${isUser ? '#EEF0FF' : '#F4F4F5'}; ${side}">${who}${content}${actionsHtml}</div>`;
   }).join('');
   area.scrollTop = area.scrollHeight;
+
+  area.querySelectorAll('[data-act]').forEach((el) => {
+    const id = el.getAttribute('data-id');
+    const act = el.getAttribute('data-act');
+    el.addEventListener('click', () => {
+      if (act === 'copy') copySupportMessage(id);
+      if (act === 'edit') editSupportMessage(id);
+      if (act === 'delete') deleteSupportMessage(id);
+    });
+  });
+}
+
+function findSupportMessageById(id) {
+  for (const conv of supportConversations) {
+    const found = conv.messages.find((m) => String(m.id) === String(id));
+    if (found) return found;
+  }
+  return null;
+}
+
+function copySupportMessage(id) {
+  const msg = findSupportMessageById(id);
+  if (!msg || !msg.message) return;
+  navigator.clipboard.writeText(msg.message).then(
+    () => toast('کپی شد', 'success'),
+    () => toast('کپی نشد', 'error')
+  );
+}
+
+async function editSupportMessage(id) {
+  const msg = findSupportMessageById(id);
+  if (!msg) return;
+  const newText = prompt('ویرایش پیام:', msg.message || '');
+  if (newText === null || newText.trim() === '') return;
+  try {
+    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/support_messages?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: Object.assign({}, sbHeaders(), { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ message: newText.trim() }),
+    });
+    if (!res.ok) throw new Error();
+    await loadSupportMessages();
+  } catch (e) {
+    toast('ویرایش ناموفق بود', 'error');
+  }
+}
+
+async function deleteSupportMessage(id) {
+  if (!confirm('این پیام حذف بشه؟')) return;
+  try {
+    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/support_messages?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=minimal' }),
+    });
+    if (!res.ok) throw new Error();
+    await loadSupportMessages();
+  } catch (e) {
+    toast('حذف ناموفق بود', 'error');
+  }
 }
 
 async function sendSupportReply() {
