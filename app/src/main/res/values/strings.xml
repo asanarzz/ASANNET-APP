@@ -4,6 +4,7 @@
     <string name="app_subtitle">با آسان نت همه چی آسان میشه</string>
     <string name="app_version_label">نسخه %1$s</string>
 
+    <string name="support_message_copied">پیام کپی شد</string>
     <!-- منوی کشویی -->
     <string name="menu_settings">تنظیمات</string>
     <string name="menu_about">درباره آسان‌نت</string>
