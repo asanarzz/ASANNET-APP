@@ -16,11 +16,9 @@ android {
     }
 
     signingConfigs {
-        debug {
+        release {
             // این مقادیر هیچ‌وقت مستقیم تو کد نوشته نمی‌شن — موقع بیلد از
             // متغیرهای محیطی (که GitHub Actions از GitHub Secrets پر می‌کنه) خونده می‌شن.
-            // برای بیلد لوکال (روی گوشی/کامپیوتر خودت)، همین مقادیر رو به‌صورت
-            // متغیر محیطی ست کن، یا این بلاک رو موقتاً با کلید دیباگ پیش‌فرض جایگزین کن.
             storeFile file(System.getenv("KAFINET_KEYSTORE_PATH") ?: "kafinet-release.keystore")
             storePassword System.getenv("KAFINET_KEYSTORE_PASSWORD") ?: ""
             keyAlias System.getenv("KAFINET_KEY_ALIAS") ?: "kafinet"
@@ -30,10 +28,10 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            // نوع دیباگ از کلید موقت و خودکار خودِ اندروید استفاده می‌کنه، نیازی به تنظیم نداره
         }
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
