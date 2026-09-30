@@ -51,7 +51,11 @@ class SupportActivity : AppCompatActivity() {
             return
         }
 
-        adapter = SupportMessageAdapter(emptyList()) { message -> openAttachment(message) }
+        adapter = SupportMessageAdapter(
+            emptyList(),
+            onAttachmentClick = { message -> openAttachment(message) },
+            onLongClick = { message -> copyMessageText(message) }
+        )
         binding.recyclerMessages.layoutManager = LinearLayoutManager(this)
         binding.recyclerMessages.adapter = adapter
 
@@ -144,6 +148,14 @@ class SupportActivity : AppCompatActivity() {
             .edit()
             .putString("last_seen_reply_at", lastAdminTime)
             .apply()
+    }
+
+    private fun copyMessageText(message: SupportMessage) {
+        val text = message.message
+        if (text.isNullOrBlank()) return
+        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("support_message", text))
+        Toast.makeText(this, R.string.support_message_copied, Toast.LENGTH_SHORT).show()
     }
 
     private fun openAttachment(message: SupportMessage) {
