@@ -25,7 +25,11 @@ object ContentOpener {
         when (extension) {
             "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true)
             "pdf" -> openPdf(activity, url, title)
-            "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
+            "apk" -> {
+                if (DownloadHelper.ensureStoragePermission(activity)) {
+                    DownloadHelper.downloadUrl(activity, url, title)
+                }
+            }
             in imageExtensions -> openImage(activity, url, title)
             in audioExtensions -> openAudio(activity, url, title)
             "m3u" -> {
