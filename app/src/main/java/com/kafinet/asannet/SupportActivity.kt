@@ -10,20 +10,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.kafinet.asannet.databinding.ActivitySupportBinding
 import kotlinx.coroutines.launch
 
-/**
- * چت پشتیبانی: کاربرِ واردشده با پشتیبانی (یک یا چند اپراتور) پیام رد و بدل
- * می‌کنه، همراه با امکان فرستادن عکس/ویدیو/فایل. برای این‌که حس زنده داشته باشه،
- * هر ۳ ثانیه (وقتی صفحه بازه) خودش پیام‌های تازه رو می‌گیره.
- */
 class SupportActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySupportBinding
     private lateinit var adapter: SupportMessageAdapter
     private var nationalCode: String = ""
     private var userName: String = ""
+    private var hasLoadedMessages = false
 
     private val refreshHandler = Handler(Looper.getMainLooper())
     private val refreshRunnable = object : Runnable {
@@ -99,20 +96,30 @@ class SupportActivity : AppCompatActivity() {
                     Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
                     return@launch
                 }
+
                 val attachmentType = when {
                     mimeType.startsWith("image/") -> "image"
                     mimeType.startsWith("video/") -> "video"
                     else -> "file"
                 }
+
                 Toast.makeText(this@SupportActivity, R.string.support_uploading, Toast.LENGTH_SHORT).show()
+
                 val ok = SupabaseClient.sendSupportMessage(
-                    this@SupportActivity, nationalCode, userName, "",
+                    this@SupportActivity,
+                    nationalCode,
+                    userName,
+                    "",
                     attachmentBytes = bytes,
                     attachmentFileName = fileName,
                     attachmentMimeType = mimeType,
                     attachmentType = attachmentType
                 )
-                if (!ok) Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
+
+                if (!ok) {
+                    Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
+                }
+
                 loadMessages()
             } catch (e: Exception) {
                 Toast.makeText(this@SupportActivity, R.string.support_send_failed, Toast.LENGTH_SHORT).show()
@@ -123,20 +130,63 @@ class SupportActivity : AppCompatActivity() {
     private fun queryFileName(uri: Uri): String? {
         var name: String? = null
         val cursor = contentResolver.query(uri, null, null, null, null)
+
         cursor?.use {
             val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (it.moveToFirst() && idx >= 0) name = it.getString(idx)
+            if (it.moveToFirst() && idx >= 0) {
+                name = it.getString(idx)
+            }
         }
+
         return name
     }
 
     private fun loadMessages() {
         lifecycleScope.launch {
-            val messages = SupabaseClient.fetchSupportMessages(this@SupportActivity, nationalCode)
+            val layoutManager = binding.recyclerMessages.layoutManager as LinearLayoutManager
+
+            // حفظ موقع فعلی کاربر قبل از رفرش خودکار
+            val wasAtBottom = !binding.recyclerMessages.canScrollVertically(1)
+            val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+
+            val firstVisibleView =
+                if (firstVisiblePosition != RecyclerView.NO_POSITION) {
+                    layoutManager.findViewByPosition(firstVisiblePosition)
+                } else {
+                    null
+                }
+
+            val firstVisibleOffset = firstVisibleView?.top ?: 0
+
+            val messages =
+                SupabaseClient.fetchSupportMessages(this@SupportActivity, nationalCode)
+
             adapter.updateItems(messages)
+
             if (messages.isNotEmpty()) {
-                binding.recyclerMessages.scrollToPosition(messages.size - 1)
+                when {
+                    // فقط بار اول، چت را به آخرین پیام ببر
+                    !hasLoadedMessages -> {
+                        binding.recyclerMessages.scrollToPosition(messages.size - 1)
+                    }
+
+                    // اگر خود کاربر پایین بوده، پایین بمان
+                    wasAtBottom -> {
+                        binding.recyclerMessages.scrollToPosition(messages.size - 1)
+                    }
+
+                    // اگر کاربر مشغول خواندن پیام‌های قدیمی است،
+                    // دقیقاً همان موقعیت قبلی را حفظ کن
+                    firstVisiblePosition != RecyclerView.NO_POSITION -> {
+                        layoutManager.scrollToPositionWithOffset(
+                            firstVisiblePosition,
+                            firstVisibleOffset
+                        )
+                    }
+                }
             }
+
+            hasLoadedMessages = true
             markAsSeen(messages)
         }
     }
@@ -144,6 +194,7 @@ class SupportActivity : AppCompatActivity() {
     private fun markAsSeen(messages: List<SupportMessage>? = null) {
         val list = messages ?: return
         val lastAdminTime = list.lastOrNull { it.sender == "admin" }?.createdAt ?: return
+
         getSharedPreferences("kafinet_support", MODE_PRIVATE)
             .edit()
             .putString("last_seen_reply_at", lastAdminTime)
@@ -153,22 +204,56 @@ class SupportActivity : AppCompatActivity() {
     private fun copyMessageText(message: SupportMessage) {
         val text = message.message
         if (text.isNullOrBlank()) return
-        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("support_message", text))
-        Toast.makeText(this, R.string.support_message_copied, Toast.LENGTH_SHORT).show()
+
+        val clipboard =
+            getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                    as android.content.ClipboardManager
+
+        clipboard.setPrimaryClip(
+            android.content.ClipData.newPlainText("support_message", text)
+        )
+
+        Toast.makeText(
+            this,
+            R.string.support_message_copied,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun openAttachment(message: SupportMessage) {
         val url = message.attachmentUrl ?: return
+
         when (message.attachmentType) {
             "image" -> {
-                val intent = android.content.Intent(this, ImageViewerActivity::class.java)
-                intent.putExtra(ImageViewerActivity.EXTRA_URL, url)
-                intent.putExtra(ImageViewerActivity.EXTRA_TITLE, message.attachmentName ?: "")
+                val intent =
+                    android.content.Intent(this, ImageViewerActivity::class.java)
+
+                intent.putExtra(
+                    ImageViewerActivity.EXTRA_URL,
+                    url
+                )
+
+                intent.putExtra(
+                    ImageViewerActivity.EXTRA_TITLE,
+                    message.attachmentName ?: ""
+                )
+
                 startActivity(intent)
             }
-            "video" -> DownloadHelper.downloadAndOpenExternally(this, url, message.attachmentName ?: "video", "video/*")
-            else -> DownloadHelper.downloadAndOpenExternally(this, url, message.attachmentName ?: "file", "*/*")
+
+            "video" -> DownloadHelper.downloadAndOpenExternally(
+                this,
+                url,
+                message.attachmentName ?: "video",
+                "video/*"
+            )
+
+            else -> DownloadHelper.downloadAndOpenExternally(
+                this,
+                url,
+                message.attachmentName ?: "file",
+                "*/*"
+            )
         }
     }
 }
