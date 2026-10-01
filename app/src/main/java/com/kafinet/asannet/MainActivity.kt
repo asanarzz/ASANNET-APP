@@ -135,13 +135,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.navItemUpdate.setOnClickListener {
             binding.drawerLayout.closeDrawers()
-            val update = pendingUpdate
-            if (update != null) {
-                Toast.makeText(this, "در حال دانلود نسخه‌ی ${update.versionName}…", Toast.LENGTH_SHORT).show()
-                DownloadHelper.downloadAndInstallApk(this, update.apkUrl, "ASANNET-${update.versionName}")
-            } else {
-                Toast.makeText(this, "برنامه به‌روزه", Toast.LENGTH_SHORT).show()
-            }
+            openBazaar()
         }
         checkForAppUpdate()
         checkForUnreadSupportReply()
@@ -236,6 +230,24 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(BannerDetailActivity.EXTRA_TITLE, banner.title)
         intent.putExtra(BannerDetailActivity.EXTRA_DESCRIPTION, banner.description)
         startActivity(intent)
+    }
+
+    /** صفحه‌ی برنامه در کافه بازار را باز می‌کند (اگر بازار نصب نبود، صفحه‌ی وب آن را). */
+    private fun openBazaar() {
+        val pkg = packageName
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("bazaar://details?id=$pkg"))
+            intent.setPackage("com.farsitel.bazaar")
+            startActivity(intent)
+        } catch (e: Exception) {
+            try {
+                startActivity(
+                    Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cafebazaar.ir/app/$pkg"))
+                )
+            } catch (e2: Exception) {
+                Toast.makeText(this, R.string.error_loading, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     /** فایل نصب (APK) فعلی برنامه را در حافظه‌ی موقت کپی و از طریق FileProvider به اشتراک می‌گذارد. */
