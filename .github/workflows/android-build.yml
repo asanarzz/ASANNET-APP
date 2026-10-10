@@ -129,6 +129,7 @@ jobs:
         run: |
           mkdir -p apk
           cp "app/build/outputs/apk/release/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/latest.apk
+          cp "app/build/outputs/apk/release/ASANNET-v${{ steps.appversion.outputs.version }}.apk" apk/ASANNET.apk
           VERSION_CODE=$(grep -m1 'versionCode' app/build.gradle | grep -oE '[0-9]+')
           cat > apk/version.json << JSON_EOF
           {
@@ -143,7 +144,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apk/latest.apk apk/version.json app/build.gradle
+          git add apk/latest.apk apk/ASANNET.apk apk/version.json app/build.gradle
           git commit -m "بیلد موفق: نسخه v${{ steps.appversion.outputs.version }} [skip ci]" || echo "چیزی برای کامیت نبود"
           git pull --no-rebase --no-edit || true
           git push
