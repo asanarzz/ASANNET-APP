@@ -35,6 +35,11 @@ class WebViewActivity : AppCompatActivity() {
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+
+        // پکیج‌نیم اپ‌های فروشگاه — برای اینکه لینک مستقیم به خودشون باز بشه، نه مرورگر داخلی
+        private const val PKG_GOOGLE_PLAY = "com.android.vending"
+        private const val PKG_CAFE_BAZAAR = "com.farsitel.bazaar"
+        private const val PKG_MYKET = "ir.mservices.market"
     }
 
     private lateinit var binding: ActivityWebviewBinding
@@ -49,6 +54,13 @@ class WebViewActivity : AppCompatActivity() {
         currentUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
         val title = intent.getStringExtra(EXTRA_TITLE).orEmpty()
         binding.txtToolbarTitle.text = title
+
+        // لینک‌های پلی‌استور / کافه‌بازار / مایکت اصلاً وارد وب‌ویو نمی‌شن؛
+        // مستقیم با اپ خودشون باز می‌شن و این صفحه بسته می‌شه
+        if (currentUrl.isNotBlank() && tryOpenInStoreApp(currentUrl)) {
+            finish()
+            return
+        }
 
         val allowDownload = intent.getBooleanExtra(EXTRA_ALLOW_DOWNLOAD, false)
         if (allowDownload) {
@@ -76,6 +88,40 @@ class WebViewActivity : AppCompatActivity() {
         setupDownloadHandling(title)
         if (currentUrl.isNotBlank()) {
             loadSmart(currentUrl)
+        }
+    }
+
+    /**
+     * اگه لینک مال گوگل‌پلی، کافه‌بازار یا مایکت باشه، مستقیم با همون اپ باز می‌کنه
+     * (یا اگه اپ نصب نبود، با مرورگر پیش‌فرض گوشی — نه وب‌ویوی داخلی).
+     * خروجی true یعنی «این لینک این‌جا هندل شد، لازم نیست تو وب‌ویو لود بشه».
+     */
+    private fun tryOpenInStoreApp(url: String): Boolean {
+        val storePackage = storePackageFor(url) ?: return false
+
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                setPackage(storePackage)
+            })
+            return true
+        } catch (e: Exception) {
+            // اپ فروشگاه مربوطه نصب نیست -> با مرورگر پیش‌فرض گوشی باز کن
+        }
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: Exception) {
+            Toast.makeText(this, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
+        }
+        return true
+    }
+
+    private fun storePackageFor(url: String): String? {
+        val lower = url.lowercase()
+        return when {
+            lower.contains("play.google.com") || lower.startsWith("market://") -> PKG_GOOGLE_PLAY
+            lower.contains("cafebazaar.ir") || lower.startsWith("bazaar://") -> PKG_CAFE_BAZAAR
+            lower.contains("myket.ir") || lower.startsWith("myket://") -> PKG_MYKET
+            else -> null
         }
     }
 
@@ -188,6 +234,13 @@ class WebViewActivity : AppCompatActivity() {
         binding.webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 if (url == null) return false
+
+                // لینک پلی‌استور/بازار/مایکت وسط مرورگر داخلی هم که باشه، بازم با اپ خودش باز می‌شه
+                if (storePackageFor(url) != null) {
+                    tryOpenInStoreApp(url)
+                    return true
+                }
+
                 if (url.startsWith("http://") || url.startsWith("https://")) {
                     return false
                 }
