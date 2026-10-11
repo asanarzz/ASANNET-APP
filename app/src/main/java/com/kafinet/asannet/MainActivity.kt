@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bannerAdapter: BannerCarouselAdapter
     private var pendingUpdate: AppUpdateInfo? = null
+    private var forcedUpdateDialog: android.app.AlertDialog? = null
 
     private val bannerAutoScrollHandler = Handler(Looper.getMainLooper())
     private var bannerAutoScrollIndex = 0
@@ -208,7 +209,47 @@ class MainActivity : AppCompatActivity() {
             pendingUpdate = update
             binding.dotUpdateAvailable.visibility =
                 if (update != null) android.view.View.VISIBLE else android.view.View.GONE
+            if (update != null && update.force) showForcedUpdateDialog(update)
         }
+    }
+
+    /** پنجره‌ی به‌روزرسانی اجباری: بسته نمی‌شود و تا به‌روزرسانی نکنید نمی‌شود از برنامه استفاده کرد. */
+    private fun showForcedUpdateDialog(update: AppUpdateInfo) {
+        if (isFinishing || isDestroyed) return
+        if (forcedUpdateDialog?.isShowing == true) return
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setTitle("به‌روزرسانی ضروری")
+            .setMessage(
+                "نسخه‌ی جدید «آسان نت» (" + update.versionName + ") منتشر شده است.\n" +
+                    "برای ادامه‌ی استفاده از برنامه، لطفاً آن را به‌روزرسانی کنید."
+            )
+            .setCancelable(false)
+            .setPositiveButton("به‌روزرسانی", null)
+            .setNeutralButton("دانلود با مرورگر", null)
+            .setNegativeButton("خروج") { _, _ -> finishAffinity() }
+            .create()
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        // با دادن listener بعد از show، دکمه‌ها پنجره را نمی‌بندند.
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            DownloadHelper.downloadAndInstallApk(this, update.apkUrl, "ASANNET-" + update.versionName)
+        }
+        dialog.getButton(android.app.AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.apkUrl)))
+            } catch (e: Exception) {
+                Toast.makeText(this, R.string.error_loading, Toast.LENGTH_SHORT).show()
+            }
+        }
+        forcedUpdateDialog = dialog
+    }
+
+    override fun onDestroy() {
+        try {
+            forcedUpdateDialog?.dismiss()
+        } catch (e: Exception) {
+        }
+        super.onDestroy()
     }
 
     /** اگه پشتیبانی جواب تازه‌ای داده که کاربر هنوز ندیده، رو آیتم «پیام به
