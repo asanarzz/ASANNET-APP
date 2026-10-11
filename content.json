@@ -1093,5 +1093,17 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716058825-0-screenshot-20261011141956.jpg",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716062511-1-screenshot-20261011142039.jpg"
     ]
+  },
+  {
+    "id": "item_1791716385055",
+    "type": "software",
+    "title": "فیلتر شکن psiphon",
+    "description": "",
+    "url": "https://play.google.com/store/apps/details?id=com.psiphon3.subscription",
+    "section": "فیلتر شکن",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716371265-0-screenshot-20261011142707.jpg",
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716379641-1-screenshot-20261011142636.jpg"
+    ]
   }
 ]
