@@ -2,15 +2,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/splash_bg">
+    android:background="#FFFFFF">
+
+    <VideoView
+        android:id="@+id/vid_splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
 
     <ImageView
-        android:id="@+id/img_splash_logo"
-        android:layout_width="240dp"
-        android:layout_height="240dp"
+        android:id="@+id/img_splash_cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:scaleType="fitCenter"
-        android:src="@drawable/splash_33"
+        android:src="@drawable/splash_first_frame"
         android:contentDescription="@null"/>
 
 </FrameLayout>
