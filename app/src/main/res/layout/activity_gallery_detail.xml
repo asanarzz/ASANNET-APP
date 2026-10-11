@@ -39,62 +39,91 @@
             tools:text="عنوان"/>
     </LinearLayout>
 
-    <ScrollView
+    <!-- عکس ۹۰٪ و توضیحات ۱۰٪ باقیمونده‌ی صفحه؛ با لمس توضیحات، به‌صورت کامل باز می‌شه -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/image_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="9">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_images"
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="match_parent"
                 android:background="@color/black"/>
 
             <TextView
                 android:id="@+id/txt_image_counter"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingVertical="6dp"
-                android:background="@color/black"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
+                android:background="#99000000"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 tools:text="۱ از ۵"/>
+        </FrameLayout>
+
+        <ScrollView
+            android:id="@+id/caption_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@color/bg">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="16dp">
+
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/text_muted"
+                    android:alpha="0.4"/>
 
                 <TextView
                     android:id="@+id/txt_headline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:textColor="@color/text_main"
-                    android:textSize="19sp"
+                    android:textSize="17sp"
                     android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:text="عنوان"/>
 
                 <TextView
                     android:id="@+id/txt_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="6dp"
                     android:textColor="@color/text_muted"
-                    android:textSize="15sp"
-                    android:lineSpacingExtra="4dp"/>
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
 
                 <Button
                     android:id="@+id/btn_action"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="14dp"
                     android:backgroundTint="@color/primary"
                     android:textColor="@color/white"
                     android:textSize="15sp"
@@ -102,7 +131,7 @@
                     tools:text="باز کردن لینک"/>
 
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>
