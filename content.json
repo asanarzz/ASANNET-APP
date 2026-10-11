@@ -1080,5 +1080,16 @@
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791712387569-0-screenshot-20261011131834.jpg"
     ]
+  },
+  {
+    "id": "item_1791712719673",
+    "type": "software",
+    "title": "فیلتر شکن hot vpn",
+    "description": "روی choose server بزنین یه سرور که سبز شده انتخاب کنین و استارت رو بزنین",
+    "url": "",
+    "section": "فیلتر شکن",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791712714099-0-screenshot-20261011131834.jpg"
+    ]
   }
 ]
