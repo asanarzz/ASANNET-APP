@@ -1115,5 +1115,12 @@
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791741013304-0-asannett-banner.png"
     ]
+  },
+  {
+    "id": "item_1791803834653",
+    "type": "radio",
+    "title": "رادیو خبر",
+    "description": "صدا و سیما IRIB",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-monasebati/playlist.m3u8"
   }
 ]
