@@ -1115,5 +1115,12 @@
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791741013304-0-asannett-banner.png"
     ]
+  },
+  {
+    "id": "item_1791807766816",
+    "type": "radio",
+    "title": "رادیو آوا",
+    "description": "صدا و سیما IRIB",
+    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE"
   }
 ]
