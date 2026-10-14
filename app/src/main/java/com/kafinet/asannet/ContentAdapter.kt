@@ -36,6 +36,7 @@ class ContentAdapter(
             ContentType.SOFTWARE -> R.drawable.ic_software to R.drawable.icon_circle_software
             ContentType.MUSIC -> R.drawable.ic_music to R.drawable.icon_circle_music
             ContentType.RADIO -> R.drawable.ic_radio to R.drawable.icon_circle_radio
+            ContentType.TV -> R.drawable.ic_video to R.drawable.icon_circle_video
             ContentType.FUN -> R.drawable.ic_fun to R.drawable.icon_circle_fun
             ContentType.DOCS -> R.drawable.ic_docs to R.drawable.icon_circle_docs
             ContentType.POWER_OUTAGE -> R.drawable.ic_power to R.drawable.icon_circle_power
