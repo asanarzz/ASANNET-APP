@@ -11,8 +11,8 @@ android {
         applicationId "com.kafinet.asannet"
         minSdk 26
         targetSdk 34
-        versionCode 137
-        versionName "4.0.2"
+        versionCode 138
+        versionName "4.0.3"
     }
 
     signingConfigs {
