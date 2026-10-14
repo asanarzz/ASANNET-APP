@@ -79,7 +79,8 @@ class MainActivity : AppCompatActivity() {
             CategoryEntry(ContentType.NEWSPAPER, "روزنامه", R.drawable.cat_newspaper, 0),
             CategoryEntry(ContentType.PRICE, "دلار و طلا", R.drawable.cat_price, 0),
             CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0),
-            CategoryEntry(null, getString(R.string.cat_docs), R.drawable.cat_docs, 0, isSubmit = true)
+            CategoryEntry(null, getString(R.string.cat_docs), R.drawable.cat_docs, 0, isSubmit = true),
+            CategoryEntry(ContentType.TV, "تلویزیون", R.drawable.cat_tv, 0)
         )
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
