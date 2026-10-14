@@ -14,6 +14,7 @@ enum class ContentType(val key: String) {
     SOFTWARE("software"),
     MUSIC("music"),
     RADIO("radio"),
+    TV("tv"),
     FUN("fun"),
     DOCS("docs"),
     POWER_OUTAGE("power_outage"),
