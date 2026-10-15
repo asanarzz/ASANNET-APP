@@ -1120,5 +1120,13 @@
     "description": "شبکه 3 صدا و سیما",
     "url": "https://ncdn.telewebion.ir/tv3/live/playlist.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792044881911",
+    "type": "tv",
+    "title": "IRIB 2",
+    "description": "شبکه 2 صدا و سیما",
+    "url": "https://ncdn.telewebion.ir/tv2/live/playlist.m3u8",
+    "section": "سرگرمی"
   }
 ]
