@@ -1112,5 +1112,13 @@
     "description": "شبکه خبری فارسی زبان",
     "url": "https://hlspackager.akamaized.net/live/DB/IRAN_INTERNATIONAL/HLS/IRAN_INTERNATIONAL.m3u8",
     "section": "خبری"
+  },
+  {
+    "id": "item_1792044675333",
+    "type": "tv",
+    "title": "IRIB 3",
+    "description": "شبکه 3 صدا و سیما",
+    "url": "https://ncdn.telewebion.ir/tv3/live/playlist.m3u8",
+    "section": "سرگرمی"
   }
 ]
