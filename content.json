@@ -1136,5 +1136,13 @@
     "description": "شبکه 1 صدا و سیما",
     "url": "https://ncdn.telewebion.ir/tv1/live/playlist.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792045144217",
+    "type": "tv",
+    "title": "PERSIANA IRANIAN",
+    "description": "فیلم و سریال",
+    "url": "https://irhls.persiana.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
