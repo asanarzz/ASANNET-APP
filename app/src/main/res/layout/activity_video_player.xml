@@ -36,6 +36,24 @@
             xmlns:tools="http://schemas.android.com/tools"/>
 
         <ImageView
+            android:id="@+id/btn_rotate"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:src="@drawable/ic_screen_rotate"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"/>
+
+        <ImageView
+            android:id="@+id/btn_cast"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:src="@drawable/ic_tv_cast"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"/>
+
+        <ImageView
             android:id="@+id/btn_download"
             android:layout_width="40dp"
             android:layout_height="40dp"
