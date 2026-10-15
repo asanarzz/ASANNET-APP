@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref == 'refs/heads/main' && 'main' || github.ref }}
 
       # فقط موقع پوش مستقیم به main (یا اجرای دستی)، قبل از بیلد نسخه رو بالا می‌بریم.
       # اگه بیلد شکست بخوره، این تغییر هیچ‌وقت کامیت نمی‌شه (چون مرحله‌ی کامیت آخر کاره).
@@ -146,5 +148,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add apk/latest.apk apk/ASANNET.apk apk/version.json app/build.gradle
           git commit -m "بیلد موفق: نسخه v${{ steps.appversion.outputs.version }} [skip ci]" || echo "چیزی برای کامیت نبود"
-          git pull --no-rebase --no-edit || true
+          git pull --no-rebase -X ours --no-edit || true
           git push
