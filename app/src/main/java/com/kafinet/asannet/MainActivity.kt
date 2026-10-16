@@ -64,23 +64,27 @@ class MainActivity : AppCompatActivity() {
 
 
         val categories = listOf(
+            // ردیف اول (از چپ به راست): موزیک، عکس، فیلم، تلویزیون، رادیو
+            CategoryEntry(ContentType.MUSIC, "موزیک", R.drawable.cat_music, 0),
             CategoryEntry(ContentType.IMAGE, getString(R.string.cat_image), R.drawable.cat_image, 0),
             CategoryEntry(ContentType.VIDEO, getString(R.string.cat_video), R.drawable.cat_video, 0),
-            CategoryEntry(ContentType.BANNER, getString(R.string.cat_banner), R.drawable.cat_banner, 0),
-            CategoryEntry(ContentType.LINK, getString(R.string.cat_link), R.drawable.cat_link, 0),
-            CategoryEntry(ContentType.FILE, getString(R.string.cat_file), R.drawable.cat_file, 0),
-            CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.cat_test, 0),
-            CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.cat_poll, 0),
-            CategoryEntry(ContentType.SOFTWARE, "نرم افزار", R.drawable.cat_software, 0),
-            CategoryEntry(ContentType.MUSIC, "موزیک", R.drawable.cat_music, 0),
+            CategoryEntry(ContentType.TV, "تلویزیون", R.drawable.cat_tv, 0),
             CategoryEntry(ContentType.RADIO, getString(R.string.cat_radio), R.drawable.cat_radio, 0),
+            // ردیف دوم: سرگرمی، بنر، فایل، لینک، نرم‌افزار
             CategoryEntry(ContentType.FUN, getString(R.string.cat_fun), R.drawable.cat_fun, 0),
+            CategoryEntry(ContentType.BANNER, getString(R.string.cat_banner), R.drawable.cat_banner, 0),
+            CategoryEntry(ContentType.FILE, getString(R.string.cat_file), R.drawable.cat_file, 0),
+            CategoryEntry(ContentType.LINK, getString(R.string.cat_link), R.drawable.cat_link, 0),
+            CategoryEntry(ContentType.SOFTWARE, "نرم افزار", R.drawable.cat_software, 0),
+            // ردیف سوم: خاموشی برق، روزنامه، دلار و طلا، نظرسنجی، آزمون
             CategoryEntry(ContentType.POWER_OUTAGE, getString(R.string.cat_power), R.drawable.cat_power, 0),
             CategoryEntry(ContentType.NEWSPAPER, "روزنامه", R.drawable.cat_newspaper, 0),
             CategoryEntry(ContentType.PRICE, "دلار و طلا", R.drawable.cat_price, 0),
-            CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0),
+            CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.cat_poll, 0),
+            CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.cat_test, 0),
+            // ردیف چهارم: ارسال مدارک، همه خدمات
             CategoryEntry(null, getString(R.string.cat_docs), R.drawable.cat_docs, 0, isSubmit = true),
-            CategoryEntry(ContentType.TV, "تلویزیون", R.drawable.cat_tv, 0)
+            CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0)
         )
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
