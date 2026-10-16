@@ -2,6 +2,8 @@ package com.kafinet.asannet
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
+import android.widget.MediaController
 import android.widget.VideoView
 import kotlin.math.max
 
@@ -40,5 +42,25 @@ class FitVideoView @JvmOverloads constructor(
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         }
+    }
+}
+
+/**
+ * کنترل پخش (MediaController) که دکمه‌ی برگشت گوشی را قورت نمی‌دهد:
+ * در MediaController معمولی، اگر کنترل‌ها روی صفحه باشند، اولین برگشت فقط آن‌ها را می‌بندد.
+ * اینجا برگشت همیشه مستقیم پخش‌کننده را می‌بندد.
+ */
+class PlayerMediaController(context: Context) : MediaController(context) {
+
+    var onBack: (() -> Unit)? = null
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (event.action == KeyEvent.ACTION_UP) {
+                onBack?.invoke()
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 }
