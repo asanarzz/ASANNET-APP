@@ -2,6 +2,7 @@ package com.kafinet.asannet
 
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -10,8 +11,8 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.MediaController
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.kafinet.asannet.databinding.ActivityVideoPlayerBinding
 
@@ -24,8 +25,13 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideoPlayerBinding
     private val handler = Handler(Looper.getMainLooper())
-    private val hideHeaderRunnable = Runnable { binding.header.visibility = View.GONE }
+    private var player: MediaPlayer? = null
+    private val hideUiRunnable = Runnable {
+        binding.header.visibility = View.GONE
+        applyImmersive()
+    }
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,18 +46,18 @@ class VideoPlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
         applyImmersive()
 
-        // دکمه‌های بالا از زیر فرورفتگی دوربین بیرون بیایند
+        // دکمه‌های بالا از زیر فرورفتگی دوربین و نوارهای سیستم بیرون بیایند
         val basePadding = binding.header.paddingTop
         binding.header.setOnApplyWindowInsetsListener { v, insets ->
-            var left = 0
-            var top = 0
-            var right = 0
+            var left = insets.systemWindowInsetLeft
+            var top = insets.systemWindowInsetTop
+            var right = insets.systemWindowInsetRight
             if (Build.VERSION.SDK_INT >= 28) {
                 val cutout = insets.displayCutout
                 if (cutout != null) {
-                    left = cutout.safeInsetLeft
-                    top = cutout.safeInsetTop
-                    right = cutout.safeInsetRight
+                    left = maxOf(left, cutout.safeInsetLeft)
+                    top = maxOf(top, cutout.safeInsetTop)
+                    right = maxOf(right, cutout.safeInsetRight)
                 }
             }
             v.setPadding(basePadding + left, basePadding + top, basePadding + right, basePadding)
@@ -61,30 +67,41 @@ class VideoPlayerActivity : AppCompatActivity() {
         binding.txtTitle.text = intent.getStringExtra(EXTRA_TITLE).orEmpty()
         val url = intent.getStringExtra(EXTRA_URL).orEmpty()
 
-        binding.btnBack.setOnClickListener { finish() }
+        // برگشت (دکمه‌ی گوشی یا فلش بالا) همیشه مستقیم پخش‌کننده را می‌بندد
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                closePlayer()
+            }
+        })
+        binding.btnBack.setOnClickListener { closePlayer() }
 
-        // چرخش صفحه: به‌صورت پیش‌فرض با چرخاندن گوشی می‌چرخد (حتی اگر چرخش خودکار گوشی خاموش باشد)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
-        // دکمه‌ی چرخش: بین حالت افقی و عمودی جابه‌جا می‌کند
+        // پخش‌کننده همیشه عمودی باز می‌شود و فقط با دکمه‌ی چرخش می‌چرخد
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         binding.btnRotate.setOnClickListener {
             val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             requestedOrientation = if (landscape) {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             } else {
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             }
-            showHeaderTemporarily()
+            showUiTemporarily()
         }
         // دکمه‌ی اندازه‌ی تصویر: کل تصویر ⇄ پر کردن تمام صفحه
         binding.btnZoom.setOnClickListener {
             val fill = !binding.videoView.zoomToFill
+            player?.let {
+                try {
+                    binding.videoView.setVideoSize(it.videoWidth, it.videoHeight)
+                } catch (e: Exception) {
+                }
+            }
             binding.videoView.zoomToFill = fill
             Toast.makeText(
                 this,
                 if (fill) "تصویر، کل صفحه را پر کرد" else "اندازه‌ی اصلی تصویر",
                 Toast.LENGTH_SHORT
             ).show()
-            showHeaderTemporarily()
+            showUiTemporarily()
         }
         // دکمه‌ی ارسال به تلویزیون (DLNA)
         binding.btnCast.setOnClickListener {
@@ -97,28 +114,31 @@ class VideoPlayerActivity : AppCompatActivity() {
             }
         }
 
-        // با لمس صفحه، نوار بالا نشان داده یا مخفی می‌شود (کنترل‌های پخش را خود MediaController نشان می‌دهد)
+        // با لمس صفحه، نوار بالا و دکمه‌های گوشی چند ثانیه دیده می‌شوند.
+        // (VideoView فقط شروع لمس را می‌فرستد، پس باید روی ACTION_DOWN منتظر بمانیم.)
         binding.videoView.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                if (binding.header.visibility == View.VISIBLE) {
-                    handler.removeCallbacks(hideHeaderRunnable)
-                    binding.header.visibility = View.GONE
-                } else {
-                    showHeaderTemporarily()
-                }
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                showUiTemporarily()
             }
             false
         }
 
-        val mediaController = MediaController(this)
-        mediaController.setAnchorView(binding.videoView)
+        val mediaController = PlayerMediaController(this)
+        mediaController.onBack = { closePlayer() }
         binding.videoView.setMediaController(mediaController)
 
         binding.videoView.setOnPreparedListener { mp ->
+            player = mp
             binding.progress.visibility = View.GONE
             binding.videoView.setVideoSize(mp.videoWidth, mp.videoHeight)
-            mp.setOnVideoSizeChangedListener { _, w, h -> binding.videoView.setVideoSize(w, h) }
             binding.videoView.start()
+        }
+        // اندازه‌ی تصویر شبکه‌های زنده گاهی دیرتر مشخص می‌شود
+        binding.videoView.setOnInfoListener { mp, what, _ ->
+            if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                binding.videoView.setVideoSize(mp.videoWidth, mp.videoHeight)
+            }
+            false
         }
         binding.videoView.setOnErrorListener { _, _, _ ->
             binding.progress.visibility = View.GONE
@@ -132,14 +152,29 @@ class VideoPlayerActivity : AppCompatActivity() {
             binding.progress.visibility = View.GONE
         }
 
-        showHeaderTemporarily()
+        showUiTemporarily()
     }
 
-    /** نوار بالا را نشان می‌دهد و بعد از چند ثانیه دوباره مخفی می‌کند. */
-    private fun showHeaderTemporarily() {
+    private fun closePlayer() {
+        handler.removeCallbacksAndMessages(null)
+        finish()
+    }
+
+    /** نوار بالا و نوارهای سیستم (از جمله دکمه‌ی برگشت گوشی) را چند ثانیه نشان می‌دهد. */
+    private fun showUiTemporarily() {
         binding.header.visibility = View.VISIBLE
-        handler.removeCallbacks(hideHeaderRunnable)
-        handler.postDelayed(hideHeaderRunnable, 4000)
+        showSystemBars()
+        handler.removeCallbacks(hideUiRunnable)
+        handler.postDelayed(hideUiRunnable, 4000)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun showSystemBars() {
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            )
     }
 
     /** نوار وضعیت و دکمه‌های پایین گوشی را مخفی می‌کند تا ویدیو تمام‌صفحه شود. */
@@ -162,6 +197,7 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
+        player = null
         binding.videoView.stopPlayback()
         super.onDestroy()
     }
