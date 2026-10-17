@@ -105,16 +105,7 @@ object DlnaCaster {
         val shownKeys = HashSet<String>()
         var scanId = 0
 
-        fun addDeviceRow(device: Device) {
-            val key = device.controlUrl
-            if (!shownKeys.add(key)) return
-            val row = TextView(ctx).apply {
-                text = "📺  " + device.name
-                textSize = 17f
-                setPadding(dp(8), dp(14), dp(8), dp(14))
-                setBackgroundResource(rowBackground.resourceId)
-                isClickable = true
-                setOnClickListener {
+        fun sendTo(device: Device, direct: Boolean) {
                     cancelled.set(true)
                     statusText.text = "در حال ارسال به «" + device.name + "»…"
                     progress.visibility = View.VISIBLE
@@ -122,7 +113,7 @@ object DlnaCaster {
                     Thread {
                         var error: String? = null
                         try {
-                            cast(device, mediaUrl, title)
+                            cast(device, mediaUrl, title, direct)
                         } catch (e: Exception) {
                             error = e.message ?: "خطای نامشخص"
                         }
@@ -150,9 +141,29 @@ object DlnaCaster {
                             }
                         }
                     }.start()
-                }
+        }
+
+        fun addDeviceRow(device: Device) {
+            val key = device.controlUrl
+            if (!shownKeys.add(key)) return
+            val row = TextView(ctx).apply {
+                text = "📺  " + device.name
+                textSize = 17f
+                setPadding(dp(8), dp(14), dp(8), dp(14))
+                setBackgroundResource(rowBackground.resourceId)
+                isClickable = true
+                setOnClickListener { sendTo(device, false) }
             }
             listBox.addView(row)
+            val rowDirect = TextView(ctx).apply {
+                text = "↳ ارسال مستقیم (اگر روش بالا صدا یا تصویر نداشت)"
+                textSize = 13f
+                setPadding(dp(32), dp(2), dp(8), dp(12))
+                setBackgroundResource(rowBackground.resourceId)
+                isClickable = true
+                setOnClickListener { sendTo(device, true) }
+            }
+            listBox.addView(rowDirect)
         }
 
         fun startScan() {
@@ -216,12 +227,12 @@ object DlnaCaster {
      * لینک‌های زنده (HLS / .m3u8) اول از طریق «واسطه‌ی روی گوشی» فرستاده می‌شوند و اگر نشد، مستقیم؛
      * فایل‌های ساده (mp4 و ...) اول مستقیم و بعد از طریق واسطه.
      */
-    fun cast(device: Device, mediaUrl: String, title: String) {
+    fun cast(device: Device, mediaUrl: String, title: String, direct: Boolean = false) {
         val local = localIpv4()
         val ext = mediaUrl.lowercase().substringBefore('?').substringAfterLast('.', "")
         val progressive = ext in listOf("mp4", "m4v", "mkv", "avi", "ts", "mpg", "mpeg", "mp3", "aac")
         val order = when {
-            local == null -> listOf(false)
+            direct || local == null -> listOf(false)
             progressive -> listOf(false, true)
             else -> listOf(true, false)
         }
