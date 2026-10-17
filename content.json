@@ -1144,5 +1144,19 @@
     "description": "فیلم و سریال",
     "url": "https://irhls.persiana.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792272204023",
+    "type": "tv",
+    "title": "استانی",
+    "description": "شبکه های استانی کشور",
+    "url": "https://ncdn.telewebion.ir/aftab/live/playlist.m3u8https://ncdn.telewebion.ir/aflak/live/playlist.m3u8https://ncdn.telewebion.ir/abadan/live/playlist.m3u8",
+    "section": "شبکه های استانی",
+    "links": [
+      {
+        "label": "لینک 1",
+        "url": "https://ncdn.telewebion.ir/aftab/live/playlist.m3u8https://ncdn.telewebion.ir/aflak/live/playlist.m3u8https://ncdn.telewebion.ir/abadan/live/playlist.m3u8"
+      }
+    ]
   }
 ]
