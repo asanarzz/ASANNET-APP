@@ -133,7 +133,7 @@ object DlnaCaster {
                                 } else {
                                     progress.visibility = View.GONE
                                     listBox.visibility = View.VISIBLE
-                                    statusText.text = "ارسال ناموفق بود. تلویزیون این لینک را نپذیرفت یا قابل پخش نیست."
+                                    statusText.text = "ارسال ناموفق بود. تلویزیون این لینک را نپذیرفت یا قابل پخش نیست.\n(" + (error ?: "") + ")"
                                 }
                             } catch (ignored: Exception) {
                             }
@@ -200,30 +200,56 @@ object DlnaCaster {
 
     /** لینک را به تلویزیون می‌فرستد و پخش را شروع می‌کند. باید خارج از نخ اصلی صدا زده شود. */
     fun cast(device: Device, mediaUrl: String, title: String) {
-        val didl = "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" " +
+        // تلویزیون‌های مختلف سلیقه‌ی متفاوتی دارند؛ چند حالت را به ترتیب امتحان می‌کنیم
+        val urls = ArrayList<String>()
+        urls.add(mediaUrl)
+        if (mediaUrl.startsWith("https://", ignoreCase = true)) {
+            urls.add("http://" + mediaUrl.substring(8))
+        }
+        val mime = mimeFor(mediaUrl)
+        val metaVariants = listOf(
+            didl(title, mediaUrl, "http-get:*:" + mime + ":*"),
+            didl(title, mediaUrl, "http-get:*:" + mime + ":DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000"),
+            ""
+        )
+
+        var lastError: Exception? = null
+        for (candidate in urls) {
+            for (meta in metaVariants) {
+                val metaForUrl = if (meta.isEmpty()) "" else meta.replace(esc(mediaUrl), esc(candidate))
+                try {
+                    try {
+                        soap(device.controlUrl, "Stop", "<InstanceID>0</InstanceID>")
+                    } catch (ignored: Exception) {
+                    }
+                    Thread.sleep(300)
+                    soap(
+                        device.controlUrl,
+                        "SetAVTransportURI",
+                        "<InstanceID>0</InstanceID><CurrentURI>" + esc(candidate) + "</CurrentURI>" +
+                            "<CurrentURIMetaData>" + esc(metaForUrl) + "</CurrentURIMetaData>"
+                    )
+                    Thread.sleep(500)
+                    soap(device.controlUrl, "Play", "<InstanceID>0</InstanceID><Speed>1</Speed>")
+                    lastDevice = device
+                    return
+                } catch (e: Exception) {
+                    lastError = e
+                }
+            }
+        }
+        throw lastError ?: IOException("ارسال ناموفق")
+    }
+
+    private fun didl(title: String, url: String, protocolInfo: String): String =
+        "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" " +
             "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
             "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">" +
             "<item id=\"0\" parentID=\"-1\" restricted=\"false\">" +
             "<dc:title>" + esc(title) + "</dc:title>" +
             "<upnp:class>object.item.videoItem</upnp:class>" +
-            "<res protocolInfo=\"http-get:*:" + mimeFor(mediaUrl) + ":*\">" + esc(mediaUrl) + "</res>" +
+            "<res protocolInfo=\"" + protocolInfo + "\">" + esc(url) + "</res>" +
             "</item></DIDL-Lite>"
-
-        try {
-            soap(device.controlUrl, "Stop", "<InstanceID>0</InstanceID>")
-        } catch (ignored: Exception) {
-        }
-        Thread.sleep(300)
-        soap(
-            device.controlUrl,
-            "SetAVTransportURI",
-            "<InstanceID>0</InstanceID><CurrentURI>" + esc(mediaUrl) + "</CurrentURI>" +
-                "<CurrentURIMetaData>" + esc(didl) + "</CurrentURIMetaData>"
-        )
-        Thread.sleep(500)
-        soap(device.controlUrl, "Play", "<InstanceID>0</InstanceID><Speed>1</Speed>")
-        lastDevice = device
-    }
 
     /** پخش روی آخرین تلویزیونی که به آن ارسال شده را متوقف می‌کند. */
     fun stop() {
@@ -252,7 +278,12 @@ object DlnaCaster {
         } catch (e: Exception) {
             ""
         }
-        if (code !in 200..299) throw IOException("HTTP " + code + " " + text.take(200))
+        if (code !in 200..299) {
+            val faultCode = Regex("<errorCode>(.*?)</errorCode>", RegexOption.IGNORE_CASE).find(text)?.groupValues?.get(1)
+            val faultText = Regex("<errorDescription>(.*?)</errorDescription>", RegexOption.IGNORE_CASE).find(text)?.groupValues?.get(1)
+            val detail = if (faultCode != null) "خطای تلویزیون " + faultCode + (if (faultText != null) " (" + faultText + ")" else "") else text.take(120)
+            throw IOException(action + ": HTTP " + code + " — " + detail)
+        }
         return text
     }
 
