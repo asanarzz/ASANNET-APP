@@ -29,6 +29,13 @@ object StreamRelay {
     @Volatile
     private var serverSocket: ServerSocket? = null
 
+    /** آخرین خطای واسطه و تعداد بایت‌های ارسال‌شده به تلویزیون (برای تشخیص مشکل). */
+    @Volatile
+    var lastError: String? = null
+
+    @Volatile
+    var bytesSent: Long = 0
+
     @Volatile
     private var lastActive = System.currentTimeMillis()
     private val clients = java.util.Collections.synchronizedList(ArrayList<Socket>())
@@ -42,6 +49,8 @@ object StreamRelay {
     @Synchronized
     fun start(sourceUrl: String, local: InetAddress): String {
         stop()
+        lastError = null
+        bytesSent = 0
         val server = ServerSocket(0, 8, local)
         serverSocket = server
         lastActive = System.currentTimeMillis()
@@ -104,6 +113,9 @@ object StreamRelay {
 
             stream(sourceUrl, out) { !client.isClosed }
         } catch (e: Exception) {
+            if (e !is ClientClosed) {
+                lastError = (e.javaClass.simpleName + ": " + (e.message ?: "")).take(100)
+            }
         } finally {
             try {
                 client.close()
@@ -136,8 +148,10 @@ object StreamRelay {
 
         while (alive()) {
             var text: String? = null
+            var base = current
             try {
                 val conn = openWithRedirects(current)
+                base = conn.url.toString()
                 val bis = BufferedInputStream(conn.inputStream, 64 * 1024)
                 bis.mark(16)
                 val head = ByteArray(7)
@@ -173,7 +187,7 @@ object StreamRelay {
             if (lines.any { it.startsWith("#EXT-X-STREAM-INF") }) {
                 variantHops += 1
                 if (variantHops > 5) throw IOException("playlist loop")
-                current = pickVariant(lines, current)
+                current = pickVariant(lines, base)
                 continue
             }
             if (lines.any { it.startsWith("#EXT-X-KEY") && !it.contains("METHOD=NONE") }) {
@@ -192,7 +206,7 @@ object StreamRelay {
                     l.startsWith("#EXT-X-MEDIA-SEQUENCE:") -> mediaSeq = l.substringAfter(':').trim().toLongOrNull() ?: 0L
                     l.startsWith("#EXT-X-TARGETDURATION:") -> target = l.substringAfter(':').trim().toIntOrNull() ?: 6
                     l.startsWith("#EXT-X-ENDLIST") -> endList = true
-                    l.isNotEmpty() && !l.startsWith("#") -> segments.add(resolve(current, l))
+                    l.isNotEmpty() && !l.startsWith("#") && !l.startsWith("EXT-X-") -> segments.add(resolve(base, l))
                 }
             }
             val live = !endList
@@ -229,6 +243,7 @@ object StreamRelay {
             if (n < 0) break
             try {
                 out.write(buffer, 0, n)
+                bytesSent += n
             } catch (e: IOException) {
                 throw ClientClosed()
             }

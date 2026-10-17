@@ -155,15 +155,6 @@ object DlnaCaster {
                 setOnClickListener { sendTo(device, false) }
             }
             listBox.addView(row)
-            val rowDirect = TextView(ctx).apply {
-                text = "↳ ارسال مستقیم (اگر روش بالا صدا یا تصویر نداشت)"
-                textSize = 13f
-                setPadding(dp(32), dp(2), dp(8), dp(12))
-                setBackgroundResource(rowBackground.resourceId)
-                isClickable = true
-                setOnClickListener { sendTo(device, true) }
-            }
-            listBox.addView(rowDirect)
         }
 
         fun startScan() {
@@ -238,6 +229,7 @@ object DlnaCaster {
         }
 
         var lastError: Exception? = null
+        var relayError: Exception? = null
         for (useRelay in order) {
             try {
                 if (useRelay && local != null) {
@@ -248,15 +240,27 @@ object DlnaCaster {
                         StreamRelay.stop()
                         throw e
                     }
+                    // چند ثانیه صبر کن تا معلوم شود واسطه واقعاً توانسته جریان را بگیرد
+                    val waitStart = System.currentTimeMillis()
+                    while (System.currentTimeMillis() - waitStart < 8000) {
+                        if (StreamRelay.bytesSent > 0) break
+                        val relayProblem = StreamRelay.lastError
+                        if (relayProblem != null) {
+                            StreamRelay.stop()
+                            throw IOException("واسطه‌ی گوشی نتوانست جریان را بگیرد: " + relayProblem)
+                        }
+                        Thread.sleep(300)
+                    }
                 } else {
                     castDirect(device, mediaUrl, title, listOf(mimeFor(mediaUrl)))
                 }
                 return
             } catch (e: Exception) {
                 lastError = e
+                if (useRelay) relayError = e
             }
         }
-        throw lastError ?: IOException("ارسال ناموفق")
+        throw relayError ?: lastError ?: IOException("ارسال ناموفق")
     }
 
     private fun castDirect(device: Device, mediaUrl: String, title: String, mimes: List<String>) {
