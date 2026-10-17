@@ -1144,16 +1144,5 @@
     "description": "فیلم و سریال",
     "url": "https://irhls.persiana.live/hls/stream.m3u8",
     "section": "سرگرمی"
-  },
-  {
-    "id": "item_1792046068220",
-    "type": "tv",
-    "title": "استانی",
-    "description": "استانی",
-    "url": "",
-    "section": "استانی",
-    "images": [
-      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792046420363-0--"
-    ]
   }
 ]
