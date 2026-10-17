@@ -125,6 +125,13 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:theme="@style/Theme.Kafinet.Fullscreen" />
 
+        <!-- پخش‌کننده‌ی جدید (ExoPlayer). پخش‌کننده‌ی قبلی (VideoPlayerActivity) هم سر جایش مانده است. -->
+        <activity
+            android:name=".ExoPlayerActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:theme="@style/Theme.Kafinet.Fullscreen" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
