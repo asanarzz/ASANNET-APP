@@ -395,6 +395,9 @@ object DlnaCaster {
     @Volatile
     private var lastDiag: String = ""
 
+    @Volatile
+    private var lastFetchError: String? = null
+
     private fun discover(
         context: Context,
         local: InetAddress,
@@ -414,6 +417,7 @@ object DlnaCaster {
         val seenDevices = HashSet<String>()
         var socketHolder: MulticastSocket? = null
         var scanError: String? = null
+        val dbg = ArrayList<String>()
         lastDiag = ""
         try {
             val socket = MulticastSocket(null)
@@ -460,6 +464,9 @@ object DlnaCaster {
                     val location = locationLine.substring(9).trim()
                     if (!seenLocations.add(location)) continue
                     val device = fetchDevice(location)
+                    if (dbg.size < 6) {
+                        dbg.add(location.removePrefix("http://") + " ← " + (if (device != null) "OK" else (lastFetchError ?: "؟")))
+                    }
                     if (device != null && seenDevices.add(device.controlUrl)) {
                         onDevice(device)
                     }
@@ -472,7 +479,7 @@ object DlnaCaster {
             lastDiag = when {
                 scanError != null -> "خطا در جستجو: " + scanError
                 seenLocations.isEmpty() -> "هیچ پاسخی از شبکه نیامد. احتمالاً روتر ارتباط بین دستگاه‌ها را مسدود کرده یا گوشی و تلویزیون در یک شبکه نیستند."
-                seenDevices.isEmpty() -> "از " + seenLocations.size + " دستگاه پاسخ آمد ولی هیچ‌کدام قابلیت دریافت ویدیو (DLNA) نداشتند. ممکن است تلویزیون فقط Google Cast پشتیبانی کند."
+                seenDevices.isEmpty() -> "از " + seenLocations.size + " دستگاه پاسخ آمد ولی هیچ‌کدام قابلیت دریافت ویدیو (DLNA) نداشتند. ممکن است تلویزیون فقط Google Cast پشتیبانی کند.\n\n" + dbg.joinToString("\n")
                 else -> ""
             }
             try {
@@ -488,6 +495,7 @@ object DlnaCaster {
 
     /** فایل توضیحات دستگاه را می‌خواند و اگر قابلیت AVTransport داشت (یعنی می‌تواند ویدیو پخش کند) برمی‌گرداند. */
     private fun fetchDevice(location: String): Device? {
+        lastFetchError = null
         try {
             val c = URL(location).openConnection() as HttpURLConnection
             c.connectTimeout = 3000
@@ -504,7 +512,10 @@ object DlnaCaster {
                     break
                 }
             }
-            val controlPath: String = control ?: return null
+            val controlPath: String = control ?: run {
+                lastFetchError = "AVTransport ندارد"
+                return null
+            }
             if (controlPath.isBlank()) return null
 
             val name = Regex("<friendlyName>(.*?)</friendlyName>", RegexOption.IGNORE_CASE)
@@ -514,6 +525,7 @@ object DlnaCaster {
             val baseUrl = URL(if (!base.isNullOrBlank()) base else location)
             return Device(unesc(name ?: "تلویزیون"), URL(baseUrl, controlPath).toString())
         } catch (e: Exception) {
+            lastFetchError = (e.javaClass.simpleName + ": " + (e.message ?: "")).take(90)
             return null
         }
     }
