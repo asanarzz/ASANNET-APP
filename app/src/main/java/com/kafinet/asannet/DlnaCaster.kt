@@ -179,7 +179,8 @@ object DlnaCaster {
                     if (myScan == scanId && dialog.isShowing && !cancelled.get()) {
                         progress.visibility = View.GONE
                         if (found == 0) {
-                            statusText.text = "تلویزیونی پیدا نشد. مطمئن شوید تلویزیون روشن است و به همان Wi-Fi گوشی وصل است."
+                            statusText.text = "تلویزیونی پیدا نشد. مطمئن شوید تلویزیون روشن است و به همان Wi-Fi گوشی وصل است." +
+                                (if (lastDiag.isNotEmpty()) "\n\n" + lastDiag else "")
                         }
                     }
                 }
@@ -391,6 +392,9 @@ object DlnaCaster {
         return fallback
     }
 
+    @Volatile
+    private var lastDiag: String = ""
+
     private fun discover(
         context: Context,
         local: InetAddress,
@@ -409,6 +413,8 @@ object DlnaCaster {
         val seenLocations = HashSet<String>()
         val seenDevices = HashSet<String>()
         var socketHolder: MulticastSocket? = null
+        var scanError: String? = null
+        lastDiag = ""
         try {
             val socket = MulticastSocket(null)
             socketHolder = socket
@@ -424,9 +430,13 @@ object DlnaCaster {
             val group = InetAddress.getByName("239.255.255.250")
             val searchTargets = listOf(
                 "urn:schemas-upnp-org:device:MediaRenderer:1",
-                "urn:schemas-upnp-org:service:AVTransport:1"
+                "urn:schemas-upnp-org:service:AVTransport:1",
+                "urn:schemas-upnp-org:device:MediaRenderer:2",
+                "urn:schemas-upnp-org:service:AVTransport:2",
+                "upnp:rootdevice",
+                "ssdp:all"
             )
-            val end = System.currentTimeMillis() + 8000
+            val end = System.currentTimeMillis() + 10000
             var nextSend = 0L
             val buffer = ByteArray(4096)
             while (!cancelled.get() && System.currentTimeMillis() < end) {
@@ -457,7 +467,14 @@ object DlnaCaster {
                 }
             }
         } catch (e: Exception) {
+            scanError = e.message ?: e.javaClass.simpleName
         } finally {
+            lastDiag = when {
+                scanError != null -> "خطا در جستجو: " + scanError
+                seenLocations.isEmpty() -> "هیچ پاسخی از شبکه نیامد. احتمالاً روتر ارتباط بین دستگاه‌ها را مسدود کرده یا گوشی و تلویزیون در یک شبکه نیستند."
+                seenDevices.isEmpty() -> "از " + seenLocations.size + " دستگاه پاسخ آمد ولی هیچ‌کدام قابلیت دریافت ویدیو (DLNA) نداشتند. ممکن است تلویزیون فقط Google Cast پشتیبانی کند."
+                else -> ""
+            }
             try {
                 socketHolder?.close()
             } catch (e: Exception) {
