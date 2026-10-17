@@ -1148,23 +1148,9 @@
   {
     "id": "item_1792272204023",
     "type": "tv",
-    "title": "استانی",
+    "title": "آفتاب",
     "description": "شبکه های استانی کشور",
     "url": "https://ncdn.telewebion.ir/aftab/live/playlist.m3u8",
-    "section": "شبکه های استانی",
-    "links": [
-      {
-        "label": "",
-        "url": "https://ncdn.telewebion.ir/aftab/live/playlist.m3u8"
-      },
-      {
-        "label": "",
-        "url": "https://ncdn.telewebion.ir/aflak/live/playlist.m3u8"
-      },
-      {
-        "label": "",
-        "url": "https://ncdn.telewebion.ir/abadan/live/playlist.m3u8"
-      }
-    ]
+    "section": "شبکه های استانی"
   }
 ]
