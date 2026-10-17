@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
  */
 object ContentOpener {
 
+    /** true: پخش‌کننده‌ی جدید (ExoPlayer) — false: پخش‌کننده‌ی قبلی */
+    private const val USE_EXO_PLAYER = true
+
     private val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "webp", "bmp")
     private val audioExtensions = setOf("mp3", "m4a", "wav", "ogg", "aac", "flac")
     private val videoExtensions = setOf("mp4", "mkv", "webm", "3gp", "m3u8")
@@ -84,7 +87,9 @@ object ContentOpener {
     }
 
     private fun openVideo(activity: AppCompatActivity, url: String, title: String) {
-        val intent = Intent(activity, VideoPlayerActivity::class.java)
+        // برای برگشت به پخش‌کننده‌ی قبلی، USE_EXO_PLAYER را false کنید
+        val target = if (USE_EXO_PLAYER) ExoPlayerActivity::class.java else VideoPlayerActivity::class.java
+        val intent = Intent(activity, target)
         intent.putExtra(VideoPlayerActivity.EXTRA_URL, url)
         intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, title)
         activity.startActivity(intent)
