@@ -1157,7 +1157,12 @@ async function handleAdd() {
 
     const combinedImages = editingId ? editingExistingImages.concat(newImages) : newImages;
 
-    const linksValue = selectedType === 'video' ? collectLinks() : [];
+    const linksValue = (selectedType === 'video' || selectedType === 'tv') ? collectLinks() : [];
+
+    // برای تلویزیون: اگر لینک بالا خالی بود، اولین لینکِ «لینک‌های دانلود» به‌عنوان لینک شبکه استفاده می‌شود
+    if (selectedType === 'tv' && !url && linksValue.length) {
+      url = linksValue[0].url;
+    }
 
     if (!url && combinedImages.length === 0 && linksValue.length === 0) {
       toast('حداقل یه لینک یا یه فایل وارد کن', 'error');
