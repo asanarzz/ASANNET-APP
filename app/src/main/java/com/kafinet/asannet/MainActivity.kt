@@ -99,6 +99,8 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerCategories.adapter = CategoryGridAdapter(categories) { entry ->
             if (entry.isSubmit) {
                 startActivity(Intent(this, SubmitDocumentsActivity::class.java))
+            } else if (entry.type == ContentType.BANNER) {
+                startActivity(Intent(this, AdsActivity::class.java))
             } else {
                 val intent = Intent(this, CategoryListActivity::class.java)
                 intent.putExtra(CategoryListActivity.EXTRA_TYPE, entry.type?.key)
