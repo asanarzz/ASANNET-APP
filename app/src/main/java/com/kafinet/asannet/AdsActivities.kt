@@ -4,10 +4,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,6 +60,9 @@ class AdsActivity : AppCompatActivity() {
         binding.btnMyAds.setOnClickListener {
             startActivity(Intent(this, MyAdsActivity::class.java))
         }
+        binding.btnChats.setOnClickListener {
+            startActivity(Intent(this, ChatsActivity::class.java))
+        }
         binding.btnPost.setOnClickListener {
             startActivity(Intent(this, PostAdActivity::class.java))
         }
@@ -85,13 +90,21 @@ class AdsActivity : AppCompatActivity() {
         loadAds()
     }
 
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            val n = ChatClient.unread(this@AdsActivity)
+            binding.btnChats.text = if (n > 0) "پیام‌ها ($n)" else "پیام‌ها"
+        }
+    }
+
     private fun buildChips() {
         binding.layoutChips.removeAllViews()
         val names = listOf("همه") + AdCategories.all
         for (name in names) {
             val chip = TextView(this)
             chip.text = name
-            chip.textSize = 13f
+            chip.textSize = 15f
             chip.setPadding(dpOf(this, 14), dpOf(this, 8), dpOf(this, 14), dpOf(this, 8))
             chip.setBackgroundResource(R.drawable.ads_chip_bg)
             val lp = LinearLayout.LayoutParams(
@@ -154,12 +167,13 @@ class AdsActivity : AppCompatActivity() {
 }
 
 /* ===================================================================
- *  جزئیات آگهی: عکس‌ها، قیمت، توضیحات، تماس با فروشنده
+ *  جزئیات آگهی: عکس‌ها (زوم)، قیمت، توضیحات و راه‌های ارتباط با فروشنده
  * =================================================================== */
 class AdDetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_AD = "extra_ad"
+        const val EXTRA_MINE = "extra_mine"
     }
 
     private lateinit var binding: ActivityAdDetailBinding
@@ -174,6 +188,7 @@ class AdDetailActivity : AppCompatActivity() {
             finish()
             return
         }
+        val isMine = intent.getBooleanExtra(EXTRA_MINE, false)
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -191,26 +206,114 @@ class AdDetailActivity : AppCompatActivity() {
 
         val seller = ad.sellerName.ifBlank { "کاربر آسان نت" }
         binding.txtSeller.text = "فروشنده: $seller"
-        binding.txtPhone.text = "شماره تماس: ${ad.phone}"
+
+        if (ad.phone.isBlank()) {
+            binding.txtPhone.visibility = View.GONE
+        } else {
+            binding.txtPhone.text = "شماره تماس: ${ad.phone}"
+        }
+        if (ad.eitaaId.isBlank()) {
+            binding.txtEitaa.visibility = View.GONE
+        } else {
+            binding.txtEitaa.text = "آیدی ایتا: @${ad.eitaaId}"
+        }
 
         if (ad.images.isEmpty()) {
             binding.scrollImages.visibility = View.GONE
+            binding.txtZoomHint.visibility = View.GONE
         } else {
             val widthPx = resources.displayMetrics.widthPixels
-            for (url in ad.images) {
+            val heightPx = (resources.displayMetrics.heightPixels * 0.5f).toInt()
+            binding.scrollImages.layoutParams.height = heightPx
+            binding.scrollImages.requestLayout()
+            for ((index, url) in ad.images.withIndex()) {
                 val iv = ImageView(this)
                 iv.layoutParams = LinearLayout.LayoutParams(widthPx, LinearLayout.LayoutParams.MATCH_PARENT)
                 iv.scaleType = ImageView.ScaleType.FIT_CENTER
                 Glide.with(this).load(url).into(iv)
+                iv.setOnClickListener {
+                    val viewer = Intent(this, AdImageViewerActivity::class.java)
+                    viewer.putStringArrayListExtra(AdImageViewerActivity.EXTRA_URLS, ArrayList(ad.images))
+                    viewer.putExtra(AdImageViewerActivity.EXTRA_INDEX, index)
+                    startActivity(viewer)
+                }
                 binding.layoutImages.addView(iv)
             }
         }
 
-        binding.btnCall.setOnClickListener {
-            launchSafely(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + ad.phone)))
+        buildContactButtons(ad, isMine)
+    }
+
+    private fun buildContactButtons(ad: Ad, isMine: Boolean) {
+        val actions = ArrayList<Pair<String, () -> Unit>>()
+        if (ad.allowCall && ad.phone.isNotBlank()) {
+            actions.add("تماس تلفنی" to { launchSafely(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + ad.phone))) })
         }
-        binding.btnSms.setOnClickListener {
-            launchSafely(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + ad.phone)))
+        if (ad.allowSms && ad.phone.isNotBlank()) {
+            actions.add("پیامک" to { launchSafely(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + ad.phone))) })
+        }
+        if (ad.eitaaId.isNotBlank()) {
+            actions.add("پیام در ایتا" to { launchSafely(Intent(Intent.ACTION_VIEW, Uri.parse("https://eitaa.com/" + ad.eitaaId))) })
+        }
+        if (ad.allowChat && !isMine) {
+            actions.add("چت در برنامه" to { openChat(ad) })
+        }
+
+        if (actions.isEmpty()) {
+            binding.txtNoContact.visibility = View.VISIBLE
+            return
+        }
+
+        var i = 0
+        while (i < actions.size) {
+            val row = LinearLayout(this)
+            row.orientation = LinearLayout.HORIZONTAL
+            val rowLp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            if (i > 0) rowLp.topMargin = dpOf(this, 8)
+
+            val last = minOf(i + 2, actions.size)
+            for (j in i until last) {
+                val label = actions[j].first
+                val action = actions[j].second
+                val btn = TextView(this)
+                btn.text = label
+                btn.textSize = 17f
+                btn.gravity = Gravity.CENTER
+                btn.setTypeface(null, Typeface.BOLD)
+                btn.setPadding(0, dpOf(this, 14), 0, dpOf(this, 14))
+                if (j == 0) {
+                    btn.setBackgroundResource(R.drawable.ads_btn_bg)
+                    btn.setTextColor(Color.WHITE)
+                } else {
+                    btn.setBackgroundResource(R.drawable.ads_input_bg)
+                    btn.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                }
+                val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                if (j % 2 == 1) lp.marginStart = dpOf(this, 8)
+                btn.layoutParams = lp
+                btn.setOnClickListener { action() }
+                row.addView(btn)
+            }
+            binding.layoutContact.addView(row, rowLp)
+            i += 2
+        }
+    }
+
+    private fun openChat(ad: Ad) {
+        Toast.makeText(this, "در حال باز کردن گفتگو…", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val chatId = ChatClient.start(this@AdDetailActivity, ad.id)
+            if (chatId == null) {
+                Toast.makeText(this@AdDetailActivity, "باز کردن گفتگو ناموفق بود", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this@AdDetailActivity, ChatActivity::class.java)
+                intent.putExtra(ChatActivity.EXTRA_CHAT_ID, chatId)
+                intent.putExtra(ChatActivity.EXTRA_TITLE, ad.title)
+                startActivity(intent)
+            }
         }
     }
 
@@ -303,6 +406,20 @@ class PostAdActivity : AppCompatActivity() {
         if (description.length < 10) { toast("توضیحات را کامل‌تر بنویسید (حداقل ۱۰ حرف)"); return }
         if (phone.length < 10 || phone.length > 13) { toast("شماره تماس معتبر وارد کنید"); return }
         if (priceDigits.length > 12) { toast("قیمت واردشده درست نیست"); return }
+
+        val allowCall = binding.cbCall.isChecked
+        val allowSms = binding.cbSms.isChecked
+        val allowChat = binding.cbChat.isChecked
+        var eitaa = binding.editEitaa.text.toString().trim().substringAfterLast('/').removePrefix("@").trim()
+        eitaa = AdsFormat.toEnglishDigits(eitaa)
+        if (eitaa.isNotEmpty() && !Regex("^[A-Za-z0-9_]{3,40}$").matches(eitaa)) {
+            toast("آیدی ایتا فقط حروف انگلیسی، عدد و _ دارد (مثلاً my_shop)")
+            return
+        }
+        if (!allowCall && !allowSms && !allowChat && eitaa.isEmpty()) {
+            toast("حداقل یک روش ارتباط را انتخاب کنید")
+            return
+        }
         val price: Long? = if (priceDigits.isEmpty()) null else priceDigits.toLongOrNull()
 
         binding.btnSubmit.isEnabled = false
@@ -321,7 +438,8 @@ class PostAdActivity : AppCompatActivity() {
                 return@launch
             }
             val ok = AdsClient.createAd(
-                this@PostAdActivity, title, description, price, category, city, phone, sellerName, images
+                this@PostAdActivity, title, description, price, category, city, phone, sellerName, images,
+                allowCall, allowSms, allowChat, eitaa
             )
             if (ok) {
                 Toast.makeText(
@@ -359,6 +477,7 @@ class MyAdsActivity : AppCompatActivity() {
             { ad ->
                 val intent = Intent(this, AdDetailActivity::class.java)
                 intent.putExtra(AdDetailActivity.EXTRA_AD, ad)
+                intent.putExtra(AdDetailActivity.EXTRA_MINE, true)
                 startActivity(intent)
             },
             { ad -> confirmDelete(ad) }

@@ -36,7 +36,11 @@ data class Ad(
     val sellerName: String,
     val images: ArrayList<String>,
     val status: String = "approved",
-    val rejectReason: String? = null
+    val rejectReason: String? = null,
+    val allowCall: Boolean = true,
+    val allowSms: Boolean = true,
+    val allowChat: Boolean = true,
+    val eitaaId: String = ""
 ) : Serializable
 
 class AdsResult(val ads: List<Ad>, val error: Boolean)
@@ -105,8 +109,8 @@ object AdsFormat {
 
 object AdsClient {
 
-    private fun base(context: Context): String = context.getString(R.string.supabase_url).trimEnd('/')
-    private fun key(context: Context): String = context.getString(R.string.supabase_anon_key)
+    internal fun base(context: Context): String = context.getString(R.string.supabase_url).trimEnd('/')
+    internal fun key(context: Context): String = context.getString(R.string.supabase_anon_key)
 
     /**
      * یک کد تصادفی که فقط روی همین گوشی (برای همین کاربر) ذخیره می‌شه و مالکیت آگهی‌ها
@@ -124,7 +128,7 @@ object AdsClient {
         return created
     }
 
-    private fun openConn(context: Context, path: String, method: String, timeoutMs: Int = 10000): HttpURLConnection {
+    internal fun openConn(context: Context, path: String, method: String, timeoutMs: Int = 10000): HttpURLConnection {
         val conn = URL(base(context) + path).openConnection() as HttpURLConnection
         conn.requestMethod = method
         conn.connectTimeout = timeoutMs
@@ -134,12 +138,12 @@ object AdsClient {
         return conn
     }
 
-    private fun readBody(conn: HttpURLConnection): String {
+    internal fun readBody(conn: HttpURLConnection): String {
         val stream = if (conn.responseCode in 200..299) conn.inputStream else conn.errorStream
         return stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
     }
 
-    private fun writeJson(conn: HttpURLConnection, body: JSONObject) {
+    internal fun writeJson(conn: HttpURLConnection, body: JSONObject) {
         conn.doOutput = true
         conn.setRequestProperty("Content-Type", "application/json")
         conn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
@@ -171,7 +175,11 @@ object AdsClient {
                     sellerName = o.optString("seller_name"),
                     images = imgs,
                     status = o.optString("status", "approved"),
-                    rejectReason = if (o.isNull("reject_reason")) null else o.optString("reject_reason")
+                    rejectReason = if (o.isNull("reject_reason")) null else o.optString("reject_reason"),
+                    allowCall = o.optBoolean("allow_call", true),
+                    allowSms = o.optBoolean("allow_sms", true),
+                    allowChat = o.optBoolean("allow_chat", true),
+                    eitaaId = o.optString("eitaa_id", "")
                 )
             )
         }
@@ -217,7 +225,11 @@ object AdsClient {
         city: String,
         phone: String,
         sellerName: String,
-        images: List<ByteArray>
+        images: List<ByteArray>,
+        allowCall: Boolean,
+        allowSms: Boolean,
+        allowChat: Boolean,
+        eitaaId: String
     ): Boolean = withContext(Dispatchers.IO) {
         try {
             val urls = JSONArray()
@@ -246,6 +258,10 @@ object AdsClient {
             body.put("phone", phone)
             body.put("seller_name", sellerName)
             body.put("images", urls)
+            body.put("allow_call", allowCall)
+            body.put("allow_sms", allowSms)
+            body.put("allow_chat", allowChat)
+            body.put("eitaa_id", eitaaId)
             body.put("owner_code", SessionManager.getNationalCode(context).orEmpty())
             body.put("owner_token", ownerToken(context))
             writeJson(conn, body)
