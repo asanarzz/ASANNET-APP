@@ -1821,6 +1821,16 @@ function adsSafeUrl(u) {
   return /^https?:\/\//i.test(String(u || '')) ? String(u) : '';
 }
 
+function adsContactSummary(r) {
+  const parts = [];
+  if (r.allow_call !== false) parts.push('تماس');
+  if (r.allow_sms !== false) parts.push('پیامک');
+  if (r.allow_chat !== false) parts.push('چت داخل برنامه');
+  if (r.eitaa_id) parts.push('ایتا: @' + r.eitaa_id);
+  const phoneHidden = (r.allow_call === false && r.allow_sms === false);
+  return (parts.join('، ') || 'هیچ') + (phoneHidden ? ' — شماره از کاربران مخفی است' : '');
+}
+
 function adsRowHtml(r) {
   const imgs = (r.images || []).map(adsSafeUrl).filter(Boolean).map((u) =>
     `<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img class="ads-thumb" src="${escapeHtml(u)}" loading="lazy" alt=""></a>`
@@ -1845,6 +1855,7 @@ function adsRowHtml(r) {
       <div style="font-size:13px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(r.description || '')}</div>
       ${imgs ? `<div class="ads-thumbs">${imgs}</div>` : ''}
       <div class="muted" style="margin-top:8px;">فروشنده: ${escapeHtml(r.seller_name || '—')} — تلفن: ${escapeHtml(r.phone || '—')} — کد ملی: ${escapeHtml(r.owner_code || '—')}</div>
+      <div class="muted">روش‌های تماس برای کاربران: ${escapeHtml(adsContactSummary(r))}</div>
       <div class="muted">ثبت: ${escapeHtml(formatPersianDateTime(r.created_at))}</div>
       ${reason}
       <div class="ads-actions">${btns.join('')}</div>
