@@ -34,6 +34,7 @@ data class ChatSummary(
     val unread: Int
 )
 
+class ChatStartResult(val chatId: String?, val message: String)
 class MessagesResult(val messages: List<ChatMessage>, val error: Boolean)
 class InboxResult(val chats: List<ChatSummary>, val error: Boolean)
 
@@ -43,8 +44,8 @@ private fun chatDp(context: Context, value: Int): Int =
 /** ارتباط با توابع چت در Supabase. هویت هر کاربر همان کد تصادفی روی گوشی اوست (AdsClient.ownerToken). */
 object ChatClient {
 
-    /** گفتگو را شروع می‌کند (یا اگر قبلاً بوده همان را برمی‌گرداند) و شناسه‌ی گفتگو را می‌دهد. */
-    suspend fun start(context: Context, adId: String): String? = withContext(Dispatchers.IO) {
+    /** گفتگو را شروع می‌کند (یا اگر قبلاً بوده همان را برمی‌گرداند). اگر نشد، دلیلش را هم می‌دهد. */
+    suspend fun start(context: Context, adId: String): ChatStartResult = withContext(Dispatchers.IO) {
         try {
             val conn = AdsClient.openConn(context, "/rest/v1/rpc/chat_start", "POST")
             val body = JSONObject()
@@ -55,11 +56,24 @@ object ChatClient {
             val code = conn.responseCode
             val text = AdsClient.readBody(conn)
             conn.disconnect()
-            if (code !in 200..299) return@withContext null
+            if (code !in 200..299) {
+                val msg = when {
+                    text.contains("own_ad") ->
+                        "این آگهی مال خودتان است و نمی‌توانید با خودتان چت کنید"
+                    text.contains("chat_not_allowed") ->
+                        "فروشنده چت را برای این آگهی فعال نکرده است"
+                    text.contains("daily_limit") ->
+                        "امروز تعداد زیادی گفتگو شروع کرده‌اید. فردا دوباره امتحان کنید"
+                    code == 404 || text.contains("Could not find the function") ->
+                        "چت هنوز در سوپابیس فعال نشده (فایل ads_update_1.sql اجرا نشده)"
+                    else -> "باز کردن گفتگو ناموفق بود (کد $code)"
+                }
+                return@withContext ChatStartResult(null, msg)
+            }
             val id = text.trim().trim('"')
-            if (id.isBlank()) null else id
+            if (id.isBlank()) ChatStartResult(null, "پاسخ نامعتبر از سرور") else ChatStartResult(id, "")
         } catch (e: Exception) {
-            null
+            ChatStartResult(null, "اتصال به اینترنت برقرار نشد")
         }
     }
 

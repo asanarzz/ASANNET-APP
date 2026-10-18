@@ -46,6 +46,7 @@ class AdsActivity : AppCompatActivity() {
     private lateinit var adapter: AdsAdapter
 
     private var allAds: List<Ad> = emptyList()
+    private var myAdIds: Set<String> = emptySet()
     private var query: String = ""
     private var selectedCategory: String? = null
 
@@ -70,6 +71,7 @@ class AdsActivity : AppCompatActivity() {
         adapter = AdsAdapter(emptyList()) { ad ->
             val intent = Intent(this, AdDetailActivity::class.java)
             intent.putExtra(AdDetailActivity.EXTRA_AD, ad)
+            intent.putExtra(AdDetailActivity.EXTRA_MINE, myAdIds.contains(ad.id))
             startActivity(intent)
         }
         binding.recyclerAds.layoutManager = GridLayoutManager(this, 2)
@@ -138,6 +140,7 @@ class AdsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             binding.swipeRefresh.isRefreshing = true
             val result = AdsClient.fetchApproved(this@AdsActivity)
+            myAdIds = AdsClient.fetchMine(this@AdsActivity).ads.map { it.id }.toSet()
             allAds = result.ads
             applyFilters()
             binding.swipeRefresh.isRefreshing = false
@@ -305,9 +308,10 @@ class AdDetailActivity : AppCompatActivity() {
     private fun openChat(ad: Ad) {
         Toast.makeText(this, "در حال باز کردن گفتگو…", Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
-            val chatId = ChatClient.start(this@AdDetailActivity, ad.id)
+            val result = ChatClient.start(this@AdDetailActivity, ad.id)
+            val chatId = result.chatId
             if (chatId == null) {
-                Toast.makeText(this@AdDetailActivity, "باز کردن گفتگو ناموفق بود", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdDetailActivity, result.message, Toast.LENGTH_LONG).show()
             } else {
                 val intent = Intent(this@AdDetailActivity, ChatActivity::class.java)
                 intent.putExtra(ChatActivity.EXTRA_CHAT_ID, chatId)
