@@ -19,6 +19,12 @@ class RegistrationActivity : AppCompatActivity() {
     private var isLoginMode = false
     private var selectedPhotoUri: Uri? = null
 
+    // تاریخ تولد انتخاب‌شده از تقویم شمسی، با ارقام انگلیسی (مثلاً 1380/05/12) برای ذخیره
+    private var birthDateValue: String = ""
+    private var pickedYear = 1375
+    private var pickedMonth = 1
+    private var pickedDay = 1
+
     private val pickPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             selectedPhotoUri = uri
@@ -46,6 +52,7 @@ class RegistrationActivity : AppCompatActivity() {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
         binding.btnChoosePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
+        binding.inBirthDate.setOnClickListener { showBirthDatePicker() }
     }
 
     private fun toggleMode() {
@@ -110,7 +117,7 @@ class RegistrationActivity : AppCompatActivity() {
         val lastName = binding.inLastName.text.toString().trim()
         val nationalCode = binding.inNationalCode.text.toString().trim()
         val phone = binding.inPhone.text.toString().trim()
-        val birthDate = binding.inBirthDate.text.toString().trim()
+        val birthDate = birthDateValue
         val password = binding.inPassword.text.toString()
         val passwordConfirm = binding.inPasswordConfirm.text.toString()
 
@@ -146,6 +153,11 @@ class RegistrationActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                // اول چک می‌کنیم این کد ملی قبلاً ثبت نشده باشد (قبل از آپلود عکس)
+                if (SupabaseClient.isNationalCodeRegistered(this@RegistrationActivity, nationalCode) == true) {
+                    showDuplicateAndSwitchToLogin()
+                    return@launch
+                }
                 val photoBytes = compressPhoto(selectedPhotoUri!!)
                 if (photoBytes == null) {
                     showError(getString(R.string.err_network))
@@ -159,15 +171,17 @@ class RegistrationActivity : AppCompatActivity() {
                     return@launch
                 }
                 val passwordHash = PasswordHasher.hash(password)
-                val success = SupabaseClient.registerUser(
+                val result = SupabaseClient.registerUser(
                     this@RegistrationActivity, firstName, lastName, nationalCode, phone, birthDate, passwordHash, photoUrl
                 )
-                if (success) {
-                    SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
-                    SessionManager.saveUserName(this@RegistrationActivity, firstName, lastName)
-                    goToMain()
-                } else {
-                    showError(getString(R.string.err_network))
+                when (result) {
+                    RegisterResult.SUCCESS -> {
+                        SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
+                        SessionManager.saveUserName(this@RegistrationActivity, firstName, lastName)
+                        goToMain()
+                    }
+                    RegisterResult.DUPLICATE -> showDuplicateAndSwitchToLogin()
+                    RegisterResult.FAILED -> showError(getString(R.string.err_network))
                 }
             } catch (e: Exception) {
                 showError(e.message ?: getString(R.string.err_network))
@@ -205,6 +219,23 @@ class RegistrationActivity : AppCompatActivity() {
         } catch (e: Exception) {
             null
         }
+    }
+
+    /** تقویم شمسی (سه چرخ سال/ماه/روز) برای انتخاب تاریخ تولد. */
+    private fun showBirthDatePicker() {
+        PersianDatePickerDialog(this, pickedYear, pickedMonth, pickedDay) { year, month, day ->
+            pickedYear = year
+            pickedMonth = month
+            pickedDay = day
+            birthDateValue = PersianDateUtils.formatDate(year, month, day)
+            binding.inBirthDate.setText(PersianDateUtils.toPersianDigits(birthDateValue))
+        }.show()
+    }
+
+    /** کد ملی تکراری: پیام می‌دهد و صفحه را روی حالت «ورود» می‌گذارد (کد ملی پر می‌ماند). */
+    private fun showDuplicateAndSwitchToLogin() {
+        if (!isLoginMode) toggleMode()
+        showError(getString(R.string.err_national_code_exists))
     }
 
     private fun setLoading(loading: Boolean) {

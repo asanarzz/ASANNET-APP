@@ -7,6 +7,9 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
+/** نتیجه‌ی ثبت‌نام: موفق، کد ملی تکراری (قبلاً ثبت‌نام کرده)، یا خطا. */
+enum class RegisterResult { SUCCESS, DUPLICATE, FAILED }
+
 object SupabaseClient {
 
     /**
@@ -91,10 +94,41 @@ object SupabaseClient {
     }
 
     /**
+     * بررسی می‌کند آیا این کد ملی قبلاً ثبت‌نام کرده یا نه (با همان تابع امن get_password_hash،
+     * بدون دسترسی مستقیم به جدول users). true = ثبت‌شده، false = ثبت‌نشده، null = نامشخص (خطای شبکه).
+     */
+    suspend fun isNationalCodeRegistered(context: Context, nationalCode: String): Boolean? =
+        withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+                val anonKey = context.getString(R.string.supabase_anon_key)
+                if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext null
+                val connection = URL("$baseUrl/rest/v1/rpc/get_password_hash").openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.doOutput = true
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.setRequestProperty("apikey", anonKey)
+                connection.setRequestProperty("Authorization", "Bearer $anonKey")
+                connection.setRequestProperty("Content-Type", "application/json")
+                val body = JSONObject().apply { put("p_national_code", nationalCode) }
+                connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+                val code = connection.responseCode
+                val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+                val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                connection.disconnect()
+                if (code !in 200..299) return@withContext null
+                val hash = text.trim().removeSurrounding("\"")
+                hash.isNotBlank() && hash != "null"
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    /**
      * کاربر جدید را در جدول users در Supabase ثبت می‌کند.
-     * اگر کد ملی از قبل ثبت شده باشد (خطای ۴۰۹ به‌خاطر محدودیت unique)، همچنان موفق
-     * در نظر گرفته می‌شود — یعنی کاربر از قبل جزو ثبت‌نامی‌هاست و اجازه‌ی ورود به اپ دارد.
-     * در صورت موفقیت true برمی‌گرداند.
+     * اگر کد ملی از قبل ثبت شده باشد (خطای ۴۰۹ به‌خاطر محدودیت unique)، نتیجه
+     * DUPLICATE است و کاربر وارد نمی‌شود.
      */
     suspend fun registerUser(
         context: Context,
@@ -105,7 +139,7 @@ object SupabaseClient {
         birthDate: String,
         passwordHash: String,
         profilePhotoUrl: String
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): RegisterResult = withContext(Dispatchers.IO) {
         val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
         val anonKey = context.getString(R.string.supabase_anon_key)
 
@@ -138,8 +172,13 @@ object SupabaseClient {
 
         val responseCode = connection.responseCode
         connection.disconnect()
-        // 409 یعنی کد ملی تکراری است (محدودیت unique) — این یعنی کاربر از قبل ثبت‌نام کرده، نه خطا
-        responseCode in 200..299 || responseCode == 409
+        // 409 یعنی کد ملی تکراری است (محدودیت unique) — دیگر «موفق» حساب نمی‌شود؛
+        // کاربر باید با رمز عبور خودش وارد شود.
+        when {
+            responseCode in 200..299 -> RegisterResult.SUCCESS
+            responseCode == 409 -> RegisterResult.DUPLICATE
+            else -> RegisterResult.FAILED
+        }
     }
 
     /**
