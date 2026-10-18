@@ -68,7 +68,7 @@
     <!-- برچسب دسته‌های صفحه‌ی اصلی (گرید) -->
     <string name="cat_image">عکس</string>
     <string name="cat_video">فیلم</string>
-    <string name="cat_banner">بنر</string>
+    <string name="cat_banner">تبلیغات</string>
     <string name="cat_link">لینک</string>
     <string name="cat_file">فایل</string>
     <string name="cat_test">آزمون</string>
