@@ -85,6 +85,23 @@
             android:exported="false" />
 
         <activity
+            android:name=".AdsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PostAdActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".MyAdsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".GalleryDetailActivity"
             android:exported="false" />
 
