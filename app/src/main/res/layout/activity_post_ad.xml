@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:text="عنوان آگهی"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/edit_title"
@@ -65,7 +65,7 @@
                 android:inputType="text"
                 android:maxLength="80"
                 android:textColor="@color/text_main"
-                android:textSize="15sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                 android:layout_marginTop="14dp"
                 android:text="دسته‌بندی"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/txt_category"
@@ -84,7 +84,7 @@
                 android:padding="12dp"
                 android:text="انتخاب دسته‌بندی"
                 android:textColor="@color/text_muted"
-                android:textSize="15sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -92,7 +92,7 @@
                 android:layout_marginTop="14dp"
                 android:text="قیمت (تومان) — خالی بماند یعنی توافقی"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/edit_price"
@@ -105,7 +105,7 @@
                 android:inputType="number"
                 android:maxLength="15"
                 android:textColor="@color/text_main"
-                android:textSize="15sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -113,7 +113,7 @@
                 android:layout_marginTop="14dp"
                 android:text="شهر"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/edit_city"
@@ -126,7 +126,7 @@
                 android:inputType="text"
                 android:maxLength="40"
                 android:textColor="@color/text_main"
-                android:textSize="15sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -134,7 +134,7 @@
                 android:layout_marginTop="14dp"
                 android:text="شماره تماس"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/edit_phone"
@@ -147,7 +147,7 @@
                 android:inputType="phone"
                 android:maxLength="15"
                 android:textColor="@color/text_main"
-                android:textSize="15sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -155,7 +155,7 @@
                 android:layout_marginTop="14dp"
                 android:text="توضیحات"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/edit_desc"
@@ -170,7 +170,76 @@
                 android:minLines="4"
                 android:maxLength="2000"
                 android:textColor="@color/text_main"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="روش‌های ارتباط با شما"
+                android:textColor="@color/text_main"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="شماره‌ی شما همیشه برای مدیر نمایش داده می‌شود، ولی برای بقیه‌ی کاربران فقط وقتی «تماس» یا «پیامک» را فعال کنید. حداقل یک روش را انتخاب کنید."
+                android:textColor="@color/text_muted"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cb_call"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:buttonTint="@color/primary"
+                android:checked="true"
+                android:text="تماس تلفنی"
+                android:textColor="@color/text_main"
+                android:textSize="17sp" />
+
+            <CheckBox
+                android:id="@+id/cb_sms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/primary"
+                android:checked="true"
+                android:text="پیامک"
+                android:textColor="@color/text_main"
+                android:textSize="17sp" />
+
+            <CheckBox
+                android:id="@+id/cb_chat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/primary"
+                android:checked="true"
+                android:text="چت داخل برنامه"
+                android:textColor="@color/text_main"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="آیدی ایتا (اختیاری)"
+                android:textColor="@color/text_muted"
                 android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/edit_eitaa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/ads_input_bg"
+                android:padding="12dp"
+                android:hint="مثلاً: my_shop"
+                android:inputType="textUri"
+                android:maxLength="60"
+                android:textColor="@color/text_main"
+                android:textSize="17sp" />
 
             <TextView
                 android:id="@+id/txt_images_label"
@@ -179,7 +248,7 @@
                 android:layout_marginTop="14dp"
                 android:text="عکس‌ها"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/btn_add_image"
@@ -191,7 +260,7 @@
                 android:background="@drawable/ads_input_bg"
                 android:text="＋  افزودن عکس"
                 android:textColor="@color/primary"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
@@ -215,7 +284,7 @@
                 android:layout_marginTop="16dp"
                 android:text="آگهی شما بعد از بررسی و تأیید مدیر در برنامه نمایش داده می‌شود."
                 android:textColor="@color/text_muted"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/btn_submit"
@@ -228,7 +297,7 @@
                 android:background="@drawable/ads_btn_bg"
                 android:text="ثبت آگهی"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>

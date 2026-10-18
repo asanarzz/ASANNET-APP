@@ -56,7 +56,7 @@
             android:padding="30dp"
             android:text="هنوز آگهی‌ای ثبت نکرده‌اید"
             android:textColor="@color/text_muted"
-            android:textSize="15sp"
+            android:textSize="17sp"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

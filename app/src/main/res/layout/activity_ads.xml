@@ -41,16 +41,28 @@
                     android:layout_marginStart="10dp"
                     android:text="تبلیغات"
                     android:textColor="@color/white"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
+                    android:id="@+id/btn_chats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="8dp"
+                    android:text="پیام‌ها"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="?attr/selectableItemBackground" />
+
+                <TextView
                     android:id="@+id/btn_my_ads"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
+                    android:paddingHorizontal="10dp"
                     android:paddingVertical="8dp"
                     android:text="آگهی‌های من"
                     android:textColor="@color/white"
@@ -84,7 +96,7 @@
                     android:hint="جستجو در آگهی‌ها"
                     android:textColorHint="#CCCCFF"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="17sp"
                     android:singleLine="true"
                     android:imeOptions="actionSearch"
                     android:inputType="text" />
@@ -134,7 +146,7 @@
                 android:padding="30dp"
                 android:text="آگهی‌ای پیدا نشد"
                 android:textColor="@color/text_muted"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>

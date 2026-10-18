@@ -35,7 +35,7 @@
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:textColor="@color/text_main"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:textColor="@color/primary"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -55,7 +55,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="@color/text_muted"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
