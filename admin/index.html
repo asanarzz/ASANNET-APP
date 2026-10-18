@@ -141,6 +141,18 @@
   .doc-folder-body{display:none; padding:0 16px 16px;}
   .doc-folder.open .doc-folder-body{display:block;}
   .doc-batch{border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:10px;}
+  /* ===== تبلیغات + تب‌های دسته‌بندی ===== */
+  .main-tabs{flex-wrap:wrap;}
+  .main-tab{min-width:30%;}
+  .ads-card{border:1px solid var(--border); border-radius:14px; padding:12px; margin-bottom:12px;}
+  .ads-thumbs{display:flex; gap:6px; overflow-x:auto; margin-top:8px;}
+  .ads-thumb{width:84px; height:84px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0;}
+  .ads-badge{display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:600;}
+  .ads-pending{background:#FEF3C7; color:#92400E;}
+  .ads-approved{background:#D1FAE5; color:#065F46;}
+  .ads-rejected{background:#FEE2E2; color:#991B1B;}
+  .btn-success{background:#ECFDF5; color:var(--success);}
+  .ads-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
 </style>
 </head>
 <body>
@@ -200,6 +212,7 @@
       <div class="main-tab" id="main-tab-support">پیام‌ها</div>
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
       <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
+      <div class="main-tab" id="main-tab-ads">تبلیغات</div>
     </div>
 
     <div id="section-content">
@@ -293,6 +306,7 @@
     <!-- Content list -->
     <div class="card">
       <h2>محتوای فعلی <button class="link-btn" id="btn-refresh" style="float:left;">بارگذاری مجدد</button></h2>
+      <div class="type-tabs" id="list-filter-tabs" style="margin-bottom:14px;"></div>
       <div id="list-area"><div class="empty-msg">در حال بارگذاری…</div></div>
     </div>
 
@@ -343,6 +357,29 @@
       <div class="card">
         <h2>لیست بازدیدکنندگان <input type="text" id="in-stats-search" placeholder="جستجو با نام یا شماره…" style="width:auto; display:inline-block; float:left; padding:6px 10px; font-size:13px;"></h2>
         <div id="stats-table"></div>
+      </div>
+    </div>
+
+    <!-- Ads moderation section -->
+    <div id="section-ads" class="hidden">
+      <div class="card" id="ads-login-card">
+        <h2>ورود مدیر تبلیغات</h2>
+        <p class="muted">با ایمیل و رمزی وارد شو که در Supabase (بخش Authentication → Users) برای خودت ساختی.</p>
+        <label>ایمیل</label>
+        <input type="text" id="in-ads-email" placeholder="you@example.com" autocomplete="username">
+        <label>رمز عبور</label>
+        <input type="password" id="in-ads-pass" autocomplete="current-password">
+        <button class="btn-primary btn-full" id="btn-ads-login">ورود</button>
+      </div>
+
+      <div class="card hidden" id="ads-main-card">
+        <h2>مدیریت آگهی‌ها
+          <button class="link-btn" id="btn-ads-logout" style="float:left; margin-right:12px;">خروج</button>
+          <button class="link-btn" id="btn-ads-refresh" style="float:left;">بارگذاری مجدد</button>
+        </h2>
+        <div class="type-tabs" id="ads-status-tabs"></div>
+        <div class="type-tabs" id="ads-cat-tabs" style="margin-top:10px;"></div>
+        <div id="ads-list" style="margin-top:14px;"></div>
       </div>
     </div>
 
@@ -1054,14 +1091,47 @@ async function saveContentList(commitMessage, mutateFn) {
   }
 }
 
+let listFilterType = 'all';
+function renderListFilters() {
+  const box = $('list-filter-tabs');
+  if (!box) return;
+  if (!contentItems.length) { box.innerHTML = ''; return; }
+  const counts = {};
+  contentItems.forEach((i) => { counts[i.type] = (counts[i.type] || 0) + 1; });
+  if (listFilterType !== 'all' && !counts[listFilterType]) listFilterType = 'all';
+  // ترتیب دسته‌ها دقیقاً مثل تب‌های «نوع محتوا» بالای صفحه
+  const order = Array.from(document.querySelectorAll('#type-tabs .type-tab'))
+    .map((t) => t.getAttribute('data-type'))
+    .filter((k) => counts[k]);
+  Object.keys(counts).forEach((k) => { if (!order.includes(k)) order.push(k); });
+  box.innerHTML =
+    `<div class="type-tab${listFilterType === 'all' ? ' active' : ''}" data-ft="all">همه (${contentItems.length})</div>` +
+    order.map((k) => {
+      const label = (TYPE_META[k] || TYPE_META.link).label;
+      return `<div class="type-tab${listFilterType === k ? ' active' : ''}" data-ft="${escapeHtml(k)}">${escapeHtml(label)} (${counts[k]})</div>`;
+    }).join('');
+  box.querySelectorAll('[data-ft]').forEach((el) => {
+    el.addEventListener('click', () => {
+      listFilterType = el.getAttribute('data-ft');
+      renderList();
+    });
+  });
+}
+
 function renderList() {
   const area = $('list-area');
+  renderListFilters();
   if (!contentItems.length) {
     area.innerHTML = '<div class="empty-msg">هنوز محتوایی اضافه نشده — از فرم بالا شروع کن</div>';
     return;
   }
+  const visibleItems = contentItems.filter((i) => listFilterType === 'all' || i.type === listFilterType);
+  if (!visibleItems.length) {
+    area.innerHTML = '<div class="empty-msg">موردی در این دسته نیست</div>';
+    return;
+  }
   area.innerHTML = '';
-  contentItems.slice().reverse().forEach((item) => {
+  visibleItems.slice().reverse().forEach((item) => {
     const meta = TYPE_META[item.type] || TYPE_META.link;
     const row = document.createElement('div');
     row.className = 'item';
@@ -1386,6 +1456,7 @@ function initTabs() {
   $('main-tab-support').addEventListener('click', () => switchMainTab('support'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
   $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
+  $('main-tab-ads').addEventListener('click', () => switchMainTab('ads'));
 }
 
 let docsLoaded = false;
@@ -1397,6 +1468,9 @@ function switchMainTab(which) {
   $('main-tab-support').classList.toggle('active', which === 'support');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
+  $('main-tab-ads').classList.toggle('active', which === 'ads');
+  $('section-ads').classList.toggle('hidden', which !== 'ads');
+  if (which === 'ads') adsOnOpen();
   $('section-content').classList.toggle('hidden', which !== 'content');
   $('section-docs').classList.toggle('hidden', which !== 'docs');
   $('section-support').classList.toggle('hidden', which !== 'support');
@@ -1626,6 +1700,254 @@ if ($('lf-run')) $('lf-run').addEventListener('click', lfRun);
 if ($('lf-add-selected')) $('lf-add-selected').addEventListener('click', () => lfAddToForm(false));
 if ($('lf-add-all')) $('lf-add-all').addEventListener('click', () => lfAddToForm(true));
 lfLoadProxy();
+
+// ---------- تبلیغات: ورود مدیر (Supabase Auth) + تأیید/رد/حذف آگهی‌ها ----------
+const ADS_SESSION_KEY = 'kafinet_ads_session';
+const ADS_STATUS_LABEL = { pending: 'در انتظار تأیید', approved: 'تأییدشده', rejected: 'ردشده' };
+let adsSession = null;
+let adsRows = [];
+let adsStatusFilter = 'pending';
+let adsCatFilter = 'all';
+
+function adsLoadSession() {
+  try {
+    const raw = sessionStorage.getItem(ADS_SESSION_KEY);
+    adsSession = raw ? JSON.parse(raw) : null;
+  } catch (e) { adsSession = null; }
+}
+function adsSaveSession(s) {
+  adsSession = s;
+  try {
+    if (s) sessionStorage.setItem(ADS_SESSION_KEY, JSON.stringify(s));
+    else sessionStorage.removeItem(ADS_SESSION_KEY);
+  } catch (e) { /* ignore */ }
+}
+function adsShowLogin() {
+  $('ads-login-card').classList.remove('hidden');
+  $('ads-main-card').classList.add('hidden');
+}
+function adsShowMain() {
+  $('ads-login-card').classList.add('hidden');
+  $('ads-main-card').classList.remove('hidden');
+}
+function adsOnOpen() {
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    adsShowLogin();
+    toast('اول آدرس و کلید Supabase را از «تغییر تنظیمات» وارد کن', 'error');
+    return;
+  }
+  adsLoadSession();
+  if (adsSession) { adsShowMain(); adsLoad(); } else { adsShowLogin(); }
+}
+
+async function adsAuthRequest(grant, body) {
+  const res = await fetch(`${cfg.supabaseUrl}/auth/v1/token?grant_type=${grant}`, {
+    method: 'POST',
+    headers: { 'apikey': cfg.supabaseAnonKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.access_token) {
+    const d = String(data.error_description || data.msg || '');
+    throw new Error(d.includes('Invalid login') ? 'ایمیل یا رمز عبور اشتباه است' : (d || 'ورود ناموفق بود'));
+  }
+  adsSaveSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: Date.now() + ((data.expires_in || 3600) * 1000) - 60000,
+  });
+}
+
+async function adsLogin() {
+  const email = $('in-ads-email').value.trim();
+  const password = $('in-ads-pass').value;
+  if (!email || !password) { toast('ایمیل و رمز را وارد کن', 'error'); return; }
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseAnonKey) { toast('اول آدرس و کلید Supabase را وارد کن', 'error'); return; }
+  const btn = $('btn-ads-login');
+  btn.disabled = true;
+  try {
+    await adsAuthRequest('password', { email, password });
+    $('in-ads-pass').value = '';
+    adsShowMain();
+    adsLoad();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function adsLogout() {
+  adsSaveSession(null);
+  adsRows = [];
+  $('main-tab-ads').textContent = 'تبلیغات';
+  adsShowLogin();
+}
+
+async function adsToken() {
+  if (!adsSession) { adsShowLogin(); throw new Error('اول وارد شو'); }
+  if (Date.now() > adsSession.expires_at) {
+    try {
+      await adsAuthRequest('refresh_token', { refresh_token: adsSession.refresh_token });
+    } catch (e) {
+      adsLogout();
+      throw new Error('نشست منقضی شد، دوباره وارد شو');
+    }
+  }
+  return adsSession.access_token;
+}
+
+async function adsFetch(path, opts) {
+  const token = await adsToken();
+  const o = opts || {};
+  const headers = Object.assign({ 'apikey': cfg.supabaseAnonKey, 'Authorization': 'Bearer ' + token }, o.headers || {});
+  return fetch(cfg.supabaseUrl + path, Object.assign({}, o, { headers }));
+}
+
+async function adsLoad() {
+  $('ads-list').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
+  try {
+    const res = await adsFetch('/rest/v1/ads?select=*&order=created_at.desc&limit=1000');
+    if (!res.ok) throw new Error('خطا در دریافت آگهی‌ها (' + res.status + ') — فایل ads_setup.sql را در Supabase اجرا کرده‌ای؟');
+    adsRows = await res.json();
+    adsRender();
+  } catch (e) {
+    $('ads-list').innerHTML = '<div class="empty-msg">خطا در بارگذاری آگهی‌ها</div>';
+    toast(e.message, 'error');
+  }
+}
+
+function adsSafeUrl(u) {
+  return /^https?:\/\//i.test(String(u || '')) ? String(u) : '';
+}
+
+function adsRowHtml(r) {
+  const imgs = (r.images || []).map(adsSafeUrl).filter(Boolean).map((u) =>
+    `<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img class="ads-thumb" src="${escapeHtml(u)}" loading="lazy" alt=""></a>`
+  ).join('');
+  const price = (r.price && Number(r.price) > 0) ? Number(r.price).toLocaleString('en-US') + ' تومان' : 'توافقی';
+  const id = escapeHtml(r.id);
+  const btns = [];
+  if (r.status !== 'approved') btns.push(`<button class="btn-success btn-small" data-ad-act="approve" data-id="${id}">تأیید</button>`);
+  if (r.status !== 'rejected') btns.push(`<button class="btn-outline btn-small" data-ad-act="reject" data-id="${id}">رد</button>`);
+  if (r.status === 'approved') btns.push(`<button class="btn-outline btn-small" data-ad-act="pending" data-id="${id}">برگشت به انتظار</button>`);
+  btns.push(`<button class="btn-danger btn-small" data-ad-act="delete" data-id="${id}">حذف</button>`);
+  const reason = (r.status === 'rejected' && r.reject_reason)
+    ? `<div class="muted" style="margin-top:6px;">دلیل رد: ${escapeHtml(r.reject_reason)}</div>` : '';
+  return `
+    <div class="ads-card">
+      <div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">
+        <div style="font-weight:700; font-size:14px;">${escapeHtml(r.title || '')}</div>
+        <span class="ads-badge ads-${escapeHtml(r.status)}">${escapeHtml(ADS_STATUS_LABEL[r.status] || r.status)}</span>
+      </div>
+      <div style="color:var(--primary); font-weight:600; font-size:13px; margin-top:4px;">${escapeHtml(price)}</div>
+      <div class="muted" style="margin-top:4px;">${escapeHtml(r.category || '')}${r.city ? ' — ' + escapeHtml(r.city) : ''}</div>
+      <div style="font-size:13px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(r.description || '')}</div>
+      ${imgs ? `<div class="ads-thumbs">${imgs}</div>` : ''}
+      <div class="muted" style="margin-top:8px;">فروشنده: ${escapeHtml(r.seller_name || '—')} — تلفن: ${escapeHtml(r.phone || '—')} — کد ملی: ${escapeHtml(r.owner_code || '—')}</div>
+      <div class="muted">ثبت: ${escapeHtml(formatPersianDateTime(r.created_at))}</div>
+      ${reason}
+      <div class="ads-actions">${btns.join('')}</div>
+    </div>`;
+}
+
+function adsRender() {
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  adsRows.forEach((r) => { if (counts[r.status] !== undefined) counts[r.status]++; });
+  $('main-tab-ads').textContent = counts.pending ? 'تبلیغات (' + counts.pending + ')' : 'تبلیغات';
+
+  const statusDefs = [['pending', 'در انتظار'], ['approved', 'تأییدشده'], ['rejected', 'ردشده'], ['all', 'همه']];
+  $('ads-status-tabs').innerHTML = statusDefs.map(([k, label]) => {
+    const n = k === 'all' ? adsRows.length : counts[k];
+    return `<div class="type-tab${adsStatusFilter === k ? ' active' : ''}" data-st="${k}">${label} (${n})</div>`;
+  }).join('');
+
+  const byStatus = adsRows.filter((r) => adsStatusFilter === 'all' || r.status === adsStatusFilter);
+  const catCounts = {};
+  byStatus.forEach((r) => { catCounts[r.category] = (catCounts[r.category] || 0) + 1; });
+  if (adsCatFilter !== 'all' && !catCounts[adsCatFilter]) adsCatFilter = 'all';
+  $('ads-cat-tabs').innerHTML =
+    `<div class="type-tab${adsCatFilter === 'all' ? ' active' : ''}" data-cat="all">همه دسته‌ها (${byStatus.length})</div>` +
+    Object.keys(catCounts).map((c) =>
+      `<div class="type-tab${adsCatFilter === c ? ' active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${catCounts[c]})</div>`
+    ).join('');
+
+  const shown = byStatus.filter((r) => adsCatFilter === 'all' || r.category === adsCatFilter);
+  $('ads-list').innerHTML = shown.length ? shown.map(adsRowHtml).join('') : '<div class="empty-msg">آگهی‌ای در این بخش نیست</div>';
+
+  $('ads-status-tabs').querySelectorAll('[data-st]').forEach((el) => {
+    el.addEventListener('click', () => { adsStatusFilter = el.getAttribute('data-st'); adsRender(); });
+  });
+  $('ads-cat-tabs').querySelectorAll('[data-cat]').forEach((el) => {
+    el.addEventListener('click', () => { adsCatFilter = el.getAttribute('data-cat'); adsRender(); });
+  });
+  $('ads-list').querySelectorAll('[data-ad-act]').forEach((el) => {
+    el.addEventListener('click', () => adsAction(el.getAttribute('data-ad-act'), el.getAttribute('data-id')));
+  });
+}
+
+async function adsSetStatus(id, status, reason) {
+  const body = {
+    status,
+    reject_reason: status === 'rejected' ? (reason || null) : null,
+    reviewed_at: new Date().toISOString(),
+  };
+  const res = await adsFetch('/rest/v1/ads?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('تغییر وضعیت ناموفق بود (' + res.status + ')');
+  const row = adsRows.find((r) => r.id === id);
+  if (row) { row.status = status; row.reject_reason = body.reject_reason; }
+}
+
+async function adsDelete(id) {
+  const row = adsRows.find((r) => r.id === id);
+  const res = await adsFetch('/rest/v1/ads?id=eq.' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: { 'Prefer': 'return=minimal' },
+  });
+  if (!res.ok) throw new Error('حذف ناموفق بود (' + res.status + ')');
+  // حذف عکس‌ها از فضای ذخیره‌سازی (اگر نشد، اشکالی ندارد)
+  const marker = '/object/public/ads-images/';
+  for (const u of ((row && row.images) || [])) {
+    const i = String(u).indexOf(marker);
+    if (i < 0) continue;
+    const path = String(u).slice(i + marker.length).split('/').map(encodeURIComponent).join('/');
+    try { await adsFetch('/storage/v1/object/ads-images/' + path, { method: 'DELETE' }); } catch (e) { /* ignore */ }
+  }
+  adsRows = adsRows.filter((r) => r.id !== id);
+}
+
+async function adsAction(act, id) {
+  try {
+    if (act === 'approve') {
+      await adsSetStatus(id, 'approved');
+      toast('آگهی تأیید شد و در برنامه نمایش داده می‌شود', 'success');
+    } else if (act === 'reject') {
+      const reason = prompt('دلیل رد آگهی (برای کاربر نمایش داده می‌شود):', '');
+      if (reason === null) return;
+      await adsSetStatus(id, 'rejected', reason.trim());
+      toast('آگهی رد شد', 'success');
+    } else if (act === 'pending') {
+      await adsSetStatus(id, 'pending');
+      toast('آگهی به حالت انتظار برگشت', 'success');
+    } else if (act === 'delete') {
+      if (!confirm('این آگهی برای همیشه حذف شود؟')) return;
+      await adsDelete(id);
+      toast('آگهی حذف شد', 'success');
+    }
+    adsRender();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+$('btn-ads-login').addEventListener('click', adsLogin);
+$('btn-ads-logout').addEventListener('click', adsLogout);
+$('btn-ads-refresh').addEventListener('click', adsLoad);
+$('in-ads-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') adsLogin(); });
 
 </script>
 </body>
