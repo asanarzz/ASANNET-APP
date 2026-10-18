@@ -29,6 +29,17 @@ object StreamRelay {
     @Volatile
     private var serverSocket: ServerSocket? = null
 
+    private const val V_PID = 0x100
+    private const val A_PID = 0x101
+    private const val PMT_PID = 0x1000
+    private val AUDIO_TYPES = setOf(0x03, 0x04, 0x0F, 0x11, 0x81, 0x87)
+
+    @Volatile
+    private var patCc = 0
+
+    @Volatile
+    private var pmtCc = 0
+
     /** آخرین خطای واسطه و تعداد بایت‌های ارسال‌شده به تلویزیون (برای تشخیص مشکل). */
     @Volatile
     var lastError: String? = null
@@ -51,6 +62,8 @@ object StreamRelay {
         stop()
         lastError = null
         bytesSent = 0
+        patCc = 0
+        pmtCc = 0
         val server = ServerSocket(0, 8, local)
         serverSocket = server
         lastActive = System.currentTimeMillis()
@@ -145,6 +158,7 @@ object StreamRelay {
         var lastSeq = -1L
         var failures = 0
         var variantHops = 0
+        var audioUrl: String? = null
 
         while (alive()) {
             var text: String? = null
@@ -188,6 +202,11 @@ object StreamRelay {
                 variantHops += 1
                 if (variantHops > 5) throw IOException("playlist loop")
                 current = pickVariant(lines, base)
+                audioUrl = try {
+                    audioPlaylistFor(lines, base, current)
+                } catch (e: IOException) {
+                    null
+                }
                 continue
             }
             if (lines.any { it.startsWith("#EXT-X-KEY") && !it.contains("METHOD=NONE") }) {
@@ -210,6 +229,8 @@ object StreamRelay {
                 }
             }
             val live = !endList
+            var audioSegs: List<Pair<Long, String>> = emptyList()
+            if (audioUrl != null) audioSegs = loadAudioSegments(audioUrl)
 
             for ((i, segmentUrl) in segments.withIndex()) {
                 if (!alive()) return
@@ -219,9 +240,31 @@ object StreamRelay {
                 // در شروع پخش زنده، فقط ۳ قطعه‌ی آخر را بفرست تا به لحظه‌ی زنده نزدیک باشی
                 if (firstRound && live && i < segments.size - 3) continue
                 try {
-                    val c = openWithRedirects(segmentUrl)
-                    c.inputStream.use { copy(it, out, alive) }
-                    c.disconnect()
+                    if (audioUrl != null) {
+                        // صدا جدا تعریف شده: قطعه‌ی تصویر و صدا را بگیر و در یک جریان ترکیب کن
+                        val v = fetchBytes(segmentUrl)
+                        val fromEnd = segments.size - i
+                        var aSeg = findAudio(audioSegs, seq, mediaSeq, segments.size, fromEnd)
+                        if (aSeg == null) {
+                            Thread.sleep(700)
+                            audioSegs = loadAudioSegments(audioUrl)
+                            aSeg = findAudio(audioSegs, seq, mediaSeq, segments.size, fromEnd)
+                        }
+                        var data = v
+                        if (aSeg != null) {
+                            try {
+                                val m = muxTs(v, fetchBytes(aSeg))
+                                if (m != null) data = m
+                            } catch (e: IOException) {
+                                // اگر صدا گرفته نشد، فقط تصویر ارسال می‌شود
+                            }
+                        }
+                        writeAll(data, out)
+                    } else {
+                        val c = openWithRedirects(segmentUrl)
+                        c.inputStream.use { copy(it, out, alive) }
+                        c.disconnect()
+                    }
                     failures = 0
                 } catch (e: ClientClosed) {
                     throw e
@@ -253,6 +296,312 @@ object StreamRelay {
         } catch (e: IOException) {
             throw ClientClosed()
         }
+    }
+
+
+    // ---------- صدای جدا (EXT-X-MEDIA) و ترکیب آن با تصویر ----------
+
+    private class EsInfo(val pid: Int, val type: Int, val info: ByteArray)
+
+    private fun attr(line: String, key: String): String? {
+        val m = Regex("(?:^|[:,])" + key + "=(\"([^\"]*)\"|[^,]*)").find(line) ?: return null
+        val quoted = m.groupValues[2]
+        return if (quoted.isNotEmpty()) quoted else m.groupValues[1]
+    }
+
+    private fun audioPlaylistFor(lines: List<String>, base: String, variantUrl: String): String? {
+        var group: String? = null
+        for ((i, l) in lines.withIndex()) {
+            if (!l.startsWith("#EXT-X-STREAM-INF")) continue
+            var j = i + 1
+            while (j < lines.size && (lines[j].isEmpty() || lines[j].startsWith("#"))) j++
+            if (j < lines.size && resolve(base, lines[j]) == variantUrl) {
+                group = attr(l, "AUDIO")
+                break
+            }
+        }
+        if (group == null) return null
+        var chosen: String? = null
+        for (l in lines) {
+            if (!l.startsWith("#EXT-X-MEDIA")) continue
+            if (attr(l, "TYPE") != "AUDIO" || attr(l, "GROUP-ID") != group) continue
+            val uri = attr(l, "URI") ?: continue
+            if (chosen == null || attr(l, "DEFAULT") == "YES") chosen = resolve(base, uri)
+        }
+        return chosen
+    }
+
+    private fun loadAudioSegments(url: String): List<Pair<Long, String>> {
+        try {
+            val c = openWithRedirects(url)
+            val aBase = c.url.toString()
+            val text = c.inputStream.bufferedReader().use { it.readText() }
+            c.disconnect()
+            val result = ArrayList<Pair<Long, String>>()
+            var seq = 0L
+            var idx = 0L
+            for (raw in text.split('\n')) {
+                val l = raw.trim()
+                if (l.startsWith("#EXT-X-MEDIA-SEQUENCE:")) {
+                    seq = l.substringAfter(':').trim().toLongOrNull() ?: 0L
+                } else if (l.isNotEmpty() && !l.startsWith("#") && !l.startsWith("EXT-X-")) {
+                    result.add(Pair(seq + idx, resolve(aBase, l)))
+                    idx += 1
+                }
+            }
+            return result
+        } catch (e: IOException) {
+            return emptyList()
+        }
+    }
+
+    private fun findAudio(
+        list: List<Pair<Long, String>>,
+        seq: Long,
+        mediaSeq: Long,
+        count: Int,
+        fromEnd: Int
+    ): String? {
+        val exact = list.firstOrNull { it.first == seq }
+        if (exact != null) return exact.second
+        val overlap = list.any { it.first >= mediaSeq && it.first < mediaSeq + count }
+        return if (overlap) null else list.getOrNull(list.size - fromEnd)?.second
+    }
+
+    private fun fetchBytes(url: String): ByteArray {
+        val c = openWithRedirects(url)
+        try {
+            return c.inputStream.use { it.readBytes() }
+        } finally {
+            c.disconnect()
+        }
+    }
+
+    private fun writeAll(data: ByteArray, out: OutputStream) {
+        try {
+            out.write(data)
+            out.flush()
+            bytesSent += data.size
+        } catch (e: IOException) {
+            throw ClientClosed()
+        }
+    }
+
+    private fun tsStart(ts: ByteArray): Int {
+        var i = 0
+        while (i < 188 && i + 188 < ts.size) {
+            if (ts[i] == 0x47.toByte() && ts[i + 188] == 0x47.toByte()) return i
+            i += 1
+        }
+        return -1
+    }
+
+    private fun pidOf(ts: ByteArray, p: Int): Int =
+        ((ts[p + 1].toInt() and 0x1F) shl 8) or (ts[p + 2].toInt() and 0xFF)
+
+    private fun sectionStart(ts: ByteArray, p: Int): Int {
+        if ((ts[p + 1].toInt() and 0x40) == 0) return -1
+        val afc = (ts[p + 3].toInt() shr 4) and 0x3
+        if (afc == 0 || afc == 2) return -1
+        val po = if (afc == 3) p + 5 + (ts[p + 4].toInt() and 0xFF) else p + 4
+        if (po >= p + 188) return -1
+        return po + 1 + (ts[po].toInt() and 0xFF)
+    }
+
+    private fun readEs(ts: ByteArray, start: Int): List<EsInfo> {
+        var pmtPid = -1
+        var p = start
+        while (p + 188 <= ts.size && pmtPid < 0) {
+            if (pidOf(ts, p) == 0) {
+                val s = sectionStart(ts, p)
+                if (s > 0 && s + 12 < p + 188 && (ts[s].toInt() and 0xFF) == 0x00) {
+                    val len = ((ts[s + 1].toInt() and 0x0F) shl 8) or (ts[s + 2].toInt() and 0xFF)
+                    val end = minOf(s + 3 + len - 4, p + 188)
+                    var q = s + 8
+                    while (q + 4 <= end) {
+                        val prog = ((ts[q].toInt() and 0xFF) shl 8) or (ts[q + 1].toInt() and 0xFF)
+                        val pp = ((ts[q + 2].toInt() and 0x1F) shl 8) or (ts[q + 3].toInt() and 0xFF)
+                        if (prog != 0) {
+                            pmtPid = pp
+                            break
+                        }
+                        q += 4
+                    }
+                }
+            }
+            p += 188
+        }
+        val result = ArrayList<EsInfo>()
+        if (pmtPid < 0) return result
+        p = start
+        while (p + 188 <= ts.size) {
+            if (pidOf(ts, p) == pmtPid) {
+                val s = sectionStart(ts, p)
+                if (s > 0 && s + 12 < p + 188 && (ts[s].toInt() and 0xFF) == 0x02) {
+                    val len = ((ts[s + 1].toInt() and 0x0F) shl 8) or (ts[s + 2].toInt() and 0xFF)
+                    val progInfo = ((ts[s + 10].toInt() and 0x0F) shl 8) or (ts[s + 11].toInt() and 0xFF)
+                    val end = minOf(s + 3 + len - 4, p + 188)
+                    var q = s + 12 + progInfo
+                    while (q + 5 <= end) {
+                        val type = ts[q].toInt() and 0xFF
+                        val epid = ((ts[q + 1].toInt() and 0x1F) shl 8) or (ts[q + 2].toInt() and 0xFF)
+                        val il = ((ts[q + 3].toInt() and 0x0F) shl 8) or (ts[q + 4].toInt() and 0xFF)
+                        val infoEnd = minOf(q + 5 + il, end)
+                        result.add(EsInfo(epid, type, ts.copyOfRange(q + 5, infoEnd)))
+                        q += 5 + il
+                    }
+                    return result
+                }
+            }
+            p += 188
+        }
+        return result
+    }
+
+    private fun crc32(data: ByteArray, len: Int): Int {
+        var crc = -1
+        for (k in 0 until len) {
+            crc = crc xor ((data[k].toInt() and 0xFF) shl 24)
+            for (b in 0 until 8) {
+                crc = if ((crc and Int.MIN_VALUE) != 0) (crc shl 1) xor 0x04C11DB7 else (crc shl 1)
+            }
+        }
+        return crc
+    }
+
+    private fun putCrc(section: ByteArray) {
+        val n = section.size - 4
+        val crc = crc32(section, n)
+        section[n] = (crc ushr 24).toByte()
+        section[n + 1] = (crc ushr 16).toByte()
+        section[n + 2] = (crc ushr 8).toByte()
+        section[n + 3] = crc.toByte()
+    }
+
+    private fun psiPacket(pid: Int, cc: Int, section: ByteArray): ByteArray {
+        val pkt = ByteArray(188) { 0xFF.toByte() }
+        pkt[0] = 0x47
+        pkt[1] = (0x40 or ((pid shr 8) and 0x1F)).toByte()
+        pkt[2] = (pid and 0xFF).toByte()
+        pkt[3] = (0x10 or (cc and 0x0F)).toByte()
+        pkt[4] = 0
+        System.arraycopy(section, 0, pkt, 5, section.size)
+        return pkt
+    }
+
+    private fun buildPat(): ByteArray {
+        val s = ByteArray(16)
+        s[0] = 0x00
+        s[1] = 0xB0.toByte()
+        s[2] = 0x0D
+        s[3] = 0x00
+        s[4] = 0x01
+        s[5] = 0xC1.toByte()
+        s[6] = 0x00
+        s[7] = 0x00
+        s[8] = 0x00
+        s[9] = 0x01
+        s[10] = (0xE0 or (PMT_PID shr 8)).toByte()
+        s[11] = (PMT_PID and 0xFF).toByte()
+        putCrc(s)
+        return s
+    }
+
+    private fun buildPmt(video: EsInfo, audio: EsInfo): ByteArray {
+        val vi = if (video.info.size <= 30) video.info else ByteArray(0)
+        val ai = if (audio.info.size <= 30) audio.info else ByteArray(0)
+        val len = 9 + (5 + vi.size) + (5 + ai.size) + 4
+        val s = ByteArray(3 + len)
+        s[0] = 0x02
+        s[1] = (0xB0 or (len shr 8)).toByte()
+        s[2] = (len and 0xFF).toByte()
+        s[3] = 0x00
+        s[4] = 0x01
+        s[5] = 0xC1.toByte()
+        s[6] = 0x00
+        s[7] = 0x00
+        s[8] = (0xE0 or (V_PID shr 8)).toByte()
+        s[9] = (V_PID and 0xFF).toByte()
+        s[10] = 0xF0.toByte()
+        s[11] = 0x00
+        var q = 12
+        s[q] = video.type.toByte()
+        s[q + 1] = (0xE0 or (V_PID shr 8)).toByte()
+        s[q + 2] = (V_PID and 0xFF).toByte()
+        s[q + 3] = (0xF0 or (vi.size shr 8)).toByte()
+        s[q + 4] = (vi.size and 0xFF).toByte()
+        System.arraycopy(vi, 0, s, q + 5, vi.size)
+        q += 5 + vi.size
+        s[q] = audio.type.toByte()
+        s[q + 1] = (0xE0 or (A_PID shr 8)).toByte()
+        s[q + 2] = (A_PID and 0xFF).toByte()
+        s[q + 3] = (0xF0 or (ai.size shr 8)).toByte()
+        s[q + 4] = (ai.size and 0xFF).toByte()
+        System.arraycopy(ai, 0, s, q + 5, ai.size)
+        putCrc(s)
+        return s
+    }
+
+    /**
+     * قطعه‌ی تصویر (TS) و قطعه‌ی صدای جدا (TS) را به یک قطعه‌ی TS با هر دو جریان تبدیل می‌کند.
+     * اگر قطعه‌ها قابل خواندن نباشند، null برمی‌گرداند (و فقط تصویر فرستاده می‌شود).
+     */
+    private fun muxTs(video: ByteArray, audio: ByteArray): ByteArray? {
+        val vs = tsStart(video)
+        val aus = tsStart(audio)
+        if (vs < 0 || aus < 0) return null
+        val vEs = readEs(video, vs)
+        val aEs = readEs(audio, aus)
+        val v = vEs.firstOrNull { it.type == 0x1B || it.type == 0x24 || it.type == 0x02 || it.type == 0x01 } ?: return null
+        if (vEs.any { it.type in AUDIO_TYPES }) return null
+        val a = aEs.firstOrNull { it.type in AUDIO_TYPES } ?: aEs.firstOrNull { it.type == 0x06 } ?: return null
+
+        val vOff = ArrayList<Int>()
+        var p = vs
+        while (p + 188 <= video.size) {
+            if (pidOf(video, p) == v.pid) vOff.add(p)
+            p += 188
+        }
+        val aOff = ArrayList<Int>()
+        p = aus
+        while (p + 188 <= audio.size) {
+            if (pidOf(audio, p) == a.pid) aOff.add(p)
+            p += 188
+        }
+        if (vOff.isEmpty() || aOff.isEmpty()) return null
+
+        val out = java.io.ByteArrayOutputStream(video.size + audio.size + 1024)
+        out.write(psiPacket(0, patCc, buildPat()))
+        patCc = (patCc + 1) and 0x0F
+        out.write(psiPacket(PMT_PID, pmtCc, buildPmt(v, a)))
+        pmtCc = (pmtCc + 1) and 0x0F
+
+        val n = vOff.size
+        val m = aOff.size
+        var vi = 0
+        var ai = 0
+        while (vi < n || ai < m) {
+            val takeVideo = if (vi >= n) false else if (ai >= m) true else (vi.toLong() * m <= ai.toLong() * n)
+            val src: ByteArray
+            val off: Int
+            val newPid: Int
+            if (takeVideo) {
+                src = video
+                off = vOff[vi]
+                newPid = V_PID
+                vi += 1
+            } else {
+                src = audio
+                off = aOff[ai]
+                newPid = A_PID
+                ai += 1
+            }
+            val pk = src.copyOfRange(off, off + 188)
+            pk[1] = ((pk[1].toInt() and 0xE0) or (newPid shr 8)).toByte()
+            pk[2] = (newPid and 0xFF).toByte()
+            out.write(pk)
+        }
+        return out.toByteArray()
     }
 
     private fun pickVariant(lines: List<String>, base: String): String {
