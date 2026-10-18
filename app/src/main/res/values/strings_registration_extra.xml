@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="err_national_code_exists">این کد ملی قبلاً ثبت‌نام کرده است. لطفاً با کد ملی و رمز عبورت وارد شو؛ اگر رمزت را فراموش کرده‌ای، «فراموشی رمز» را بزن.</string>
+</resources>
