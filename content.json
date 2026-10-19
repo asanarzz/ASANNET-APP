@@ -1208,5 +1208,97 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/7/27/3bbfdde8.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/7/27/77f959f1.jpg"
     ]
+  },
+  {
+    "id": "item_1792445728393",
+    "type": "tv",
+    "title": "صدا و سیما",
+    "description": "شبکه های صدا و سیما",
+    "url": "https://ncdn.telewebion.ir/varzesh/live/playlist.m3u8",
+    "section": "صدا و سیما",
+    "images": [
+      "https://ncdn.telewebion.ir/varzesh/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/hdtest/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/salamat/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/quran/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/pooya/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/omid/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/ofogh/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/nasim/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/namayesh/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/mostanad/live/playlist.m3u8",
+      "https://ncdn.telewebion.ir/irinn2/live/playlist.m3u8",
+      "http://185.9.2.18/chid_926/index.m3u8",
+      "https://ncdn.telewebion.ir/tv4/live/playlist.m3u8",
+      "https://live.presstv.ir/hls/ifilmfa.m3u8",
+      "https://live.presstv.ir/hls/ifilm2.m3u8",
+      "https://ncdn.telewebion.ir/amouzesh/live/playlist.m3u8"
+    ],
+    "links": [
+      {
+        "label": "ورزش",
+        "url": "https://ncdn.telewebion.ir/varzesh/live/playlist.m3u8"
+      },
+      {
+        "label": "ناشناس",
+        "url": "https://ncdn.telewebion.ir/hdtest/live/playlist.m3u8"
+      },
+      {
+        "label": "سلامت",
+        "url": "https://ncdn.telewebion.ir/salamat/live/playlist.m3u8"
+      },
+      {
+        "label": "ناشناس",
+        "url": "https://ncdn.telewebion.ir/quran/live/playlist.m3u8"
+      },
+      {
+        "label": "ناشناس",
+        "url": "https://ncdn.telewebion.ir/pooya/live/playlist.m3u8"
+      },
+      {
+        "label": "امید",
+        "url": "https://ncdn.telewebion.ir/omid/live/playlist.m3u8"
+      },
+      {
+        "label": "افق",
+        "url": "https://ncdn.telewebion.ir/ofogh/live/playlist.m3u8"
+      },
+      {
+        "label": "نسیم",
+        "url": "https://ncdn.telewebion.ir/nasim/live/playlist.m3u8"
+      },
+      {
+        "label": "نمایش",
+        "url": "https://ncdn.telewebion.ir/namayesh/live/playlist.m3u8"
+      },
+      {
+        "label": "مستند",
+        "url": "https://ncdn.telewebion.ir/mostanad/live/playlist.m3u8"
+      },
+      {
+        "label": "خبر 2",
+        "url": "https://ncdn.telewebion.ir/irinn2/live/playlist.m3u8"
+      },
+      {
+        "label": "ناشناس",
+        "url": "http://185.9.2.18/chid_926/index.m3u8"
+      },
+      {
+        "label": "شبکه 4",
+        "url": "https://ncdn.telewebion.ir/tv4/live/playlist.m3u8"
+      },
+      {
+        "label": "آی فیلم",
+        "url": "https://live.presstv.ir/hls/ifilmfa.m3u8"
+      },
+      {
+        "label": "ناشناس",
+        "url": "https://live.presstv.ir/hls/ifilm2.m3u8"
+      },
+      {
+        "label": "آموزش",
+        "url": "https://ncdn.telewebion.ir/amouzesh/live/playlist.m3u8"
+      }
+    ]
   }
 ]
