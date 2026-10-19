@@ -1264,5 +1264,13 @@
     "description": "شبکه نسیم",
     "url": "https://ncdn.telewebion.ir/nasim/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446370978",
+    "type": "tv",
+    "title": "نمایش",
+    "description": "شبکه نمایش",
+    "url": "https://ncdn.telewebion.ir/namayesh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
