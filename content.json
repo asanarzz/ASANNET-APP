@@ -1110,8 +1110,9 @@
     "type": "tv",
     "title": "ایران اینترنشنال",
     "description": "شبکه خبری فارسی زبان",
-    "url": "https://hlspackager.akamaized.net/live/DB/IRAN_INTERNATIONAL/HLS/IRAN_INTERNATIONAL.m3u8",
-    "section": "ویژه"
+    "url": "",
+    "section": "ویژه",
+    "locked": true
   },
   {
     "id": "item_1792044675333",
