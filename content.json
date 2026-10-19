@@ -1168,15 +1168,5 @@
     "description": "شبکه استان خوزستان",
     "url": "https://ncdn.telewebion.ir/abadan/live/playlist.m3u8",
     "section": "شبکه های استانی"
-  },
-  {
-    "id": "item_1792392766590",
-    "type": "newspaper",
-    "title": "دوشنبه 2",
-    "description": "صفحه نخست روزنامه های کشور دوشنبه 27 مهر 1405",
-    "url": "",
-    "images": [
-      "https://static.jaaar.com/assets/images/pishkhan/1405/7/27/f29c21d4.jpg#kk=01:/assets/images/pishkhan/1405/7/27/f29c21d4.jpg,02:/assets/images/pishkhan/1405/7/27/0e01938f.jpg,03:/assets/images/pishkhan/1405/7/27/08040837.jpg,04:/assets/images/pishkhan/1405/7/27/bd4c9ab7.jpg,05:/assets/images/pishkhan/1405/7/27/816b112c.jpg,06:/assets/images/pishkhan/1405/7/27/5ef698cd.jpg,07:/assets/images/pishkhan/1405/7/27/abd81528.jpg,08:/assets/images/pishkhan/1405/7/27/c81e728d.jpg,09:/assets/images/pishkhan/1405/7/27/b73ce398.jpg,10:/assets/images/pishkhan/1405/7/27/352fe25d.jpg,11:/assets/images/pishkhan/1405/7/27/a597e505.jpg,12:/assets/images/pishkhan/1405/7/27/f187a23c.jpg,13:/assets/images/pishkhan/1405/7/27/7e7757b1.jpg,14:/assets/images/pishkhan/1405/7/27/82aa4b0a.jpg,15:/assets/images/pishkhan/1405/7/27/9b861925.jpg,16:/assets/images/pishkhan/1405/7/27/a4a042cf.jpg,17:/assets/images/pishkhan/1405/7/27/149e9677.jpg,18:/assets/images/pishkhan/1405/7/27/4588e674.jpg,19:/assets/images/pishkhan/1405/7/27/82161242.jpg,20:/assets/images/pishkhan/1405/7/27/fa7cdfad.jpg,21:/assets/images/pishkhan/1405/7/27/bf822969.jpg,22:/assets/images/pishkhan/1405/7/27/006f52e9.jpg,23:/assets/images/pishkhan/1405/7/27/c5a4e7e6.jpg,24:/assets/images/pishkhan/1405/7/27/96da2f59.jpg,25:/assets/images/pishkhan/1405/7/27/cd758e8f.jpg,26:/assets/images/pishkhan/1405/7/27/7d2b92b6.jpg,27:/assets/images/pishkhan/1405/7/27/fb7b9ffa.jpg,28:/assets/images/pishkhan/1405/7/27/7bd28f15.jpg,29:/assets/images/pishkhan/1405/7/27/3bbfdde8.jpg,30:/assets/images/pishkhan/1405/7/27/77f959f1.jpg"
-    ]
   }
 ]
