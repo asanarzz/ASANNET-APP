@@ -213,6 +213,7 @@
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
       <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
       <div class="main-tab" id="main-tab-ads">تبلیغات</div>
+      <div class="main-tab" id="main-tab-locks">قفل و توکن</div>
     </div>
 
     <div id="section-content">
@@ -380,6 +381,55 @@
         <div class="type-tabs" id="ads-status-tabs"></div>
         <div class="type-tabs" id="ads-cat-tabs" style="margin-top:10px;"></div>
         <div id="ads-list" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <!-- Locks (token) section -->
+    <div id="section-locks" class="hidden">
+      <div class="card" id="lk-login-card">
+        <h2>ورود مدیر (قفل و توکن)</h2>
+        <p class="muted">با همان ایمیل و رمزی وارد شو که در Supabase (Authentication → Users) ساختی و ایمیلش را در فایل lock_tokens.sql نوشتی. ورودت با تب «تبلیغات» مشترک است.</p>
+        <label>ایمیل</label>
+        <input type="text" id="in-lk-email" placeholder="you@example.com" autocomplete="username">
+        <label>رمز عبور</label>
+        <input type="password" id="in-lk-pass" autocomplete="current-password">
+        <button class="btn-primary btn-full" id="btn-lk-login">ورود</button>
+      </div>
+
+      <div class="hidden" id="lk-main-card">
+        <div class="card">
+          <h2>ساخت توکن جدید
+            <button class="link-btn" id="btn-lk-logout" style="float:left; margin-right:12px;">خروج</button>
+          </h2>
+          <p class="muted">
+            اول در تب «افزودن محتوا»، کنار آیتم موردنظر دکمه‌ی «🔒 قفل» را بزن. بعد اینجا برای همان آیتم توکن بساز و به کاربر بده.
+            هر توکن فقط برای یک آیتم، یک حساب (کد ملی) و یک گوشی کار می‌کند.
+          </p>
+          <label>آیتم قفل‌شده</label>
+          <select id="lk-item"></select>
+          <label>مدت اعتبار (از اولین استفاده شروع می‌شود)</label>
+          <select id="lk-duration">
+            <option value="30">یک ماه</option>
+            <option value="90">سه ماه</option>
+            <option value="180">شش ماه</option>
+            <option value="365">یک سال</option>
+            <option value="0">همیشگی</option>
+          </select>
+          <label>یادداشت (اختیاری — مثلاً اسم کاربر)</label>
+          <input type="text" id="lk-note" placeholder="مثلاً: آقای احمدی">
+          <button class="btn-primary btn-full" id="btn-lk-create">ساخت توکن</button>
+          <div id="lk-new-token" class="hidden" style="margin-top:14px; padding:14px; border-radius:12px; background:#ECFDF5; text-align:center;">
+            <div class="muted">توکن ساخته شد؛ همین را به کاربر بده:</div>
+            <div id="lk-new-token-text" style="direction:ltr; font-family:monospace; font-size:24px; font-weight:700; letter-spacing:2px; margin:8px 0;"></div>
+            <button class="btn-outline btn-small" id="btn-lk-copy-new">کپی توکن</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>توکن‌ها <button class="link-btn" id="btn-lk-refresh" style="float:left;">بارگذاری مجدد</button></h2>
+          <div class="type-tabs" id="lk-filter-tabs" style="margin-bottom:14px;"></div>
+          <div id="lk-list"><div class="empty-msg">در حال بارگذاری…</div></div>
+        </div>
       </div>
     </div>
 
@@ -1138,10 +1188,11 @@ function renderList() {
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
-        <div class="t">${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
+        <div class="t">${item.locked ? '🔒 ' : ''}${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
+        <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
         <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
         <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
       </div>`;
@@ -1153,6 +1204,13 @@ function renderList() {
   area.querySelectorAll('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', () => startEdit(btn.getAttribute('data-edit')));
   });
+  area.querySelectorAll('[data-lock]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-lock');
+      const it = contentItems.find((i) => i.id === id);
+      if (it && it.locked) lkUnlockItem(id); else lkLockItem(id);
+    });
+  });
 }
 
 function escapeHtml(s) {
@@ -1161,10 +1219,12 @@ function escapeHtml(s) {
 
 async function deleteItem(id) {
   if (!confirm('این مورد از برنامه حذف شود؟')) return;
+  const wasLocked = !!(contentItems.find((i) => i.id === id) || {}).locked;
   contentItems = contentItems.filter((i) => i.id !== id);
   try {
     await saveContentList('حذف محتوا: ' + id, (fresh) => fresh.filter((i) => i.id !== id));
     toast('حذف شد', 'success');
+    if (wasLocked) lkCleanupItem(id);
     renderList();
   } catch (e) {
     toast(e.message, 'error');
@@ -1310,6 +1370,10 @@ async function handleAdd() {
 function startEdit(id) {
   const item = contentItems.find((i) => i.id === id);
   if (!item) return;
+  if (item.locked) {
+    toast('این مورد قفل است؛ اول «🔓 باز کردن قفل» را بزن، بعد ویرایشش کن', 'error');
+    return;
+  }
 
   editingId = id;
 
@@ -1465,6 +1529,7 @@ function initTabs() {
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
   $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
   $('main-tab-ads').addEventListener('click', () => switchMainTab('ads'));
+  $('main-tab-locks').addEventListener('click', () => switchMainTab('locks'));
 }
 
 let docsLoaded = false;
@@ -1477,6 +1542,9 @@ function switchMainTab(which) {
   $('main-tab-stats').classList.toggle('active', which === 'stats');
   $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('main-tab-ads').classList.toggle('active', which === 'ads');
+  $('main-tab-locks').classList.toggle('active', which === 'locks');
+  $('section-locks').classList.toggle('hidden', which !== 'locks');
+  if (which === 'locks') lkOnOpen();
   $('section-ads').classList.toggle('hidden', which !== 'ads');
   if (which === 'ads') adsOnOpen();
   $('section-content').classList.toggle('hidden', which !== 'content');
@@ -1975,6 +2043,358 @@ $('btn-ads-login').addEventListener('click', adsLogin);
 $('btn-ads-logout').addEventListener('click', adsLogout);
 $('btn-ads-refresh').addEventListener('click', adsLoad);
 $('in-ads-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') adsLogin(); });
+
+// ---------- قفل و توکن ----------
+// لینک واقعی آیتم‌های قفل‌شده داخل Supabase (جدول locked_items) نگه داشته می‌شود، نه content.json.
+// همه‌ی کارها با توابع امن سرور (admin_*) و فقط با ورود مدیر انجام می‌شود.
+const LK_COVER_TYPES = ['video', 'tv', 'music', 'radio'];   // عکسِ این نوع‌ها کاور است و عمومی می‌ماند
+const LK_STATUS_LABEL = {
+  unused: 'استفاده‌نشده', active: 'فعال', expired: 'منقضی', revoked: 'لغوشده', released: 'آزادشده (منتظر اتصال)',
+};
+let lkRows = [];
+let lkFilter = 'all';
+
+function lkToEnDigits(str) {
+  return String(str)
+    .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+}
+
+async function lkRpc(fn, args) {
+  const res = await adsFetch('/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(args || {}),
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+  if (!res.ok) {
+    const msg = String((data && (data.message || data.hint || data.details)) || text || res.status);
+    if (msg.includes('not_admin')) throw new Error('این ایمیل، مدیر قفل نیست؛ ایمیلت را در فایل lock_tokens.sql (بخش lock_admins) بنویس و دوباره اجرا کن');
+    if (res.status === 404 || msg.includes('Could not find the function')) throw new Error('قفل هنوز در Supabase فعال نشده؛ فایل lock_tokens.sql را در SQL Editor اجرا کن');
+    if (msg.includes('item_not_locked')) throw new Error('این آیتم قفل نیست');
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function lkEnsureLogin() {
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    toast('اول آدرس و کلید Supabase را از «تغییر تنظیمات» وارد کن', 'error');
+    return false;
+  }
+  adsLoadSession();
+  if (!adsSession) {
+    switchMainTab('locks');
+    toast('اول در تب «قفل و توکن» وارد شو، بعد دوباره امتحان کن', 'error');
+    return false;
+  }
+  return true;
+}
+
+async function lkLockItem(id) {
+  const item = contentItems.find((i) => i.id === id);
+  if (!item || item.locked) return;
+  const hasUrl = !!item.url;
+  const hasLinks = Array.isArray(item.links) && item.links.length > 0;
+  const hasImages = Array.isArray(item.images) && item.images.length > 0;
+  if (!hasUrl && !hasLinks && !hasImages) {
+    toast('این مورد لینک یا عکسی ندارد که قفل شود', 'error');
+    return;
+  }
+  if (!lkEnsureLogin()) return;
+  if (!confirm('این مورد قفل شود؟\n\nلینک‌های آن از content.json برداشته می‌شود و فقط با توکن داخل برنامه باز می‌شود.\n\n(توجه: لینکی که قبلاً در content.json بوده، در تاریخچه‌ی گیت‌هاب باقی می‌ماند.)')) return;
+
+  // برای بعضی دسته‌ها، لینک‌های باکس «لینک‌های دانلود» خودشان هم به‌عنوان عکس/فایل ذخیره می‌شوند.
+  // عکس‌هایی که عیناً همان لینک‌ها هستند، حتماً باید مخفی شوند؛ فقط بقیه‌ی عکس‌ها (مثلاً کاور آپلودشده) اختیاری‌اند.
+  const secretUrls = new Set([item.url].concat((item.links || []).map((l) => l.url)).filter(Boolean));
+  const allImages = Array.isArray(item.images) ? item.images : [];
+  const dupImages = allImages.filter((u) => secretUrls.has(u));
+  const otherImages = allImages.filter((u) => !secretUrls.has(u));
+
+  let hideOther = false;
+  if (otherImages.length) {
+    const suggest = LK_COVER_TYPES.includes(item.type) ? 'Cancel (کاور عمومی بماند)' : 'OK (عکس‌ها مخفی شوند)';
+    hideOther = confirm('این مورد ' + otherImages.length + ' عکس/کاور دیگر هم دارد. مخفی شوند؟\n\nOK = این عکس‌ها هم فقط با توکن دیده شوند (مناسب روزنامه، عکس و...)\nCancel = عمومی بمانند (مناسب کاور فیلم/آهنگ)\n\nپیشنهاد برای این نوع: ' + suggest);
+  }
+  const hiddenImages = dupImages.concat(hideOther ? otherImages : []);
+  const publicImages = hideOther ? [] : otherImages;
+
+  const payload = {};
+  if (hasUrl) payload.url = item.url;
+  if (hasLinks) payload.links = item.links;
+  if (hiddenImages.length) payload.images = hiddenImages;
+
+  try {
+    await lkRpc('admin_lock_set', { p_item_id: id, p_payload: payload });
+    const transform = (list) => list.map((it) => {
+      if (it.id !== id) return it;
+      const c = Object.assign({}, it);
+      c.locked = true;
+      c.url = '';
+      delete c.links;
+      if (publicImages.length) c.images = publicImages; else delete c.images;
+      return c;
+    });
+    contentItems = transform(contentItems);
+    await saveContentList('قفل کردن محتوا: ' + id, transform);
+    toast('قفل شد ✓ — حالا از تب «قفل و توکن» توکن بساز', 'success');
+    renderList();
+    lkRenderSelect();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+async function lkUnlockItem(id) {
+  const item = contentItems.find((i) => i.id === id);
+  if (!item || !item.locked) return;
+  if (!lkEnsureLogin()) return;
+  if (!confirm('قفل برداشته شود؟\n\nلینک‌ها دوباره داخل content.json (عمومی) برمی‌گردند و همه‌ی توکن‌های این مورد حذف می‌شوند.')) return;
+  try {
+    const payload = await lkRpc('admin_lock_get', { p_item_id: id });
+    if (!payload) throw new Error('لینک‌های این مورد در Supabase پیدا نشد؛ باید دستی دوباره ثبتشان کنی');
+    const restore = (list) => list.map((it) => {
+      if (it.id !== id) return it;
+      const c = Object.assign({}, it);
+      delete c.locked;
+      c.url = payload.url || '';
+      if (payload.links) c.links = payload.links;
+      if (payload.images) c.images = (c.images || []).concat(payload.images);
+      return c;
+    });
+    contentItems = restore(contentItems);
+    await saveContentList('باز کردن قفل محتوا: ' + id, restore);
+    await lkRpc('admin_lock_unset', { p_item_id: id });
+    toast('قفل برداشته شد', 'success');
+    renderList();
+    lkRenderSelect();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+// بعد از حذف یک آیتم قفل‌شده، لینک‌ها و توکن‌هایش را هم از Supabase پاک می‌کند (بهترین تلاش)
+async function lkCleanupItem(id) {
+  adsLoadSession();
+  if (!adsSession) {
+    toast('این مورد قفل بود؛ برای پاک شدن توکن‌هایش بعداً در تب «قفل و توکن» وارد شو', 'error');
+    return;
+  }
+  try { await lkRpc('admin_lock_unset', { p_item_id: id }); } catch (e) { /* ignore */ }
+}
+
+function lkShowLogin() {
+  $('lk-login-card').classList.remove('hidden');
+  $('lk-main-card').classList.add('hidden');
+}
+function lkShowMain() {
+  $('lk-login-card').classList.add('hidden');
+  $('lk-main-card').classList.remove('hidden');
+}
+function lkOnOpen() {
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    lkShowLogin();
+    toast('اول آدرس و کلید Supabase را از «تغییر تنظیمات» وارد کن', 'error');
+    return;
+  }
+  adsLoadSession();
+  if (adsSession) { lkShowMain(); lkRenderSelect(); lkLoad(); } else { lkShowLogin(); }
+}
+async function lkLogin() {
+  const email = $('in-lk-email').value.trim();
+  const password = $('in-lk-pass').value;
+  if (!email || !password) { toast('ایمیل و رمز را وارد کن', 'error'); return; }
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseAnonKey) { toast('اول آدرس و کلید Supabase را وارد کن', 'error'); return; }
+  const btn = $('btn-lk-login');
+  btn.disabled = true;
+  try {
+    await adsAuthRequest('password', { email, password });
+    $('in-lk-pass').value = '';
+    lkShowMain();
+    lkRenderSelect();
+    lkLoad();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+function lkLogout() {
+  adsSaveSession(null);
+  lkRows = [];
+  lkShowLogin();
+}
+
+function lkRenderSelect() {
+  const sel = $('lk-item');
+  if (!sel) return;
+  const locked = contentItems.filter((i) => i.locked);
+  const prev = sel.value;
+  if (!locked.length) {
+    sel.innerHTML = '<option value="">هنوز آیتمی قفل نشده — از تب «افزودن محتوا» دکمه‌ی 🔒 قفل را بزن</option>';
+    return;
+  }
+  sel.innerHTML = locked.map((i) => {
+    const label = (TYPE_META[i.type] || TYPE_META.link).label;
+    return `<option value="${escapeHtml(i.id)}">${escapeHtml(i.title || '(بدون عنوان)')} — ${escapeHtml(label)}</option>`;
+  }).join('');
+  if (prev && locked.some((i) => i.id === prev)) sel.value = prev;
+}
+
+async function lkLoad() {
+  $('lk-list').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
+  try {
+    const rows = await lkRpc('admin_token_list', {});
+    lkRows = Array.isArray(rows) ? rows : [];
+    lkRenderList();
+  } catch (e) {
+    $('lk-list').innerHTML = '<div class="empty-msg">' + escapeHtml(e.message) + '</div>';
+    toast(e.message, 'error');
+  }
+}
+
+function lkStatus(r) {
+  if (r.revoked) return 'revoked';
+  if (!r.national_code && !r.activated_at) return 'unused';
+  if (r.expires_at && new Date(r.expires_at) <= new Date()) return 'expired';
+  if (!r.national_code) return 'released';
+  return 'active';
+}
+
+function lkExpiryText(r) {
+  if (!r.activated_at) {
+    return r.duration_days ? `${r.duration_days} روز (از اولین استفاده)` : 'همیشگی';
+  }
+  if (!r.expires_at) return 'همیشگی';
+  return 'تا ' + new Date(r.expires_at).toLocaleDateString('fa-IR');
+}
+
+function lkRenderList() {
+  const area = $('lk-list');
+  const counts = { all: lkRows.length };
+  lkRows.forEach((r) => { const st = lkStatus(r); counts[st] = (counts[st] || 0) + 1; });
+  if (lkFilter !== 'all' && !counts[lkFilter]) lkFilter = 'all';
+  $('lk-filter-tabs').innerHTML =
+    `<div class="type-tab${lkFilter === 'all' ? ' active' : ''}" data-lkf="all">همه (${counts.all})</div>` +
+    Object.keys(LK_STATUS_LABEL).filter((k) => counts[k]).map((k) =>
+      `<div class="type-tab${lkFilter === k ? ' active' : ''}" data-lkf="${k}">${LK_STATUS_LABEL[k]} (${counts[k]})</div>`
+    ).join('');
+  $('lk-filter-tabs').querySelectorAll('[data-lkf]').forEach((el) => {
+    el.addEventListener('click', () => { lkFilter = el.getAttribute('data-lkf'); lkRenderList(); });
+  });
+
+  const rows = lkRows.filter((r) => lkFilter === 'all' || lkStatus(r) === lkFilter);
+  if (!rows.length) {
+    area.innerHTML = '<div class="empty-msg">' + (lkRows.length ? 'موردی در این وضعیت نیست' : 'هنوز توکنی ساخته نشده') + '</div>';
+    return;
+  }
+  area.innerHTML = rows.map((r) => {
+    const st = lkStatus(r);
+    const it = contentItems.find((i) => i.id === r.item_id);
+    const title = it ? (it.title || '(بدون عنوان)') : ('(آیتم حذف‌شده) ' + r.item_id);
+    const stColor = st === 'active' ? 'var(--success)' : (st === 'unused' || st === 'released') ? 'var(--primary)' : 'var(--danger)';
+    const forever = !r.duration_days && !r.expires_at;
+    const user = r.national_code
+      ? `کد ملی ${escapeHtml(r.national_code)} — گوشی …${escapeHtml(String(r.device_id || '').slice(-6))}`
+      : 'هنوز به کسی وصل نشده';
+    return `
+      <div class="item" style="flex-wrap:wrap;">
+        <div class="info" style="min-width:60%;">
+          <div class="t"><span style="direction:ltr; unicode-bidi:embed; font-family:monospace; font-size:15px;">${escapeHtml(r.token)}</span>
+            <span style="color:${stColor}; font-size:12px; font-weight:600;"> — ${LK_STATUS_LABEL[st]}</span></div>
+          <div class="d">${escapeHtml(title)}${r.note ? ' • ' + escapeHtml(r.note) : ''}</div>
+          <div class="d">${user} • ${escapeHtml(lkExpiryText(r))}</div>
+        </div>
+        <div class="actions" style="flex-wrap:wrap;">
+          <button class="btn-outline btn-small" data-lk-act="copy" data-id="${r.id}">کپی</button>
+          <button class="btn-outline btn-small" data-lk-act="revoke" data-id="${r.id}">${r.revoked ? 'فعال‌سازی' : 'لغو'}</button>
+          ${forever ? '' : `<button class="btn-outline btn-small" data-lk-act="extend" data-id="${r.id}">تمدید</button>
+          <button class="btn-outline btn-small" data-lk-act="forever" data-id="${r.id}">همیشگی</button>`}
+          ${r.national_code ? `<button class="btn-outline btn-small" data-lk-act="release" data-id="${r.id}">آزاد کردن گوشی</button>` : ''}
+          <button class="btn-danger btn-small" data-lk-act="delete" data-id="${r.id}">حذف</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function lkCopy(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('کپی شد', 'success');
+  } catch (e) {
+    window.prompt('این را کپی کن:', text);
+  }
+}
+
+async function lkCreate() {
+  const itemId = $('lk-item').value;
+  if (!itemId) { toast('اول یک آیتم قفل‌شده انتخاب کن', 'error'); return; }
+  const days = parseInt($('lk-duration').value, 10) || 0;   // 0 = همیشگی
+  const note = $('lk-note').value.trim();
+  const btn = $('btn-lk-create');
+  btn.disabled = true;
+  try {
+    const token = await lkRpc('admin_token_create', { p_item_id: itemId, p_duration_days: days, p_note: note });
+    $('lk-new-token-text').textContent = token;
+    $('lk-new-token').classList.remove('hidden');
+    $('lk-note').value = '';
+    toast('توکن ساخته شد', 'success');
+    lkLoad();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function lkAction(act, id) {
+  const row = lkRows.find((r) => String(r.id) === String(id));
+  if (!row) return;
+  try {
+    if (act === 'copy') { await lkCopy(row.token); return; }
+    if (act === 'revoke') {
+      await lkRpc('admin_token_revoke', { p_id: row.id, p_revoked: !row.revoked });
+      toast(row.revoked ? 'دوباره فعال شد' : 'لغو شد', 'success');
+    } else if (act === 'extend') {
+      const v = window.prompt('چند روز تمدید شود؟ (مثلاً 30)');
+      if (v === null) return;
+      const n = parseInt(lkToEnDigits(v).trim(), 10);
+      if (!n || n <= 0) { toast('یک عدد معتبر وارد کن', 'error'); return; }
+      await lkRpc('admin_token_extend', { p_id: row.id, p_days: n });
+      toast('تمدید شد', 'success');
+    } else if (act === 'forever') {
+      if (!confirm('این توکن همیشگی شود؟')) return;
+      await lkRpc('admin_token_make_forever', { p_id: row.id });
+      toast('همیشگی شد', 'success');
+    } else if (act === 'release') {
+      if (!confirm('اتصال این توکن به کد ملی و گوشی برداشته شود؟ (مدت اعتبار تغییر نمی‌کند؛ کاربر باید دوباره توکن را وارد کند)')) return;
+      await lkRpc('admin_token_release', { p_id: row.id });
+      toast('آزاد شد', 'success');
+    } else if (act === 'delete') {
+      if (!confirm('این توکن برای همیشه حذف شود؟')) return;
+      await lkRpc('admin_token_delete', { p_id: row.id });
+      toast('حذف شد', 'success');
+    }
+    lkLoad();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+$('btn-lk-login').addEventListener('click', lkLogin);
+$('btn-lk-logout').addEventListener('click', lkLogout);
+$('btn-lk-refresh').addEventListener('click', (e) => { e.preventDefault(); lkLoad(); });
+$('btn-lk-create').addEventListener('click', lkCreate);
+$('btn-lk-copy-new').addEventListener('click', () => lkCopy($('lk-new-token-text').textContent));
+$('in-lk-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') lkLogin(); });
+$('lk-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-lk-act]');
+  if (btn) lkAction(btn.getAttribute('data-lk-act'), btn.getAttribute('data-id'));
+});
 
 </script>
 </body>
