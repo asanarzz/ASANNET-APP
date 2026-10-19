@@ -1248,5 +1248,13 @@
     "description": "شبکه امید",
     "url": "https://ncdn.telewebion.ir/omid/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446287471",
+    "type": "tv",
+    "title": "افق",
+    "description": "شبکه افق",
+    "url": "https://ncdn.telewebion.ir/ofogh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
