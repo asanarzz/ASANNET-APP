@@ -1224,5 +1224,13 @@
     "description": "شبکه سلامت",
     "url": "https://ncdn.telewebion.ir/salamat/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446179623",
+    "type": "tv",
+    "title": "قرآن",
+    "description": "شبکه قرآن",
+    "url": "https://ncdn.telewebion.ir/quran/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
