@@ -1312,5 +1312,13 @@
     "description": "شبکه تهران",
     "url": "https://ncdn.telewebion.ir/hdtest/live/playlist.m3u8",
     "section": "استانی"
+  },
+  {
+    "id": "item_1792447155450",
+    "type": "tv",
+    "title": "تهران",
+    "description": "شبکه تهران",
+    "url": "https://ncdn.telewebion.ir/tv4/live/playlist.m3u8",
+    "section": "شبکه های استانی"
   }
 ]
