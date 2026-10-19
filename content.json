@@ -1306,14 +1306,6 @@
     "section": "صدا و سیما"
   },
   {
-    "id": "item_1792446873616",
-    "type": "tv",
-    "title": "تهران",
-    "description": "شبکه تهران",
-    "url": "https://ncdn.telewebion.ir/hdtest/live/playlist.m3u8",
-    "section": "استانی"
-  },
-  {
     "id": "item_1792447155450",
     "type": "tv",
     "title": "تهران",
