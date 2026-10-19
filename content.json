@@ -1168,5 +1168,15 @@
     "description": "شبکه استان خوزستان",
     "url": "https://ncdn.telewebion.ir/abadan/live/playlist.m3u8",
     "section": "شبکه های استانی"
+  },
+  {
+    "id": "item_1792388948543",
+    "type": "newspaper",
+    "title": "دوشنبه",
+    "description": "صفحه نخست روزنامه های کشور دوشنبه",
+    "url": "",
+    "images": [
+      "https://static.jaaar.com/assets/images/pishkhan/1405/7/26/f29c21d4.jpg"
+    ]
   }
 ]
