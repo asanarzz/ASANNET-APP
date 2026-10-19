@@ -1225,14 +1225,22 @@ async function handleAdd() {
       }
     }
 
-    const combinedImages = editingId ? editingExistingImages.concat(newImages) : newImages;
-
     const linksValue = (selectedType === 'video' || selectedType === 'tv') ? collectLinks() : [];
 
     // برای تلویزیون: اگر لینک بالا خالی بود، اولین لینکِ «لینک‌های دانلود» به‌عنوان لینک شبکه استفاده می‌شود
     if (selectedType === 'tv' && !url && linksValue.length) {
       url = linksValue[0].url;
     }
+
+    // برای همه‌ی دسته‌ها به‌جز فیلم و رادیو، لینک‌های باکس «لینک‌های دانلود» مستقیم
+    // به‌عنوان آدرس فایل/عکس به آیتم اضافه می‌شن (مثل آپلود فایل) — نه فقط فیلم و تلویزیون
+    let linkImageUrls = [];
+    if (selectedType !== 'video' && selectedType !== 'radio') {
+      const rawLinks = (selectedType === 'tv') ? linksValue : collectLinks();
+      linkImageUrls = rawLinks.map((l) => l.url).filter(Boolean);
+    }
+
+    const combinedImages = (editingId ? editingExistingImages.concat(newImages) : newImages).concat(linkImageUrls);
 
     if (!url && combinedImages.length === 0 && linksValue.length === 0) {
       toast('حداقل یه لینک یا یه فایل وارد کن', 'error');
