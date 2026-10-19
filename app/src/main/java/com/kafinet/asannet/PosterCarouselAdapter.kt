@@ -23,7 +23,7 @@ class PosterCarouselAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.binding.txtPosterTitle.text = forceEnglishDigits(item.title)
+        holder.binding.txtPosterTitle.text = if (item.locked) android.text.TextUtils.concat("🔒 ", forceEnglishDigits(item.title)) else forceEnglishDigits(item.title)
 
         val posterUrl = item.images.firstOrNull() ?: item.url
         Glide.with(holder.binding.imgPoster.context)

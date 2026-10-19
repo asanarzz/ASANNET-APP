@@ -39,7 +39,9 @@ data class ContentItem(
     val url: String,
     val section: String? = null,
     val images: List<String> = emptyList(),
-    val links: List<DownloadLink> = emptyList()
+    val links: List<DownloadLink> = emptyList(),
+    /** true یعنی لینک/عکس واقعی در content.json نیست و فقط با توکن از سرور گرفته می‌شود. */
+    val locked: Boolean = false
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -76,7 +78,8 @@ data class ContentItem(
                         url = obj.optString("url", ""),
                         section = if (sectionValue.isBlank()) null else sectionValue,
                         images = images,
-                        links = links
+                        links = links,
+                        locked = obj.optBoolean("locked", false)
                     )
                 )
             }

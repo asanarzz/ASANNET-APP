@@ -214,6 +214,10 @@ class CategoryListActivity : AppCompatActivity() {
     /** با تپ روی پوستر فیلم/سریال، صفحه‌ی جزئیات (پوستر بزرگ + توضیحات + دکمه‌ی
      *  دانلود فیلم) باز می‌شه — به‌جای پخش مستقیم. */
     private fun openVideoDetail(item: ContentItem) {
+        LockManager.withAccess(this, item) { openVideoDetailUnlocked(it) }
+    }
+
+    private fun openVideoDetailUnlocked(item: ContentItem) {
         val posterUrl = item.images.firstOrNull().orEmpty()
         val intent = Intent(this, VideoDetailActivity::class.java)
         intent.putExtra(VideoDetailActivity.EXTRA_TITLE, item.title)
@@ -232,6 +236,10 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openItem(item: ContentItem) {
+        LockManager.withAccess(this, item) { openItemUnlocked(it) }
+    }
+
+    private fun openItemUnlocked(item: ContentItem) {
         // برای دسته‌ی ویدیو و موزیک، تصویر (پوستر/کاور) فقط برای نمایش تو کارته؛
         // نباید بره تو گالری عکس فقط چون عکس کاور داره.
         if (item.images.isNotEmpty() && item.type != ContentType.VIDEO && item.type != ContentType.MUSIC) {

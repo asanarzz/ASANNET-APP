@@ -21,7 +21,7 @@ class ContentAdapter(
         val item = items[position]
         val binding = holder.binding
 
-        binding.txtTitle.text = forceEnglishDigits(item.title)
+        binding.txtTitle.text = if (item.locked) android.text.TextUtils.concat("🔒 ", forceEnglishDigits(item.title)) else forceEnglishDigits(item.title)
         binding.txtDesc.text = forceEnglishDigits(item.description)
         binding.txtDesc.visibility = if (item.description.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
 
