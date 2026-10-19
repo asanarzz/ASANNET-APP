@@ -1288,5 +1288,13 @@
     "description": "شبکه خبر 2",
     "url": "https://ncdn.telewebion.ir/irinn2/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446537513",
+    "type": "tv",
+    "title": "ifilm",
+    "description": "شبکه آی فیلم",
+    "url": "https://live.presstv.ir/hls/ifilmfa.m3u8",
+    "section": "صدا و سیما"
   }
 ]
