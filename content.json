@@ -1216,5 +1216,13 @@
     "description": "شبکه ورزش",
     "url": "https://ncdn.telewebion.ir/varzesh/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446131188",
+    "type": "tv",
+    "title": "سلامت",
+    "description": "شبکه سلامت",
+    "url": "https://ncdn.telewebion.ir/salamat/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
