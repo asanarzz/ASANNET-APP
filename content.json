@@ -1272,5 +1272,13 @@
     "description": "شبکه نمایش",
     "url": "https://ncdn.telewebion.ir/namayesh/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446404241",
+    "type": "tv",
+    "title": "مستند",
+    "description": "شبکه مستند",
+    "url": "https://ncdn.telewebion.ir/mostanad/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
