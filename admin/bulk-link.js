@@ -45,13 +45,21 @@ https://... 1080p
     document.getElementById('btn-parse-bulk').addEventListener('click', () => {
       const raw = document.getElementById('in-url-bulk').value.trim();
       if (!raw) { alert('حداقل یه خط وارد کن'); return; }
-      const lines = raw.split(/\n/).map(l => l.trim()).filter(Boolean);
+
+      // به‌جای تکیه به این‌که هر لینک حتماً تو خط جدا باشه (که موقع کپی‌پیست
+      // ممکنه خط‌ها از بین برن و همه سرهم با فاصله بشن)، مستقیم دنبال هر
+      // چیزی که با http شروع می‌شه می‌گردیم — فرقی نمی‌کنه با خط جدید جدا
+      // شده باشن، با فاصله، یا پشت‌سرهم چسبیده.
+      const urlRegex = /https?:\/\/\S+/g;
+      const matches = [...raw.matchAll(urlRegex)];
+      if (!matches.length) { alert('هیچ لینک معتبری پیدا نشد'); return; }
+
       let added = 0;
-      lines.forEach((line) => {
-        const parts = line.split(/\s+/);
-        const url = parts[0];
-        let label = parts.slice(1).join(' ') || '';
-        if (!url.startsWith('http')) return;
+      matches.forEach((match, idx) => {
+        const url = match[0].replace(/[",;'\)\]]+$/, '');
+        const segStart = match.index + match[0].length;
+        const segEnd = (idx + 1 < matches.length) ? matches[idx + 1].index : raw.length;
+        let label = raw.slice(segStart, segEnd).trim().split(/\n/)[0].trim();
         if (!label) {
           const m = url.match(/[_-](\d{3,4}p)[._-]?/i);
           label = m ? m[1] : ('لینک ' + (added + 1));
