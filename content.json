@@ -1232,5 +1232,13 @@
     "description": "شبکه قرآن",
     "url": "https://ncdn.telewebion.ir/quran/live/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792446223926",
+    "type": "tv",
+    "title": "پویا",
+    "description": "شبکه پویا",
+    "url": "https://ncdn.telewebion.ir/pooya/live/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
