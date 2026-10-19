@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_dialog_title">محتوای قفل‌شده</string>
+    <string name="lock_dialog_message_default">«%1$s» قفل است. توکن اختصاصی‌ات را وارد کن. هر توکن فقط برای یک حساب و روی یک گوشی کار می‌کند.</string>
+    <string name="lock_dialog_message_expired">اعتبار توکن قبلی «%1$s» تمام شده است. برای ادامه، توکن جدید را وارد کن.</string>
+    <string name="lock_dialog_message_revoked">توکن قبلی «%1$s» لغو شده است. اگر توکن جدید داری، وارد کن.</string>
+    <string name="lock_confirm">تأیید</string>
+    <string name="lock_cancel">انصراف</string>
+
+    <string name="lock_err_empty">توکن را وارد کن</string>
+    <string name="lock_err_invalid">توکن اشتباه است</string>
+    <string name="lock_err_used">این توکن قبلاً برای یک حساب یا گوشی دیگر استفاده شده است</string>
+    <string name="lock_err_wrong_item">این توکن برای این مورد نیست</string>
+    <string name="lock_err_expired">اعتبار این توکن تمام شده است</string>
+    <string name="lock_err_revoked">این توکن لغو شده است</string>
+    <string name="lock_err_item_missing">این محتوا هنوز آماده نیست؛ بعداً دوباره امتحان کن</string>
+    <string name="lock_err_network">اتصال به اینترنت برقرار نشد؛ دوباره امتحان کن</string>
+    <string name="lock_err_not_installed">قفل هنوز روی سرور فعال نشده است</string>
+    <string name="lock_err_server">خطا از سمت سرور؛ کمی بعد دوباره امتحان کن</string>
+    <string name="lock_err_login_required">اول باید وارد حساب کاربری‌ات بشی</string>
+</resources>
