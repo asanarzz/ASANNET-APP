@@ -41,7 +41,9 @@ data class ContentItem(
     val images: List<String> = emptyList(),
     val links: List<DownloadLink> = emptyList(),
     /** true یعنی لینک/عکس واقعی در content.json نیست و فقط با توکن از سرور گرفته می‌شود. */
-    val locked: Boolean = false
+    val locked: Boolean = false,
+    /** اگر آیتم عضو یک پوشه‌ی قفل‌شده باشد، شناسه‌ی پوشه (برای توکن پوشه). */
+    val lockGroup: String? = null
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -79,7 +81,8 @@ data class ContentItem(
                         section = if (sectionValue.isBlank()) null else sectionValue,
                         images = images,
                         links = links,
-                        locked = obj.optBoolean("locked", false)
+                        locked = obj.optBoolean("locked", false),
+                        lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null }
                     )
                 )
             }

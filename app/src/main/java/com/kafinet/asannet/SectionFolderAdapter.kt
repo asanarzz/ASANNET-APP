@@ -9,7 +9,14 @@ import com.kafinet.asannet.databinding.ItemSectionFolderBinding
  * یک بخش (پوشه) داخل یک دسته — مثلاً «آزمون‌های غربالگری» زیرِ دسته‌ی «آزمون».
  * name=null یعنی موارد بدون بخش مشخص (نمایش داده می‌شوند زیر برچسب «سایر»).
  */
-data class SectionFolder(val name: String?, val displayName: String, val count: Int)
+data class SectionFolder(
+    val name: String?,
+    val displayName: String,
+    val count: Int,
+    /** پوشه‌ی قفل‌شده با توکن؛ probe یکی از آیتم‌هاش برای چک دسترسی است. */
+    val locked: Boolean = false,
+    val probe: ContentItem? = null
+)
 
 class SectionFolderAdapter(
     private var folders: List<SectionFolder>,
@@ -25,7 +32,7 @@ class SectionFolderAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val folder = folders[position]
-        holder.binding.txtSectionName.text = folder.displayName
+        holder.binding.txtSectionName.text = if (folder.locked) "\uD83D\uDD12 " + folder.displayName else folder.displayName
         val context = holder.binding.root.context
         holder.binding.txtSectionCount.text =
             String.format(java.util.Locale.US, context.getString(R.string.section_item_count), folder.count)

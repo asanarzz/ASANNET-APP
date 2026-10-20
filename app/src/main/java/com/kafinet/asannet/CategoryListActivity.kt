@@ -177,7 +177,9 @@ class CategoryListActivity : AppCompatActivity() {
 
         var folders = orderedKeys.map { key ->
             val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else key
-            SectionFolder(key, displayName, grouped[key]?.size ?: 0)
+            val members = grouped[key].orEmpty()
+            val lockedFolder = members.isNotEmpty() && members.all { it.locked && it.lockGroup != null }
+            SectionFolder(key, displayName, members.size, lockedFolder, members.firstOrNull())
         }
 
         if (currentQuery.isNotBlank()) {
@@ -190,6 +192,16 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     private fun openSection(folder: SectionFolder) {
+        val probe = folder.probe
+        if (folder.locked && probe != null) {
+            // پوشه‌ی قفل‌شده: اول توکن (یا دسترسی قبلی) چک می‌شود
+            LockManager.withAccess(this, probe) { enterSection(folder) }
+        } else {
+            enterSection(folder)
+        }
+    }
+
+    private fun enterSection(folder: SectionFolder) {
         currentSection = folder.name
         binding.txtTitle.text = folder.displayName
         binding.editSearch.text?.clear()

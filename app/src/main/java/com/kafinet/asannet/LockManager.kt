@@ -101,7 +101,9 @@ object LockManager {
                     "revoked" -> R.string.lock_dialog_message_revoked
                     else -> R.string.lock_dialog_message_default
                 },
-                item.title
+                if (item.lockGroup != null && !item.section.isNullOrBlank())
+                    activity.getString(R.string.lock_folder_name, item.section)
+                else item.title
             )
             textSize = 15f
         }
