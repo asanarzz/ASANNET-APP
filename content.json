@@ -1393,5 +1393,13 @@
     "description": "سریال خارجی",
     "url": "https://avaserieshls.wns.live/hls/stream.m3u8",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792492830379",
+    "type": "tv",
+    "title": "BRAVO FARSI TV",
+    "description": "سیاسی خبری",
+    "url": "https://bravoohls.wns.live/hls/stream.m3u8",
+    "section": "VIP"
   }
 ]
