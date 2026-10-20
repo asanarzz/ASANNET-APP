@@ -1321,5 +1321,13 @@
     "description": "فیلم و سریال ایرانی",
     "url": "https://hls.247box.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492250583",
+    "type": "tv",
+    "title": "AFN TV",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://bozztv.com/1gbw5/tintv2/tintv2/playlist.m3u8",
+    "section": "سرگرمی"
   }
 ]
