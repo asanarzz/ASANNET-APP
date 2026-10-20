@@ -1465,5 +1465,13 @@
     "description": "فیلم و سریال",
     "url": "https://fxtvhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518586176",
+    "type": "tv",
+    "title": "FX TV2",
+    "description": "فیلم و سریال",
+    "url": "https://toonixhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
