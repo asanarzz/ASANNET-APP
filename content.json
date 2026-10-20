@@ -1337,5 +1337,13 @@
     "description": "فیلم و سریال ایرانی",
     "url": "https://afrafhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492349947",
+    "type": "tv",
+    "title": "AFRA SERIES",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://afrashls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
