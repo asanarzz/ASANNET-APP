@@ -1497,5 +1497,13 @@
     "description": "فیلم و سریال",
     "url": "https://homeplushls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518783630",
+    "type": "tv",
+    "title": "META FILM TV",
+    "description": "فیلم و سریال",
+    "url": "https://metafilmhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
