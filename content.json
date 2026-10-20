@@ -1541,5 +1541,13 @@
     "section": "VIP",
     "locked": true,
     "lockGroup": "folder:tv|VIP"
+  },
+  {
+    "id": "item_1792519077792",
+    "type": "tv",
+    "title": "T2 MOVIE",
+    "description": "فیلم و سریال",
+    "url": "https://ca-rt.onetv.app/T2Movies/index-0.m3u8?token=onetv202",
+    "section": "سرگرمی"
   }
 ]
