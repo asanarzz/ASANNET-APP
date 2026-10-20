@@ -1377,5 +1377,13 @@
     "description": "فیلم و سریال خارجی",
     "url": "https://atrihls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492658434",
+    "type": "tv",
+    "title": "AVA FAMILY",
+    "description": "فیلم سینمایی",
+    "url": "https://familyhls.avatv.live/hls/stream.m3u8",
+    "section": "VIP"
   }
 ]
