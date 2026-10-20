@@ -1515,5 +1515,13 @@
     "section": "VIP",
     "locked": true,
     "lockGroup": "folder:tv|VIP"
+  },
+  {
+    "id": "item_1792518938169",
+    "type": "tv",
+    "title": "NEW FLIX",
+    "description": "فیلم و سریال",
+    "url": "https://newfhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
