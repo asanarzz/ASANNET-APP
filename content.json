@@ -1449,5 +1449,13 @@
     "description": "فیلم و سریال",
     "url": "https://ca-rt.onetv.app/EkranMovies/index-0.m3u8?token=onetv202",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518483542",
+    "type": "tv",
+    "title": "EPLANET TV",
+    "description": "فیلم و سریال",
+    "url": "https://eplhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
