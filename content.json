@@ -1409,5 +1409,13 @@
     "description": "فیلم و سریال ایرانی",
     "url": "https://cafefhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492918304",
+    "type": "tv",
+    "title": "CLASSIC TV",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://clshls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
