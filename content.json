@@ -1505,5 +1505,15 @@
     "description": "فیلم و سریال",
     "url": "https://metafilmhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518887069",
+    "type": "tv",
+    "title": "MIHAN TV",
+    "description": "شبکه خبری",
+    "url": "",
+    "section": "VIP",
+    "locked": true,
+    "lockGroup": "folder:tv|VIP"
   }
 ]
