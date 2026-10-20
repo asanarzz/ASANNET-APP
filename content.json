@@ -1345,5 +1345,13 @@
     "description": "فیلم و سریال ایرانی",
     "url": "https://afrashls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492397127",
+    "type": "tv",
+    "title": "ARAX TV",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://araxhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
