@@ -1549,5 +1549,13 @@
     "description": "فیلم و سریال",
     "url": "https://ca-rt.onetv.app/T2Movies/index-0.m3u8?token=onetv202",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792519170360",
+    "type": "tv",
+    "title": "T2 TV",
+    "description": "موزیک",
+    "url": "https://t2hls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
