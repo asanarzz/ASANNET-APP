@@ -1473,5 +1473,13 @@
     "description": "فیلم و سریال",
     "url": "https://toonixhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518637654",
+    "type": "tv",
+    "title": "GOLD STAR",
+    "description": "فیلم و سریال",
+    "url": "https://moviethls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
