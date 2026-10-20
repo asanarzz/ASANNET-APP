@@ -1481,5 +1481,13 @@
     "description": "فیلم و سریال",
     "url": "https://moviethls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518682877",
+    "type": "tv",
+    "title": "HISPAN TV",
+    "description": "فیلم و سریال",
+    "url": "https://cdnlive.presstv.ir/live/smil:live.smil/playlist.m3u8",
+    "section": "سرگرمی"
   }
 ]
