@@ -102,6 +102,9 @@
   .item .info .t{font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .item .info .d{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .item .actions{display:flex; gap:6px; flex-shrink:0;}
+  .item.content-row{flex-wrap:wrap;}
+  .item.content-row .info .t, .item.content-row .info .d{white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere;}
+  .item.content-row .actions{flex-basis:100%; flex-wrap:wrap;}
 
   .toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
@@ -249,11 +252,11 @@
       <label>توضیح کوتاه (اختیاری)</label>
       <textarea id="in-desc" placeholder="یک خط توضیح درباره‌ی این محتوا"></textarea>
 
-      <label>بخش (اختیاری)</label>
+      <label>پوشه (اختیاری)</label>
       <input type="text" id="in-section" placeholder="مثلاً: آزمون‌های غربالگری">
       <p class="muted">
         اگه پر کنی، این مورد داخل یه پوشه با همین اسم قرار می‌گیره (مثلاً تو دسته‌ی «آزمون» می‌تونی
-        چند بخش مثل «آزمون‌های غربالگری» و «نمونه سوالات» بسازی). اگه خالی بذاری، مثل قبل مستقیم
+        چند پوشه مثل «آزمون‌های غربالگری» و «نمونه سوالات» بسازی). اگه خالی بذاری، مثل قبل مستقیم
         تو لیست دسته نشون داده می‌شه.
       </p>
 
@@ -1184,7 +1187,7 @@ function renderList() {
   visibleItems.slice().reverse().forEach((item) => {
     const meta = TYPE_META[item.type] || TYPE_META.link;
     const row = document.createElement('div');
-    row.className = 'item';
+    row.className = 'item content-row';
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
@@ -1193,6 +1196,7 @@ function renderList() {
       </div>
       <div class="actions">
         <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
+        ${(item.section && item.type !== 'video') ? `<button class="btn-outline btn-small" data-lockfolder="${item.id}">${item.lockGroup ? '📁🔓 باز کردن قفل پوشه' : '📁🔒 قفل پوشه'}</button>` : ''}
         <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
         <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
       </div>`;
@@ -1209,6 +1213,13 @@ function renderList() {
       const id = btn.getAttribute('data-lock');
       const it = contentItems.find((i) => i.id === id);
       if (it && it.locked) lkUnlockItem(id); else lkLockItem(id);
+    });
+  });
+  area.querySelectorAll('[data-lockfolder]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const it = contentItems.find((i) => i.id === btn.getAttribute('data-lockfolder'));
+      if (!it) return;
+      if (it.lockGroup) lkUnlockFolder(it.lockGroup); else lkLockFolder(it.type, it.section);
     });
   });
 }
@@ -1325,6 +1336,15 @@ async function handleAdd() {
       if (combinedImages.length) updatedItem.images = combinedImages;
       if (linksValue.length) updatedItem.links = linksValue;
 
+      // اگر پوشه‌ی مقصد قفل است، آیتم قبل از ذخیره قفل می‌شود (لینکش هرگز عمومی نمی‌شود)
+      const editGroup = lkFolderGroupFor(selectedType, sectionValue);
+      if (editGroup) {
+        if (!lkEnsureLogin()) return;
+        const lockedEdit = await lkLockedForm(updatedItem, editGroup);
+        Object.keys(updatedItem).forEach((k) => delete updatedItem[k]);
+        Object.assign(updatedItem, lockedEdit);
+      }
+
       contentItems = contentItems.map((i) => (i.id === id ? updatedItem : i));
 
       btn.textContent = 'در حال ذخیره...';
@@ -1349,6 +1369,15 @@ async function handleAdd() {
     if (sectionValue) newItem.section = sectionValue;
     if (combinedImages.length) newItem.images = combinedImages;
     if (linksValue.length) newItem.links = linksValue;
+
+    // اگر پوشه‌ی مقصد قفل است، آیتم جدید قبل از ذخیره خودکار قفل می‌شود
+    const newGroup = lkFolderGroupFor(selectedType, sectionValue);
+    if (newGroup) {
+      if (!lkEnsureLogin()) return;
+      const lockedNew = await lkLockedForm(newItem, newGroup);
+      Object.keys(newItem).forEach((k) => delete newItem[k]);
+      Object.assign(newItem, lockedNew);
+    }
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -2072,7 +2101,7 @@ async function lkRpc(fn, args) {
   if (!res.ok) {
     const msg = String((data && (data.message || data.hint || data.details)) || text || res.status);
     if (msg.includes('not_admin')) throw new Error('این ایمیل، مدیر قفل نیست؛ ایمیلت را در فایل lock_tokens.sql (بخش lock_admins) بنویس و دوباره اجرا کن');
-    if (res.status === 404 || msg.includes('Could not find the function')) throw new Error('قفل هنوز در Supabase فعال نشده؛ فایل lock_tokens.sql را در SQL Editor اجرا کن');
+    if (res.status === 404 || msg.includes('Could not find the function')) throw new Error('قفل (یا قفل پوشه) هنوز در Supabase فعال نشده؛ فایل‌های lock_tokens.sql و بعد lock_folders.sql را در SQL Editor اجرا کن');
     if (msg.includes('item_not_locked')) throw new Error('این آیتم قفل نیست');
     throw new Error(msg);
   }
@@ -2106,40 +2135,136 @@ async function lkLockItem(id) {
   if (!lkEnsureLogin()) return;
   if (!confirm('این مورد قفل شود؟\n\nلینک‌های آن از content.json برداشته می‌شود و فقط با توکن داخل برنامه باز می‌شود.\n\n(توجه: لینکی که قبلاً در content.json بوده، در تاریخچه‌ی گیت‌هاب باقی می‌ماند.)')) return;
 
-  // برای بعضی دسته‌ها، لینک‌های باکس «لینک‌های دانلود» خودشان هم به‌عنوان عکس/فایل ذخیره می‌شوند.
-  // عکس‌هایی که عیناً همان لینک‌ها هستند، حتماً باید مخفی شوند؛ فقط بقیه‌ی عکس‌ها (مثلاً کاور آپلودشده) اختیاری‌اند.
-  const secretUrls = new Set([item.url].concat((item.links || []).map((l) => l.url)).filter(Boolean));
-  const allImages = Array.isArray(item.images) ? item.images : [];
-  const dupImages = allImages.filter((u) => secretUrls.has(u));
-  const otherImages = allImages.filter((u) => !secretUrls.has(u));
-
   let hideOther = false;
+  const otherImages = lkSplitImages(item).otherImages;
   if (otherImages.length) {
     const suggest = LK_COVER_TYPES.includes(item.type) ? 'Cancel (کاور عمومی بماند)' : 'OK (عکس‌ها مخفی شوند)';
     hideOther = confirm('این مورد ' + otherImages.length + ' عکس/کاور دیگر هم دارد. مخفی شوند؟\n\nOK = این عکس‌ها هم فقط با توکن دیده شوند (مناسب روزنامه، عکس و...)\nCancel = عمومی بمانند (مناسب کاور فیلم/آهنگ)\n\nپیشنهاد برای این نوع: ' + suggest);
   }
-  const hiddenImages = dupImages.concat(hideOther ? otherImages : []);
-  const publicImages = hideOther ? [] : otherImages;
-
-  const payload = {};
-  if (hasUrl) payload.url = item.url;
-  if (hasLinks) payload.links = item.links;
-  if (hiddenImages.length) payload.images = hiddenImages;
 
   try {
-    await lkRpc('admin_lock_set', { p_item_id: id, p_payload: payload });
-    const transform = (list) => list.map((it) => {
-      if (it.id !== id) return it;
-      const c = Object.assign({}, it);
-      c.locked = true;
-      c.url = '';
-      delete c.links;
-      if (publicImages.length) c.images = publicImages; else delete c.images;
-      return c;
-    });
+    const built = lkBuild(item, hideOther, null);
+    await lkRpc('admin_lock_set', { p_item_id: id, p_payload: built.payload, p_group_id: null });
+    const transform = (list) => list.map((it) => (it.id === id ? built.locked : it));
     contentItems = transform(contentItems);
     await saveContentList('قفل کردن محتوا: ' + id, transform);
     toast('قفل شد ✓ — حالا از تب «قفل و توکن» توکن بساز', 'success');
+    renderList();
+    lkRenderSelect();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+// عکس‌هایی که عیناً همان لینک‌ها هستند حتماً مخفی می‌شوند؛ بقیه (مثلاً کاور) اختیاری‌اند
+function lkSplitImages(item) {
+  const secretUrls = new Set([item.url].concat((item.links || []).map((l) => l.url)).filter(Boolean));
+  const allImages = Array.isArray(item.images) ? item.images : [];
+  return {
+    dupImages: allImages.filter((u) => secretUrls.has(u)),
+    otherImages: allImages.filter((u) => !secretUrls.has(u)),
+  };
+}
+
+// payload مخفی (برای Supabase) + شکل قفل‌شده‌ی آیتم (برای content.json) را می‌سازد
+function lkBuild(item, hideOther, group) {
+  const sp = lkSplitImages(item);
+  const hiddenImages = sp.dupImages.concat(hideOther ? sp.otherImages : []);
+  const publicImages = hideOther ? [] : sp.otherImages;
+  const payload = {};
+  if (item.url) payload.url = item.url;
+  if (Array.isArray(item.links) && item.links.length) payload.links = item.links;
+  if (hiddenImages.length) payload.images = hiddenImages;
+  const c = Object.assign({}, item);
+  c.locked = true;
+  if (group) c.lockGroup = group;
+  c.url = '';
+  delete c.links;
+  if (publicImages.length) c.images = publicImages; else delete c.images;
+  return { payload, locked: c };
+}
+
+// شناسه‌ی پوشه (برای توکن پوشه)
+function lkGroupId(type, section) { return 'folder:' + type + '|' + section; }
+
+// اگر این پوشه (نوع+نام) قفل است، شناسه‌ی گروهش را برمی‌گرداند
+function lkFolderGroupFor(type, section) {
+  if (!section || type === 'video') return null;
+  const g = lkGroupId(type, section);
+  return contentItems.some((i) => i.type === type && (i.section || '') === section && i.lockGroup === g) ? g : null;
+}
+
+// قفل خودکار آیتم تازه (قبل از ذخیره در content.json)
+async function lkLockedForm(item, group) {
+  if (!item.url && !(item.links && item.links.length) && !(item.images && item.images.length)) return item;
+  const built = lkBuild(item, !LK_COVER_TYPES.includes(item.type), group);
+  await lkRpc('admin_lock_set', { p_item_id: item.id, p_payload: built.payload, p_group_id: group });
+  return built.locked;
+}
+
+// قفل کردن همه‌ی آیتم‌های یک پوشه
+async function lkLockFolder(type, section) {
+  if (!section || type === 'video') return;
+  if (!lkEnsureLogin()) return;
+  const group = lkGroupId(type, section);
+  const members = contentItems.filter((i) => i.type === type && (i.section || '') === section);
+  if (!members.length) return;
+  if (!confirm('پوشه‌ی «' + section + '» با ' + members.length + ' مورد قفل شود؟\n\nلینک همه‌ی موردها از content.json برداشته می‌شود و فقط با توکن (یک توکن برای کل پوشه) باز می‌شود. موردهای جدیدی که بعداً به این پوشه اضافه کنی خودکار قفل می‌شوند.\n\n(توجه: لینکی که قبلاً در content.json بوده، در تاریخچه‌ی گیت‌هاب باقی می‌ماند.)')) return;
+
+  const hideOther = !LK_COVER_TYPES.includes(type);
+  try {
+    const results = {};
+    for (const it of members) {
+      if (it.locked) {
+        // قبلاً تکی قفل شده؛ فقط عضو پوشه می‌شود
+        const payload = await lkRpc('admin_lock_get', { p_item_id: it.id });
+        if (payload) await lkRpc('admin_lock_set', { p_item_id: it.id, p_payload: payload, p_group_id: group });
+        results[it.id] = Object.assign({}, it, { lockGroup: group });
+      } else {
+        if (!it.url && !(it.links && it.links.length) && !(it.images && it.images.length)) continue;
+        const built = lkBuild(it, hideOther, group);
+        await lkRpc('admin_lock_set', { p_item_id: it.id, p_payload: built.payload, p_group_id: group });
+        results[it.id] = built.locked;
+      }
+    }
+    const transform = (list) => list.map((it) => results[it.id] || it);
+    contentItems = transform(contentItems);
+    await saveContentList('قفل کردن پوشه: ' + section, transform);
+    toast('پوشه قفل شد ✓ — حالا از تب «قفل و توکن» برای پوشه توکن بساز', 'success');
+    renderList();
+    lkRenderSelect();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+// برداشتن قفل کل پوشه
+async function lkUnlockFolder(group) {
+  const members = contentItems.filter((i) => i.lockGroup === group);
+  if (!members.length) return;
+  if (!lkEnsureLogin()) return;
+  if (!confirm('قفل کل پوشه برداشته شود؟\n\nلینک‌های ' + members.length + ' مورد دوباره داخل content.json (عمومی) برمی‌گردند و توکن‌های این پوشه حذف می‌شوند.')) return;
+  try {
+    const restored = {};
+    for (const it of members) {
+      if (!it.locked) continue;
+      const payload = await lkRpc('admin_lock_get', { p_item_id: it.id });
+      if (!payload) throw new Error('لینک‌های «' + (it.title || it.id) + '» در Supabase پیدا نشد؛ باید دستی دوباره ثبتش کنی');
+      const c = Object.assign({}, it);
+      delete c.locked;
+      delete c.lockGroup;
+      c.url = payload.url || '';
+      if (payload.links) c.links = payload.links;
+      if (payload.images) c.images = (c.images || []).concat(payload.images);
+      restored[it.id] = c;
+    }
+    const restore = (list) => list.map((it) => restored[it.id] || it);
+    contentItems = restore(contentItems);
+    await saveContentList('باز کردن قفل پوشه: ' + group, restore);
+    await lkRpc('admin_lock_unset_group', { p_group_id: group });
+    toast('قفل پوشه برداشته شد', 'success');
     renderList();
     lkRenderSelect();
   } catch (e) {
@@ -2160,6 +2285,7 @@ async function lkUnlockItem(id) {
       if (it.id !== id) return it;
       const c = Object.assign({}, it);
       delete c.locked;
+      delete c.lockGroup;
       c.url = payload.url || '';
       if (payload.links) c.links = payload.links;
       if (payload.images) c.images = (c.images || []).concat(payload.images);
@@ -2232,16 +2358,28 @@ function lkLogout() {
 function lkRenderSelect() {
   const sel = $('lk-item');
   if (!sel) return;
-  const locked = contentItems.filter((i) => i.locked);
+  const lockedAll = contentItems.filter((i) => i.locked);
   const prev = sel.value;
-  if (!locked.length) {
-    sel.innerHTML = '<option value="">هنوز آیتمی قفل نشده — از تب «افزودن محتوا» دکمه‌ی 🔒 قفل را بزن</option>';
+  if (!lockedAll.length) {
+    sel.innerHTML = '<option value="">هنوز چیزی قفل نشده — از تب «افزودن محتوا» دکمه‌ی 🔒 قفل یا 📁🔒 قفل پوشه را بزن</option>';
     return;
   }
-  sel.innerHTML = locked.map((i) => {
-    const label = (TYPE_META[i.type] || TYPE_META.link).label;
-    return `<option value="${escapeHtml(i.id)}">${escapeHtml(i.title || '(بدون عنوان)')} — ${escapeHtml(label)}</option>`;
-  }).join('');
+  const opts = [];
+  const seen = new Set();
+  lockedAll.forEach((i) => {
+    if (i.lockGroup) {
+      if (seen.has(i.lockGroup)) return;
+      seen.add(i.lockGroup);
+      const n = lockedAll.filter((x) => x.lockGroup === i.lockGroup).length;
+      const label = (TYPE_META[i.type] || TYPE_META.link).label;
+      opts.push({ id: i.lockGroup, text: '📁 پوشه: ' + (i.section || '') + ' — ' + label + ' (' + n + ' مورد)' });
+    } else {
+      const label = (TYPE_META[i.type] || TYPE_META.link).label;
+      opts.push({ id: i.id, text: (i.title || '(بدون عنوان)') + ' — ' + label });
+    }
+  });
+  sel.innerHTML = opts.map((o) => `<option value="${escapeHtml(o.id)}">${escapeHtml(o.text)}</option>`).join('');
+  const locked = opts;
   if (prev && locked.some((i) => i.id === prev)) sel.value = prev;
 }
 
@@ -2295,7 +2433,10 @@ function lkRenderList() {
   area.innerHTML = rows.map((r) => {
     const st = lkStatus(r);
     const it = contentItems.find((i) => i.id === r.item_id);
-    const title = it ? (it.title || '(بدون عنوان)') : ('(آیتم حذف‌شده) ' + r.item_id);
+    const isFolder = String(r.item_id).startsWith('folder:');
+    const title = isFolder
+      ? ('📁 پوشه: ' + String(r.item_id).split('|').slice(1).join('|'))
+      : (it ? (it.title || '(بدون عنوان)') : ('(آیتم حذف‌شده) ' + r.item_id));
     const stColor = st === 'active' ? 'var(--success)' : (st === 'unused' || st === 'released') ? 'var(--primary)' : 'var(--danger)';
     const forever = !r.duration_days && !r.expires_at;
     const user = r.national_code
