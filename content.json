@@ -1441,5 +1441,13 @@
     "section": "VIP",
     "locked": true,
     "lockGroup": "folder:tv|VIP"
+  },
+  {
+    "id": "item_1792518183171",
+    "type": "tv",
+    "title": "EKRAN MOVIES",
+    "description": "فیلم و سریال",
+    "url": "https://ca-rt.onetv.app/EkranMovies/index-0.m3u8?token=onetv202",
+    "section": "سرگرمی"
   }
 ]
