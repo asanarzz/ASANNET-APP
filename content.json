@@ -1425,5 +1425,13 @@
     "description": "فیلم هندی",
     "url": "https://clshls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792493028788",
+    "type": "tv",
+    "title": "DEJ TV",
+    "description": "سیاسی خبری",
+    "url": "https://rdejhls.wns.live/hls/stream.m3u8",
+    "section": "VIP"
   }
 ]
