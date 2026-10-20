@@ -1369,5 +1369,13 @@
     "description": "فیلم و سریال هندی",
     "url": "https://arvhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492578405",
+    "type": "tv",
+    "title": "ATRIN TV",
+    "description": "فیلم و سریال خارجی",
+    "url": "https://atrihls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
