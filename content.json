@@ -1401,5 +1401,13 @@
     "description": "سیاسی خبری",
     "url": "https://bravoohls.wns.live/hls/stream.m3u8",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792492873025",
+    "type": "tv",
+    "title": "CAFE FILM",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://cafefhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
