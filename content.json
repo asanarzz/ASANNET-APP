@@ -1457,5 +1457,13 @@
     "description": "فیلم و سریال",
     "url": "https://eplhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518539088",
+    "type": "tv",
+    "title": "FX TV1",
+    "description": "فیلم و سریال",
+    "url": "https://fxtvhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
