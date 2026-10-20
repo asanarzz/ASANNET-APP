@@ -1329,5 +1329,13 @@
     "description": "فیلم و سریال ایرانی",
     "url": "https://bozztv.com/1gbw5/tintv2/tintv2/playlist.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792492296435",
+    "type": "tv",
+    "title": "AFRA FILM",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://afrafhls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
