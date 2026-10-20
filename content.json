@@ -1523,5 +1523,13 @@
     "description": "فیلم و سریال",
     "url": "https://newfhls.wns.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518979191",
+    "type": "tv",
+    "title": "OXIR TV",
+    "description": "فیلم و سریال",
+    "url": "https://hls.oxir.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
