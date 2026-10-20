@@ -4,6 +4,7 @@
     <string name="lock_dialog_message_default">«%1$s» قفل است. توکن اختصاصی‌ات را وارد کن. هر توکن فقط برای یک حساب و روی یک گوشی کار می‌کند.</string>
     <string name="lock_dialog_message_expired">اعتبار توکن قبلی «%1$s» تمام شده است. برای ادامه، توکن جدید را وارد کن.</string>
     <string name="lock_dialog_message_revoked">توکن قبلی «%1$s» لغو شده است. اگر توکن جدید داری، وارد کن.</string>
+    <string name="lock_folder_name">پوشه‌ی %1$s</string>
     <string name="lock_confirm">تأیید</string>
     <string name="lock_cancel">انصراف</string>
 
