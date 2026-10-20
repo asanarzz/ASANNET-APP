@@ -1313,5 +1313,13 @@
     "description": "شبکه تهران",
     "url": "https://ncdn.telewebion.ir/tv4/live/playlist.m3u8",
     "section": "شبکه های استانی"
+  },
+  {
+    "id": "item_1792492180942",
+    "type": "tv",
+    "title": "BOX TV",
+    "description": "فیلم و سریال ایرانی",
+    "url": "https://hls.247box.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
