@@ -1385,5 +1385,13 @@
     "description": "فیلم سینمایی",
     "url": "https://familyhls.avatv.live/hls/stream.m3u8",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792492765944",
+    "type": "tv",
+    "title": "AVA SERIES",
+    "description": "سریال خارجی",
+    "url": "https://avaserieshls.wns.live/hls/stream.m3u8",
+    "section": "VIP"
   }
 ]
