@@ -1531,5 +1531,15 @@
     "description": "فیلم و سریال",
     "url": "https://hls.oxir.live/hls/stream.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792519030353",
+    "type": "tv",
+    "title": "SNN TV",
+    "description": "شبکه خبری",
+    "url": "",
+    "section": "VIP",
+    "locked": true,
+    "lockGroup": "folder:tv|VIP"
   }
 ]
