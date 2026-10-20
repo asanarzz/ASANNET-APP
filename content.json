@@ -1489,5 +1489,13 @@
     "description": "فیلم و سریال",
     "url": "https://cdnlive.presstv.ir/live/smil:live.smil/playlist.m3u8",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792518733996",
+    "type": "tv",
+    "title": "HOME PLUS",
+    "description": "فیلم و سریال",
+    "url": "https://homeplushls.wns.live/hls/stream.m3u8",
+    "section": "سرگرمی"
   }
 ]
