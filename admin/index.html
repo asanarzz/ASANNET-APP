@@ -2736,6 +2736,8 @@ async function hpRun(dryRun) {
   const status = $('hp-status');
   try {
     status.textContent = 'در حال ارسال درخواست…';
+    $('hp-sample').textContent = '';
+    $('btn-hp-run').classList.add('hidden');
     const wf = await ghGetFile('.github/workflows/purge-history.yml');
     if (!wf) throw new Error('فایل .github/workflows/purge-history.yml هنوز در ریپو نیست؛ اول آن را آپلود کن.');
     const id = String(Date.now());
@@ -2751,6 +2753,9 @@ async function hpRun(dryRun) {
       if (r && r.id === id) { rep = r; break; }
     }
     if (!rep) throw new Error('نتیجه‌ای نرسید. تب Actions ریپو را ببین؛ شاید ورک‌فلو خطا داده یا هنوز تمام نشده است.');
+    if (rep.ok && rep.mode !== (dryRun ? 'dry' : 'real')) {
+      throw new Error('ورک‌فلو درخواست را به‌صورت «' + rep.mode + '» اجرا کرد، نه «' + (dryRun ? 'dry' : 'real') + '»؛ چیزی پاک نشد. دوباره امتحان کن.');
+    }
     if (!rep.ok) {
       if (rep.error === 'push_failed') throw new Error('گیت‌هاب اجازه‌ی جایگزین کردن تاریخچه را نداد (به‌خاطر فایل‌های workflow در تاریخچه). برای این مرحله چاره‌ای جز یک توکن با دسترسی repo و workflow در Secrets با نام PURGE_TOKEN نیست؛ چیزی در ریپو تغییر نکرد.');
       throw new Error('ورک‌فلو ناموفق بود (' + (rep.error || 'خطا') + '). چیزی در ریپو تغییر نکرد.');
