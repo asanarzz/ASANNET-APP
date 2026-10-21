@@ -217,6 +217,7 @@
       <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
       <div class="main-tab" id="main-tab-ads">تبلیغات</div>
       <div class="main-tab" id="main-tab-locks">قفل و توکن</div>
+      <div class="main-tab" id="main-tab-cleanup">پاکسازی فایل‌ها</div>
     </div>
 
     <div id="section-content">
@@ -232,7 +233,6 @@
         <div class="type-tab" data-type="image">عکس</div>
         <div class="type-tab" data-type="video">ویدیو</div>
         <div class="type-tab" data-type="file">فایل</div>
-        <div class="type-tab" data-type="banner">بنر</div>
         <div class="type-tab" data-type="poll">نظرسنجی</div>
         <div class="type-tab" data-type="software">نرم‌افزار</div>
         <div class="type-tab" data-type="music">آهنگ</div>
@@ -433,6 +433,32 @@
           <div class="type-tabs" id="lk-filter-tabs" style="margin-bottom:14px;"></div>
           <div id="lk-list"><div class="empty-msg">در حال بارگذاری…</div></div>
         </div>
+      </div>
+    </div>
+
+    <!-- File cleanup section -->
+    <div id="section-cleanup" class="hidden">
+      <div class="card">
+        <h2>پاکسازی فایل‌های گیت‌هاب</h2>
+        <p class="muted">
+          فایل‌هایی که در پوشه‌های <b>media/</b> و <b>tests/</b> ریپو آپلود شده‌اند و دیگر هیچ مورد داخل برنامه از آن‌ها استفاده نمی‌کند
+          (مثلاً بعد از حذف آیتم از پنل) اینجا پیدا می‌شوند. هر فایلی را که بخواهی انتخاب و کامل از گیت‌هاب حذف کن.
+          فایل‌هایی که هنوز در برنامه استفاده می‌شوند هرگز در این لیست نمی‌آیند و قابل حذف نیستند.
+        </p>
+        <p class="muted">توجه: گیت‌هاب نسخه‌های قدیمی فایل را در تاریخچه‌ی ریپو نگه می‌دارد؛ حذف از اینجا فایل را از برنامه و از پوشه‌ی ریپو برمی‌دارد.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+          <button class="btn-primary" id="btn-cl-scan" style="width:auto; padding:10px 18px;">🔍 بررسی فایل‌ها</button>
+        </div>
+        <div id="cl-summary" class="muted" style="margin-top:12px;"></div>
+      </div>
+      <div class="card hidden" id="cl-card">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+          <button class="btn-outline btn-small" id="btn-cl-all">انتخاب همه</button>
+          <button class="btn-outline btn-small" id="btn-cl-none">برداشتن انتخاب</button>
+          <button class="btn-danger btn-small" id="btn-cl-delete">🗑 حذف انتخاب‌شده‌ها از گیت‌هاب</button>
+          <span class="muted" id="cl-selected" style="margin:0;"></span>
+        </div>
+        <div id="cl-list"></div>
       </div>
     </div>
 
@@ -1559,6 +1585,7 @@ function initTabs() {
   $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
   $('main-tab-ads').addEventListener('click', () => switchMainTab('ads'));
   $('main-tab-locks').addEventListener('click', () => switchMainTab('locks'));
+  $('main-tab-cleanup').addEventListener('click', () => switchMainTab('cleanup'));
 }
 
 let docsLoaded = false;
@@ -1572,6 +1599,8 @@ function switchMainTab(which) {
   $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('main-tab-ads').classList.toggle('active', which === 'ads');
   $('main-tab-locks').classList.toggle('active', which === 'locks');
+  $('main-tab-cleanup').classList.toggle('active', which === 'cleanup');
+  $('section-cleanup').classList.toggle('hidden', which !== 'cleanup');
   $('section-locks').classList.toggle('hidden', which !== 'locks');
   if (which === 'locks') lkOnOpen();
   $('section-ads').classList.toggle('hidden', which !== 'ads');
@@ -2537,6 +2566,137 @@ $('lk-list').addEventListener('click', (e) => {
   if (btn) lkAction(btn.getAttribute('data-lk-act'), btn.getAttribute('data-id'));
 });
 
+
+// ================= پاکسازی فایل‌های بی‌استفاده‌ی گیت‌هاب =================
+const CL_FOLDERS = ['media/', 'tests/'];
+let clOrphans = [];
+
+function clFmtSize(n) {
+  if (n >= 1048576) return (n / 1048576).toFixed(1) + ' MB';
+  if (n >= 1024) return Math.round(n / 1024) + ' KB';
+  return n + ' B';
+}
+
+function clIcon(path) {
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].includes(ext)) return '🖼';
+  if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return '🎵';
+  if (['mp4', 'mkv', 'webm', 'mov', 'avi'].includes(ext)) return '🎬';
+  if (ext === 'pdf') return '📕';
+  if (['html', 'htm'].includes(ext)) return '🧪';
+  if (['zip', 'rar', '7z', 'apk'].includes(ext)) return '📦';
+  return '📄';
+}
+
+// همه‌ی متن‌هایی که ممکن است به فایل‌ها اشاره کنند: content.json + لینک‌های مخفیِ آیتم‌های قفل‌شده
+async function clCollectReferences() {
+  const fresh = await ghGetFile('content.json');
+  let items = contentItems;
+  if (fresh) {
+    try { items = JSON.parse(b64DecodeUnicode(fresh.content.replace(/\n/g, ''))); } catch (e) { items = contentItems; }
+  }
+  let text = JSON.stringify(items);
+  const lockedItems = items.filter((i) => i.locked);
+  if (lockedItems.length) {
+    adsLoadSession();
+    if (!cfg || !cfg.supabaseUrl || !adsSession) {
+      throw new Error('چند مورد قفل‌شده داری و لینک‌های مخفی‌شان فقط در Supabase است. اول در تب «قفل و توکن» وارد شو، بعد دوباره «بررسی فایل‌ها» را بزن تا فایل‌های مورد استفاده‌ی آن‌ها اشتباهی حذف نشود.');
+    }
+    for (const it of lockedItems) {
+      const payload = await lkRpc('admin_lock_get', { p_item_id: it.id });
+      if (payload) text += '\n' + JSON.stringify(payload);
+    }
+  }
+  return decodeURIComponent_safe(text) + '\n' + text;
+}
+
+function decodeURIComponent_safe(t) {
+  try { return decodeURIComponent(t); } catch (e) {
+    return t.replace(/(%[0-9A-Fa-f]{2})+/g, (m) => { try { return decodeURIComponent(m); } catch (e2) { return m; } });
+  }
+}
+
+async function clScan() {
+  if (!cfg || !cfg.token) { toast('اول تنظیمات گیت‌هاب را وارد کن', 'error'); return; }
+  const btn = $('btn-cl-scan');
+  btn.disabled = true;
+  $('cl-summary').textContent = 'در حال بررسی…';
+  $('cl-card').classList.add('hidden');
+  try {
+    const refText = await clCollectReferences();
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/git/trees/${encodeURIComponent(cfg.branch)}?recursive=1`;
+    const res = await fetch(url, { headers: ghHeaders() });
+    if (!res.ok) throw new Error('دریافت لیست فایل‌ها ناموفق بود (' + res.status + ')');
+    const tree = await res.json();
+    const files = (tree.tree || []).filter((n) => n.type === 'blob' && CL_FOLDERS.some((f) => n.path.startsWith(f)));
+    clOrphans = files.filter((n) => {
+      const name = n.path.split('/').pop();
+      return !(refText.includes(n.path) || refText.includes(encodeURI(n.path)) || refText.includes(encodeURIComponent(name)) || refText.includes(name));
+    }).map((n) => ({ path: n.path, sha: n.sha, size: n.size || 0 }));
+    clOrphans.sort((a, b) => b.size - a.size);
+    const total = clOrphans.reduce((a, f) => a + f.size, 0);
+    $('cl-summary').innerHTML = `کل فایل‌های <b>media/</b> و <b>tests/</b>: ${files.length} — در حال استفاده: ${files.length - clOrphans.length} — بی‌استفاده: <b>${clOrphans.length}</b> (${clFmtSize(total)})` +
+      (tree.truncated ? '<br><span style="color:var(--danger)">لیست خیلی بزرگ بود و کامل نیامد؛ بعد از حذف دوباره بررسی کن.</span>' : '');
+    clRender();
+  } catch (e) {
+    $('cl-summary').textContent = '';
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function clRender() {
+  const list = $('cl-list');
+  $('cl-card').classList.toggle('hidden', clOrphans.length === 0);
+  list.innerHTML = clOrphans.map((f, i) => `
+    <label class="item" style="cursor:pointer; align-items:center;">
+      <input type="checkbox" class="cl-chk" data-i="${i}" style="width:auto; flex-shrink:0;">
+      <div class="info" style="min-width:0;">
+        <div class="t" style="white-space:normal; overflow-wrap:anywhere; direction:ltr; text-align:left;">${clIcon(f.path)} ${escapeHtml(f.path)}</div>
+        <div class="d">${clFmtSize(f.size)}</div>
+      </div>
+    </label>`).join('');
+  list.querySelectorAll('.cl-chk').forEach((c) => c.addEventListener('change', clUpdateSelected));
+  clUpdateSelected();
+}
+
+function clUpdateSelected() {
+  const sel = Array.from(document.querySelectorAll('#cl-list .cl-chk:checked')).map((c) => clOrphans[+c.getAttribute('data-i')]);
+  const size = sel.reduce((a, f) => a + f.size, 0);
+  $('cl-selected').textContent = sel.length ? `${sel.length} فایل انتخاب شده (${clFmtSize(size)})` : '';
+}
+
+async function clDeleteSelected() {
+  const sel = Array.from(document.querySelectorAll('#cl-list .cl-chk:checked')).map((c) => clOrphans[+c.getAttribute('data-i')]);
+  if (!sel.length) { toast('هیچ فایلی انتخاب نشده', 'error'); return; }
+  if (!confirm(sel.length + ' فایل از گیت‌هاب حذف شود؟\n\nاین فایل‌ها دیگر در هیچ موردی از برنامه استفاده نمی‌شوند. حذف قابل برگشت از همین پنل نیست.')) return;
+  const btn = $('btn-cl-delete');
+  btn.disabled = true;
+  let done = 0, failed = 0;
+  const removed = new Set();
+  for (const f of sel) {
+    $('cl-selected').textContent = `در حال حذف… ${done + failed + 1} از ${sel.length}`;
+    try {
+      const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${f.path.split('/').map(encodeURIComponent).join('/')}`;
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'پاکسازی فایل بی‌استفاده: ' + f.path, sha: f.sha, branch: cfg.branch }),
+      });
+      if (res.ok || res.status === 404) { done++; removed.add(f.path); } else { failed++; }
+    } catch (e) { failed++; }
+  }
+  clOrphans = clOrphans.filter((f) => !removed.has(f.path));
+  clRender();
+  btn.disabled = false;
+  toast(done + ' فایل حذف شد' + (failed ? ' — ' + failed + ' مورد ناموفق (دوباره امتحان کن)' : ''), failed ? 'error' : 'success');
+}
+
+$('btn-cl-scan').addEventListener('click', clScan);
+$('btn-cl-all').addEventListener('click', () => { document.querySelectorAll('#cl-list .cl-chk').forEach((c) => { c.checked = true; }); clUpdateSelected(); });
+$('btn-cl-none').addEventListener('click', () => { document.querySelectorAll('#cl-list .cl-chk').forEach((c) => { c.checked = false; }); clUpdateSelected(); });
+$('btn-cl-delete').addEventListener('click', clDeleteSelected);
 </script>
 </body>
 </html>
