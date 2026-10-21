@@ -61,8 +61,8 @@ jobs:
             echo "APK=$IN_APK" >> "$GITHUB_ENV"
             echo "RID=manual" >> "$GITHUB_ENV"
           else
-            echo "DRY=$(jq -r '.dry_run // true' .purge-request.json)" >> "$GITHUB_ENV"
-            echo "APK=$(jq -r '.purge_apk // false' .purge-request.json)" >> "$GITHUB_ENV"
+            echo "DRY=$(jq -r 'if .dry_run == false then "false" else "true" end' .purge-request.json)" >> "$GITHUB_ENV"
+            echo "APK=$(jq -r 'if .purge_apk == true then "true" else "false" end' .purge-request.json)" >> "$GITHUB_ENV"
             echo "RID=$(jq -r '.id // "none"' .purge-request.json)" >> "$GITHUB_ENV"
           fi
 
@@ -76,6 +76,15 @@ jobs:
           git log --all --name-only --pretty=format: -- $DIRS | sed '/^$/d' | sort -u > /tmp/ever.txt
           git ls-tree -r --name-only HEAD -- $DIRS | sort -u > /tmp/now.txt
           comm -23 /tmp/ever.txt /tmp/now.txt > /tmp/purge.txt
+          # نسخه‌های قدیمیِ apk/latest.apk (که هر آپدیت جایگزین می‌شود) هم در تاریخچه می‌مانند؛
+          # تاریخچه‌اش پاک می‌شود و فقط نسخه‌ی فعلی دوباره به‌عنوان یک کامیت اضافه می‌شود.
+          KEEP_LATEST=false
+          if [ "$APK" = "true" ] && git cat-file -e HEAD:apk/latest.apk 2>/dev/null; then
+            git show HEAD:apk/latest.apk > /tmp/latest.apk
+            echo "apk/latest.apk" >> /tmp/purge.txt
+            KEEP_LATEST=true
+          fi
+          echo "KEEP_LATEST=$KEEP_LATEST" >> "$GITHUB_ENV"
           echo "فایل‌هایی که فقط در تاریخچه مانده‌اند: $(wc -l < /tmp/purge.txt)"
           git reflog expire --expire=now --all
           git gc --prune=now --quiet
@@ -123,12 +132,22 @@ jobs:
             return 0
           }
 
+          restore_latest() {
+            if [ "$KEEP_LATEST" = "true" ]; then
+              mkdir -p apk
+              cp /tmp/latest.apk apk/latest.apk
+              git add apk/latest.apk
+              git -c user.name=purge-bot -c user.email=purge-bot@users.noreply.github.com commit -qm "apk: نسخه‌ی فعلی (بعد از پاک‌سازی تاریخچه)"
+            fi
+          }
+
           if [ ! -s /tmp/purge.txt ]; then publish_report true "" "$BEFORE_KB"; exit 0; fi
 
           if [ "$DRY" = "true" ]; then
             git clone --no-local --no-hardlinks . /tmp/copy
             cd /tmp/copy
             git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
+            restore_latest
             git reflog expire --expire=now --all
             git gc --prune=now --aggressive --quiet
             AFTER_KB=$(du -sk .git | cut -f1)
@@ -141,6 +160,7 @@ jobs:
           cd /tmp/work
           OLD_TREE=$(git rev-parse "HEAD^{tree}")
           git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
+          restore_latest
           NEW_TREE=$(git rev-parse "HEAD^{tree}")
           if [ "$OLD_TREE" != "$NEW_TREE" ]; then
             publish_report false "tree_changed" "$BEFORE_KB"; exit 0
