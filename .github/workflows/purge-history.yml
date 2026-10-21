@@ -1,0 +1,148 @@
+name: Purge old files from history
+
+# ─────────────────────────────────────────────────────────────
+# این ورک‌فلو فقط دستی اجرا می‌شه (تب Actions ← Purge old files from history ← Run workflow).
+#
+# کار: فایل‌هایی که قبلاً داخل media/ و tests/ (و اگه بخوای apk/) بوده‌اند ولی الان در ریپو
+# نیستند، از «کل تاریخچه‌ی گیت» پاک می‌شن تا حجم ریپو کم بشه.
+# فایل‌هایی که الان در ریپو هستند (مثلاً apk/latest.apk یا عکس‌های در حال استفاده) دست نمی‌خورند.
+#
+# حالت آزمایشی (dry_run = true، پیش‌فرض): هیچ چیزی عوض نمی‌شه؛ فقط لیست فایل‌ها و حجم
+# قبل و بعد نشون داده می‌شه.
+# حالت واقعی (dry_run = false): تاریخچه بازنویسی و با force-push جایگزین می‌شه.
+# این کار برگشت‌پذیر نیست.
+#
+# اگه force-push با خطای مربوط به «workflow» رد شد: یک Personal Access Token (با دسترسی
+# repo و workflow) بساز و در Settings ← Secrets and variables ← Actions با نام
+# PURGE_TOKEN ذخیره کن، بعد دوباره اجرا کن.
+# ─────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'فقط آزمایشی (چیزی تغییر نمی‌کنه)؟'
+        type: boolean
+        default: true
+      purge_apk_history:
+        description: 'فایل‌های قدیمیِ پوشه‌ی apk/ را هم از تاریخچه پاک کن؟'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: purge-history
+  cancel-in-progress: false
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install git-filter-repo
+        run: pip install git-filter-repo
+
+      - name: Prepare report helper
+        run: |
+          cat > /tmp/report.py <<'PY'
+          import json, os
+          purge = [l.rstrip("\n") for l in open("/tmp/purge.txt", encoding="utf-8") if l.strip()]
+          now = [l for l in open("/tmp/now.txt", encoding="utf-8") if l.strip()]
+          rep = {
+              "mode": os.environ.get("MODE", "dry"),
+              "files": len(purge),
+              "kept": len(now),
+              "before_kb": int(os.environ.get("BEFORE_KB", "0") or 0),
+              "after_kb": int(os.environ.get("AFTER_KB", "0") or 0),
+              "sample": purge[:150],
+          }
+          msg = json.dumps(rep, ensure_ascii=False, separators=(",", ":"))
+          msg = msg.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print("::notice title=PURGE_REPORT::" + msg)
+          PY
+
+      - name: Find files that only exist in history
+        env:
+          PURGE_APK: ${{ inputs.purge_apk_history }}
+        run: |
+          set -euo pipefail
+          git config core.quotepath false
+          DIRS="media tests"
+          if [ "$PURGE_APK" = "true" ]; then DIRS="$DIRS apk"; fi
+          echo "DIRS=$DIRS" >> "$GITHUB_ENV"
+
+          # همه‌ی مسیرهایی که تا حالا در این پوشه‌ها بوده‌اند
+          git log --all --name-only --pretty=format: -- $DIRS | sed '/^$/d' | sort -u > /tmp/ever.txt
+          # مسیرهایی که الان در آخرین نسخه‌ی main هستند
+          git ls-tree -r --name-only HEAD -- $DIRS | sort -u > /tmp/now.txt
+          # فقط آن‌هایی که الان نیستند
+          comm -23 /tmp/ever.txt /tmp/now.txt > /tmp/purge.txt
+
+          echo "تعداد فایل‌هایی که فقط در تاریخچه مانده‌اند: $(wc -l < /tmp/purge.txt)"
+          echo "نمونه (حداکثر ۵۰ مورد):"
+          head -n 50 /tmp/purge.txt || true
+          echo "فایل‌هایی که الان در ریپو هستند و نگه داشته می‌شوند: $(wc -l < /tmp/now.txt)"
+
+      - name: Measure current size
+        run: |
+          set -euo pipefail
+          git reflog expire --expire=now --all
+          git gc --prune=now --quiet
+          echo "BEFORE_KB=$(du -sk .git | cut -f1)" >> "$GITHUB_ENV"
+
+      - name: Dry run (measure on a copy)
+        if: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [ ! -s /tmp/purge.txt ]; then MODE=dry AFTER_KB=$BEFORE_KB python3 /tmp/report.py; exit 0; fi
+          git clone --no-local --no-hardlinks . /tmp/copy
+          cd /tmp/copy
+          git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
+          git reflog expire --expire=now --all
+          git gc --prune=now --aggressive --quiet
+          AFTER_KB=$(du -sk .git | cut -f1)
+          echo "حجم تاریخچه‌ی گیت قبل: ${BEFORE_KB} KB"
+          echo "حجم تاریخچه‌ی گیت بعد: ${AFTER_KB} KB"
+          echo "حدود $(( (BEFORE_KB - AFTER_KB) / 1024 )) MB آزاد می‌شود."
+          echo "این فقط آزمایش بود؛ چیزی در ریپو تغییر نکرد."
+          MODE=dry AFTER_KB=$AFTER_KB python3 /tmp/report.py
+
+      - name: Rewrite history and force-push
+        if: ${{ !inputs.dry_run }}
+        env:
+          PUSH_TOKEN: ${{ secrets.PURGE_TOKEN != '' && secrets.PURGE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -s /tmp/purge.txt ]; then MODE=real AFTER_KB=$BEFORE_KB python3 /tmp/report.py; exit 0; fi
+          BRANCH="${GITHUB_REF_NAME}"
+          OLD_TREE=$(git rev-parse "HEAD^{tree}")
+
+          git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
+
+          # اطمینان: محتوای آخرین نسخه باید دقیقاً همان قبلی باشد
+          NEW_TREE=$(git rev-parse "HEAD^{tree}")
+          if [ "$OLD_TREE" != "$NEW_TREE" ]; then
+            echo "خطا: محتوای آخرین نسخه تغییر می‌کرد؛ متوقف شد و چیزی push نشد."
+            exit 1
+          fi
+
+          git remote add origin "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if ! git push origin --force --all; then
+            echo "::error title=PURGE_PUSH_FAILED::force-push رد شد (احتمالاً به‌خاطر فایل‌های workflow یا محافظت از شاخه). PURGE_TOKEN لازم است."
+            exit 1
+          fi
+          git push origin --force --tags || true
+
+          git reflog expire --expire=now --all
+          git gc --prune=now --aggressive --quiet
+          AFTER_KB=$(du -sk .git | cut -f1)
+          echo "حجم تاریخچه‌ی گیت قبل: ${BEFORE_KB} KB — بعد: ${AFTER_KB} KB"
+          echo "انجام شد."
+          MODE=real AFTER_KB=$AFTER_KB python3 /tmp/report.py
