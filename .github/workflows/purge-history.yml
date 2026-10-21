@@ -1,23 +1,24 @@
 name: Purge old files from history
 
 # ─────────────────────────────────────────────────────────────
-# این ورک‌فلو فقط دستی اجرا می‌شه (تب Actions ← Purge old files from history ← Run workflow).
+# این ورک‌فلو را «پنل مدیریت» خودش راه می‌اندازد (تب «پاکسازی فایل‌ها» ← پاک‌سازی تاریخچه).
+# پنل فایل .purge-request.json را کامیت می‌کند و این ورک‌فلو با آن شروع می‌شود؛
+# نتیجه در .purge-report.json کامیت می‌شود و پنل آن را نشان می‌دهد.
+# نیازی به ساخت توکن یا ورود به تب Actions نیست.
 #
-# کار: فایل‌هایی که قبلاً داخل media/ و tests/ (و اگه بخوای apk/) بوده‌اند ولی الان در ریپو
-# نیستند، از «کل تاریخچه‌ی گیت» پاک می‌شن تا حجم ریپو کم بشه.
-# فایل‌هایی که الان در ریپو هستند (مثلاً apk/latest.apk یا عکس‌های در حال استفاده) دست نمی‌خورند.
-#
-# حالت آزمایشی (dry_run = true، پیش‌فرض): هیچ چیزی عوض نمی‌شه؛ فقط لیست فایل‌ها و حجم
-# قبل و بعد نشون داده می‌شه.
-# حالت واقعی (dry_run = false): تاریخچه بازنویسی و با force-push جایگزین می‌شه.
-# این کار برگشت‌پذیر نیست.
+# کار: فایل‌هایی که قبلاً داخل media/ و tests/ (و اگه خواسته شود apk/) بوده‌اند ولی الان
+# در ریپو نیستند، از «کل تاریخچه‌ی گیت» پاک می‌شوند. فایل‌های فعلی دست نمی‌خورند.
 #
 # اگه force-push با خطای مربوط به «workflow» رد شد: یک Personal Access Token (با دسترسی
 # repo و workflow) بساز و در Settings ← Secrets and variables ← Actions با نام
-# PURGE_TOKEN ذخیره کن، بعد دوباره اجرا کن.
+# PURGE_TOKEN ذخیره کن.
 # ─────────────────────────────────────────────────────────────
 
 on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.purge-request.json'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -49,100 +50,111 @@ jobs:
       - name: Install git-filter-repo
         run: pip install git-filter-repo
 
-      - name: Prepare report helper
+      - name: Read request
+        env:
+          IN_DRY: ${{ inputs.dry_run }}
+          IN_APK: ${{ inputs.purge_apk_history }}
         run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "DRY=$IN_DRY" >> "$GITHUB_ENV"
+            echo "APK=$IN_APK" >> "$GITHUB_ENV"
+            echo "RID=manual" >> "$GITHUB_ENV"
+          else
+            echo "DRY=$(jq -r '.dry_run // true' .purge-request.json)" >> "$GITHUB_ENV"
+            echo "APK=$(jq -r '.purge_apk // false' .purge-request.json)" >> "$GITHUB_ENV"
+            echo "RID=$(jq -r '.id // "none"' .purge-request.json)" >> "$GITHUB_ENV"
+          fi
+
+      - name: Find files that only exist in history
+        run: |
+          set -euo pipefail
+          git config core.quotepath false
+          DIRS="media tests"
+          if [ "$APK" = "true" ]; then DIRS="$DIRS apk"; fi
+          echo "DIRS=$DIRS" >> "$GITHUB_ENV"
+          git log --all --name-only --pretty=format: -- $DIRS | sed '/^$/d' | sort -u > /tmp/ever.txt
+          git ls-tree -r --name-only HEAD -- $DIRS | sort -u > /tmp/now.txt
+          comm -23 /tmp/ever.txt /tmp/now.txt > /tmp/purge.txt
+          echo "فایل‌هایی که فقط در تاریخچه مانده‌اند: $(wc -l < /tmp/purge.txt)"
+          git reflog expire --expire=now --all
+          git gc --prune=now --quiet
+          echo "BEFORE_KB=$(du -sk .git | cut -f1)" >> "$GITHUB_ENV"
+
+      - name: Run (dry or real) and publish report
+        env:
+          PUSH_TOKEN: ${{ secrets.PURGE_TOKEN != '' && secrets.PURGE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ROOT="$PWD"
+          BRANCH="main"
+          git config user.name "purge-bot"
+          git config user.email "purge-bot@users.noreply.github.com"
+          REMOTE="https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git remote set-url origin "$REMOTE"
+
           cat > /tmp/report.py <<'PY'
           import json, os
           purge = [l.rstrip("\n") for l in open("/tmp/purge.txt", encoding="utf-8") if l.strip()]
           now = [l for l in open("/tmp/now.txt", encoding="utf-8") if l.strip()]
           rep = {
-              "mode": os.environ.get("MODE", "dry"),
+              "id": os.environ.get("RID", ""),
+              "mode": "dry" if os.environ.get("DRY") == "true" else "real",
+              "ok": os.environ.get("OK", "true") == "true",
+              "error": os.environ.get("ERR", ""),
               "files": len(purge),
               "kept": len(now),
               "before_kb": int(os.environ.get("BEFORE_KB", "0") or 0),
               "after_kb": int(os.environ.get("AFTER_KB", "0") or 0),
               "sample": purge[:150],
           }
-          msg = json.dumps(rep, ensure_ascii=False, separators=(",", ":"))
-          msg = msg.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-          print("::notice title=PURGE_REPORT::" + msg)
+          json.dump(rep, open(".purge-report.json", "w", encoding="utf-8"), ensure_ascii=False)
           PY
 
-      - name: Find files that only exist in history
-        env:
-          PURGE_APK: ${{ inputs.purge_apk_history }}
-        run: |
-          set -euo pipefail
-          git config core.quotepath false
-          DIRS="media tests"
-          if [ "$PURGE_APK" = "true" ]; then DIRS="$DIRS apk"; fi
-          echo "DIRS=$DIRS" >> "$GITHUB_ENV"
+          publish_report() {   # $1=ok  $2=error  $3=after_kb
+            cd "$ROOT"
+            OK="$1" ERR="$2" AFTER_KB="$3" python3 /tmp/report.py
+            git add .purge-report.json
+            git commit -qm "گزارش پاک‌سازی تاریخچه" || true
+            for i in 1 2 3; do
+              if git push origin "HEAD:${BRANCH}"; then return 0; fi
+              git pull --rebase origin "$BRANCH" || true
+            done
+            return 0
+          }
 
-          # همه‌ی مسیرهایی که تا حالا در این پوشه‌ها بوده‌اند
-          git log --all --name-only --pretty=format: -- $DIRS | sed '/^$/d' | sort -u > /tmp/ever.txt
-          # مسیرهایی که الان در آخرین نسخه‌ی main هستند
-          git ls-tree -r --name-only HEAD -- $DIRS | sort -u > /tmp/now.txt
-          # فقط آن‌هایی که الان نیستند
-          comm -23 /tmp/ever.txt /tmp/now.txt > /tmp/purge.txt
+          if [ ! -s /tmp/purge.txt ]; then publish_report true "" "$BEFORE_KB"; exit 0; fi
 
-          echo "تعداد فایل‌هایی که فقط در تاریخچه مانده‌اند: $(wc -l < /tmp/purge.txt)"
-          echo "نمونه (حداکثر ۵۰ مورد):"
-          head -n 50 /tmp/purge.txt || true
-          echo "فایل‌هایی که الان در ریپو هستند و نگه داشته می‌شوند: $(wc -l < /tmp/now.txt)"
+          if [ "$DRY" = "true" ]; then
+            git clone --no-local --no-hardlinks . /tmp/copy
+            cd /tmp/copy
+            git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
+            git reflog expire --expire=now --all
+            git gc --prune=now --aggressive --quiet
+            AFTER_KB=$(du -sk .git | cut -f1)
+            publish_report true "" "$AFTER_KB"
+            exit 0
+          fi
 
-      - name: Measure current size
-        run: |
-          set -euo pipefail
-          git reflog expire --expire=now --all
-          git gc --prune=now --quiet
-          echo "BEFORE_KB=$(du -sk .git | cut -f1)" >> "$GITHUB_ENV"
-
-      - name: Dry run (measure on a copy)
-        if: ${{ inputs.dry_run }}
-        run: |
-          set -euo pipefail
-          if [ ! -s /tmp/purge.txt ]; then MODE=dry AFTER_KB=$BEFORE_KB python3 /tmp/report.py; exit 0; fi
-          git clone --no-local --no-hardlinks . /tmp/copy
-          cd /tmp/copy
-          git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
-          git reflog expire --expire=now --all
-          git gc --prune=now --aggressive --quiet
-          AFTER_KB=$(du -sk .git | cut -f1)
-          echo "حجم تاریخچه‌ی گیت قبل: ${BEFORE_KB} KB"
-          echo "حجم تاریخچه‌ی گیت بعد: ${AFTER_KB} KB"
-          echo "حدود $(( (BEFORE_KB - AFTER_KB) / 1024 )) MB آزاد می‌شود."
-          echo "این فقط آزمایش بود؛ چیزی در ریپو تغییر نکرد."
-          MODE=dry AFTER_KB=$AFTER_KB python3 /tmp/report.py
-
-      - name: Rewrite history and force-push
-        if: ${{ !inputs.dry_run }}
-        env:
-          PUSH_TOKEN: ${{ secrets.PURGE_TOKEN != '' && secrets.PURGE_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ ! -s /tmp/purge.txt ]; then MODE=real AFTER_KB=$BEFORE_KB python3 /tmp/report.py; exit 0; fi
-          BRANCH="${GITHUB_REF_NAME}"
+          # ----- اجرای واقعی (روی یک کپی، تا اگه push رد شد ریپوی اصلی سالم بماند) -----
+          git clone --no-local --no-hardlinks . /tmp/work
+          cd /tmp/work
           OLD_TREE=$(git rev-parse "HEAD^{tree}")
-
           git filter-repo --invert-paths --paths-from-file /tmp/purge.txt --force
-
-          # اطمینان: محتوای آخرین نسخه باید دقیقاً همان قبلی باشد
           NEW_TREE=$(git rev-parse "HEAD^{tree}")
           if [ "$OLD_TREE" != "$NEW_TREE" ]; then
-            echo "خطا: محتوای آخرین نسخه تغییر می‌کرد؛ متوقف شد و چیزی push نشد."
-            exit 1
+            publish_report false "tree_changed" "$BEFORE_KB"; exit 0
           fi
-
-          git remote add origin "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git remote add origin "$REMOTE" 2>/dev/null || git remote set-url origin "$REMOTE"
           if ! git push origin --force --all; then
-            echo "::error title=PURGE_PUSH_FAILED::force-push رد شد (احتمالاً به‌خاطر فایل‌های workflow یا محافظت از شاخه). PURGE_TOKEN لازم است."
-            exit 1
+            publish_report false "push_failed" "$BEFORE_KB"; exit 0
           fi
           git push origin --force --tags || true
-
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive --quiet
           AFTER_KB=$(du -sk .git | cut -f1)
-          echo "حجم تاریخچه‌ی گیت قبل: ${BEFORE_KB} KB — بعد: ${AFTER_KB} KB"
-          echo "انجام شد."
-          MODE=real AFTER_KB=$AFTER_KB python3 /tmp/report.py
+
+          cd "$ROOT"
+          git fetch origin "$BRANCH"
+          git reset --hard FETCH_HEAD
+          publish_report true "" "$AFTER_KB"
