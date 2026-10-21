@@ -1562,5 +1562,15 @@
     "title": "قیمت خودرو",
     "description": "قیمت انواع خودور را بصورت بنر دریافت کنید",
     "url": "https://asanarzz.github.io/ASANNETT/khodro"
+  },
+  {
+    "id": "item_1792572658503",
+    "type": "banner",
+    "title": "تست",
+    "description": "تست",
+    "url": "https://asanarzz.github.io/ASANNETT/weatherhttps://asanarzz.github.io/ASANNETT/weather",
+    "images": [
+      "Asannettt@gmail.com"
+    ]
   }
 ]
