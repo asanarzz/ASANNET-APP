@@ -2713,55 +2713,19 @@ $('btn-cl-all').addEventListener('click', () => { document.querySelectorAll('#cl
 $('btn-cl-none').addEventListener('click', () => { document.querySelectorAll('#cl-list .cl-chk').forEach((c) => { c.checked = false; }); clUpdateSelected(); });
 $('btn-cl-delete').addEventListener('click', clDeleteSelected);
 
-// ================= پاک‌سازی تاریخچه‌ی گیت (از طریق GitHub Actions) =================
-const HP_WORKFLOW = 'purge-history.yml';
+// ================= پاک‌سازی تاریخچه‌ی گیت (پنل یک فایل درخواست کامیت می‌کند، GitHub Actions انجامش می‌دهد) =================
 let hpBusy = false;
 
-function hpApi(path, opts) {
-  return fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}${path}`, Object.assign({ headers: ghHeaders() }, opts || {}));
-}
-
-async function hpDispatch(dryRun, includeApk) {
-  const res = await hpApi(`/actions/workflows/${HP_WORKFLOW}/dispatches`, {
-    method: 'POST',
-    headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ref: cfg.branch, inputs: { dry_run: dryRun ? 'true' : 'false', purge_apk_history: includeApk ? 'true' : 'false' } }),
-  });
-  if (res.status === 404) throw new Error('فایل .github/workflows/purge-history.yml هنوز در ریپو نیست (یا توکن گیت‌هاب پنل به Actions دسترسی ندارد). فایل را آپلود کن و توکن را با دسترسی repo و Actions بساز.');
-  if (res.status === 403 || res.status === 401) throw new Error('توکن گیت‌هاب پنل اجازه‌ی اجرای Actions را ندارد (باید دسترسی repo یا Actions: Read and write داشته باشد).');
-  if (!res.ok) throw new Error('اجرای ورک‌فلو ناموفق بود (' + res.status + ')');
-}
-
-async function hpWaitForRun(t0, onTick) {
-  for (let i = 0; i < 120; i++) {   // تا حدود ۱۰ دقیقه
-    await new Promise((r) => setTimeout(r, 5000));
-    const res = await hpApi(`/actions/workflows/${HP_WORKFLOW}/runs?event=workflow_dispatch&per_page=5`);
-    if (!res.ok) continue;
-    const data = await res.json();
-    const run = (data.workflow_runs || []).find((r) => new Date(r.created_at).getTime() >= t0 - 15000);
-    if (!run) { onTick('در انتظار شروع…'); continue; }
-    if (run.status !== 'completed') { onTick('در حال اجرا… (' + (i * 5) + ' ثانیه)'); continue; }
-    return run;
-  }
-  throw new Error('ورک‌فلو بیش از حد طول کشید؛ نتیجه را در تب Actions گیت‌هاب ببین.');
-}
-
-async function hpReadReport(run) {
-  const jobsRes = await hpApi(`/actions/runs/${run.id}/jobs`);
-  const jobs = jobsRes.ok ? (await jobsRes.json()).jobs || [] : [];
-  for (const job of jobs) {
-    const res = await hpApi(`/check-runs/${job.id}/annotations`);
-    if (!res.ok) continue;
-    const anns = await res.json();
-    const rep = anns.find((a) => a.title === 'PURGE_REPORT');
-    if (rep) { try { return JSON.parse(rep.message); } catch (e) { /* ignore */ } }
-    const err = anns.find((a) => a.annotation_level === 'failure' && a.title === 'PURGE_PUSH_FAILED');
-    if (err) throw new Error('گیت‌هاب اجازه‌ی force-push را نداد. یک توکن با دسترسی repo و workflow بساز و در Settings ← Secrets and variables ← Actions با نام PURGE_TOKEN ذخیره کن، بعد دوباره امتحان کن.');
-  }
-  return null;
-}
-
 function hpFmt(kb) { return kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB'; }
+const hpSleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function hpReadReport() {
+  try {
+    const f = await ghGetFile('.purge-report.json');
+    if (!f) return null;
+    return JSON.parse(b64DecodeUnicode(f.content.replace(/\n/g, '')));
+  } catch (e) { return null; }
+}
 
 async function hpRun(dryRun) {
   if (hpBusy) return;
@@ -2770,18 +2734,27 @@ async function hpRun(dryRun) {
   $('btn-hp-scan').disabled = true;
   $('btn-hp-run').disabled = true;
   const status = $('hp-status');
-  const includeApk = $('in-hp-apk').checked;
   try {
-    status.textContent = 'در حال شروع…';
-    const t0 = Date.now();
-    await hpDispatch(dryRun, includeApk);
-    const run = await hpWaitForRun(t0, (m) => { status.textContent = m; });
-    if (run.conclusion !== 'success') {
-      const rep = await hpReadReport(run);   // ممکن است خطای مشخصی پرت کند
-      throw new Error('ورک‌فلو با خطا تمام شد؛ جزئیات: ' + run.html_url);
+    status.textContent = 'در حال ارسال درخواست…';
+    const wf = await ghGetFile('.github/workflows/purge-history.yml');
+    if (!wf) throw new Error('فایل .github/workflows/purge-history.yml هنوز در ریپو نیست؛ اول آن را آپلود کن.');
+    const id = String(Date.now());
+    const req = { id, dry_run: dryRun, purge_apk: $('in-hp-apk').checked };
+    const old = await ghGetFile('.purge-request.json');
+    await ghPutFile('.purge-request.json', b64EncodeUnicode(JSON.stringify(req, null, 2)), (dryRun ? 'درخواست بررسی تاریخچه' : 'درخواست پاک‌سازی تاریخچه') + ' ' + id, old ? old.sha : null);
+
+    let rep = null;
+    for (let i = 0; i < 120; i++) {   // تا حدود ۱۰ دقیقه
+      await hpSleep(5000);
+      status.textContent = 'ورک‌فلو در گیت‌هاب در حال اجراست… (' + (i * 5 + 5) + ' ثانیه)';
+      const r = await hpReadReport();
+      if (r && r.id === id) { rep = r; break; }
     }
-    const rep = await hpReadReport(run);
-    if (!rep) throw new Error('گزارشی از ورک‌فلو پیدا نشد؛ جزئیات: ' + run.html_url);
+    if (!rep) throw new Error('نتیجه‌ای نرسید. تب Actions ریپو را ببین؛ شاید ورک‌فلو خطا داده یا هنوز تمام نشده است.');
+    if (!rep.ok) {
+      if (rep.error === 'push_failed') throw new Error('گیت‌هاب اجازه‌ی جایگزین کردن تاریخچه را نداد (به‌خاطر فایل‌های workflow در تاریخچه). برای این مرحله چاره‌ای جز یک توکن با دسترسی repo و workflow در Secrets با نام PURGE_TOKEN نیست؛ چیزی در ریپو تغییر نکرد.');
+      throw new Error('ورک‌فلو ناموفق بود (' + (rep.error || 'خطا') + '). چیزی در ریپو تغییر نکرد.');
+    }
     if (!rep.files) {
       status.innerHTML = 'فایلی که فقط در تاریخچه مانده باشد پیدا نشد؛ چیزی برای پاک کردن نیست ✔';
       $('hp-sample').textContent = '';
@@ -2791,12 +2764,11 @@ async function hpRun(dryRun) {
       $('hp-sample').innerHTML = rep.sample.map((p) => escapeHtml(p)).join('<br>') + (rep.files > rep.sample.length ? '<br>…' : '');
       $('btn-hp-run').classList.remove('hidden');
     } else {
-      status.innerHTML = `انجام شد ✔ — ${rep.files} فایل از تاریخچه پاک شد. حجم تاریخچه: ${hpFmt(rep.before_kb)} ← ${hpFmt(rep.after_kb)}. گیت‌هاب ممکن است عدد حجم ریپو را با کمی تأخیر به‌روز کند.`;
+      status.innerHTML = `انجام شد ✔ — ${rep.files} فایل از تاریخچه پاک شد. حجم تاریخچه: ${hpFmt(rep.before_kb)} ← ${hpFmt(rep.after_kb)}. گیت‌هاب ممکن است عدد حجم ریپو را با کمی تأخیر به‌روز کند. (بهتر است صفحه‌ی پنل را یک بار رفرش کنی.)`;
       $('hp-sample').textContent = '';
       $('btn-hp-run').classList.add('hidden');
     }
   } catch (e) {
-    status.textContent = '';
     toast(e.message, 'error');
     status.innerHTML = '<span style="color:var(--danger)">' + escapeHtml(e.message) + '</span>';
   } finally {
