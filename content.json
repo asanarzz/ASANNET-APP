@@ -59,7 +59,8 @@
     "title": "آزمون استعداد یابی ابتدایی",
     "description": "روی لینک بزنین بعد با مرورگر کروم بازش کنین\nصفحه سوالات باز میشه به دقت همه گزینه هارو جواب بدین [...]",
     "url": "https://asanarzz.github.io/-/estedad_ebtdaei",
-    "section": "آزمون ابتدایی"
+    "section": "آزمون ابتدایی",
+    "allowExternalBrowser": false
   },
   {
     "id": "item_1787693262258",
