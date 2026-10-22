@@ -264,6 +264,11 @@
       <input type="url" id="in-url" placeholder="https://...">
       <p class="muted">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
 
+      <label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
+        <input type="checkbox" id="in-allow-external-browser" style="width:auto;" checked>
+        نمایش دکمه‌ی «باز کردن در مرورگر بیرونی» (فلش بالا) برای این مورد
+      </label>
+
       <div id="video-kind-box" class="hidden" style="margin-top:14px;">
         <label>نوع</label>
         <div class="type-tabs" id="video-kind-tabs">
@@ -1364,6 +1369,8 @@ async function handleAdd() {
       ? (selectedVideoKind === 'series' ? 'سریال' : '')
       : $('in-section').value.trim();
 
+    const allowExternalBrowser = $('in-allow-external-browser').checked;
+
     if (editingId) {
       const id = editingId;
       const updatedItem = {
@@ -1376,6 +1383,7 @@ async function handleAdd() {
       if (sectionValue) updatedItem.section = sectionValue;
       if (combinedImages.length) updatedItem.images = combinedImages;
       if (linksValue.length) updatedItem.links = linksValue;
+      if (!allowExternalBrowser) updatedItem.allowExternalBrowser = false;
 
       // اگر پوشه‌ی مقصد قفل است، آیتم قبل از ذخیره قفل می‌شود (لینکش هرگز عمومی نمی‌شود)
       const editGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1410,6 +1418,7 @@ async function handleAdd() {
     if (sectionValue) newItem.section = sectionValue;
     if (combinedImages.length) newItem.images = combinedImages;
     if (linksValue.length) newItem.links = linksValue;
+    if (!allowExternalBrowser) newItem.allowExternalBrowser = false;
 
     // اگر پوشه‌ی مقصد قفل است، آیتم جدید قبل از ذخیره خودکار قفل می‌شود
     const newGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1476,6 +1485,7 @@ function startEdit(id) {
   $('in-desc').value = item.description || '';
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
+  $('in-allow-external-browser').checked = item.allowExternalBrowser !== false;
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -1497,6 +1507,7 @@ function resetForm() {
   $('in-desc').value = '';
   $('in-section').value = '';
   $('in-url').value = '';
+  $('in-allow-external-browser').checked = true;
   selectedFiles = [];
   editingExistingImages = [];
   $('in-file').value = '';
