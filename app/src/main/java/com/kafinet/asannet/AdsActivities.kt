@@ -338,6 +338,8 @@ class PostAdActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostAdBinding
     private val picked = ArrayList<Uri>()
     private var category: String = ""
+    private var province: String = ""
+    private var city: String = ""
 
     private val pickImages = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -368,6 +370,31 @@ class PostAdActivity : AppCompatActivity() {
                 .show()
         }
 
+        binding.txtProvince.setOnClickListener {
+            showSearchList("استان", IranLocations.provinces) { chosen ->
+                if (chosen != province) {
+                    province = chosen
+                    city = ""
+                    setPickValue(binding.txtProvince, province)
+                    setPickValue(binding.txtCity, "")
+                    binding.txtCity.text = "انتخاب شهر"
+                }
+            }
+        }
+
+        binding.txtCity.setOnClickListener {
+            if (province.isBlank()) { toast("ابتدا استان را انتخاب کنید"); return@setOnClickListener }
+            val items = IranLocations.cities(province) + IranLocations.OTHER_CITY
+            showSearchList("شهرهای استان $province", items) { chosen ->
+                if (chosen == IranLocations.OTHER_CITY) {
+                    askCityName()
+                } else {
+                    city = chosen
+                    setPickValue(binding.txtCity, city)
+                }
+            }
+        }
+
         binding.btnAddImage.setOnClickListener { pickImages.launch("image/*") }
         binding.btnSubmit.setOnClickListener { submit() }
         renderThumbs()
@@ -389,7 +416,7 @@ class PostAdActivity : AppCompatActivity() {
             }
             binding.layoutImages.addView(iv)
         }
-        binding.txtImagesLabel.text = "عکس‌ها (${picked.size} از ۴) — برای حذف، روی عکس بزنید"
+        binding.txtImagesLabel.text = "عکس‌ها * (حداقل ۱ عکس، حداکثر ۴ — ${picked.size} انتخاب شده) — برای حذف، روی عکس بزنید"
         binding.btnAddImage.visibility = if (picked.size >= 4) View.GONE else View.VISIBLE
         binding.scrollThumbs.visibility = if (picked.isEmpty()) View.GONE else View.VISIBLE
     }
@@ -398,16 +425,104 @@ class PostAdActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
+    private fun setPickValue(tv: TextView, value: String) {
+        if (value.isNotBlank()) {
+            tv.text = value
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_main))
+        } else {
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+        }
+    }
+
+    /** پنجره‌ی انتخاب از یک لیست بلند، با کادر جستجو. */
+    private fun showSearchList(title: String, items: List<String>, onPick: (String) -> Unit) {
+        val pad = dpOf(this, 16)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, dpOf(this@PostAdActivity, 8), pad, 0)
+        }
+        val search = android.widget.EditText(this).apply {
+            hint = "جستجو…"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT
+            maxLines = 1
+        }
+        val list = android.widget.ListView(this)
+        val shown = ArrayList(items)
+        val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_list_item_1, shown)
+        list.adapter = adapter
+        container.addView(search)
+        container.addView(
+            list,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpOf(this, 320))
+        )
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(container)
+            .setNegativeButton("انصراف", null)
+            .create()
+        search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val q = s?.toString().orEmpty().trim()
+                shown.clear()
+                shown.addAll(
+                    if (q.isEmpty()) items
+                    else items.filter { it.contains(q, ignoreCase = true) || it == IranLocations.OTHER_CITY }
+                )
+                adapter.notifyDataSetChanged()
+            }
+        })
+        list.setOnItemClickListener { _, _, position, _ ->
+            val chosen = shown[position]
+            dialog.dismiss()
+            onPick(chosen)
+        }
+        dialog.show()
+    }
+
+    /** وقتی شهر در لیست نبود: کاربر اسمش را می‌نویسد. */
+    private fun askCityName() {
+        val input = android.widget.EditText(this).apply {
+            hint = "نام شهر"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT
+            maxLines = 1
+            filters = arrayOf(android.text.InputFilter.LengthFilter(40))
+        }
+        val pad = dpOf(this, 20)
+        val box = LinearLayout(this).apply {
+            setPadding(pad, dpOf(this@PostAdActivity, 8), pad, 0)
+            addView(input, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
+        AlertDialog.Builder(this)
+            .setTitle("نام شهر را بنویسید")
+            .setView(box)
+            .setPositiveButton("تأیید") { _, _ ->
+                val name = input.text.toString().trim()
+                if (name.length < 2) {
+                    toast("نام شهر را درست بنویسید")
+                } else {
+                    city = name
+                    setPickValue(binding.txtCity, city)
+                }
+            }
+            .setNegativeButton("انصراف", null)
+            .show()
+    }
+
     private fun submit() {
         val title = binding.editTitle.text.toString().trim()
         val description = binding.editDesc.text.toString().trim()
-        val city = binding.editCity.text.toString().trim()
+        val village = binding.editVillage.text.toString().trim()
         val phone = AdsFormat.toEnglishDigits(binding.editPhone.text.toString()).filter { it.isDigit() }
         val priceDigits = AdsFormat.toEnglishDigits(binding.editPrice.text.toString()).filter { it.isDigit() }
 
         if (title.length < 3) { toast("عنوان آگهی را بنویسید (حداقل ۳ حرف)"); return }
         if (category.isBlank()) { toast("دسته‌بندی را انتخاب کنید"); return }
+        if (province.isBlank()) { toast("استان را انتخاب کنید"); return }
+        if (city.isBlank()) { toast("شهر را انتخاب کنید"); return }
         if (description.length < 10) { toast("توضیحات را کامل‌تر بنویسید (حداقل ۱۰ حرف)"); return }
+        if (picked.isEmpty()) { toast("حداقل یک عکس برای آگهی اضافه کنید"); return }
         if (phone.length < 10 || phone.length > 13) { toast("شماره تماس معتبر وارد کنید"); return }
         if (priceDigits.length > 12) { toast("قیمت واردشده درست نیست"); return }
 
@@ -429,6 +544,12 @@ class PostAdActivity : AppCompatActivity() {
         binding.btnSubmit.isEnabled = false
         binding.btnSubmit.text = "در حال ارسال…"
         val sellerName = SessionManager.getFullName(this) ?: "کاربر آسان نت"
+        // استان و شهر و روستا داخل همان ستون «شهر» ذخیره می‌شوند؛ مثلاً «روستای X، شیراز، فارس»
+        val location = listOfNotNull(
+            if (village.isNotEmpty()) "روستای $village" else null,
+            city,
+            province
+        ).joinToString("، ")
         val uris = picked.toList()
 
         lifecycleScope.launch {
@@ -442,7 +563,7 @@ class PostAdActivity : AppCompatActivity() {
                 return@launch
             }
             val ok = AdsClient.createAd(
-                this@PostAdActivity, title, description, price, category, city, phone, sellerName, images,
+                this@PostAdActivity, title, description, price, category, location, phone, sellerName, images,
                 allowCall, allowSms, allowChat, eitaa
             )
             if (ok) {
