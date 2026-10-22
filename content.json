@@ -110,7 +110,8 @@
     "type": "software",
     "title": "رضایتنامه آنلاین",
     "description": "رضایتنامه اردوهای مدرسه، ورزشی و غیره\nمناسب معلمان و مدیران و مربیان ورزشی",
-    "url": "https://asanarzz.github.io/ASANNETT/rezayat"
+    "url": "https://asanarzz.github.io/ASANNETT/rezayat",
+    "allowExternalBrowser": false
   },
   {
     "id": "item_1787952749805",
