@@ -19,15 +19,15 @@ object ContentOpener {
     private val audioExtensions = setOf("mp3", "m4a", "wav", "ogg", "aac", "flac")
     private val videoExtensions = setOf("mp4", "mkv", "webm", "3gp", "m3u8")
 
-    fun open(activity: AppCompatActivity, url: String, title: String) {
+    fun open(activity: AppCompatActivity, url: String, title: String, allowExternalBrowser: Boolean = true) {
         if (url.isBlank()) return
 
         val cleanUrl = url.substringBefore("?").substringBefore("#").lowercase()
         val extension = cleanUrl.substringAfterLast('.', "")
 
         when (extension) {
-            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true)
-            "pdf" -> openPdf(activity, url, title)
+            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true, allowExternalBrowser)
+            "pdf" -> openPdf(activity, url, title, allowExternalBrowser)
             "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
             in imageExtensions -> openImage(activity, url, title)
             in audioExtensions -> openAudio(activity, url, title)
@@ -43,7 +43,7 @@ object ContentOpener {
             in videoExtensions -> DownloadHelper.downloadAndOpenExternally(activity, resolveUrl(url), title, "video/*")
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
-                    openWeb(activity, url, title, allowDownload = false)
+                    openWeb(activity, url, title, allowDownload = false, allowExternalBrowser)
                 } else if (DownloadHelper.ensureStoragePermission(activity)) {
                     DownloadHelper.downloadUrl(activity, url, title)
                 }
@@ -56,15 +56,22 @@ object ContentOpener {
      * اگه پسوندش شناخته‌شده باشه (عکس/صدا/ویدیو/پی‌دی‌اف/اچ‌تی‌ام‌ال/apk) داخل اپ باز
      * می‌شه، وگرنه دانلود می‌شه.
      */
-    fun openFile(activity: AppCompatActivity, url: String, title: String) {
-        open(activity, url, title)
+    fun openFile(activity: AppCompatActivity, url: String, title: String, allowExternalBrowser: Boolean = true) {
+        open(activity, url, title, allowExternalBrowser)
     }
 
-    private fun openWeb(activity: AppCompatActivity, url: String, title: String, allowDownload: Boolean) {
+    private fun openWeb(
+        activity: AppCompatActivity,
+        url: String,
+        title: String,
+        allowDownload: Boolean,
+        allowExternalBrowser: Boolean = true
+    ) {
         val intent = Intent(activity, WebViewActivity::class.java)
         intent.putExtra(WebViewActivity.EXTRA_URL, url)
         intent.putExtra(WebViewActivity.EXTRA_TITLE, title)
         intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, allowDownload)
+        intent.putExtra(WebViewActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, allowExternalBrowser)
         activity.startActivity(intent)
     }
 
@@ -95,11 +102,11 @@ object ContentOpener {
         activity.startActivity(intent)
     }
 
-    private fun openPdf(activity: AppCompatActivity, url: String, title: String) {
+    private fun openPdf(activity: AppCompatActivity, url: String, title: String, allowExternalBrowser: Boolean = true) {
         // خود وب‌ویوی اندروید پی‌دی‌اف رو مستقیم نمایش نمی‌ده؛ از نمایشگر آنلاین گوگل
         // به‌عنوان یه نمایشگر پی‌دی‌اف داخل همون صفحه‌ی وب داخلی اپ استفاده می‌کنیم
         val viewerUrl = "https://docs.google.com/gview?embedded=true&url=" + Uri.encode(url)
-        openWeb(activity, viewerUrl, title, allowDownload = true)
+        openWeb(activity, viewerUrl, title, allowDownload = true, allowExternalBrowser)
     }
 
     private fun resolveUrl(url: String): String {

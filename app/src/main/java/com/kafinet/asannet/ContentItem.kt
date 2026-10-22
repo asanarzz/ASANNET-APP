@@ -43,7 +43,9 @@ data class ContentItem(
     /** true یعنی لینک/عکس واقعی در content.json نیست و فقط با توکن از سرور گرفته می‌شود. */
     val locked: Boolean = false,
     /** اگر آیتم عضو یک پوشه‌ی قفل‌شده باشد، شناسه‌ی پوشه (برای توکن پوشه). */
-    val lockGroup: String? = null
+    val lockGroup: String? = null,
+    /** false یعنی دکمه‌ی «باز کردن در مرورگر بیرونی» برای این مورد مخفی بماند. */
+    val allowExternalBrowser: Boolean = true
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -82,7 +84,8 @@ data class ContentItem(
                         images = images,
                         links = links,
                         locked = obj.optBoolean("locked", false),
-                        lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null }
+                        lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null },
+                        allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true)
                     )
                 )
             }

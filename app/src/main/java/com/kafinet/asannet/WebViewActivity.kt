@@ -29,6 +29,7 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
+        const val EXTRA_ALLOW_EXTERNAL_BROWSER = "extra_allow_external_browser"
 
         // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
         // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
@@ -75,6 +76,8 @@ class WebViewActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener {
             if (binding.webView.canGoBack()) binding.webView.goBack() else finish()
         }
+        val allowExternalBrowser = intent.getBooleanExtra(EXTRA_ALLOW_EXTERNAL_BROWSER, true)
+        binding.btnOpenBrowser.visibility = if (allowExternalBrowser) View.VISIBLE else View.GONE
         binding.btnOpenBrowser.setOnClickListener {
             try {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(currentUrl)))

@@ -261,6 +261,7 @@ class CategoryListActivity : AppCompatActivity() {
             intent.putStringArrayListExtra(GalleryDetailActivity.EXTRA_IMAGES, ArrayList(item.images))
             intent.putExtra(GalleryDetailActivity.EXTRA_URL, item.url)
             intent.putExtra(GalleryDetailActivity.EXTRA_IS_FILE, item.type == ContentType.FILE)
+            intent.putExtra(GalleryDetailActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, item.allowExternalBrowser)
             startActivity(intent)
             return
         }
@@ -285,7 +286,7 @@ class CategoryListActivity : AppCompatActivity() {
 
         // برای همه‌ی بقیه‌ی دسته‌ها، بر اساس پسوند فایل تصمیم گرفته می‌شه که چطور باز بشه —
         // نه بر اساس این‌که تو کدوم دسته قرار داره
-        ContentOpener.open(this, resolveUrl(item.url), item.title)
+        ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser)
     }
 
     private fun resolveUrl(url: String): String {
