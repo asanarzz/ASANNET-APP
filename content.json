@@ -1568,6 +1568,7 @@
     "type": "software",
     "title": "مدیریت باشگاه ورزشی",
     "description": "نرم افزار مدیریت مشخصات، شهریه و بیمه ورزشی شاگردان باشگاه توسط مربی",
-    "url": "https://asanarzz.github.io/ASANNETT/Bashgah"
+    "url": "https://asanarzz.github.io/ASANNETT/Bashgah",
+    "allowExternalBrowser": false
   }
 ]
