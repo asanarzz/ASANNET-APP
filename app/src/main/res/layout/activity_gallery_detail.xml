@@ -50,7 +50,7 @@
             android:id="@+id/image_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="9">
+            android:layout_weight="4">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_images"
@@ -115,9 +115,7 @@
                     android:layout_marginTop="6dp"
                     android:textColor="@color/text_muted"
                     android:textSize="14sp"
-                    android:lineSpacingExtra="4dp"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
+                    android:lineSpacingExtra="4dp"/>
 
                 <Button
                     android:id="@+id/btn_action"
