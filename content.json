@@ -1562,5 +1562,12 @@
     "title": "قیمت خودرو",
     "description": "قیمت انواع خودور را بصورت بنر دریافت کنید",
     "url": "https://asanarzz.github.io/ASANNETT/khodro"
+  },
+  {
+    "id": "item_1792650766251",
+    "type": "software",
+    "title": "مدیریت باشگاه ورزشی",
+    "description": "نرم افزار مدیریت مشخصات، شهریه و بیمه ورزشی شاگردان باشگاه توسط مربی",
+    "url": "https://asanarzz.github.io/ASANNETT/Bashgah"
   }
 ]
