@@ -103,7 +103,8 @@
     "type": "fun",
     "title": "بازی 2048 آسان نت",
     "description": "نمونه بازی تحت وب با طرح دلخواه شما",
-    "url": "https://asanarzz.github.io/ASANNETT/Game2048/"
+    "url": "https://asanarzz.github.io/ASANNETT/Game2048/",
+    "allowExternalBrowser": false
   },
   {
     "id": "item_1787893325193",
