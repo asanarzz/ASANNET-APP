@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kafinet.asannet.databinding.ActivityGalleryDetailBinding
 
 /**
- * صفحه‌ی جزئیات یک آیتم چندعکسی: گالری قابل‌سوایپ عکس‌ها در بالا (۹۰٪ صفحه)،
- * و نوار توضیحات در ۱۰٪ پایین که با لمس، کامل باز می‌شه.
- * در صورت وجود، یک دکمه برای باز کردن لینک یا دانلود فایل ضمیمه.
+ * صفحه‌ی جزئیات یک آیتم چندعکسی: گالری قابل‌سوایپ عکس‌ها در بالا (۸۰٪ صفحه)،
+ * و نوار توضیحات در ۲۰٪ پایین (همیشه با اسکرول قابل خوندن، حتی توضیحات طولانی) که با لمس، کامل باز می‌شه.
+ * در صورت وجود، یک دکمه برای نصب (لینک فروشگاه)، باز کردن لینک، یا دانلود فایل ضمیمه.
  */
 class GalleryDetailActivity : AppCompatActivity() {
 
@@ -27,11 +27,17 @@ class GalleryDetailActivity : AppCompatActivity() {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_IS_FILE = "extra_is_file"
 
-        private const val IMAGE_WEIGHT_COLLAPSED = 9f
+        private const val IMAGE_WEIGHT_COLLAPSED = 4f
         private const val CAPTION_WEIGHT_COLLAPSED = 1f
-        private const val IMAGE_WEIGHT_EXPANDED = 3f
-        private const val CAPTION_WEIGHT_EXPANDED = 7f
+        private const val IMAGE_WEIGHT_EXPANDED = 1f
+        private const val CAPTION_WEIGHT_EXPANDED = 4f
         private const val WEIGHT_ANIM_DURATION = 220L
+
+        // پکیج‌نیم اپ‌های فروشگاه — تا لینک‌هایی که به پلی‌استور/بازار/مایکت می‌رن
+        // دکمه‌شون «نصب» باشه و مستقیم با همون اپ فروشگاه باز بشن
+        private const val PKG_GOOGLE_PLAY = "com.android.vending"
+        private const val PKG_CAFE_BAZAAR = "com.farsitel.bazaar"
+        private const val PKG_MYKET = "ir.mservices.market"
     }
 
     private lateinit var binding: ActivityGalleryDetailBinding
@@ -60,18 +66,50 @@ class GalleryDetailActivity : AppCompatActivity() {
 
         if (url.isNotBlank()) {
             binding.btnAction.visibility = View.VISIBLE
-            binding.btnAction.text = getString(if (isFile) R.string.btn_download else R.string.open_in_browser)
-            binding.btnAction.setOnClickListener {
-                if (isFile) {
-                    ContentOpener.openFile(this, url, title)
-                } else {
-                    ContentOpener.open(this, url, title)
+            val storePackage = storePackageFor(url)
+            when {
+                isFile -> {
+                    binding.btnAction.text = getString(R.string.btn_download)
+                    binding.btnAction.setOnClickListener { ContentOpener.openFile(this, url, title) }
+                }
+                storePackage != null -> {
+                    binding.btnAction.text = "نصب"
+                    binding.btnAction.setOnClickListener { openInStoreApp(url, storePackage) }
+                }
+                else -> {
+                    binding.btnAction.text = "باز کردن"
+                    binding.btnAction.setOnClickListener { ContentOpener.open(this, url, title) }
                 }
             }
         }
     }
 
-    /** با لمس نوار توضیحات (۱۰٪ پایین)، عکس جمع می‌شه و توضیحات کامل نشون داده می‌شه؛ لمس دوباره برمی‌گردونه. */
+    private fun storePackageFor(url: String): String? {
+        val lower = url.lowercase()
+        return when {
+            lower.contains("play.google.com") || lower.startsWith("market://") -> PKG_GOOGLE_PLAY
+            lower.contains("cafebazaar.ir") || lower.startsWith("bazaar://") -> PKG_CAFE_BAZAAR
+            lower.contains("myket.ir") || lower.startsWith("myket://") -> PKG_MYKET
+            else -> null
+        }
+    }
+
+    /** لینک رو مستقیم با اپ فروشگاه مربوطه باز می‌کنه؛ اگه نصب نبود، با مرورگر پیش‌فرض گوشی (نه مرورگر داخلی). */
+    private fun openInStoreApp(url: String, storePackage: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).apply {
+                setPackage(storePackage)
+            })
+        } catch (e: Exception) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+            } catch (e2: Exception) {
+                android.widget.Toast.makeText(this, R.string.err_app_not_installed, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** با لمس نوار توضیحات (۲۰٪ پایین)، عکس جمع می‌شه و توضیحات بیشتر جا باز می‌کنه؛ لمس دوباره برمی‌گردونه. */
     private fun setupCaptionToggle() {
         binding.captionScroll.setOnClickListener { toggleCaption() }
     }
@@ -85,7 +123,6 @@ class GalleryDetailActivity : AppCompatActivity() {
         animateWeight(binding.imageContainer, imageWeight)
         animateWeight(binding.captionScroll, captionWeight)
 
-        binding.txtDescription.maxLines = if (isCaptionExpanded) Integer.MAX_VALUE else 2
         binding.txtHeadline.maxLines = if (isCaptionExpanded) Integer.MAX_VALUE else 1
     }
 
