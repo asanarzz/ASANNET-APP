@@ -50,7 +50,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="عنوان آگهی"
+                android:text="عنوان آگهی *"
                 android:textColor="@color/text_muted"
                 android:textSize="15sp" />
 
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="دسته‌بندی"
+                android:text="دسته‌بندی *"
                 android:textColor="@color/text_muted"
                 android:textSize="15sp" />
 
@@ -111,18 +111,56 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="شهر"
+                android:text="استان *"
                 android:textColor="@color/text_muted"
                 android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/edit_city"
+            <TextView
+                android:id="@+id/txt_province"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/ads_input_bg"
                 android:padding="12dp"
-                android:hint="مثلاً: تهران"
+                android:text="انتخاب استان"
+                android:textColor="@color/text_muted"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="شهر *"
+                android:textColor="@color/text_muted"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txt_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/ads_input_bg"
+                android:padding="12dp"
+                android:text="ابتدا استان را انتخاب کنید"
+                android:textColor="@color/text_muted"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="روستا (اختیاری)"
+                android:textColor="@color/text_muted"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/edit_village"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/ads_input_bg"
+                android:padding="12dp"
+                android:hint="اگر آگهی مربوط به روستاست، اسمش را بنویسید"
                 android:inputType="text"
                 android:maxLength="40"
                 android:textColor="@color/text_main"
@@ -153,7 +191,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="توضیحات"
+                android:text="توضیحات *"
                 android:textColor="@color/text_muted"
                 android:textSize="15sp" />
 
