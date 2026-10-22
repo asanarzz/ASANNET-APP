@@ -81,7 +81,8 @@
     "title": "آزمون غربالگری متوسطه دوم",
     "description": "روی لینک بزنین بعد با مرورگر کروم بازش کنین\nصفحه سوالات باز میشه به دقت همه گزینه هارو جواب بدین [...]",
     "url": "https://asanarzz.github.io/CAFENET/gharbal_motevaset2",
-    "section": "آزمون متوسطه دوم"
+    "section": "آزمون متوسطه دوم",
+    "allowExternalBrowser": false
   },
   {
     "id": "item_1787693475667",
