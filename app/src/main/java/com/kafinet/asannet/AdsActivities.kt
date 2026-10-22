@@ -37,6 +37,95 @@ import kotlinx.coroutines.withContext
 private fun dpOf(context: Context, value: Int): Int =
     (value * context.resources.displayMetrics.density).toInt()
 
+/** پنجره‌ی انتخاب از یک لیست بلند، با کادر جستجو (برای استان/شهر در ثبت آگهی و فیلتر آگهی‌ها). */
+private fun showSearchListDialog(
+    context: Context,
+    title: String,
+    items: List<String>,
+    onPick: (String) -> Unit
+) {
+    val pad = dpOf(context, 16)
+    val container = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(pad, dpOf(context, 8), pad, 0)
+    }
+    val search = android.widget.EditText(context).apply {
+        hint = "جستجو…"
+        inputType = android.text.InputType.TYPE_CLASS_TEXT
+        maxLines = 1
+    }
+    val list = android.widget.ListView(context)
+    val shown = ArrayList(items)
+    val adapter = android.widget.ArrayAdapter(context, android.R.layout.simple_list_item_1, shown)
+    list.adapter = adapter
+    container.addView(search)
+    container.addView(
+        list,
+        LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpOf(context, 320))
+    )
+    val dialog = AlertDialog.Builder(context)
+        .setTitle(title)
+        .setView(container)
+        .setNegativeButton("انصراف", null)
+        .create()
+    search.addTextChangedListener(object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            val q = s?.toString().orEmpty().trim()
+            shown.clear()
+            shown.addAll(
+                if (q.isEmpty()) items
+                else items.filter { it.contains(q, ignoreCase = true) || it == IranLocations.OTHER_CITY }
+            )
+            adapter.notifyDataSetChanged()
+        }
+    })
+    list.setOnItemClickListener { _, _, position, _ ->
+        val chosen = shown[position]
+        dialog.dismiss()
+        onPick(chosen)
+    }
+    dialog.show()
+}
+
+/* ===================================================================
+ *  یادآور نتیجه‌ی آگهی: اگر آگهی‌ای تأیید یا رد شده و کاربر هنوز در «آگهی‌های من» ندیده،
+ *  کنار دکمه‌ی «آگهی‌های من» یک دایره‌ی سبز (تأیید) یا قرمز (رد) نشان داده می‌شود.
+ * =================================================================== */
+private object AdResultTracker {
+    private const val PREFS = "kafinet_ads_seen"
+    private const val KEY_INIT = "init"
+
+    private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    /** "rejected" یا "approved" اگر نتیجه‌ی دیده‌نشده هست؛ وگرنه null. (رد، اولویت دارد) */
+    fun unseenResult(context: Context, mine: List<Ad>): String? {
+        val p = prefs(context)
+        if (!p.getBoolean(KEY_INIT, false)) {
+            // اولین بار بعد از آپدیت: وضعیت فعلی آگهی‌ها را «دیده‌شده» حساب می‌کنیم
+            markSeen(context, mine)
+            return null
+        }
+        var approved = false
+        var rejected = false
+        for (ad in mine) {
+            if (p.getString("st_" + ad.id, null) != ad.status) {
+                if (ad.status == "rejected") rejected = true
+                if (ad.status == "approved") approved = true
+            }
+        }
+        return if (rejected) "rejected" else if (approved) "approved" else null
+    }
+
+    fun markSeen(context: Context, mine: List<Ad>) {
+        val e = prefs(context).edit()
+        e.putBoolean(KEY_INIT, true)
+        for (ad in mine) e.putString("st_" + ad.id, ad.status)
+        e.apply()
+    }
+}
+
 /* ===================================================================
  *  صفحه‌ی اصلی بخش «تبلیغات»: جستجو، دسته‌بندی، لیست آگهی‌ها
  * =================================================================== */
@@ -47,8 +136,11 @@ class AdsActivity : AppCompatActivity() {
 
     private var allAds: List<Ad> = emptyList()
     private var myAdIds: Set<String> = emptySet()
+    private var myAds: List<Ad> = emptyList()
     private var query: String = ""
     private var selectedCategory: String? = null
+    private var filterProvince: String? = null
+    private var filterCity: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,10 +190,44 @@ class AdsActivity : AppCompatActivity() {
             val n = ChatClient.unread(this@AdsActivity)
             binding.btnChats.text = if (n > 0) "پیام‌ها ($n)" else "پیام‌ها"
         }
+        // بعد از برگشت از «آگهی‌های من» دایره‌ی نتیجه پاک می‌شود
+        if (myAds.isNotEmpty()) updateResultDot(AdResultTracker.unseenResult(this, myAds))
+    }
+
+    /** دایره‌ی قرمز (آگهی رد شد) یا سبز (آگهی تأیید شد) کنار «آگهی‌های من». */
+    private fun updateResultDot(kind: String?) {
+        val tv = binding.btnMyAds
+        if (kind == null) {
+            tv.setCompoundDrawablesRelative(null, null, null, null)
+            return
+        }
+        val dot = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.OVAL
+            setColor(Color.parseColor(if (kind == "rejected") "#E53935" else "#43A047"))
+            setStroke(dpOf(this@AdsActivity, 1), Color.WHITE)
+            setSize(dpOf(this@AdsActivity, 12), dpOf(this@AdsActivity, 12))
+        }
+        tv.setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
+        tv.compoundDrawablePadding = dpOf(this, 6)
     }
 
     private fun buildChips() {
         binding.layoutChips.removeAllViews()
+        // اولین چیپ: فیلتر استان/شهر
+        val locChip = TextView(this)
+        locChip.tag = "loc"
+        locChip.textSize = 15f
+        locChip.setPadding(dpOf(this, 14), dpOf(this, 8), dpOf(this, 14), dpOf(this, 8))
+        locChip.setBackgroundResource(R.drawable.ads_chip_bg)
+        val locLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        locLp.marginEnd = dpOf(this, 8)
+        locChip.layoutParams = locLp
+        locChip.setOnClickListener { pickLocationFilter() }
+        binding.layoutChips.addView(locChip)
+
         val names = listOf("همه") + AdCategories.all
         for (name in names) {
             val chip = TextView(this)
@@ -129,6 +255,13 @@ class AdsActivity : AppCompatActivity() {
         val muted = ContextCompat.getColor(this, R.color.text_muted)
         for (i in 0 until binding.layoutChips.childCount) {
             val chip = binding.layoutChips.getChildAt(i) as TextView
+            if (chip.tag == "loc") {
+                val active = filterProvince != null
+                chip.text = locationLabel()
+                chip.isSelected = active
+                chip.setTextColor(if (active) Color.WHITE else muted)
+                continue
+            }
             val name = chip.text.toString()
             val active = if (selectedCategory == null) name == "همه" else name == selectedCategory
             chip.isSelected = active
@@ -136,11 +269,46 @@ class AdsActivity : AppCompatActivity() {
         }
     }
 
+    private fun locationLabel(): String {
+        val pv = filterProvince ?: return "📍 همه‌ی ایران"
+        val c = filterCity
+        return if (c != null) "📍 $c، $pv" else "📍 $pv"
+    }
+
+    /** انتخاب استان و بعد (اختیاری) شهر برای فیلتر آگهی‌ها. */
+    private fun pickLocationFilter() {
+        val all = "همه‌ی ایران (بدون فیلتر)"
+        showSearchListDialog(this, "استان", listOf(all) + IranLocations.provinces) { pv ->
+            if (pv == all) {
+                filterProvince = null
+                filterCity = null
+                refreshChips()
+                applyFilters()
+            } else {
+                val allCities = "همه‌ی شهرهای $pv"
+                showSearchListDialog(this, "شهر (استان $pv)", listOf(allCities) + IranLocations.cities(pv)) { c ->
+                    filterProvince = pv
+                    filterCity = if (c == allCities) null else c
+                    refreshChips()
+                    applyFilters()
+                }
+            }
+        }
+    }
+
+    /** آدرس آگهی به شکل «روستا، شهر، استان» ذخیره شده؛ آگهی‌های قدیمی فقط یک نام (شهر) دارند. */
+    private fun locationParts(ad: Ad): List<String> = ad.city.split("،").map { it.trim() }.filter { it.isNotEmpty() }
+
     private fun loadAds() {
         lifecycleScope.launch {
             binding.swipeRefresh.isRefreshing = true
             val result = AdsClient.fetchApproved(this@AdsActivity)
-            myAdIds = AdsClient.fetchMine(this@AdsActivity).ads.map { it.id }.toSet()
+            val mine = AdsClient.fetchMine(this@AdsActivity)
+            myAdIds = mine.ads.map { it.id }.toSet()
+            if (!mine.error) {
+                myAds = mine.ads
+                updateResultDot(AdResultTracker.unseenResult(this@AdsActivity, mine.ads))
+            }
             allAds = result.ads
             applyFilters()
             binding.swipeRefresh.isRefreshing = false
@@ -156,6 +324,8 @@ class AdsActivity : AppCompatActivity() {
         if (cat != null) {
             list = list.filter { it.category == cat }
         }
+        filterProvince?.let { pv -> list = list.filter { locationParts(it).contains(pv) } }
+        filterCity?.let { c -> list = list.filter { locationParts(it).contains(c) } }
         if (query.isNotBlank()) {
             val q = query.trim()
             list = list.filter {
@@ -435,51 +605,8 @@ class PostAdActivity : AppCompatActivity() {
     }
 
     /** پنجره‌ی انتخاب از یک لیست بلند، با کادر جستجو. */
-    private fun showSearchList(title: String, items: List<String>, onPick: (String) -> Unit) {
-        val pad = dpOf(this, 16)
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(pad, dpOf(this@PostAdActivity, 8), pad, 0)
-        }
-        val search = android.widget.EditText(this).apply {
-            hint = "جستجو…"
-            inputType = android.text.InputType.TYPE_CLASS_TEXT
-            maxLines = 1
-        }
-        val list = android.widget.ListView(this)
-        val shown = ArrayList(items)
-        val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_list_item_1, shown)
-        list.adapter = adapter
-        container.addView(search)
-        container.addView(
-            list,
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpOf(this, 320))
-        )
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(container)
-            .setNegativeButton("انصراف", null)
-            .create()
-        search.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val q = s?.toString().orEmpty().trim()
-                shown.clear()
-                shown.addAll(
-                    if (q.isEmpty()) items
-                    else items.filter { it.contains(q, ignoreCase = true) || it == IranLocations.OTHER_CITY }
-                )
-                adapter.notifyDataSetChanged()
-            }
-        })
-        list.setOnItemClickListener { _, _, position, _ ->
-            val chosen = shown[position]
-            dialog.dismiss()
-            onPick(chosen)
-        }
-        dialog.show()
-    }
+    private fun showSearchList(title: String, items: List<String>, onPick: (String) -> Unit) =
+        showSearchListDialog(this, title, items, onPick)
 
     /** وقتی شهر در لیست نبود: کاربر اسمش را می‌نویسد. */
     private fun askCityName() {
@@ -619,6 +746,8 @@ class MyAdsActivity : AppCompatActivity() {
     private fun loadMine() {
         lifecycleScope.launch {
             val result = AdsClient.fetchMine(this@MyAdsActivity)
+            // کاربر نتیجه‌ی آگهی‌ها را دید؛ دایره‌ی یادآور در صفحه‌ی تبلیغات پاک می‌شود
+            if (!result.error) AdResultTracker.markSeen(this@MyAdsActivity, result.ads)
             adapter.update(result.ads)
             binding.txtEmpty.visibility = if (result.ads.isEmpty()) View.VISIBLE else View.GONE
             if (result.error) {
