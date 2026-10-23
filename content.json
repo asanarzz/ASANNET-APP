@@ -1630,5 +1630,13 @@
     "description": "رادیو جوان",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-javan/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792783529119",
+    "type": "radio",
+    "title": "رادیو گفتگو",
+    "description": "رادیو گفتگو",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-goftego/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
