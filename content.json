@@ -1055,13 +1055,6 @@
     ]
   },
   {
-    "id": "item_1791807766816",
-    "type": "radio",
-    "title": "رادیو آوا",
-    "description": "صدا و سیما IRIB",
-    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE"
-  },
-  {
     "id": "item_1791877987511",
     "type": "newspaper",
     "title": "سه شنبه",
