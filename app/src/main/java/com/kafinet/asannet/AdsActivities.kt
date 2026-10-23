@@ -696,7 +696,7 @@ class PostAdActivity : AppCompatActivity() {
             if (ok) {
                 Toast.makeText(
                     this@PostAdActivity,
-                    "آگهی ثبت شد و بعد از تأیید مدیر نمایش داده می‌شود",
+                    "آگهی ثبت شد و بعد از تأیید مدیر نمایش داده می‌شود. مدت نمایش: ۳۰ روز از تاریخ تأیید",
                     Toast.LENGTH_LONG
                 ).show()
                 finish()
