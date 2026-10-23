@@ -33,7 +33,8 @@
     "type": "radio",
     "title": "رادیو اینترنتی",
     "description": "رادیو اینترنتی سرچشمه\nپخش 24 ساعته موزیک",
-    "url": "https://sarcheshmeh.awsvps.com/stream"
+    "url": "https://sarcheshmeh.awsvps.com/stream",
+    "section": "موسیقی"
   },
   {
     "id": "item_1787605410922",
