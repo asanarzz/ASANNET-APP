@@ -1598,5 +1598,13 @@
     "description": "خبری موسیقی",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-avaa/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792782736087",
+    "type": "radio",
+    "title": "رادیو فرهنگ",
+    "description": "رادیو فرهنگ",
+    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=16&t=b&auto=true&SAVE=TRUE",
+    "section": "صدا و سیما"
   }
 ]
