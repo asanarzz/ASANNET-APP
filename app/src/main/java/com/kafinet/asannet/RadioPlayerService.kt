@@ -18,6 +18,10 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.ExoPlayer
 import java.io.File
 import java.net.HttpURLConnection
@@ -152,6 +156,7 @@ class RadioPlayerService : Service() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun playFromSource(url: String, title: String, startPositionMs: Long = 0L, isRetry: Boolean = false) {
         currentTitle = title
         releasePlayerOnly()
@@ -164,7 +169,19 @@ class RadioPlayerService : Service() {
         requestAudioFocus()
 
         try {
-            val player = ExoPlayer.Builder(applicationContext).build()
+            // همان تنظیمات پخش‌کننده‌ی تلویزیون اپ: User-Agent مرورگر، قبول ریدایرکت بین
+            // http و https، و زمان‌بندی اتصال. DefaultDataSource فایل‌های محلی و asset را هم
+            // مثل قبل پشتیبانی می‌کند.
+            val httpFactory = DefaultHttpDataSource.Factory()
+                .setAllowCrossProtocolRedirects(true)
+                .setConnectTimeoutMs(15000)
+                .setReadTimeoutMs(15000)
+                .setUserAgent("Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36")
+            val player = ExoPlayer.Builder(applicationContext)
+                .setMediaSourceFactory(
+                    DefaultMediaSourceFactory(DefaultDataSource.Factory(applicationContext, httpFactory))
+                )
+                .build()
             exoPlayer = player
             currentPlayer = player
 
