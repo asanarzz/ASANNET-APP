@@ -1662,5 +1662,13 @@
     "description": "خبری سیاسی",
     "url": "https://radio.iraninternational.app/iintl_c",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792785189019",
+    "type": "radio",
+    "title": "Radio navahang",
+    "description": "موسیقی",
+    "url": "https://navairan.com/;stream.nsv",
+    "section": "موسیقی"
   }
 ]
