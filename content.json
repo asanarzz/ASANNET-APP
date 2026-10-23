@@ -1588,5 +1588,13 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/7/30/08040837.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/7/30/bd4c9ab7.jpg"
     ]
+  },
+  {
+    "id": "item_1792750977798",
+    "type": "radio",
+    "title": "رادیو خبر",
+    "description": "صدا و سیما",
+    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=26&t=b&auto=true&SAVE=TRUE",
+    "section": "صدا و سیما"
   }
 ]
