@@ -1654,5 +1654,13 @@
     "description": "موسیقی خبری",
     "url": "https://stream.radiojar.com/cp13r2cpn3quv",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792785053000",
+    "type": "radio",
+    "title": "Radio Iran international",
+    "description": "رادیو ایران اینترنشنال",
+    "url": "https://radio.iraninternational.app/iintl_c",
+    "section": "VIP"
   }
 ]
