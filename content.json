@@ -1645,5 +1645,13 @@
     "title": "رادیو ورزش",
     "description": "صدا و سیما رادیو ورزش",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-varzesh/playlist.m3u8"
+  },
+  {
+    "id": "item_1792784687794",
+    "type": "radio",
+    "title": "Radio farda",
+    "description": "موسیقی خبری",
+    "url": "https://stream.radiojar.com/cp13r2cpn3quv",
+    "section": "VIP"
   }
 ]
