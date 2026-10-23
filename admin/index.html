@@ -154,6 +154,7 @@
   .ads-pending{background:#FEF3C7; color:#92400E;}
   .ads-approved{background:#D1FAE5; color:#065F46;}
   .ads-rejected{background:#FEE2E2; color:#991B1B;}
+  .ads-expired{background:#E5E7EB; color:#374151;}
   .btn-success{background:#ECFDF5; color:var(--success);}
   .ads-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
 </style>
@@ -263,11 +264,6 @@
       <label>لینک (اختیاری)</label>
       <input type="url" id="in-url" placeholder="https://...">
       <p class="muted">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
-
-      <label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-        <input type="checkbox" id="in-allow-external-browser" style="width:auto;" checked>
-        نمایش دکمه‌ی «باز کردن در مرورگر بیرونی» (فلش بالا) برای این مورد
-      </label>
 
       <div id="video-kind-box" class="hidden" style="margin-top:14px;">
         <label>نوع</label>
@@ -1369,8 +1365,6 @@ async function handleAdd() {
       ? (selectedVideoKind === 'series' ? 'سریال' : '')
       : $('in-section').value.trim();
 
-    const allowExternalBrowser = $('in-allow-external-browser').checked;
-
     if (editingId) {
       const id = editingId;
       const updatedItem = {
@@ -1383,7 +1377,6 @@ async function handleAdd() {
       if (sectionValue) updatedItem.section = sectionValue;
       if (combinedImages.length) updatedItem.images = combinedImages;
       if (linksValue.length) updatedItem.links = linksValue;
-      if (!allowExternalBrowser) updatedItem.allowExternalBrowser = false;
 
       // اگر پوشه‌ی مقصد قفل است، آیتم قبل از ذخیره قفل می‌شود (لینکش هرگز عمومی نمی‌شود)
       const editGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1418,7 +1411,6 @@ async function handleAdd() {
     if (sectionValue) newItem.section = sectionValue;
     if (combinedImages.length) newItem.images = combinedImages;
     if (linksValue.length) newItem.links = linksValue;
-    if (!allowExternalBrowser) newItem.allowExternalBrowser = false;
 
     // اگر پوشه‌ی مقصد قفل است، آیتم جدید قبل از ذخیره خودکار قفل می‌شود
     const newGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1485,7 +1477,6 @@ function startEdit(id) {
   $('in-desc').value = item.description || '';
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
-  $('in-allow-external-browser').checked = item.allowExternalBrowser !== false;
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -1507,7 +1498,6 @@ function resetForm() {
   $('in-desc').value = '';
   $('in-section').value = '';
   $('in-url').value = '';
-  $('in-allow-external-browser').checked = true;
   selectedFiles = [];
   editingExistingImages = [];
   $('in-file').value = '';
@@ -1871,7 +1861,28 @@ lfLoadProxy();
 
 // ---------- تبلیغات: ورود مدیر (Supabase Auth) + تأیید/رد/حذف آگهی‌ها ----------
 const ADS_SESSION_KEY = 'kafinet_ads_session';
-const ADS_STATUS_LABEL = { pending: 'در انتظار تأیید', approved: 'تأییدشده', rejected: 'ردشده' };
+const ADS_STATUS_LABEL = { pending: 'در انتظار تأیید', approved: 'تأییدشده', rejected: 'ردشده', expired: 'منقضی‌شده' };
+const ADS_EXPIRE_DAYS = 30;   // آگهی‌ی تأییدشده، ۳۰ روز بعد از تاریخ تأیید «منقضی» حساب می‌شود
+
+// تاریخ تأیید (اگر ثبت نشده باشد، تاریخ ثبت آگهی)
+function adsApprovedAt(r) {
+  const t = new Date(r.reviewed_at || r.created_at).getTime();
+  return isNaN(t) ? null : t;
+}
+// چند روز تا انقضا مانده (منفی یعنی چند روز از انقضا گذشته)
+function adsDaysLeft(r) {
+  const t = adsApprovedAt(r);
+  if (t === null) return null;
+  return ADS_EXPIRE_DAYS - Math.floor((Date.now() - t) / 86400000);
+}
+// وضعیت نمایشی: آگهی‌ی تأییدشده‌ی ۳۰ روز گذشته خودکار «منقضی» می‌شود
+function adsStatusOf(r) {
+  if (r.status === 'approved') {
+    const left = adsDaysLeft(r);
+    if (left !== null && left <= 0) return 'expired';
+  }
+  return r.status;
+}
 let adsSession = null;
 let adsRows = [];
 let adsStatusFilter = 'pending';
@@ -2006,17 +2017,28 @@ function adsRowHtml(r) {
   const price = (r.price && Number(r.price) > 0) ? Number(r.price).toLocaleString('en-US') + ' تومان' : 'توافقی';
   const id = escapeHtml(r.id);
   const btns = [];
-  if (r.status !== 'approved') btns.push(`<button class="btn-success btn-small" data-ad-act="approve" data-id="${id}">تأیید</button>`);
-  if (r.status !== 'rejected') btns.push(`<button class="btn-outline btn-small" data-ad-act="reject" data-id="${id}">رد</button>`);
-  if (r.status === 'approved') btns.push(`<button class="btn-outline btn-small" data-ad-act="pending" data-id="${id}">برگشت به انتظار</button>`);
+  const st = adsStatusOf(r);
+  if (st === 'expired') btns.push(`<button class="btn-outline btn-small" data-ad-act="renew" data-id="${id}">تمدید ${ADS_EXPIRE_DAYS} روز</button>`);
+  if (st !== 'expired' && r.status !== 'approved') btns.push(`<button class="btn-success btn-small" data-ad-act="approve" data-id="${id}">تأیید</button>`);
+  if (st !== 'expired' && r.status !== 'rejected') btns.push(`<button class="btn-outline btn-small" data-ad-act="reject" data-id="${id}">رد</button>`);
+  if (st === 'approved') btns.push(`<button class="btn-outline btn-small" data-ad-act="pending" data-id="${id}">برگشت به انتظار</button>`);
   btns.push(`<button class="btn-danger btn-small" data-ad-act="delete" data-id="${id}">حذف</button>`);
   const reason = (r.status === 'rejected' && r.reject_reason)
     ? `<div class="muted" style="margin-top:6px;">دلیل رد: ${escapeHtml(r.reject_reason)}</div>` : '';
+  let expInfo = '';
+  if (st === 'approved' || st === 'expired') {
+    const left = adsDaysLeft(r);
+    if (left !== null) {
+      expInfo = st === 'expired'
+        ? `<div class="muted" style="color:#B45309;">تاریخ تأیید: ${escapeHtml(formatPersianDateTime(r.reviewed_at || r.created_at))} — ${Math.abs(left)} روز است که منقضی شده</div>`
+        : `<div class="muted">تاریخ تأیید: ${escapeHtml(formatPersianDateTime(r.reviewed_at || r.created_at))} — ${left} روز تا انقضا</div>`;
+    }
+  }
   return `
     <div class="ads-card">
       <div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">
         <div style="font-weight:700; font-size:14px;">${escapeHtml(r.title || '')}</div>
-        <span class="ads-badge ads-${escapeHtml(r.status)}">${escapeHtml(ADS_STATUS_LABEL[r.status] || r.status)}</span>
+        <span class="ads-badge ads-${escapeHtml(st)}">${escapeHtml(ADS_STATUS_LABEL[st] || st)}</span>
       </div>
       <div style="color:var(--primary); font-weight:600; font-size:13px; margin-top:4px;">${escapeHtml(price)}</div>
       <div class="muted" style="margin-top:4px;">${escapeHtml(r.category || '')}${r.city ? ' — ' + escapeHtml(r.city) : ''}</div>
@@ -2025,23 +2047,24 @@ function adsRowHtml(r) {
       <div class="muted" style="margin-top:8px;">فروشنده: ${escapeHtml(r.seller_name || '—')} — تلفن: ${escapeHtml(r.phone || '—')} — کد ملی: ${escapeHtml(r.owner_code || '—')}</div>
       <div class="muted">روش‌های تماس برای کاربران: ${escapeHtml(adsContactSummary(r))}</div>
       <div class="muted">ثبت: ${escapeHtml(formatPersianDateTime(r.created_at))}</div>
+      ${expInfo}
       ${reason}
       <div class="ads-actions">${btns.join('')}</div>
     </div>`;
 }
 
 function adsRender() {
-  const counts = { pending: 0, approved: 0, rejected: 0 };
-  adsRows.forEach((r) => { if (counts[r.status] !== undefined) counts[r.status]++; });
+  const counts = { pending: 0, approved: 0, rejected: 0, expired: 0 };
+  adsRows.forEach((r) => { const st = adsStatusOf(r); if (counts[st] !== undefined) counts[st]++; });
   $('main-tab-ads').textContent = counts.pending ? 'تبلیغات (' + counts.pending + ')' : 'تبلیغات';
 
-  const statusDefs = [['pending', 'در انتظار'], ['approved', 'تأییدشده'], ['rejected', 'ردشده'], ['all', 'همه']];
+  const statusDefs = [['pending', 'در انتظار'], ['approved', 'تأییدشده'], ['expired', 'منقضی‌شده'], ['rejected', 'ردشده'], ['all', 'همه']];
   $('ads-status-tabs').innerHTML = statusDefs.map(([k, label]) => {
     const n = k === 'all' ? adsRows.length : counts[k];
     return `<div class="type-tab${adsStatusFilter === k ? ' active' : ''}" data-st="${k}">${label} (${n})</div>`;
   }).join('');
 
-  const byStatus = adsRows.filter((r) => adsStatusFilter === 'all' || r.status === adsStatusFilter);
+  const byStatus = adsRows.filter((r) => adsStatusFilter === 'all' || adsStatusOf(r) === adsStatusFilter);
   const catCounts = {};
   byStatus.forEach((r) => { catCounts[r.category] = (catCounts[r.category] || 0) + 1; });
   if (adsCatFilter !== 'all' && !catCounts[adsCatFilter]) adsCatFilter = 'all';
@@ -2081,6 +2104,19 @@ async function adsSetStatus(id, status, reason) {
   if (row) { row.status = status; row.reject_reason = body.reject_reason; }
 }
 
+// تمدید: تاریخ تأیید به «الان» برمی‌گردد و ۳۰ روز دیگر شروع می‌شود
+async function adsRenew(id) {
+  const now = new Date().toISOString();
+  const res = await adsFetch('/rest/v1/ads?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ reviewed_at: now }),
+  });
+  if (!res.ok) throw new Error('تمدید ناموفق بود (' + res.status + ')');
+  const row = adsRows.find((r) => r.id === id);
+  if (row) row.reviewed_at = now;
+}
+
 async function adsDelete(id) {
   const row = adsRows.find((r) => r.id === id);
   const res = await adsFetch('/rest/v1/ads?id=eq.' + encodeURIComponent(id), {
@@ -2112,6 +2148,9 @@ async function adsAction(act, id) {
     } else if (act === 'pending') {
       await adsSetStatus(id, 'pending');
       toast('آگهی به حالت انتظار برگشت', 'success');
+    } else if (act === 'renew') {
+      await adsRenew(id);
+      toast('آگهی تمدید شد (۳۰ روز دیگر)', 'success');
     } else if (act === 'delete') {
       if (!confirm('این آگهی برای همیشه حذف شود؟')) return;
       await adsDelete(id);

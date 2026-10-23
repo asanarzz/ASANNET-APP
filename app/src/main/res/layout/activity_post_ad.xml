@@ -320,7 +320,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="آگهی شما بعد از بررسی و تأیید مدیر در برنامه نمایش داده می‌شود."
+                android:text="آگهی شما بعد از بررسی و تأیید مدیر در برنامه نمایش داده می‌شود. توجه: آگهی‌ها ۳۰ روز بعد از تاریخ تأیید منقضی می‌شوند و از برنامه حذف خواهند شد."
                 android:textColor="@color/text_muted"
                 android:textSize="14sp" />
 
