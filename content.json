@@ -1596,5 +1596,13 @@
     "description": "صدا و سیما",
     "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=26&t=b&auto=true&SAVE=TRUE",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792751099058",
+    "type": "radio",
+    "title": "رادیو آوا",
+    "description": "خبری موسیقی",
+    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE",
+    "section": "صدا و سیما"
   }
 ]
