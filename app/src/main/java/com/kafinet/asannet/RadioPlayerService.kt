@@ -311,13 +311,18 @@ class RadioPlayerService : Service() {
                 .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
                 .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build()
-            focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            // درخواست فوکوس فقط یک بار ساخته می‌شود و بعد از آن دوباره استفاده می‌شود.
+            // قبلاً با هر بار پخش یک درخواست جدید ساخته می‌شد و اندروید به درخواست قبلیِ
+            // همین اپ «AUDIOFOCUS_LOSS» می‌داد؛ نتیجه‌اش این بود که پخش‌کننده‌ی جدید
+            // بلافاصله متوقف می‌شد.
+            val request = focusRequest ?: AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(attrs)
                 .setOnAudioFocusChangeListener { change ->
                     if (change == AudioManager.AUDIOFOCUS_LOSS) pausePlayback()
                 }
                 .build()
-            audioManager?.requestAudioFocus(focusRequest!!) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                .also { focusRequest = it }
+            audioManager?.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         } else {
             true
         }
