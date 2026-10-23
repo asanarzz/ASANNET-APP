@@ -1604,7 +1604,7 @@
     "type": "radio",
     "title": "رادیو فرهنگ",
     "description": "رادیو فرهنگ",
-    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=16&t=b&auto=true&SAVE=TRUE",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-farhang/playlist.m3u8",
     "section": "صدا و سیما"
   }
 ]
