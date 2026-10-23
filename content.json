@@ -1678,5 +1678,13 @@
     "description": "سیاسی خبری سرگرمی",
     "url": "http://69.197.169.178:33640/;",
     "section": "VIP"
+  },
+  {
+    "id": "item_1792787792859",
+    "type": "radio",
+    "title": "Radio yar",
+    "description": "موسیقی",
+    "url": "https://stream-163.zeno.fm/yxemzpoaocavv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ5eGVtenBvYW9jYXZ2IiwiaG9zdCI6InN0cmVhbS0xNjMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6InhKNHZlRTRtVFFPQTZ6RWJwMy1MOXciLCJpYXQiOjE3NTc2MzE3MDEsImV4cCI6MTc1NzYzMTc2MX0.KyIREwfc-nOvruWM_wiFaNS-xCgh1CfF2i8PE-xSm9E",
+    "section": "موسیقی"
   }
 ]
