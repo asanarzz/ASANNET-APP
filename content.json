@@ -1596,7 +1596,7 @@
     "type": "radio",
     "title": "رادیو آوا",
     "description": "خبری موسیقی",
-    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=21&t=b&auto=true&SAVE=TRUE",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-avaa/playlist.m3u8",
     "section": "صدا و سیما"
   }
 ]
