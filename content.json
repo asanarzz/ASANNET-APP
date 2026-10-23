@@ -1588,7 +1588,7 @@
     "type": "radio",
     "title": "رادیو خبر",
     "description": "صدا و سیما",
-    "url": "http://player.iranseda.ir/live-player/?VALID=TRUE&CH=26&t=b&auto=true&SAVE=TRUE",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-monasebati/playlist.m3u8",
     "section": "صدا و سیما"
   },
   {
