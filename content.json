@@ -1670,5 +1670,13 @@
     "description": "موسیقی",
     "url": "https://navairan.com/;stream.nsv",
     "section": "موسیقی"
+  },
+  {
+    "id": "item_1792787550221",
+    "type": "radio",
+    "title": "Radio shemroon",
+    "description": "سیاسی خبری سرگرمی",
+    "url": "http://69.197.169.178:33640/;",
+    "section": "VIP"
   }
 ]
