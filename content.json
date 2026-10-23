@@ -1606,5 +1606,13 @@
     "description": "رادیو فرهنگ",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-farhang/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792783348749",
+    "type": "radio",
+    "title": "رادیو اقتصاد",
+    "description": "موضوعات و اخبار اقتصادی",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-eghtesad/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
