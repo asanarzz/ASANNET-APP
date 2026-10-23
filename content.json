@@ -1694,5 +1694,13 @@
     "description": "موسیقی",
     "url": "https://stream.zeno.fm/jl8n7thgcdftv",
     "section": "موسیقی"
+  },
+  {
+    "id": "item_1792788199757",
+    "type": "radio",
+    "title": "Radio hamrah",
+    "description": "سرگرمی",
+    "url": "https://stream.zenolive.com/gxdq0awu30duv.aac",
+    "section": "سرگرمی"
   }
 ]
