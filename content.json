@@ -1622,5 +1622,13 @@
     "description": "رادیو پیام",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-payam/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792783440343",
+    "type": "radio",
+    "title": "رادیو جوان",
+    "description": "رادیو جوان",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-javan/playlist.m3u8",
+    "section": "صدا و سیما"
   }
 ]
