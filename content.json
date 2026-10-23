@@ -1638,5 +1638,12 @@
     "description": "رادیو گفتگو",
     "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-goftego/playlist.m3u8",
     "section": "صدا و سیما"
+  },
+  {
+    "id": "item_1792783585119",
+    "type": "radio",
+    "title": "رادیو ورزش",
+    "description": "صدا و سیما رادیو ورزش",
+    "url": "http://s0.cdn1.iranseda.ir:1935/liveedge/radio-varzesh/playlist.m3u8"
   }
 ]
