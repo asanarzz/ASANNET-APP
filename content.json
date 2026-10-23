@@ -1652,16 +1652,20 @@
     "type": "radio",
     "title": "Radio farda",
     "description": "موسیقی خبری",
-    "url": "https://stream.radiojar.com/cp13r2cpn3quv",
-    "section": "VIP"
+    "url": "",
+    "section": "VIP",
+    "locked": true,
+    "lockGroup": "folder:radio|VIP"
   },
   {
     "id": "item_1792785053000",
     "type": "radio",
     "title": "Radio Iran international",
     "description": "خبری سیاسی",
-    "url": "https://radio.iraninternational.app/iintl_c",
-    "section": "VIP"
+    "url": "",
+    "section": "VIP",
+    "locked": true,
+    "lockGroup": "folder:radio|VIP"
   },
   {
     "id": "item_1792785189019",
@@ -1676,8 +1680,10 @@
     "type": "radio",
     "title": "Radio shemroon",
     "description": "سیاسی خبری سرگرمی",
-    "url": "http://69.197.169.178:33640/;",
-    "section": "VIP"
+    "url": "",
+    "section": "VIP",
+    "locked": true,
+    "lockGroup": "folder:radio|VIP"
   },
   {
     "id": "item_1792787792859",
