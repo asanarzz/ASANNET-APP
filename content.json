@@ -1708,5 +1708,12 @@
     "description": "سرگرمی",
     "url": "https://stream.zenolive.com/gxdq0awu30duv.aac",
     "section": "سرگرمی"
+  },
+  {
+    "id": "item_1792824462057",
+    "type": "link",
+    "title": "گوگل",
+    "description": "مرورگر",
+    "url": "https://www.google.com/"
   }
 ]
