@@ -1117,30 +1117,24 @@
     "type": "tv",
     "title": "IRIB 3",
     "description": "شبکه 3 صدا و سیما",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/tv3/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792044881911",
     "type": "tv",
     "title": "IRIB 2",
     "description": "شبکه 2 صدا و سیما",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/tv2/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792044974191",
     "type": "tv",
     "title": "IRIB 1",
     "description": "شبکه 1 صدا و سیما",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/tv1/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792045144217",
@@ -1218,120 +1212,96 @@
     "type": "tv",
     "title": "ورزش",
     "description": "شبکه ورزش",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/varzesh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446131188",
     "type": "tv",
     "title": "سلامت",
     "description": "شبکه سلامت",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/salamat/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446179623",
     "type": "tv",
     "title": "قرآن",
     "description": "شبکه قرآن",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/quran/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446223926",
     "type": "tv",
     "title": "پویا",
     "description": "شبکه پویا",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/pooya/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446255676",
     "type": "tv",
     "title": "امید",
     "description": "شبکه امید",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/omid/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446287471",
     "type": "tv",
     "title": "افق",
     "description": "شبکه افق",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/ofogh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446337083",
     "type": "tv",
     "title": "نسیم",
     "description": "شبکه نسیم",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/nasim/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446370978",
     "type": "tv",
     "title": "نمایش",
     "description": "شبکه نمایش",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/namayesh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446404241",
     "type": "tv",
     "title": "مستند",
     "description": "شبکه مستند",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/mostanad/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446449776",
     "type": "tv",
     "title": "IRNN 2",
     "description": "شبکه خبر 2",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/irinn2/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446537513",
     "type": "tv",
     "title": "ifilm",
     "description": "شبکه آی فیلم",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://live.presstv.ir/hls/ifilmfa.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792446577372",
     "type": "tv",
     "title": "آموزش",
     "description": "شبکه آموزش",
-    "url": "",
-    "section": "صدا و سیما",
-    "locked": true,
-    "lockGroup": "folder:tv|صدا و سیما"
+    "url": "https://ncdn.telewebion.ir/amouzesh/live/playlist.m3u8",
+    "section": "صدا و سیما"
   },
   {
     "id": "item_1792447155450",
