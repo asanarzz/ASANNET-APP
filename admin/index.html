@@ -1212,23 +1212,46 @@ async function saveContentList(commitMessage, mutateFn) {
 
 let listFilterType = 'all';
 
-// ---------- پین کردن (فقط همین مرورگر — برای پیدا کردن سریع‌تر موارد پرکاربرد) ----------
-let pinnedItemIds = JSON.parse(localStorage.getItem('kafinet_pinned_items') || '[]');
-let pinnedSections = JSON.parse(localStorage.getItem('kafinet_pinned_sections') || '[]'); // 'type|section'
+// ---------- پین کردن ----------
+// روی خودِ content.json ذخیره می‌شه (فیلد pinned روی هر آیتم) تا هم تو پنل
+// و هم تو خودِ اپ، موارد پین‌شده بالا بیان — نه فقط یه حالت محلیِ مرورگر.
+function isItemPinned(item) { return !!item.pinned; }
 
-function sectionKeyOf(item) { return item.type + '|' + (item.section || ''); }
-function isItemPinned(item) {
-  return pinnedItemIds.includes(item.id) || (item.section && pinnedSections.includes(sectionKeyOf(item)));
+function withPinnedFlag(item, value) {
+  const copy = Object.assign({}, item);
+  if (value) copy.pinned = true; else delete copy.pinned;
+  return copy;
 }
-function toggleItemPin(id) {
-  pinnedItemIds = pinnedItemIds.includes(id) ? pinnedItemIds.filter((x) => x !== id) : [id, ...pinnedItemIds];
-  localStorage.setItem('kafinet_pinned_items', JSON.stringify(pinnedItemIds));
+
+async function toggleItemPin(id) {
+  const current = contentItems.find((i) => i.id === id);
+  if (!current) return;
+  const newValue = !current.pinned;
+  const apply = (items) => items.map((i) => (i.id === id ? withPinnedFlag(i, newValue) : i));
+  contentItems = apply(contentItems);
   renderList();
+  try {
+    await saveContentList(newValue ? 'پین کردن محتوا: ' + id : 'برداشتن پین محتوا: ' + id, apply);
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
 }
-function toggleSectionPin(key) {
-  pinnedSections = pinnedSections.includes(key) ? pinnedSections.filter((x) => x !== key) : [key, ...pinnedSections];
-  localStorage.setItem('kafinet_pinned_sections', JSON.stringify(pinnedSections));
+
+async function toggleSectionPin(type, section) {
+  const members = contentItems.filter((i) => i.type === type && (i.section || '') === section);
+  if (!members.length) return;
+  const newValue = !members.every((i) => i.pinned);
+  const apply = (items) =>
+    items.map((i) => (i.type === type && (i.section || '') === section ? withPinnedFlag(i, newValue) : i));
+  contentItems = apply(contentItems);
   renderList();
+  try {
+    await saveContentList(newValue ? 'پین کردن پوشه: ' + section : 'برداشتن پین پوشه: ' + section, apply);
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
 }
 function renderListFilters() {
   const box = $('list-filter-tabs');
@@ -1275,8 +1298,8 @@ function renderList() {
   [...pinned, ...unpinned].forEach((item) => {
     const meta = TYPE_META[item.type] || TYPE_META.link;
     const pinned = isItemPinned(item);
-    const secKey = sectionKeyOf(item);
-    const sectionPinned = !!item.section && pinnedSections.includes(secKey);
+    const sectionMembers = item.section ? contentItems.filter((i) => i.type === item.type && (i.section || '') === item.section) : [];
+    const sectionPinned = sectionMembers.length > 0 && sectionMembers.every((i) => i.pinned);
     const row = document.createElement('div');
     row.className = 'item content-row' + (pinned ? ' pinned' : '');
     if (pinned) row.style.cssText = 'border:2px solid #7C3AED; background:#FAF5FF;';
@@ -1287,8 +1310,8 @@ function renderList() {
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
-        <button class="btn-outline btn-small" data-pin="${item.id}">${pinnedItemIds.includes(item.id) ? '📌 برداشتن پین' : '📍 پین کردن'}</button>
-        ${item.section ? `<button class="btn-outline btn-small" data-pinfolder="${escapeHtml(secKey)}">${sectionPinned ? '📁📌 برداشتن پین پوشه' : '📁📍 پین کردن کل پوشه'}</button>` : ''}
+        <button class="btn-outline btn-small" data-pin="${item.id}">${pinned ? '📌 برداشتن پین' : '📍 پین کردن'}</button>
+        ${item.section ? `<button class="btn-outline btn-small" data-pinfolder-type="${escapeHtml(item.type)}" data-pinfolder-section="${escapeHtml(item.section)}">${sectionPinned ? '📁📌 برداشتن پین پوشه' : '📁📍 پین کردن کل پوشه'}</button>` : ''}
         <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
         ${(item.section && item.type !== 'video') ? `<button class="btn-outline btn-small" data-lockfolder="${item.id}">${item.lockGroup ? '📁🔓 باز کردن قفل پوشه' : '📁🔒 قفل پوشه'}</button>` : ''}
         <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
@@ -1299,8 +1322,10 @@ function renderList() {
   area.querySelectorAll('[data-pin]').forEach((btn) => {
     btn.addEventListener('click', () => toggleItemPin(btn.getAttribute('data-pin')));
   });
-  area.querySelectorAll('[data-pinfolder]').forEach((btn) => {
-    btn.addEventListener('click', () => toggleSectionPin(btn.getAttribute('data-pinfolder')));
+  area.querySelectorAll('[data-pinfolder-type]').forEach((btn) => {
+    btn.addEventListener('click', () =>
+      toggleSectionPin(btn.getAttribute('data-pinfolder-type'), btn.getAttribute('data-pinfolder-section'))
+    );
   });
   area.querySelectorAll('[data-del]').forEach((btn) => {
     btn.addEventListener('click', () => deleteItem(btn.getAttribute('data-del')));
@@ -1336,10 +1361,6 @@ async function deleteItem(id) {
     await saveContentList('حذف محتوا: ' + id, (fresh) => fresh.filter((i) => i.id !== id));
     toast('حذف شد', 'success');
     if (wasLocked) lkCleanupItem(id);
-    if (pinnedItemIds.includes(id)) {
-      pinnedItemIds = pinnedItemIds.filter((x) => x !== id);
-      localStorage.setItem('kafinet_pinned_items', JSON.stringify(pinnedItemIds));
-    }
     renderList();
   } catch (e) {
     toast(e.message, 'error');
