@@ -1109,7 +1109,8 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792044675333",
@@ -1382,7 +1383,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792492765944",
@@ -1392,7 +1394,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792492830379",
@@ -1402,7 +1405,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792492873025",
@@ -1436,7 +1440,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792518183171",
@@ -1510,7 +1515,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792518938169",
@@ -1536,7 +1542,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "lockGroup": "folder:tv|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792519077792",
