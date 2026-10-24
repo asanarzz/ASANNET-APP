@@ -1102,10 +1102,14 @@
   {
     "id": "item_1792013845673",
     "type": "tv",
-    "title": "ایران اینترنشنال",
+    "title": "Iran international",
     "description": "شبکه خبری فارسی زبان",
-    "url": "https://hlspackager.akamaized.net/live/DB/IRAN_INTERNATIONAL/HLS/IRAN_INTERNATIONAL.m3u8",
-    "section": "VIP"
+    "url": "",
+    "section": "VIP",
+    "allowExternalBrowser": false,
+    "desktopMode": false,
+    "locked": true,
+    "lockGroup": "folder:tv|VIP"
   },
   {
     "id": "item_1792044675333",
