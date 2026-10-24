@@ -1702,6 +1702,7 @@
     "type": "link",
     "title": "گوگل",
     "description": "مرورگر",
-    "url": "https://www.google.com/"
+    "url": "https://www.google.com/",
+    "allowExternalBrowser": false
   }
 ]
