@@ -157,6 +157,14 @@
   .ads-expired{background:#E5E7EB; color:#374151;}
   .btn-success{background:#ECFDF5; color:var(--success);}
   .ads-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+.switch-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; }
+.switch-row .switch-label { font-size:14px; }
+.switch { position:relative; display:inline-block; width:46px; height:26px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.switch .slider { position:absolute; cursor:pointer; inset:0; background:#D1D5DB; border-radius:999px; transition:.2s; }
+.switch .slider::before { content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 2px rgba(0,0,0,.25); }
+.switch input:checked + .slider { background:#7C3AED; }
+.switch input:checked + .slider::before { transform:translateX(20px); }
 </style>
 </head>
 <body>
@@ -265,10 +273,21 @@
       <input type="url" id="in-url" placeholder="https://...">
       <p class="muted">اگه این مورد یه لینک/فایل قابل دانلود هم داره (جدا از عکس‌ها)، اینجا بذار.</p>
 
-      <label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-        <input type="checkbox" id="in-allow-external-browser" style="width:auto;" checked>
-        نمایش دکمه‌ی «باز کردن در مرورگر بیرونی» (فلش بالا) برای این مورد
-      </label>
+      <div class="switch-row">
+        <span class="switch-label">نمایش دکمه‌ی «باز کردن در مرورگر بیرونی» (فلش بالا) برای این مورد</span>
+        <label class="switch">
+          <input type="checkbox" id="in-allow-external-browser" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="switch-row">
+        <span class="switch-label">باز شدن این لینک به‌صورت نسخه‌ی دسکتاپ (خاموش = نسخه‌ی موبایل)</span>
+        <label class="switch">
+          <input type="checkbox" id="in-desktop-mode" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
 
       <div id="video-kind-box" class="hidden" style="margin-top:14px;">
         <label>نوع</label>
@@ -1192,6 +1211,25 @@ async function saveContentList(commitMessage, mutateFn) {
 }
 
 let listFilterType = 'all';
+
+// ---------- پین کردن (فقط همین مرورگر — برای پیدا کردن سریع‌تر موارد پرکاربرد) ----------
+let pinnedItemIds = JSON.parse(localStorage.getItem('kafinet_pinned_items') || '[]');
+let pinnedSections = JSON.parse(localStorage.getItem('kafinet_pinned_sections') || '[]'); // 'type|section'
+
+function sectionKeyOf(item) { return item.type + '|' + (item.section || ''); }
+function isItemPinned(item) {
+  return pinnedItemIds.includes(item.id) || (item.section && pinnedSections.includes(sectionKeyOf(item)));
+}
+function toggleItemPin(id) {
+  pinnedItemIds = pinnedItemIds.includes(id) ? pinnedItemIds.filter((x) => x !== id) : [id, ...pinnedItemIds];
+  localStorage.setItem('kafinet_pinned_items', JSON.stringify(pinnedItemIds));
+  renderList();
+}
+function toggleSectionPin(key) {
+  pinnedSections = pinnedSections.includes(key) ? pinnedSections.filter((x) => x !== key) : [key, ...pinnedSections];
+  localStorage.setItem('kafinet_pinned_sections', JSON.stringify(pinnedSections));
+  renderList();
+}
 function renderListFilters() {
   const box = $('list-filter-tabs');
   if (!box) return;
@@ -1231,23 +1269,38 @@ function renderList() {
     return;
   }
   area.innerHTML = '';
-  visibleItems.slice().reverse().forEach((item) => {
+  const reversed = visibleItems.slice().reverse();
+  const pinned = reversed.filter((i) => isItemPinned(i));
+  const unpinned = reversed.filter((i) => !isItemPinned(i));
+  [...pinned, ...unpinned].forEach((item) => {
     const meta = TYPE_META[item.type] || TYPE_META.link;
+    const pinned = isItemPinned(item);
+    const secKey = sectionKeyOf(item);
+    const sectionPinned = !!item.section && pinnedSections.includes(secKey);
     const row = document.createElement('div');
-    row.className = 'item content-row';
+    row.className = 'item content-row' + (pinned ? ' pinned' : '');
+    if (pinned) row.style.cssText = 'border:2px solid #7C3AED; background:#FAF5FF;';
     row.innerHTML = `
       <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
       <div class="info">
-        <div class="t">${item.locked ? '🔒 ' : ''}${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
+        <div class="t">${pinned ? '📌 ' : ''}${item.locked ? '🔒 ' : ''}${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
         <div class="d">${escapeHtml(item.description || item.url || '')}</div>
       </div>
       <div class="actions">
+        <button class="btn-outline btn-small" data-pin="${item.id}">${pinnedItemIds.includes(item.id) ? '📌 برداشتن پین' : '📍 پین کردن'}</button>
+        ${item.section ? `<button class="btn-outline btn-small" data-pinfolder="${escapeHtml(secKey)}">${sectionPinned ? '📁📌 برداشتن پین پوشه' : '📁📍 پین کردن کل پوشه'}</button>` : ''}
         <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
         ${(item.section && item.type !== 'video') ? `<button class="btn-outline btn-small" data-lockfolder="${item.id}">${item.lockGroup ? '📁🔓 باز کردن قفل پوشه' : '📁🔒 قفل پوشه'}</button>` : ''}
         <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
         <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
       </div>`;
     area.appendChild(row);
+  });
+  area.querySelectorAll('[data-pin]').forEach((btn) => {
+    btn.addEventListener('click', () => toggleItemPin(btn.getAttribute('data-pin')));
+  });
+  area.querySelectorAll('[data-pinfolder]').forEach((btn) => {
+    btn.addEventListener('click', () => toggleSectionPin(btn.getAttribute('data-pinfolder')));
   });
   area.querySelectorAll('[data-del]').forEach((btn) => {
     btn.addEventListener('click', () => deleteItem(btn.getAttribute('data-del')));
@@ -1283,6 +1336,10 @@ async function deleteItem(id) {
     await saveContentList('حذف محتوا: ' + id, (fresh) => fresh.filter((i) => i.id !== id));
     toast('حذف شد', 'success');
     if (wasLocked) lkCleanupItem(id);
+    if (pinnedItemIds.includes(id)) {
+      pinnedItemIds = pinnedItemIds.filter((x) => x !== id);
+      localStorage.setItem('kafinet_pinned_items', JSON.stringify(pinnedItemIds));
+    }
     renderList();
   } catch (e) {
     toast(e.message, 'error');
@@ -1371,6 +1428,7 @@ async function handleAdd() {
       : $('in-section').value.trim();
 
     const allowExternalBrowser = $('in-allow-external-browser').checked;
+    const desktopMode = $('in-desktop-mode').checked;
 
     if (editingId) {
       const id = editingId;
@@ -1385,6 +1443,7 @@ async function handleAdd() {
       if (combinedImages.length) updatedItem.images = combinedImages;
       if (linksValue.length) updatedItem.links = linksValue;
       if (!allowExternalBrowser) updatedItem.allowExternalBrowser = false;
+      if (!desktopMode) updatedItem.desktopMode = false;
 
       // اگر پوشه‌ی مقصد قفل است، آیتم قبل از ذخیره قفل می‌شود (لینکش هرگز عمومی نمی‌شود)
       const editGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1420,6 +1479,7 @@ async function handleAdd() {
     if (combinedImages.length) newItem.images = combinedImages;
     if (linksValue.length) newItem.links = linksValue;
     if (!allowExternalBrowser) newItem.allowExternalBrowser = false;
+    if (!desktopMode) newItem.desktopMode = false;
 
     // اگر پوشه‌ی مقصد قفل است، آیتم جدید قبل از ذخیره خودکار قفل می‌شود
     const newGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1487,6 +1547,7 @@ function startEdit(id) {
   $('in-section').value = item.section || '';
   $('in-url').value = item.url || '';
   $('in-allow-external-browser').checked = item.allowExternalBrowser !== false;
+  $('in-desktop-mode').checked = item.desktopMode !== false;
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -1509,6 +1570,7 @@ function resetForm() {
   $('in-section').value = '';
   $('in-url').value = '';
   $('in-allow-external-browser').checked = true;
+  $('in-desktop-mode').checked = true;
   selectedFiles = [];
   editingExistingImages = [];
   $('in-file').value = '';
