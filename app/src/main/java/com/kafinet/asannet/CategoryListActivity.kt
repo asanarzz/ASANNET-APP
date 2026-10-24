@@ -172,8 +172,12 @@ class CategoryListActivity : AppCompatActivity() {
             val key = item.section?.takeIf { it.isNotBlank() } ?: SECTION_MISC
             grouped.getOrPut(key) { mutableListOf() }.add(item)
         }
-        // «سایر» همیشه آخرین پوشه نشون داده می‌شه
-        val orderedKeys = grouped.keys.filter { it != SECTION_MISC } + grouped.keys.filter { it == SECTION_MISC }
+        // «سایر» همیشه آخرین پوشه نشون داده می‌شه؛ قبل از اون، پوشه‌هایی که از پنل
+        // مدیریت پین شدن (حداقل یکی از اعضاشون pinned=true باشه) اول میان
+        val nonMisc = grouped.keys.filter { it != SECTION_MISC }
+        val pinnedKeys = nonMisc.filter { key -> grouped[key].orEmpty().any { it.pinned } }
+        val unpinnedKeys = nonMisc.filter { key -> grouped[key].orEmpty().none { it.pinned } }
+        val orderedKeys = pinnedKeys + unpinnedKeys + grouped.keys.filter { it == SECTION_MISC }
 
         var folders = orderedKeys.map { key ->
             val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else key
@@ -219,6 +223,8 @@ class CategoryListActivity : AppCompatActivity() {
                 it.title.contains(q, ignoreCase = true) || it.description.contains(q, ignoreCase = true)
             }
         }
+        // موارد پین‌شده از پنل مدیریت بالای لیست می‌آیند (ترتیب نسبی بقیه دست‌نخورده می‌ماند)
+        filtered = filtered.sortedByDescending { it.pinned }
         adapter.updateItems(filtered)
         binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }

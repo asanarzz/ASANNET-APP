@@ -47,7 +47,9 @@ data class ContentItem(
     /** false یعنی دکمه‌ی «باز کردن در مرورگر بیرونی» برای این مورد مخفی بماند. */
     val allowExternalBrowser: Boolean = true,
     /** false یعنی این لینک با نسخه‌ی موبایل (نه دسکتاپ) نمایش داده شود. */
-    val desktopMode: Boolean = true
+    val desktopMode: Boolean = true,
+    /** true یعنی این مورد (یا پوشه‌ای که عضوشه) از پنل مدیریت پین شده و باید بالای لیست بیاد. */
+    val pinned: Boolean = false
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -88,7 +90,8 @@ data class ContentItem(
                         locked = obj.optBoolean("locked", false),
                         lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null },
                         allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true),
-                        desktopMode = obj.optBoolean("desktopMode", true)
+                        desktopMode = obj.optBoolean("desktopMode", true),
+                        pinned = obj.optBoolean("pinned", false)
                     )
                 )
             }
