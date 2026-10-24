@@ -1649,7 +1649,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:radio|VIP"
+    "lockGroup": "folder:radio|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792785053000",
@@ -1659,7 +1660,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:radio|VIP"
+    "lockGroup": "folder:radio|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792785189019",
@@ -1677,7 +1679,8 @@
     "url": "",
     "section": "VIP",
     "locked": true,
-    "lockGroup": "folder:radio|VIP"
+    "lockGroup": "folder:radio|VIP",
+    "pinned": true
   },
   {
     "id": "item_1792787792859",
