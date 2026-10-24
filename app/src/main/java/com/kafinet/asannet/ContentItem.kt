@@ -45,7 +45,9 @@ data class ContentItem(
     /** اگر آیتم عضو یک پوشه‌ی قفل‌شده باشد، شناسه‌ی پوشه (برای توکن پوشه). */
     val lockGroup: String? = null,
     /** false یعنی دکمه‌ی «باز کردن در مرورگر بیرونی» برای این مورد مخفی بماند. */
-    val allowExternalBrowser: Boolean = true
+    val allowExternalBrowser: Boolean = true,
+    /** false یعنی این لینک با نسخه‌ی موبایل (نه دسکتاپ) نمایش داده شود. */
+    val desktopMode: Boolean = true
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -85,7 +87,8 @@ data class ContentItem(
                         links = links,
                         locked = obj.optBoolean("locked", false),
                         lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null },
-                        allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true)
+                        allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true),
+                        desktopMode = obj.optBoolean("desktopMode", true)
                     )
                 )
             }

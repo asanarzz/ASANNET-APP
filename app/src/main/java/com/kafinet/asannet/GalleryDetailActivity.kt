@@ -27,6 +27,7 @@ class GalleryDetailActivity : AppCompatActivity() {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_IS_FILE = "extra_is_file"
         const val EXTRA_ALLOW_EXTERNAL_BROWSER = "extra_allow_external_browser"
+        const val EXTRA_DESKTOP_MODE = "extra_desktop_mode"
 
         private const val IMAGE_WEIGHT_COLLAPSED = 4f
         private const val CAPTION_WEIGHT_COLLAPSED = 1f
@@ -55,6 +56,7 @@ class GalleryDetailActivity : AppCompatActivity() {
         val url = intent.getStringExtra(EXTRA_URL).orEmpty()
         val isFile = intent.getBooleanExtra(EXTRA_IS_FILE, false)
         val allowExternalBrowser = intent.getBooleanExtra(EXTRA_ALLOW_EXTERNAL_BROWSER, true)
+        val desktopMode = intent.getBooleanExtra(EXTRA_DESKTOP_MODE, true)
 
         binding.txtTitle.text = forceEnglishDigits(title)
         binding.txtHeadline.text = forceEnglishDigits(title)
@@ -63,7 +65,7 @@ class GalleryDetailActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        setupImageGallery(images, title, allowExternalBrowser)
+        setupImageGallery(images, title, allowExternalBrowser, desktopMode)
         setupCaptionToggle()
 
         if (url.isNotBlank()) {
@@ -72,7 +74,7 @@ class GalleryDetailActivity : AppCompatActivity() {
             when {
                 isFile -> {
                     binding.btnAction.text = getString(R.string.btn_download)
-                    binding.btnAction.setOnClickListener { ContentOpener.openFile(this, url, title, allowExternalBrowser) }
+                    binding.btnAction.setOnClickListener { ContentOpener.openFile(this, url, title, allowExternalBrowser, desktopMode) }
                 }
                 storePackage != null -> {
                     binding.btnAction.text = "نصب"
@@ -80,7 +82,7 @@ class GalleryDetailActivity : AppCompatActivity() {
                 }
                 else -> {
                     binding.btnAction.text = "باز کردن"
-                    binding.btnAction.setOnClickListener { ContentOpener.open(this, url, title, allowExternalBrowser) }
+                    binding.btnAction.setOnClickListener { ContentOpener.open(this, url, title, allowExternalBrowser, desktopMode) }
                 }
             }
         }
@@ -141,7 +143,7 @@ class GalleryDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupImageGallery(images: List<String>, title: String, allowExternalBrowser: Boolean) {
+    private fun setupImageGallery(images: List<String>, title: String, allowExternalBrowser: Boolean, desktopMode: Boolean) {
         binding.recyclerImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerImages.adapter = GalleryImageAdapter(
             files = images,
@@ -152,7 +154,7 @@ class GalleryDetailActivity : AppCompatActivity() {
                 startActivity(intent)
             },
             onOpenFile = { fileUrl ->
-                ContentOpener.open(this, fileUrl, title, allowExternalBrowser)
+                ContentOpener.open(this, fileUrl, title, allowExternalBrowser, desktopMode)
             }
         )
         LinearSnapHelper().attachToRecyclerView(binding.recyclerImages)

@@ -30,6 +30,7 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
         const val EXTRA_ALLOW_EXTERNAL_BROWSER = "extra_allow_external_browser"
+        const val EXTRA_DESKTOP_MODE = "extra_desktop_mode"
 
         // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
         // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
@@ -87,7 +88,8 @@ class WebViewActivity : AppCompatActivity() {
         }
         binding.btnRetry.setOnClickListener { reload() }
 
-        setupWebView()
+        val desktopMode = intent.getBooleanExtra(EXTRA_DESKTOP_MODE, true)
+        setupWebView(desktopMode)
         setupDownloadHandling(title)
         if (currentUrl.isNotBlank()) {
             loadSmart(currentUrl)
@@ -222,7 +224,7 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupWebView() {
+    private fun setupWebView(desktopMode: Boolean) {
         val settings = binding.webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -230,7 +232,11 @@ class WebViewActivity : AppCompatActivity() {
         settings.useWideViewPort = true
         settings.builtInZoomControls = true
         settings.displayZoomControls = false
-        settings.userAgentString = DESKTOP_USER_AGENT
+        // فقط وقتی آیتم صراحتاً خواسته دسکتاپ باشه UA رو عوض می‌کنیم؛
+        // وگرنه UA پیش‌فرض وب‌ویو (موبایل) دست‌نخورده می‌مونه
+        if (desktopMode) {
+            settings.userAgentString = DESKTOP_USER_AGENT
+        }
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         settings.mediaPlaybackRequiresUserGesture = false
 
