@@ -1703,6 +1703,7 @@
     "title": "گوگل",
     "description": "مرورگر",
     "url": "https://www.google.com/",
-    "allowExternalBrowser": false
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
