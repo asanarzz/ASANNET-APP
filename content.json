@@ -1713,6 +1713,7 @@
     "title": "دیجیاتو",
     "description": "اخبار تکنولوژی",
     "url": "https://digiato.com/",
+    "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
   }
