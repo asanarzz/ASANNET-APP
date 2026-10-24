@@ -1705,5 +1705,14 @@
     "url": "https://www.google.com/",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792851277705",
+    "type": "link",
+    "title": "دیجیاتو",
+    "description": "اخبار تکنولوژی",
+    "url": "https://digiato.com/",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
