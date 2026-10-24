@@ -766,7 +766,8 @@
     "title": "مدیریت وام خانگی",
     "description": "↗️ روی فلش بالای صفحه بزنید تا با مرورگر کروم به صفحه مورد نظر منتقل بشید",
     "url": "https://asanarzz.github.io/ASANNETT/vame-khanegi",
-    "allowExternalBrowser": false
+    "allowExternalBrowser": false,
+    "pinned": true
   },
   {
     "id": "item_1791666621753",
