@@ -1104,10 +1104,8 @@
     "type": "tv",
     "title": "ایران اینترنشنال",
     "description": "شبکه خبری فارسی زبان",
-    "url": "",
-    "section": "VIP",
-    "locked": true,
-    "lockGroup": "folder:tv|VIP"
+    "url": "https://hlspackager.akamaized.net/live/DB/IRAN_INTERNATIONAL/HLS/IRAN_INTERNATIONAL.m3u8",
+    "section": "VIP"
   },
   {
     "id": "item_1792044675333",
