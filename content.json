@@ -1855,5 +1855,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957316171",
+    "type": "services",
+    "title": "صدور گواهی کسر از حقوق بازنشستگان تامین اجتماعی",
+    "description": "صدور گواهی کسر از حقوق بازنشستگان تامین اجتماعی و کشوری در کافی نت آسان نت",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957313329-0-img-20261025-231053-751.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
