@@ -1903,5 +1903,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957699647",
+    "type": "services",
+    "title": "ساخت بنر، پوستر و اسنیکر",
+    "description": "ساخت استیکر کارت بانکی ایتا برای کانال و گروه های فروشگاهی\nبا نمایش فقط نام و نام خانوادگی و شماره کارت \n\nساخت بنر و پوستر تبلیغاتی در کافی نت آسان نت\nمتن و توضیحات بفرستین\nرنگ و پس زمینه رو مشخص کنین\nبنر تبلیغاتی رو در سربعترین زمان و ارزانترین قیمت تحویل بگیرین",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957697342-0-img-20261025-231721-845.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
