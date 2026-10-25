@@ -1951,5 +1951,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957973232",
+    "type": "services",
+    "title": "ثبت درخواست کارت سوخت",
+    "description": "ثبت درخواست کارت سوخت",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957970991-0-img-20261025-232155-259.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
