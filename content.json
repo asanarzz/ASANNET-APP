@@ -1975,5 +1975,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792958123124",
+    "type": "services",
+    "title": "صدور مجوز مشاغل خانگی",
+    "description": "صدور مجوز مشاغل خانگی در شغل‌های مختلف",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792958120733-0-img-20261025-232419-964.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
