@@ -1927,5 +1927,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957820868",
+    "type": "services",
+    "title": "پرداخت مالیات و عوارض خودرو",
+    "description": "پرداخت مالیات و عوارض خودرو در کافی نت آسان نت\nمدارک مورد نیاز\n\nشماره موبایل به نام مالک\nکد ملی مالک\nتاریخ تولد مالک\nپلاک خودرو",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957818746-0-img-20261025-231944-248.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
