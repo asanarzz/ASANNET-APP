@@ -1822,7 +1822,8 @@
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792956982569-0-img-20261025-230541-602.jpg"
     ],
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1792957043973",
