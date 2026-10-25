@@ -2023,5 +2023,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792958969351",
+    "type": "services",
+    "title": "ثبت نام لاستیک دولتی",
+    "description": "🚗 ثبت‌نام لاستیک دولتی\n\n🛞 قصد خرید لاستیک با نرخ دولتی رو داری؟\n\nثبت‌نام و پیگیری درخواست خرید لاستیک دولتی رو به کافی‌نت آسان نت بسپار.\n\n✅ ثبت درخواست و تکمیل اطلاعات\n✅ راهنمایی مراحل ثبت‌نام\n✅ پیگیری وضعیت درخواست\n\n📌 برای اطلاع از شرایط ثبت‌نام و مدارک موردنیاز، با ما در ارتباط باشید.\n\n📍 کافی‌نت آسان نت",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792958960932-0-file-0000000058a481f485b998f3bc080866.png"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
