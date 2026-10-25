@@ -2047,5 +2047,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792959279898",
+    "type": "services",
+    "title": "نوبت دهی تعویض پلاک",
+    "description": "انجام خدمات نوبت دهی تعویض پلاک\nگواهی عدم سوء پیشینه\nخلافی خودرو \nثبت سخا در کافی نت آسان نت",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792959277144-0-img-20261025-234400-141.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
