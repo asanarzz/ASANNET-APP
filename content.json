@@ -1939,5 +1939,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957898750",
+    "type": "services",
+    "title": "ارائه گزارش اعتباری",
+    "description": "🔴 ارائه گزارش اعتباری برای اشخاص در کافی نت آسان نت \n\n🔶 اعتبارسنجی کمک می‌کند تا با استفاده از جمع‌آوری اطلاعات مربوط به سوابق مالی و اعتباری افراد، اشخاص خوش‌حساب و بدحساب را شناسایی کرد.\n\n\n🔹 گزارش اعتباری \n🔹 امتیاز اعتباری\n🔹 گزارش وضعیت چک های متقاضی\n\n🔻 مدارک لازم:\n▫️ کارت ملی شخص مورد تقاضا\n▫️ سیم‌کارت بنام",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957896424-0-img-20261025-232037-748.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
