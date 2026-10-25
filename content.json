@@ -1891,5 +1891,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957626650",
+    "type": "services",
+    "title": "تبدیل و تغییر فایلهای مختلف",
+    "description": "خدمات تبدیل و تغییر فایلهای مختلف در کافی نت آسان نت \n\nویدئو به صوت\nتبدیل pdf به عکس\nتبدیل عکس به pdf\nتغییر اندازه و حجم تصاویر\nتصویر روی تصویر\nبرش و کوتاه کردن فایلهای صوتی و تصویری\nو خیلی موارد دیگر",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957624172-0-img-20261025-231625-567.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
