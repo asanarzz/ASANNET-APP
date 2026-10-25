@@ -1747,5 +1747,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792956529362",
+    "type": "services",
+    "title": "ثبت درخواست واگذاری زمین روستایی",
+    "description": "🏡 ثبت درخواست واگذاری زمین روستایی\n✅ ویژه متقاضیان واجد شرایط\n✅ بومیان ساکن و غیرساکن روستا\n✅ امکان ثبت درخواست برای روستاهای دارای ظرفیت\n✅ ثبت درخواست و بارگذاری مدارک\n✅ انجام ثبت‌نام توسط کافی‌نت آسان نت\n📌 واگذاری پس از بررسی و احراز شرایط انجام می‌شود.\nادمین 👈\n🆔  @ASAN_NETT\nکانال 👈\n🆑  @ASANNETT",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792956526546-0-img-20261025-225733-307.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
