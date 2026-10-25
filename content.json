@@ -1737,12 +1737,11 @@
   },
   {
     "id": "item_1792953302829",
-    "type": "music",
+    "type": "software",
     "title": "آهنگ ساز آسان نت",
     "description": "شعر و ترانه خودتون رو به آهنگ ساز آسان نت بدین و آهنگ آماده با سبک‌های مختلف براتون میسازه",
     "url": "https://asanarzz.github.io/ASANNETT/AHANG-SAZ/",
     "allowExternalBrowser": false,
-    "desktopMode": false,
-    "pinned": true
+    "desktopMode": false
   }
 ]
