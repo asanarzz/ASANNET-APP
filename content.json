@@ -1999,5 +1999,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792958698311",
+    "type": "services",
+    "title": "کلیه خدمات پستی و کد پستی",
+    "description": "📮 خدمات پستی و کد پستی\n\n📍 احراز نشانی پستی\nثبت و تأیید نشانی محل سکونت\n\n📦 پیگیری مرسولات پستی\nبررسی وضعیت بسته و مرسوله پستی\n\n🏠 صدور گواهی کد پستی\nدریافت گواهی معتبر کد پستی\n\n🔎 سایر خدمات مرتبط\n\n- استعلام کد پستی محل سکونت\n- راهنمایی ثبت و اصلاح نشانی\n- پیگیری درخواست‌های پستی\n\n✅ انجام خدمات اینترنتی، سریع و آسان\n\nکافی‌نت آسان نت\n\nبا آسان نت کافی‌نت تو جیبته",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792958692766-0-file-00000000656481f4907d85185d447814.png"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
