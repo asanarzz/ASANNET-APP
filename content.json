@@ -1867,5 +1867,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957387110",
+    "type": "services",
+    "title": "خدمات مربوط به یارانه و کالابرگ",
+    "description": "🟣 کلیه خدمات مربوط به یارانه و کالابرگ در کافی نت آسان نت \n\nاصلاح ساختار خانوار\nثبت اعتراض دهک بندی\nثبت درخواست دریافت یارانه\nثبت درخواست دریافت کالا برگ",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957384608-0-img-20261025-231212-307.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
