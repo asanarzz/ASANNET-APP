@@ -2011,5 +2011,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792958810741",
+    "type": "services",
+    "title": "کلیه خدمات بیمه درمانی",
+    "description": "ثبت نام بیمه ورزشی\nثبت نام بیمه سلامت\nنوبت دهی دکتر",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792958808355-0-img-20261025-233535-213.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
