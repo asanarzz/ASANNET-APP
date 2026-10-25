@@ -1879,5 +1879,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1792957558449",
+    "type": "services",
+    "title": "پیش ثبت نام دانش آموزان",
+    "description": "🖱پیش ثبت‌نام کلاس‌اولی‌ها در کافی نت آسان نت \n\n✍️مدارک مورد نیاز برای ثبت نام \n\n🪪شناسنامه دانش آموز\n📸عکس دانش آموز\n🛂شناسنامه پدر و مادر\n💳کارت ملی پدر و مادر\n📞شماره موبایل به نام پدر یا مادر\n🏫اسم مدرسه مورد نظر\n🏠آدرس و کدپستی\n🧾شناسه قبض برق منزل\nکد ملی مالک در صورت مستاجر بودن",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792957555922-0-img-20261025-231507-584.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
