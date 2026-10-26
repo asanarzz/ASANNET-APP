@@ -84,7 +84,9 @@ class MainActivity : AppCompatActivity() {
             CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.cat_test, 0),
             // ردیف چهارم: ارسال مدارک، همه خدمات
             CategoryEntry(null, getString(R.string.cat_docs), R.drawable.cat_docs, 0, isSubmit = true),
-            CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0)
+            CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0),
+            // ردیف پنجم: دستیار آسان‌نت (ربات محلی داخل برنامه)
+            CategoryEntry(null, "دستیار", R.drawable.cat_assistant, 0)
         )
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
@@ -101,6 +103,14 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, SubmitDocumentsActivity::class.java))
             } else if (entry.type == ContentType.BANNER) {
                 startActivity(Intent(this, AdsActivity::class.java))
+            } else if (entry.type == null) {
+                // دستیار آسان‌نت: صفحهٔ محلی داخل assets (بدون اینترنت)
+                startActivity(Intent(this, WebViewActivity::class.java).apply {
+                    putExtra(WebViewActivity.EXTRA_URL, "file:///android_asset/assistant/assistant.html")
+                    putExtra(WebViewActivity.EXTRA_TITLE, "دستیار آسان‌نت")
+                    putExtra(WebViewActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, false)
+                    putExtra(WebViewActivity.EXTRA_DESKTOP_MODE, false)
+                })
             } else {
                 val intent = Intent(this, CategoryListActivity::class.java)
                 intent.putExtra(CategoryListActivity.EXTRA_TYPE, entry.type?.key)
