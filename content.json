@@ -2069,5 +2069,17 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
+  },
+  {
+    "id": "item_1792987874612",
+    "type": "home_banner",
+    "title": "بیمه نامه خودرو شخص ثالث",
+    "description": "صدور انواع بیمه شخص ثالث شرکت های بیمه ای برای خودرو و موتور سیکلت \nبصورت نقد و اقساط \n\nاقساط 5 و 7 و 11 ماهه \n\nثبت مدارک و مشخصات و صدور بیمه نامه کاملا رايگان انجام می‌شود \nشما فقط هزینه بیمه نامه رو پرداخت میکنید \nپرداخت نقدی و اقساط",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1792987869611-0-img-20261025-234237-578.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
