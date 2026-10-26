@@ -1,1 +1,315 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>دستیار آسان‌نت</title>
+<style>
+  :root { --brand:#4f3fc4; --brand2:#6b72f0; --bg:#f4f4fb; --card:#fff; --text:#1d1b33; --muted:#6c6a85; --user:#e5e3ff; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font: 16px/1.8 "Vazirmatn", Tahoma, "Noto Sans Arabic", system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100dvh; }
+  header { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; padding: 8px 16px; }
+  header p { margin: 0; font-size: 13px; opacity: .95; }
+  #log { flex: 1; overflow-y: auto; padding: 14px 12px; }
+  .row { display: flex; margin-bottom: 10px; }
+  .row.user { justify-content: flex-start; }
+  .row.bot { justify-content: flex-end; }
+  .bubble { max-width: 88%; padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .user .bubble { background: var(--user); border-bottom-right-radius: 4px; }
+  .bot .bubble { background: var(--card); border: 1px solid #e3e1f5; border-bottom-left-radius: 4px; }
+  .dots span { display: inline-block; width: 7px; height: 7px; margin: 0 2px; border-radius: 50%; background: var(--muted); animation: b 1.2s infinite; }
+  .dots span:nth-child(2) { animation-delay: .2s; } .dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes b { 0%,80%,100% { opacity: .25 } 40% { opacity: 1 } }
+  #chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 12px 8px; }
+  #chips button { flex: none; border: 1px solid #cfcbf3; background: #fff; color: var(--brand); border-radius: 999px; padding: 8px 14px; min-height: 40px; font: inherit; font-size: 14px; }
+  form { display: flex; gap: 8px; padding: 8px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #e3e1f5; }
+  textarea { flex: 1; resize: none; border: 1px solid #cfcbf3; border-radius: 14px; padding: 10px 12px; font: inherit; min-height: 46px; max-height: 120px; }
+  button.send { width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--brand); color: #fff; font-size: 20px; flex: none; }
+  .note { text-align: center; font-size: 12px; color: var(--muted); padding: 0 12px 6px; }
+</style>
+</head>
+<body>
+<header><p>دربارهٔ خدمات کافی‌نت آسان‌نت و استفاده از برنامه بپرسید</p></header>
+<main id="log" role="log" aria-live="polite"></main>
+<div id="chips" aria-label="پرسش‌های پیشنهادی"></div>
+<div class="note">لطفاً کد ملی، رمز یا شمارهٔ کارت اینجا ننویسید.</div>
+<form id="f">
+  <textarea id="t" rows="1" maxlength="300" placeholder="پیام خود را بنویسید…" aria-label="پیام"></textarea>
+  <button class="send" id="s" type="submit" aria-label="ارسال">➤</button>
+</form>
 
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   دستیار آسان‌نت — ربات محلی (بدون هوش مصنوعی، بدون سرور، بدون اینترنت)
+   فقط به چیزهایی جواب می‌دهد که در همین فایل نوشته‌اید.
+   بخش «۱) تنظیمات» و «۲) خدمات» و «۳) موضوع‌ها» را ویرایش کنید.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ───── ۱) تنظیمات ───── */
+var CONFIG = {
+  brand: 'کافی‌نت آسان‌نت',
+  docs: 'ارسال مدارک',                 // کاشی صفحهٔ اصلی برنامه
+  support: 'پیام به پشتیبانی',          // گزینهٔ منوی کناری (☰)
+  contactMenu: 'راه‌های ارتباطی',       // گزینهٔ منوی کناری (☰)
+  eitaaAdmin: '@ASAN_NETT',            // ادمین در ایتا
+  eitaaChannel: '@ASANNETT',           // کانال در ایتا
+  hours: 'هر روز از ۸ صبح تا ۲۲ شب',
+  phone: '',
+  address: ''                          // خالی: کار غیرحضوری و مجازی است
+};
+
+/* ───── ۲) خدمات (از فهرست «کلیه خدمات» و بنرهای برنامه) ─────
+   keywords : کلمه‌هایی که کاربر برای این خدمت می‌نویسد
+   bring    : مدارک لازم (اگر خالی باشد ربات نمی‌گوید؛ ادمین اعلام می‌کند)
+   قیمت و زمان انجام را ربات هرگز نمی‌گوید؛ ادمین اعلام می‌کند. */
+var SERVICES = [
+  { name: 'خدمات بیمه (شخص ثالث خودرو و موتور، زنان خانه‌دار، تأمین اجتماعی، بیمه سلامت)', keywords: ['بیمه', 'بیمه ها'], bring: '' },
+  { name: 'ثبت‌نام وام و تسهیلات', keywords: ['وام', 'وام ها', 'تسهیلات', 'وام ازدواج', 'وام قرض الحسنه', 'وام بانکی'], bring: '' },
+  { name: 'یارانه و کالابرگ (اصلاح ساختار خانوار، اعتراض به دهک‌بندی، درخواست یارانه و کالابرگ)', keywords: ['کالابرگ', 'کالا برگ', 'یارانه', 'یارانه نقدی', 'دهک', 'دهک بندی', 'ساختار خانوار', 'اعتراض دهک'], bring: '' },
+  { name: 'بیمه‌نامه شخص ثالث خودرو و موتورسیکلت', keywords: ['بیمه خودرو', 'بیمه موتور', 'بیمه ماشین', 'بیمه موتورسیکلت', 'شخص ثالث', 'بیمه نامه', 'بیمه اقساطی', 'بیمه شخص ثالث'], bring: '' },
+  { name: 'نوبت‌دهی تعویض پلاک، گواهی عدم سوء پیشینه و خلافی خودرو', keywords: ['پلاک', 'تعویض پلاک', 'نوبت دهی پلاک', 'خلافی', 'خلافی خودرو', 'سوء پیشینه', 'عدم سوء پیشینه', 'ثبت نام خودرو', 'ثبت نام ماشین', 'ایران خودرو', 'ایرانخودرو', 'سایپا', 'قرعه کشی خودرو'], bring: '' },
+  { name: 'پرداخت مالیات و عوارض خودرو', keywords: ['مالیات خودرو', 'عوارض خودرو', 'عوارض', 'عوارض ماشین', 'مالیات ماشین'], bring: '' },
+  { name: 'ثبت‌نام لاستیک دولتی', keywords: ['لاستیک', 'لاستیک دولتی', 'لاستیک ارزان'], bring: '' },
+  { name: 'ثبت‌نام کارت سوخت', keywords: ['کارت سوخت', 'سوخت'], bring: '' },
+  { name: 'ثبت‌نام وام ودیعه مسکن', keywords: ['وام ودیعه', 'ودیعه مسکن', 'وام مستاجر', 'وام اجاره', 'وام مسکن', 'ودیعه'], bring: '' },
+  { name: 'ثبت اجاره‌نامه با کد رهگیری', keywords: ['اجاره نامه', 'قرارداد اجاره', 'کد رهگیری', 'اجاره', 'مستاجر', 'موجر'], bring: '' },
+  { name: 'بیمه زنان خانه‌دار (تأمین اجتماعی)', keywords: ['بیمه زنان خانه دار', 'زنان خانه دار', 'بیمه خانه دار', 'بیمه دختران', 'خانه دار'], bring: '' },
+  { name: 'خدمات تأمین اجتماعی (سوابق بیمه، ثبت‌نام در سامانه، افزودن افراد تحت پوشش، ثبت حساب بانکی)', keywords: ['تامین اجتماعی', 'سوابق بیمه', 'سابقه بیمه', 'سامانه تامین اجتماعی', 'بیمه سرپرست خانوار', 'تحت پوشش', 'حساب بانکی تامین'], bring: '' },
+  { name: 'صدور گواهی کسر از حقوق بازنشستگان', keywords: ['گواهی کسر از حقوق', 'کسر از حقوق', 'بازنشسته', 'بازنشستگان', 'بازنشستگی'], bring: '' },
+  { name: 'بیمه سلامت و روستایی، بیمه ورزشی و نوبت‌دهی دکتر', keywords: ['بیمه سلامت', 'بیمه روستایی', 'دفترچه', 'دفترچه بیمه', 'بیمه درمانی', 'بیمه ورزشی', 'نوبت دکتر', 'نوبت دهی دکتر', 'دکتر'], bring: '' },
+  { name: 'پیش‌ثبت‌نام کلاس اولی‌ها', keywords: ['پیش ثبت نام', 'کلاس اولی', 'کلاس اول', 'ثبت نام اول دبستان', 'ثبت نام مدرسه', 'پیش ثبت نام دانش آموز'], bring: '' },
+  { name: 'سنجش بدو ورود دانش‌آموزان (پیش‌دبستانی)', keywords: ['سنجش', 'سنجش بدو ورود', 'سنجش سلامت', 'پیش دبستانی', 'نوآموز', 'بدو ورود'], bring: '' },
+  { name: 'فرم آگاهی از سلامت دانش‌آموزان', keywords: ['فرم آگاهی', 'آگاهی از سلامت', 'فرم سلامت', 'فرم سلامت دانش آموز'], bring: '' },
+  { name: 'آزمون غربالگری و استعدادیابی دانش‌آموزان', keywords: ['غربالگری', 'استعداد یابی', 'استعدادیابی', 'آزمون غربالگری', 'آزمون استعداد', 'سلامت روان'], bring: '' },
+  { name: 'ساخت آزمون و پرسشنامهٔ اینترنتی برای معلمان', keywords: ['ساخت آزمون', 'آزمون اینترنتی', 'پرسشنامه', 'معلم', 'معلمان', 'آزمون معلم'], bring: '' },
+  { name: 'خدمات دانش‌آموزی و آموزش و پرورش', keywords: ['دانش آموز', 'دانش آموزی', 'آموزش و پرورش', 'مدرسه', 'دبستان', 'دبیرستان'], bring: '' },
+  { name: 'ثبت‌نام دانشگاهی و انتخاب رشته', keywords: ['ثبت نام دانشگاه', 'دانشگاه', 'انتخاب رشته', 'دانشگاهی'], bring: '' },
+  { name: 'ثبت‌نام کنکور', keywords: ['کنکور', 'سازمان سنجش', 'آزمون سراسری'], bring: '' },
+  { name: 'ثبت‌نام مددجویان کمیته امداد', keywords: ['کمیته امداد', 'مددجو', 'مددجویان', 'امداد'], bring: '' },
+  { name: 'ثبت درخواست واگذاری زمین روستایی', keywords: ['زمین روستایی', 'واگذاری زمین', 'زمین', 'روستا'], bring: '' },
+  { name: 'ثبت‌نام گذرنامه زیارتی', keywords: ['گذرنامه', 'پاسپورت', 'گذرنامه زیارتی', 'زیارتی', 'کربلا', 'اربعین'], bring: '' },
+  { name: 'دریافت کد مالیاتی و تشکیل پرونده مالیاتی', keywords: ['کد مالیاتی', 'پرونده مالیاتی', 'مالیات', 'مغازه دار', 'شناسه مالیاتی'], bring: '' },
+  { name: 'ارائه گزارش اعتباری (گزارش و امتیاز اعتباری، وضعیت چک)', keywords: ['گزارش اعتباری', 'امتیاز اعتباری', 'اعتبارسنجی', 'وضعیت چک', 'چک برگشتی', 'سوابق اعتباری'], bring: '' },
+  { name: 'درخواست گواهی انحصار وراثت', keywords: ['انحصار وراثت', 'گواهی انحصار', 'وراثت', 'ارث', 'متوفی'], bring: '' },
+  { name: 'صدور مجوز مشاغل خانگی', keywords: ['مشاغل خانگی', 'مجوز مشاغل', 'شغل خانگی', 'کسب و کار خانگی', 'مجوز کسب'], bring: '' },
+  { name: 'خدمات پستی و کد پستی', keywords: ['کد پستی', 'خدمات پستی', 'پیگیری مرسوله', 'مرسوله پستی', 'احراز نشانی', 'گواهی کد پستی', 'پست'], bring: '' },
+  { name: 'تبدیل و تغییر فایل‌ها (ویدئو به صوت، PDF به عکس و برعکس، تغییر حجم تصویر، برش فایل صوتی و تصویری)', keywords: ['تبدیل فایل', 'تبدیل pdf', 'pdf به عکس', 'عکس به pdf', 'تغییر حجم', 'کم کردن حجم', 'ویدئو به صوت', 'برش فایل', 'تغییر اندازه عکس', 'تبدیل'], bring: '' },
+  { name: 'ساخت بنر، پوستر و استیکر کارت بانکی ایتا', keywords: ['بنر', 'پوستر', 'استیکر', 'اسنیکر', 'استیکر کارت', 'طراحی بنر', 'بنر تبلیغاتی'], bring: '' }
+];
+
+// دکمه‌های پیشنهادی (هر کدام باید خودش یک جملهٔ قابل فهم برای ربات باشد)
+var START_CHIPS = ['کالابرگ و یارانه', 'بیمه خودرو', 'ثبت‌نام خودرو', 'وام', 'مدارک را چطور بفرستم؟', 'چطور آگهی ثبت کنم؟'];
+
+/* ───── ۳) موضوع‌های دیگر (برنامه، پشتیبانی، آگهی، حساب و …) ─────
+   جواب‌ها فقط چیزهایی هستند که در کد برنامه دیده شده؛ هر چه مطمئن نیستید ننویسید.
+   {docs} {support} {contactMenu} {brand} {contact} {services_list} جایگزین می‌شوند. */
+var TOPICS = [
+  { id: 'docs', keywords: ['ارسال مدارک', 'مدارک رو کجا', 'مدارک را کجا', 'مدارکم رو', 'مدارک بفرستم', 'مدارک ارسال', 'فرستادن مدارک', 'مدارک را چطور', 'چطور مدارک', 'مدارک رو چطور', 'مدرک بفرستم', 'مدرک ارسال', 'مشخصات بفرستم', 'مشخصات ارسال'],
+    answer: 'از صفحهٔ اصلی برنامه وارد «{docs}» شوید:\n۱) نام، نام خانوادگی، کد ملی (۱۰ رقم)، شمارهٔ موبایل (با ۰۹) و تاریخ تولد متقاضی را وارد کنید.\n۲) با «افزودن مدرک» عکس یا فایل مدارکتان را اضافه کنید (تا ۱۰ مدرک) و برای هر کدام یک توضیح بنویسید، مثلاً «کارت ملی».\n۳) «ارسال مدرک» را بزنید.\nبعد از آن ادمین بررسی می‌کند و نتیجه و هزینه را به شما اعلام می‌کند. لطفاً این اطلاعات را فقط در همان بخش وارد کنید، نه در گفتگو با دستیار.' },
+  { id: 'services', keywords: ['چه خدماتی', 'خدمات شما', 'چه کارهایی', 'چکار می کنید', 'چه کاری انجام', 'کارهای شما', 'کلیه خدمات', 'همه خدمات', 'خدمات'],
+    answer: '{services_list}' },
+  { id: 'support', keywords: ['پشتیبانی', 'پیام به پشتیبانی', 'با ادمین', 'ادمین', 'اپراتور', 'سوال دارم از شما', 'جواب سوالم'],
+    answer: 'برای صحبت با ادمین، از منوی ☰ بالای صفحهٔ اصلی گزینهٔ «{support}» را بزنید؛ می‌توانید متن یا فایل بفرستید و جواب ادمین همان‌جا می‌آید. (برای استفاده از آن باید وارد حساب‌تان باشید.)' },
+  { id: 'contact', keywords: ['شماره تماس', 'شماره تلفن', 'تلفن', 'تماس با شما', 'ارتباط با شما', 'راه ارتباطی', 'راه های ارتباطی', 'ایتا', 'ایتا ادمین', 'آیدی ایتا', 'آیدی ادمین', 'آیدی', 'کانال', 'آدرس کافی نت', 'نشانی', 'آدرس', 'کجا هستید', 'ساعت کاری', 'ساعت کار', 'مراجعه حضوری', 'حضوری بیام'],
+    answer: '{contact}' },
+  { id: 'about', keywords: ['دولتی', 'وابسته', 'رسمی', 'کافی نت خصوصی', 'شما کی هستید', 'آسان نت چیست', 'درباره آسان نت', 'درباره شما'],
+    answer: '{brand} یک کافی‌نت خصوصی است و وابسته به هیچ نهاد دولتی نیست. ما کارهای اینترنتی شما را (از طریق همین برنامه) انجام می‌دهیم تا لازم نباشد در صف و رفت‌وآمد وقت تلف کنید.' },
+  { id: 'register', keywords: ['ثبت نام در برنامه', 'ثبت نام در اپ', 'حساب بسازم', 'اکانت', 'حساب کاربری', 'ورود به برنامه', 'نمیتونم وارد', 'نمی تونم وارد', 'وارد برنامه'],
+    answer: 'در اولین ورود، «ثبت‌نام» را بزنید و نام، نام خانوادگی، کد ملی، موبایل، تاریخ تولد و رمز عبور (حداقل ۶ کاراکتر) را وارد کنید؛ عکس پروفایل اختیاری است. اگر قبلاً ثبت‌نام کرده‌اید، با کد ملی و رمزتان وارد شوید.' },
+  { id: 'forgot', keywords: ['فراموشی رمز', 'رمز رو فراموش', 'رمز را فراموش', 'رمزم رو فراموش', 'رمزم رو یادم', 'رمز عبور', 'رمز', 'بازیابی رمز', 'تغییر رمز'],
+    answer: 'در صفحهٔ ورود، «رمز عبور را فراموش کرده‌اید؟» را بزنید و کد ملی، موبایل و تاریخ تولدی را که هنگام ثبت‌نام وارد کرده‌اید دقیقاً وارد کنید؛ بعد می‌توانید رمز جدید بگذارید.' },
+  { id: 'token', keywords: ['توکن', 'قفل', 'محتوای قفل', 'قفل شده', 'قفله'],
+    answer: 'بعضی محتواها قفل هستند و برای باز شدن «توکن» اختصاصی می‌خواهند. هر توکن فقط برای یک حساب و روی یک گوشی کار می‌کند و مدت اعتبار دارد. توکن را ادمین می‌دهد؛ از «{support}» در منوی ☰ درخواست کنید.' },
+  { id: 'ads', keywords: ['آگهی', 'ثبت آگهی', 'آگهی بذارم', 'تبلیغات', 'تبلیغ', 'آگهی من', 'آگهی هام', 'نیازمندی'],
+    answer: 'در بخش «تبلیغات» صفحهٔ اصلی می‌توانید آگهی ثبت کنید یا آگهی‌های دیگران را ببینید. برای ثبت آگهی: عنوان (حداقل ۳ حرف)، دسته‌بندی، استان و شهر، توضیحات (حداقل ۱۰ حرف)، ۱ تا ۴ عکس، شمارهٔ تماس، قیمت (یا «توافقی») و حداقل یک راه ارتباط (تماس، پیامک، ایتا یا چت در برنامه) را وارد کنید.\nآگهی بعد از تأیید مدیر منتشر می‌شود و ۳۰ روز از تاریخ تأیید نمایش داده می‌شود. وضعیت آگهی (در انتظار تأیید / منتشر شده / رد شده با دلیل) را در «آگهی‌های من» می‌بینید و می‌توانید آن را حذف کنید.' },
+  { id: 'adchat', keywords: ['چت در برنامه', 'چت', 'گفتگو با فروشنده', 'پیام به فروشنده'],
+    answer: 'زیر هر آگهی، اگر فروشنده «چت در برنامه» را فعال کرده باشد، می‌توانید گفتگو را شروع کنید. در هر روز تعداد گفتگوهای جدید محدود است؛ اگر پیام «امروز تعداد زیادی گفتگو شروع کرده‌اید» دیدید، فردا دوباره امتحان کنید.' },
+  { id: 'dollar', keywords: ['قیمت دلار', 'قیمت طلا', 'قیمت سکه', 'دلار', 'طلا', 'سکه'],
+    answer: 'قیمت دلار و طلا را از بخش «طلا و دلار» در صفحهٔ اصلی برنامه ببینید.' },
+  { id: 'news', keywords: ['روزنامه', 'روزنامه ها', 'اخبار'], answer: 'روزنامه‌ها را از بخش «روزنامه‌ها» در صفحهٔ اصلی برنامه ببینید.' },
+  { id: 'power', keywords: ['خاموشی برق', 'جدول خاموشی', 'قطع برق', 'خاموشی', 'برق'], answer: 'جدول خاموشی برق را از بخش «خاموشی برق» در صفحهٔ اصلی برنامه ببینید.' },
+  { id: 'quiz', keywords: ['آزمون', 'آزمون آنلاین', 'امتحان'], answer: 'آزمون‌ها را از بخش «آزمون» در صفحهٔ اصلی برنامه ببینید.' },
+  { id: 'poll', keywords: ['نظرسنجی'], answer: 'نظرسنجی‌ها را از بخش «نظرسنجی» در صفحهٔ اصلی برنامه ببینید.' },
+  { id: 'radio', keywords: ['رادیو'], answer: 'رادیو را از بخش «رادیو» در صفحهٔ اصلی برنامه گوش کنید. پخش حتی بعد از خروج از آن صفحه در پس‌زمینه ادامه پیدا می‌کند و با دکمهٔ «توقف» قطع می‌شود.' },
+  { id: 'tv', keywords: ['تلویزیون', 'شبکه', 'شبکه های تلویزیونی'], answer: 'شبکه‌های تلویزیونی در بخش «تلویزیون» صفحهٔ اصلی هستند؛ برای پیدا کردن شبکه از کادر «جستجوی شبکه» استفاده کنید.' },
+  { id: 'video', keywords: ['فیلم', 'سریال'], answer: 'فیلم‌ها و سریال‌ها را از بخش «فیلم» صفحهٔ اصلی ببینید؛ فیلم‌ها و سریال‌ها در دو قسمت جدا هستند و کادر جستجو هم دارد.' },
+  { id: 'music', keywords: ['موزیک', 'آهنگ', 'اهنگ'], answer: 'آهنگ‌ها در بخش «موزیک» صفحهٔ اصلی هستند. با لمس هر آهنگ، فایل دانلود می‌شود و با برنامهٔ پخش موزیک خود گوشی باز می‌شود.' },
+  { id: 'photo', keywords: ['عکس', 'گالری'], answer: 'عکس‌ها را از بخش «عکس» صفحهٔ اصلی ببینید.' },
+  { id: 'files', keywords: ['نرم افزار', 'فایل', 'لینک ها', 'لینک های مفید'], answer: 'نرم‌افزارها، فایل‌ها و لینک‌ها هرکدام یک بخش جدا در صفحهٔ اصلی برنامه دارند؛ بخش موردنظرتان را انتخاب کنید.' },
+  { id: 'fun', keywords: ['سرگرمی', 'بازی'], answer: 'سرگرمی‌ها را از بخش «سرگرمی» صفحهٔ اصلی ببینید.' },
+  { id: 'download', keywords: ['دانلود', 'دانلودها', 'دانلود شده', 'فایل دانلودی'], answer: 'فایل‌های دانلودشده در بخش «دانلودها» منوی ☰ هستند و در پوشهٔ Downloads گوشی هم ذخیره می‌شوند.' },
+  { id: 'update', keywords: ['به روزرسانی', 'بروزرسانی', 'آپدیت', 'نسخه جدید', 'نسخه'], answer: 'برای به‌روزرسانی، از منوی ☰ گزینهٔ «به‌روزرسانی برنامه» را بزنید؛ اگر نسخهٔ جدید باشد کنارش نقطهٔ سبز می‌بینید. گاهی به‌روزرسانی اجباری است و تا انجامش نمی‌شود از برنامه استفاده کرد.' },
+  { id: 'share', keywords: ['اشتراک گذاری برنامه', 'معرفی به دوستان', 'فایل نصب', 'ارسال برنامه', 'اپ رو بفرستم', 'برنامه را بفرستم'], answer: 'از منوی ☰ گزینهٔ «اشتراک‌گذاری فایل نصب برنامه» را بزنید و فایل را برای دوستانتان بفرستید.' },
+  { id: 'settings', keywords: ['تنظیمات', 'حالت تاریک', 'شب', 'پاک کردن حافظه', 'حافظه موقت'], answer: 'از منوی ☰ گزینهٔ «تنظیمات» را بزنید؛ آنجا می‌توانید «حالت تاریک» را روشن کنید و حافظهٔ موقت تصاویر را پاک کنید.' },
+  { id: 'logout', keywords: ['خروج از حساب', 'خروج از برنامه', 'لاگ اوت', 'خارج بشم'], answer: 'از منوی ☰ گزینهٔ «خروج از حساب» را بزنید.' },
+  { id: 'thanks', keywords: ['ممنون', 'مرسی', 'سپاس', 'دمت گرم', 'ممنونم'], answer: 'خواهش می‌کنم! اگر سؤال دیگری دربارهٔ خدمات {brand} دارید بپرسید.' }
+];
+
+/* ═════════════ از اینجا به پایین را تغییر ندهید ═════════════ */
+
+function norm(s) {
+  return String(s || '')
+    .replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/[ۀة]/g, 'ه')
+    .replace(/[‌‏‎_\-]+/g, ' ')
+    .replace(/[ً-ٰٟ]/g, '')
+    .replace(/[۰-۹]/g, function (d) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); })
+    .replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+    .replace(/[؟?!.,،؛:"'()«»\[\]]+/g, ' ')
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function lev(a, b) {
+  if (Math.abs(a.length - b.length) > 1) return 2;
+  var prev = [], i, j;
+  for (j = 0; j <= b.length; j++) prev[j] = j;
+  for (i = 1; i <= a.length; i++) {
+    var cur = [i];
+    for (j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+// امتیاز تطبیق یک متن با فهرست کلمه‌ها
+function score(text, keywords) {
+  var tokens = text.split(' '), nospace = text.replace(/ /g, ''), total = 0;
+  for (var i = 0; i < keywords.length; i++) {
+    var k = norm(keywords[i]); if (!k) continue;
+    var kn = k.replace(/ /g, '');
+    if (k.indexOf(' ') === -1) {
+      if (k.length <= 3) { if (tokens.indexOf(k) !== -1) total += k.length; continue; }   // کلمه‌های کوتاه فقط به‌صورت کامل
+      if (text.indexOf(k) !== -1) { total += k.length; continue; }
+      for (var j = 0; j < tokens.length; j++) if (tokens[j].length >= 5 && lev(tokens[j], k) <= 1) { total += k.length * 0.8; break; }
+    } else if (text.indexOf(k) !== -1 || nospace.indexOf(kn) !== -1) { total += k.length; continue; }
+    // غلط املایی یک‌حرفی، حتی وقتی فاصلهٔ کلمه‌ها اشتباه است («کالا برک»)
+    if (kn.length >= 6) {
+      for (var w = -1; w <= 0; w++) {
+        var L = kn.length + w, hit = false;
+        for (var a = 0; a + L <= nospace.length; a++) if (lev(nospace.substr(a, L), kn) <= 1) { hit = true; break; }
+        if (hit) { total += kn.length * 0.8; break; }
+      }
+    }
+  }
+  return total;
+}
+function findService(text) {
+  var best = null, bs = 0;
+  for (var i = 0; i < SERVICES.length; i++) { var sc = score(text, SERVICES[i].keywords); if (sc > bs) { bs = sc; best = SERVICES[i]; } }
+  return bs >= 3 ? best : null;
+}
+function contactText() {
+  var p = [];
+  if (CONFIG.phone) p.push('تماس: ' + CONFIG.phone);
+  if (CONFIG.eitaaAdmin) p.push('ادمین در ایتا: ' + CONFIG.eitaaAdmin);
+  if (CONFIG.eitaaChannel) p.push('کانال در ایتا: ' + CONFIG.eitaaChannel);
+  if (CONFIG.hours) p.push('ساعت پاسخگویی: ' + CONFIG.hours);
+  p.push(CONFIG.address ? 'نشانی: ' + CONFIG.address : 'کار ما غیرحضوری و مجازی است و مراجعهٔ حضوری ندارد؛ همه‌چیز از همین برنامه انجام می‌شود.');
+  p.push('راه‌های دیگر: منوی ☰ گزینهٔ «' + CONFIG.contactMenu + '» یا «' + CONFIG.support + '».');
+  return p.join('\n');
+}
+function servicesList() {
+  var names = SERVICES.map(function (s) { return '• ' + s.name.replace(/\s*\(.*?\)/g, ''); }).join('\n');
+  return 'خدمات ما:\n' + names + '\n• و خدمات اینترنتی دیگر (فهرست کامل را در «کلیه خدمات» صفحهٔ اصلی ببینید)\nبرای هر کدام کافی است مشخصات و مدارکتان را از بخش «' + CONFIG.docs + '» بفرستید تا ما انجام دهیم.';
+}
+function fill(t) {
+  return String(t).replace(/\{docs\}/g, CONFIG.docs).replace(/\{brand\}/g, CONFIG.brand)
+    .replace(/\{support\}/g, CONFIG.support).replace(/\{contactMenu\}/g, CONFIG.contactMenu).replace(/\{contact\}/g, contactText()).replace(/\{services_list\}/g, servicesList()).trim();
+}
+
+var PRICE = /(قیمت|هزینه|تعرفه|نرخ|چند تومان|چند تومن|چنده|چقدره|چقدر میشه|چقدر می شه|پولش|کارمزد|حق الزحمه|دستمزد)/;
+var TIME = /(چقدر طول|چه مدت|چند روز|مدت زمان|کی آماده|چند ساعت|زمان انجام)/;
+var DOCQ = /(چه مدرک|چی لازم|چی می ?خواد|مدارک لازم|مدارک مورد نیاز|چه چیزهایی لازم|چه چیزی لازم)/;
+var SELF = /(لینک|سایت|سامانه|وب ?سایت|ثبت ?نام|آموزش|مراحل ثبت)/;
+var DIGITS = /\d{9,}/;
+
+var ctx = { service: null };
+
+function reply(raw) {
+  var text = norm(raw);
+  if (!text) return { text: 'پیام شما خالی است.', chips: suggestions() };
+
+  // مدارک/اطلاعات حساس: ربات نمی‌پذیرد و به بخش ارسال مدارک هدایت می‌کند
+  if (DIGITS.test(text.replace(/ /g, ''))) {
+    return { text: 'لطفاً کد ملی، شمارهٔ کارت یا اطلاعات شخصی را اینجا ننویسید. مشخصات و مدارکتان را فقط از بخش «' + CONFIG.docs + '» صفحهٔ اصلی برای ادمین بفرستید.', chips: suggestions() };
+  }
+
+  // سلام و خداحافظی (فقط پیام‌های کوتاه)
+  if (text.split(' ').length <= 4 && /^(سلام|درود|وقت بخیر|صبح بخیر|عصر بخیر|شب بخیر|hi|hello)/.test(text)) {
+    return { text: 'سلام! به ' + CONFIG.brand + ' خوش آمدید. چه کمکی از من برمی‌آید؟', chips: suggestions() };
+  }
+  if (text.split(' ').length <= 3 && /(خداحافظ|فعلا|بای)/.test(text)) return { text: 'موفق باشید! هر وقت سؤالی داشتید بپرسید.', chips: [] };
+
+  var svc = findService(text);
+  var isPrice = PRICE.test(text), isTime = TIME.test(text), isDoc = DOCQ.test(text);
+
+  // «قیمت دلار» و مشابه: ربطی به خدمات ندارد
+  if (!svc && /(دلار|طلا|سکه|ارز)/.test(text) && isPrice) return pick('dollar');
+
+  // پرسش بدون نام خدمت، دنبالهٔ خدمت قبلی (مثلاً «قیمتش چنده؟»)
+  if (!svc && (isPrice || isTime || isDoc) && ctx.service) svc = ctx.service;
+
+  var cta = 'مشخصات و مدارکتان را از بخش «' + CONFIG.docs + '» صفحهٔ اصلی برنامه برای ادمین بفرستید تا ادمین پیگیری کند.';
+
+  if (svc) {
+    ctx.service = svc;
+    var out;
+    if (isPrice) out = 'هزینهٔ ' + svc.name + ' را ادمین بعد از بررسی مدارک شما اعلام می‌کند. ' + cta;
+    else if (isTime) out = 'زمان انجام ' + svc.name + ' را ادمین بعد از بررسی مدارک شما اعلام می‌کند. ' + cta;
+    else if (isDoc) out = svc.bring ? 'مدارک لازم برای ' + svc.name + ': ' + svc.bring + '. ' + cta
+      : 'ابتدا مشخصات خود را از بخش «' + CONFIG.docs + '» صفحهٔ اصلی بفرستید؛ ادمین مدارک لازم برای ' + svc.name + ' را به شما اعلام می‌کند.';
+    else out = svc.name + ' را کامل ما در ' + CONFIG.brand + ' برایتان انجام می‌دهیم؛ بدون سردرگمی و معطلی. ' + cta;
+    return { text: out, chips: ['هزینه‌اش چقدر است؟', 'چه مدارکی لازم است؟', 'مدارک را چطور بفرستم؟'] };
+  }
+
+  // قیمت/زمان کلی خدمات
+  if (isPrice && /(خدمات|ثبت ?نام|انجام|شما|کارتون|کارتان)/.test(text)) {
+    return { text: 'هزینهٔ خدمات را ادمین بعد از بررسی مدارک شما اعلام می‌کند. ' + cta, chips: suggestions() };
+  }
+
+  // موضوع‌های دیگر: بهترین امتیاز
+  var bestT = null, bs = 0;
+  for (var i = 0; i < TOPICS.length; i++) { var sc = score(text, TOPICS[i].keywords); if (sc > bs) { bs = sc; bestT = TOPICS[i]; } }
+  if (bestT && bs >= 3) return { text: fill(bestT.answer), chips: suggestions() };
+
+  // درخواست لینک/روش انجام کاری که در فهرست نیست: همان سیاست — ما انجام می‌دهیم
+  if (SELF.test(text)) {
+    return { text: 'برای کارهای اینترنتی و ثبت‌نام‌ها لینک یا آموزش نمی‌دهیم؛ ما در ' + CONFIG.brand + ' برایتان انجام می‌دهیم (فهرست کامل در «کلیه خدمات» صفحهٔ اصلی است). ' + cta, chips: suggestions() };
+  }
+
+  // خارج از موضوع
+  return { text: 'من فقط دربارهٔ خدمات ' + CONFIG.brand + ' و استفاده از این برنامه جواب می‌دهم. اگر جواب سؤالتان را نگرفتید، از منوی ☰ گزینهٔ «' + CONFIG.support + '» را بزنید تا ادمین جواب بدهد. یا از این موضوع‌ها بپرسید:', chips: suggestions() };
+}
+function pick(id) {
+  for (var i = 0; i < TOPICS.length; i++) if (TOPICS[i].id === id) return { text: fill(TOPICS[i].answer), chips: suggestions() };
+  return { text: '', chips: [] };
+}
+function suggestions() { return START_CHIPS.slice(); }
+window.AsnBot = { reply: reply, norm: norm, ctx: ctx };
+
+/* ───── رابط ───── */
+var log = document.getElementById('log'), t = document.getElementById('t'), s = document.getElementById('s'), f = document.getElementById('f'), chipsBox = document.getElementById('chips');
+function add(role, text) {
+  var r = document.createElement('div'); r.className = 'row ' + role;
+  var b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+  r.appendChild(b); log.appendChild(r); log.scrollTop = log.scrollHeight; return r;
+}
+function setChips(list) {
+  chipsBox.textContent = '';
+  list.forEach(function (q) { var b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = function () { send(q); }; chipsBox.appendChild(b); });
+}
+function send(text) {
+  text = (text || '').trim(); if (!text) return;
+  add('user', text); t.value = ''; t.style.height = 'auto';
+  var dots = document.createElement('div'); dots.className = 'row bot';
+  dots.innerHTML = '<div class="bubble dots"><span></span><span></span><span></span></div>';
+  log.appendChild(dots); log.scrollTop = log.scrollHeight;
+  var r = reply(text);
+  setTimeout(function () { dots.remove(); add('bot', r.text); setChips(r.chips || []); }, 350);
+}
+f.addEventListener('submit', function (e) { e.preventDefault(); send(t.value); });
+t.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); send(t.value); } });
+t.addEventListener('input', function () { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; });
+add('bot', 'سلام! من دستیار ' + CONFIG.brand + ' هستم. دربارهٔ خدمات ما و استفاده از برنامه بپرسید.');
+setChips(suggestions());
+</script>
+</body>
+</html>
