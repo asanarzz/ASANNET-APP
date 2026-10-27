@@ -1716,9 +1716,9 @@
     "title": "گوگل",
     "description": "مرورگر",
     "url": "https://www.google.com/",
+    "section": "مرورگر",
     "allowExternalBrowser": false,
-    "desktopMode": false,
-    "pinned": true
+    "desktopMode": false
   },
   {
     "id": "item_1792851277705",
