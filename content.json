@@ -2146,29 +2146,35 @@
     "type": "link",
     "title": "بی بی سی فارسی",
     "description": "خبری سیاسی",
-    "url": "https://www.bbc.com/persian",
+    "url": "",
     "section": "VIP",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "locked": true,
+    "lockGroup": "folder:link|VIP"
   },
   {
     "id": "item_1793122408453",
     "type": "link",
     "title": "ایران اینترنشنال",
     "description": "خبری سیاسی ورزشی",
-    "url": "https://www.iranintl.com/",
+    "url": "",
     "section": "VIP",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "locked": true,
+    "lockGroup": "folder:link|VIP"
   },
   {
     "id": "item_1793122507672",
     "type": "link",
     "title": "صدای آمریکا فارسی",
     "description": "خبری سیاسی",
-    "url": "https://ir.voanews.com/",
+    "url": "",
     "section": "VIP",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "locked": true,
+    "lockGroup": "folder:link|VIP"
   }
 ]
