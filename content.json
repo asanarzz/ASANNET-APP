@@ -2179,5 +2179,15 @@
     "locked": true,
     "lockGroup": "folder:link|VIP",
     "pinned": true
+  },
+  {
+    "id": "item_1793126498375",
+    "type": "link",
+    "title": "یاهو",
+    "description": "مرورگر",
+    "url": "https://search.yahoo.com/web",
+    "section": "مرورگر",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
