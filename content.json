@@ -2199,5 +2199,15 @@
     "section": "مرورگر",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793127317649",
+    "type": "link",
+    "title": "داک داک گو",
+    "description": "مرورگر داک داک گو",
+    "url": "https://duckduckgo.com/",
+    "section": "مرورگر",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
