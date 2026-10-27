@@ -2219,5 +2219,15 @@
     "section": "مرورگر",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793127455078",
+    "type": "link",
+    "title": "یاندکس",
+    "description": "مرورگر یاندکس",
+    "url": "https://yandex.com/",
+    "section": "مرورگر",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
