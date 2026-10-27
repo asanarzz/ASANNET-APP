@@ -2150,5 +2150,15 @@
     "section": "VIP",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793122408453",
+    "type": "link",
+    "title": "ایران اینترنشنال",
+    "description": "خبری سیاسی ورزشی",
+    "url": "https://www.iranintl.com/",
+    "section": "VIP",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
