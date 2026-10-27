@@ -1,5 +1,6 @@
 package com.kafinet.asannet
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -14,6 +16,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
@@ -47,6 +50,33 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWebviewBinding
     private var currentUrl: String = ""
     private var didAutoRetry: Boolean = false
+
+    // انتخاب فایل برای صفحه‌های HTML داخل وب‌ویو (مثلاً «بازیابی پشتیبان» در وقت سالن)
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
+
+    // اسمی که صفحه‌ی HTML برای فایل بعدیِ دانلود پیشنهاد می‌دهد (مثلاً vaght-salon-backup-1405-08-05.json)
+    private var pendingDownloadName: String? = null
+
+    private val fileChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val callback = fileChooserCallback
+            fileChooserCallback = null
+            if (callback == null) return@registerForActivityResult
+            val data = result.data
+            val uris: Array<Uri>? = if (result.resultCode == Activity.RESULT_OK && data != null) {
+                val clip = data.clipData
+                val single = data.data
+                when {
+                    clip != null && clip.itemCount > 0 -> Array(clip.itemCount) { clip.getItemAt(it).uri }
+                    single != null -> arrayOf(single)
+                    else -> null
+                }
+            } else {
+                null
+            }
+            // اگر کاربر انصراف داد باید null بدهیم، وگرنه دفعه‌ی بعد انتخاب فایل کار نمی‌کند
+            callback.onReceiveValue(uris)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +164,12 @@ class WebViewActivity : AppCompatActivity() {
         binding.webView.addJavascriptInterface(object {
             @JavascriptInterface
             fun onBlobReady(base64DataUri: String, suggestedName: String) {
-                runOnUiThread { saveGeneratedFile(base64DataUri, suggestedName.ifBlank { pageTitle }) }
+                runOnUiThread { saveGeneratedFile(base64DataUri, nameFor(suggestedName, pageTitle)) }
+            }
+
+            @JavascriptInterface
+            fun setNextName(name: String) {
+                pendingDownloadName = name
             }
 
             @JavascriptInterface
@@ -146,7 +181,7 @@ class WebViewActivity : AppCompatActivity() {
         binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
             when {
                 url.startsWith("data:") -> {
-                    saveGeneratedFile(url, pageTitle)
+                    saveGeneratedFile(url, nameFor("", pageTitle))
                 }
                 url.startsWith("blob:") -> {
                     val js = """
@@ -169,6 +204,13 @@ class WebViewActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /** اسم فایل: اول اسم صریح، بعد اسمی که صفحه پیشنهاد داده، در آخر عنوان صفحه. */
+    private fun nameFor(suggested: String, pageTitle: String): String {
+        val pending = pendingDownloadName
+        pendingDownloadName = null
+        return suggested.ifBlank { pending?.takeIf { it.isNotBlank() } ?: pageTitle }
     }
 
     private fun saveGeneratedFile(dataUri: String, suggestedName: String) {
@@ -296,6 +338,36 @@ class WebViewActivity : AppCompatActivity() {
                 binding.progressBar.progress = newProgress
                 binding.progressBar.visibility = if (newProgress >= 100) View.GONE else View.VISIBLE
             }
+
+            // بدون این تابع، هر <input type="file"> داخل وب‌ویو بی‌صدا کار نمی‌کند
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: WebChromeClient.FileChooserParams?
+            ): Boolean {
+                // اگر درخواست قبلی هنوز باز مانده، آن را ببند
+                fileChooserCallback?.onReceiveValue(null)
+                fileChooserCallback = filePathCallback
+
+                val pickIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    // */* عمداً: بعضی گوشی‌ها فایل .json را application/octet-stream می‌شناسند و فیلتر نوع، آن را پنهان می‌کند
+                    type = "*/*"
+                    putExtra(
+                        Intent.EXTRA_ALLOW_MULTIPLE,
+                        fileChooserParams?.mode == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE
+                    )
+                }
+                return try {
+                    fileChooserLauncher.launch(Intent.createChooser(pickIntent, "انتخاب فایل"))
+                    true
+                } catch (e: Exception) {
+                    fileChooserCallback = null
+                    filePathCallback?.onReceiveValue(null)
+                    Toast.makeText(this@WebViewActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
+                    false
+                }
+            }
         }
     }
 
@@ -321,6 +393,12 @@ class WebViewActivity : AppCompatActivity() {
     private fun showError(visible: Boolean) {
         binding.layoutWebError.visibility = if (visible) View.VISIBLE else View.GONE
         binding.webView.visibility = if (visible) View.GONE else View.VISIBLE
+    }
+
+    override fun onDestroy() {
+        fileChooserCallback?.onReceiveValue(null)
+        fileChooserCallback = null
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
