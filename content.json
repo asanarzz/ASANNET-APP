@@ -2189,5 +2189,15 @@
     "section": "مرورگر",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793126759571",
+    "type": "link",
+    "title": "ذره‌بین",
+    "description": "مرورگر ایرانی",
+    "url": "https://zarebin.ir/search",
+    "section": "مرورگر",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
