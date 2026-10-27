@@ -2151,7 +2151,8 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "locked": true,
-    "lockGroup": "folder:link|VIP"
+    "lockGroup": "folder:link|VIP",
+    "pinned": true
   },
   {
     "id": "item_1793122408453",
@@ -2163,7 +2164,8 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "locked": true,
-    "lockGroup": "folder:link|VIP"
+    "lockGroup": "folder:link|VIP",
+    "pinned": true
   },
   {
     "id": "item_1793122507672",
@@ -2175,6 +2177,7 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "locked": true,
-    "lockGroup": "folder:link|VIP"
+    "lockGroup": "folder:link|VIP",
+    "pinned": true
   }
 ]
