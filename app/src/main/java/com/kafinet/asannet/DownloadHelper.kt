@@ -86,6 +86,7 @@ object DownloadHelper {
                 mimeType.contains("jpeg") || mimeType.contains("jpg") -> ".jpg"
                 mimeType.contains("pdf") -> ".pdf"
                 mimeType.contains("webp") -> ".webp"
+                mimeType.contains("json") -> ".json"
                 else -> ""
             }
             val baseName = suggestedName.substringBeforeLast('.').ifBlank { "kafinet_file" }
