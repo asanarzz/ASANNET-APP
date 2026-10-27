@@ -118,7 +118,8 @@
     "url": "https://asanarzz.github.io/ASANNETT/rezayat",
     "section": "ورزشی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1788123316214",
@@ -1573,7 +1574,8 @@
     "url": "https://asanarzz.github.io/ASANNETT/Bashgah",
     "section": "ورزشی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1792750977798",
@@ -2131,6 +2133,7 @@
     "url": "https://asanarzz.github.io/ASANNETT/vaghte-salon",
     "section": "ورزشی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   }
 ]
