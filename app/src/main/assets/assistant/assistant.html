@@ -953,10 +953,8 @@ var log = document.getElementById('log'), t = document.getElementById('t'), s = 
 var MEM_KEY = 'asannet_assistant_v1', MEM_MAX = 200, mem = { msgs: [], name: '', svc: '' };
 function memLoad() { try { var j = JSON.parse(localStorage.getItem(MEM_KEY) || 'null'); if (j && j.msgs instanceof Array) mem = j; } catch (e) {} }
 function memSave() { try { localStorage.setItem(MEM_KEY, JSON.stringify(mem)); } catch (e) {} }
-// شماره‌های بلند (کد ملی، کارت…) در حافظه ذخیره نمی‌شوند
-function maskDigits(t) { return String(t).replace(/(?:[0-9۰-۹٠-٩][\s\-]?){9,}/g, '••••'); }
 function remember(role, text) {
-  mem.msgs.push({ r: role, t: maskDigits(text) });
+  mem.msgs.push({ r: role, t: String(text) });
   if (mem.msgs.length > MEM_MAX) mem.msgs.splice(0, mem.msgs.length - MEM_MAX);
   mem.name = xs.name || ''; mem.svc = ctx.service ? ctx.service.name : '';
   memSave();
