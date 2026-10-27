@@ -2140,5 +2140,15 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
+  },
+  {
+    "id": "item_1793122286500",
+    "type": "link",
+    "title": "بی بی سی فارسی",
+    "description": "خبری سیاسی",
+    "url": "https://www.bbc.com/persian",
+    "section": "VIP",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
