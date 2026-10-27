@@ -116,7 +116,9 @@
     "title": "رضایتنامه آنلاین",
     "description": "رضایتنامه اردوهای مدرسه، ورزشی و غیره\nمناسب معلمان و مدیران و مربیان ورزشی",
     "url": "https://asanarzz.github.io/ASANNETT/rezayat",
-    "allowExternalBrowser": false
+    "section": "ورزشی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   },
   {
     "id": "item_1788123316214",
