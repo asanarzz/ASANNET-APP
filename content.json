@@ -756,7 +756,8 @@
     "url": "https://asanarzz.github.io/ASANNETT/vame-khanegi",
     "section": "مالی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1791666621753",
