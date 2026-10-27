@@ -2209,5 +2209,15 @@
     "section": "مرورگر",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793127390863",
+    "type": "link",
+    "title": "بینگ",
+    "description": "مرورگر بینگ",
+    "url": "https://www.bing.com/",
+    "section": "مرورگر",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
