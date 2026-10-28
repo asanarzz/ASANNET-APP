@@ -6,8 +6,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import android.view.View
 import android.webkit.JavascriptInterface
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -17,12 +20,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.kafinet.asannet.databinding.ActivityWebviewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -172,6 +178,13 @@ class WebViewActivity : AppCompatActivity() {
                 pendingDownloadName = name
             }
 
+            // اشتراک‌گذاری فایل ساخته‌شده توسط صفحه (مثلاً عکس نتیجه) از طریق پنجره‌ی اشتراک‌گذاری اندروید.
+            // وب‌ویو از Web Share API پشتیبانی نمی‌کند، پس صفحه باید همین تابع را صدا بزند.
+            @JavascriptInterface
+            fun shareFile(dataUri: String, fileName: String) {
+                runOnUiThread { shareDataUri(dataUri, fileName) }
+            }
+
             @JavascriptInterface
             fun requestPrint() {
                 runOnUiThread { printCurrentPage(pageTitle) }
@@ -202,6 +215,37 @@ class WebViewActivity : AppCompatActivity() {
                         DownloadHelper.downloadUrl(this, url, pageTitle)
                     }
                 }
+            }
+        }
+    }
+
+    private fun shareDataUri(dataUri: String, fileName: String) {
+        lifecycleScope.launch {
+            try {
+                val shared = withContext(Dispatchers.IO) {
+                    val comma = dataUri.indexOf(',')
+                    require(dataUri.startsWith("data:") && comma > 0)
+                    val header = dataUri.substring(5, comma)
+                    val mime = header.substringBefore(';').ifBlank { "application/octet-stream" }
+                    val bytes = if (header.contains("base64")) {
+                        Base64.decode(dataUri.substring(comma + 1), Base64.DEFAULT)
+                    } else {
+                        Uri.decode(dataUri.substring(comma + 1)).toByteArray(Charsets.UTF_8)
+                    }
+                    val dir = File(cacheDir, "share").apply { mkdirs() }
+                    val safeName = fileName.ifBlank { "file" }.replace(Regex("[^A-Za-z0-9._-]"), "_")
+                    val file = File(dir, safeName)
+                    file.writeBytes(bytes)
+                    Pair(FileProvider.getUriForFile(this@WebViewActivity, "$packageName.fileprovider", file), mime)
+                }
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = shared.second
+                    putExtra(Intent.EXTRA_STREAM, shared.first)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, "اشتراک‌گذاری"))
+            } catch (e: Exception) {
+                Toast.makeText(this@WebViewActivity, "اشتراک‌گذاری انجام نشد", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -367,6 +411,49 @@ class WebViewActivity : AppCompatActivity() {
                     Toast.makeText(this@WebViewActivity, R.string.error_loading, Toast.LENGTH_SHORT).show()
                     false
                 }
+            }
+
+            // پنجره‌های alert / confirm / prompt صفحه‌ها: بدون عنوان و بدون نمایش آدرس سایت
+            override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                if (result == null) return false
+                if (isFinishing) { result.cancel(); return true }
+                AlertDialog.Builder(this@WebViewActivity)
+                    .setMessage(message ?: "")
+                    .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
+                    .setOnCancelListener { result.cancel() }
+                    .show()
+                return true
+            }
+
+            override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                if (result == null) return false
+                if (isFinishing) { result.cancel(); return true }
+                AlertDialog.Builder(this@WebViewActivity)
+                    .setMessage(message ?: "")
+                    .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> result.cancel() }
+                    .setOnCancelListener { result.cancel() }
+                    .show()
+                return true
+            }
+
+            override fun onJsPrompt(
+                view: WebView?, url: String?, message: String?, defaultValue: String?, result: JsPromptResult?
+            ): Boolean {
+                if (result == null) return false
+                if (isFinishing) { result.cancel(); return true }
+                val input = android.widget.EditText(this@WebViewActivity).apply {
+                    setText(defaultValue ?: "")
+                    setSingleLine(true)
+                }
+                AlertDialog.Builder(this@WebViewActivity)
+                    .setMessage(message ?: "")
+                    .setView(input)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm(input.text.toString()) }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> result.cancel() }
+                    .setOnCancelListener { result.cancel() }
+                    .show()
+                return true
             }
         }
     }
