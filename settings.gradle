@@ -5,12 +5,15 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        // مخزن رسمی کتابخونه‌ی Psiphon — برای فیچر فیلترشکن داخلی
+        maven { url "https://raw.github.com/Psiphon-Labs/psiphon-tunnel-core-Android-library/master" }
     }
 }
 
