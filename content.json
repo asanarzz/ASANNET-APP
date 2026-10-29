@@ -2270,5 +2270,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793293284345",
+    "type": "link",
+    "title": "X",
+    "description": "شبکه اجتماعی ایکس »تویتر«",
+    "url": "https://x.com/i/jf/onboarding/web?mode=login&redirect_after_login=%2F%3Flang%3Den",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
