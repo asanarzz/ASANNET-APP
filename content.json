@@ -2260,5 +2260,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793291109998",
+    "type": "link",
+    "title": "You tube",
+    "description": "شبکه اجتماعی یوتیوب",
+    "url": "https://accounts.google.com/v3/signin/identifier?continue=https://www.youtube.com/signin?action_handle_signin%3Dtrue%26app%3Dm%26hl%3Den-GB%26next%3D%252F&hl=en-GB&passive=true&service=youtube&uilel=3&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-1995550733:1793291005442390",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
