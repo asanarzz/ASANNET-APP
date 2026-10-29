@@ -2340,5 +2340,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793298159570",
+    "type": "link",
+    "title": "Mehrnews",
+    "description": "خبرگزاری مهر",
+    "url": "https://www.mehrnews.com/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
