@@ -2380,5 +2380,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793298549853",
+    "type": "link",
+    "title": "Entekhab",
+    "description": "خبرگزاری انتخاب",
+    "url": "https://www.entekhab.ir/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
