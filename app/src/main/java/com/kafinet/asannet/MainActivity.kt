@@ -1,11 +1,7 @@
 package com.kafinet.asannet
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -135,8 +131,6 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        setupVpnButton()
-
         binding.navItemSettings.setOnClickListener {
             binding.drawerLayout.closeDrawers()
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -170,9 +164,11 @@ class MainActivity : AppCompatActivity() {
         checkForAppUpdate()
         checkForUnreadSupportReply()
 
+        // «اشتراک‌گذاری فایل نصب برنامه» حالا «معرفی برنامه به دوستان» است (کد معرف + ارسال فایل)
+        renameShareMenuItem()
         binding.navItemShareApk.setOnClickListener {
             binding.drawerLayout.closeDrawers()
-            shareApk()
+            startActivity(Intent(this, ReferralActivity::class.java))
         }
         binding.navItemLogout.setOnClickListener {
             binding.drawerLayout.closeDrawers()
@@ -208,85 +204,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateHeaderDate()
-        updateVpnStatusIcon()
         bannerAutoScrollHandler.removeCallbacks(bannerAutoScrollRunnable)
         bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
-    }
-
-    // رنگ‌های وضعیت دکمه‌ی فیلترشکن: خاکستری = قطع، سبز = یه وی‌پی‌ان سیستمی الان فعاله
-    private val vpnColorDisconnected = Color.parseColor("#B8B5E8")
-    private val vpnColorConnected = Color.parseColor("#22C55E")
-
-    /** دکمه‌ی فیلترشکن: اپ‌های فیلترشکن نصب‌شده رو (هر کدوم، بدون نیاز به دونستن
-     *  اسم‌شون از قبل) پیدا می‌کنه و بازشون می‌کنه. رنگ دکمه هم نشون می‌ده آیا الان
-     *  یه وی‌پی‌ان سیستمی (مال هر اپی) فعاله یا نه — چون وقتی کاربر از یکی از این
-     *  اپ‌ها وصل بشه، کل ترافیک گوشی از جمله وب‌ویوی خودِ آسان‌نت هم از همون تونل رد می‌شه. */
-    private fun setupVpnButton() {
-        updateVpnStatusIcon()
-        binding.btnVpn.setOnClickListener {
-            val vpnApps = findInstalledVpnApps()
-            when {
-                vpnApps.isEmpty() -> {
-                    Toast.makeText(
-                        this,
-                        "هیچ اپ فیلترشکنی روی گوشیت پیدا نشد. یکی مثل HotVPN یا Psiphon نصب کن.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                vpnApps.size == 1 -> launchVpnApp(vpnApps[0].packageName)
-                else -> showVpnAppPicker(vpnApps)
-            }
-        }
-    }
-
-    /** لیست پکیج‌نیم اپ‌های نصب‌شده‌ای که یه VpnService سیستمی اعلام کردن (یعنی
-     *  جزو اپ‌های فیلترشکن/وی‌پی‌ان هستن) — بدون نیاز به لیست دستی از اسم اپ‌ها. */
-    private fun findInstalledVpnApps(): List<android.content.pm.ApplicationInfo> {
-        val pm = packageManager
-        val intent = Intent("android.net.VpnService")
-        val services = try {
-            pm.queryIntentServices(intent, PackageManager.MATCH_ALL)
-        } catch (e: Exception) {
-            emptyList()
-        }
-        return services.mapNotNull { resolveInfo ->
-            try {
-                pm.getApplicationInfo(resolveInfo.serviceInfo.packageName, 0)
-            } catch (e: Exception) {
-                null
-            }
-        }.distinctBy { it.packageName }
-    }
-
-    private fun launchVpnApp(packageName: String) {
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-        if (launchIntent != null) {
-            startActivity(launchIntent)
-        } else {
-            Toast.makeText(this, "این اپ قابل باز شدن نیست.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun showVpnAppPicker(apps: List<android.content.pm.ApplicationInfo>) {
-        val pm = packageManager
-        val labels = apps.map { it.loadLabel(pm).toString() }.toTypedArray()
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("کدوم فیلترشکن؟")
-            .setItems(labels) { _, which -> launchVpnApp(apps[which].packageName) }
-            .show()
-    }
-
-    /** رنگ دکمه رو بر اساس اینکه الان یه وی‌پی‌ان سیستمی (هر کدوم) فعاله یا نه، ست می‌کنه. */
-    private fun updateVpnStatusIcon() {
-        val connected = isSystemVpnActive()
-        binding.btnVpn.setColorFilter(if (connected) vpnColorConnected else vpnColorDisconnected)
-    }
-
-    private fun isSystemVpnActive(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
-        val network = cm.activeNetwork ?: return false
-        val caps = cm.getNetworkCapabilities(network) ?: return false
-        return caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
     }
 
     /** تاریخ شمسی و میلادی امروز را در هدر می‌نویسد. چون هر بار که صفحه‌ی اصلی
@@ -377,6 +296,22 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(BannerDetailActivity.EXTRA_TITLE, banner.title)
         intent.putExtra(BannerDetailActivity.EXTRA_DESCRIPTION, banner.description)
         startActivity(intent)
+    }
+
+    /** متن آیتم منو را به «معرفی برنامه به دوستان» تغییر می‌دهد (بدون نیاز به تغییر فایل متن‌ها). */
+    private fun renameShareMenuItem() {
+        try {
+            val item = binding.navItemShareApk
+            if (item is android.view.ViewGroup) {
+                for (i in 0 until item.childCount) {
+                    val child = item.getChildAt(i)
+                    if (child is android.widget.TextView) child.text = "معرفی برنامه به دوستان"
+                }
+            } else if (item is android.widget.TextView) {
+                item.text = "معرفی برنامه به دوستان"
+            }
+        } catch (e: Exception) {
+        }
     }
 
     /** فایل نصب (APK) فعلی برنامه را در حافظه‌ی موقت کپی و از طریق FileProvider به اشتراک می‌گذارد. */

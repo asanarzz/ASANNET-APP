@@ -120,6 +120,8 @@ class RegistrationActivity : AppCompatActivity() {
         val birthDate = birthDateValue
         val password = binding.inPassword.text.toString()
         val passwordConfirm = binding.inPasswordConfirm.text.toString()
+        // کد معرف (اختیاری): حروف کوچک و بزرگ فرقی ندارد
+        val referralCode = SupabaseClient.normalizeReferralCode(binding.inReferral.text.toString())
 
         if (firstName.isBlank() || lastName.isBlank() || nationalCode.isBlank() ||
             phone.isBlank() || birthDate.isBlank() || password.isBlank() || passwordConfirm.isBlank()
@@ -158,6 +160,18 @@ class RegistrationActivity : AppCompatActivity() {
                     showDuplicateAndSwitchToLogin()
                     return@launch
                 }
+                // اگر کد معرف وارد شده، قبل از ساخت حساب مطمئن شو درست است
+                if (referralCode.isNotEmpty()) {
+                    val valid = SupabaseClient.checkReferralCode(this@RegistrationActivity, referralCode)
+                    if (valid == null) {
+                        showError(getString(R.string.err_network))
+                        return@launch
+                    }
+                    if (!valid) {
+                        showError("کد معرف درست نیست. اگر کد ندارید، این کادر را خالی بگذارید.")
+                        return@launch
+                    }
+                }
                 val photoBytes = compressPhoto(selectedPhotoUri!!)
                 if (photoBytes == null) {
                     showError(getString(R.string.err_network))
@@ -178,6 +192,12 @@ class RegistrationActivity : AppCompatActivity() {
                     RegisterResult.SUCCESS -> {
                         SessionManager.setRegistered(this@RegistrationActivity, nationalCode)
                         SessionManager.saveUserName(this@RegistrationActivity, firstName, lastName)
+                        if (referralCode.isNotEmpty()) {
+                            try {
+                                SupabaseClient.applyReferral(this@RegistrationActivity, nationalCode, referralCode)
+                            } catch (e: Exception) {
+                            }
+                        }
                         goToMain()
                     }
                     RegisterResult.DUPLICATE -> showDuplicateAndSwitchToLogin()
