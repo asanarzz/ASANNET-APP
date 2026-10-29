@@ -3,13 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-repositories {
-    // مخزن رسمی کتابخونه‌ی Psiphon (طبق README خودشون) — برای فیچر فیلترشکن داخلی
-    maven {
-        url "https://raw.github.com/Psiphon-Labs/psiphon-tunnel-core-Android-library/master"
-    }
-}
-
 android {
     namespace 'com.kafinet.asannet'
     compileSdk 34
