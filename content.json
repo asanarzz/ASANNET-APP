@@ -2320,5 +2320,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793297504912",
+    "type": "link",
+    "title": "Irna",
+    "description": "خبرگزاری ایرنا",
+    "url": "https://www.irna.ir/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
