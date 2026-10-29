@@ -2290,5 +2290,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793294561412",
+    "type": "link",
+    "title": "Bale",
+    "description": "شبکه اجتماعی بله",
+    "url": "https://web.bale.ai/login?redirectTo=/",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
