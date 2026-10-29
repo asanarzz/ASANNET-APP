@@ -2310,5 +2310,15 @@
     "section": "شبکه‌ های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793294757914",
+    "type": "link",
+    "title": "Rubika",
+    "description": "شبکه اجتماعی روبیکا",
+    "url": "https://web.rubika.ir/",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
