@@ -37,17 +37,16 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@null"/>
 
-                <TextView
-                    android:id="@+id/txt_header_weekday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:includeFontPadding="false"
-                    android:singleLine="true"
-                    tools:text="پنجشنبه"/>
+                <!-- دکمه‌ی اتصال فیلترشکن داخلی: خاکستری=قطع، زرد=درحال اتصال، سبز=وصل -->
+                <ImageView
+                    android:id="@+id/btn_vpn"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="10dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_vpn_shield"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -57,9 +56,21 @@
                     android:gravity="center">
 
                     <TextView
+                        android:id="@+id/txt_header_weekday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        tools:text="پنجشنبه"/>
+
+                    <TextView
                         android:id="@+id/txt_header_date_jalali"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
                         android:textColor="@color/white"
                         android:textStyle="bold"
                         android:textSize="16sp"
