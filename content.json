@@ -2229,5 +2229,15 @@
     "section": "مرورگر",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793290269355",
+    "type": "link",
+    "title": "INSTAGRAM",
+    "description": "شبکه اجتماعی اینستاگرام",
+    "url": "https://www.instagram.com/accounts/login/?next=%2F&source=mobile_nav",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
