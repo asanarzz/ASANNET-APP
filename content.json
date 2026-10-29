@@ -2350,5 +2350,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793298285870",
+    "type": "link",
+    "title": "Tasnim",
+    "description": "خبرگزاری تسنیم",
+    "url": "https://www.tasnimnews.ir/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
