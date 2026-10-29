@@ -2370,5 +2370,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793298444189",
+    "type": "link",
+    "title": "Tabnak",
+    "description": "خبرگزاری تابناک",
+    "url": "https://www.tabnak.ir/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
