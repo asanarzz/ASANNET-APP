@@ -247,6 +247,13 @@ class MainActivity : AppCompatActivity() {
     /** لیست پکیج‌نیم اپ‌های نصب‌شده‌ای که یه VpnService سیستمی اعلام کردن (یعنی
      *  جزو اپ‌های فیلترشکن/وی‌پی‌ان هستن) — بدون نیاز به لیست دستی از اسم اپ‌ها. */
     private fun findInstalledVpnApps(): List<android.content.pm.ApplicationInfo> {
+        // اپ‌هایی که به‌اشتباه یه VpnService اعلام می‌کنن ولی وی‌پی‌ان واقعی نیستن
+        // (مثلاً به‌خاطر یه کتابخونه‌ی تبلیغاتی/آنالیتیکس داخلشون) — از لیست کنار گذاشته می‌شن
+        val vpnAppExclusions = setOf(
+            "com.farsitel.bazaar",   // کافه بازار
+            "ir.mservices.market",   // مایکت
+            packageName                 // خود آسان‌نت
+        )
         val pm = packageManager
         val intent = Intent("android.net.VpnService")
         val services = try {
@@ -261,6 +268,7 @@ class MainActivity : AppCompatActivity() {
                 null
             }
         }.distinctBy { it.packageName }
+            .filterNot { it.packageName in vpnAppExclusions }
     }
 
     private fun launchVpnApp(packageName: String) {
