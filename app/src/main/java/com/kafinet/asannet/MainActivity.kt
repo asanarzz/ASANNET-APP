@@ -215,45 +215,30 @@ class MainActivity : AppCompatActivity() {
         bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
     }
 
-    /** تاریخ شمسی و میلادی امروز را در هدر می‌نویسد. چون هر بار که صفحه‌ی اصلی
-     *  دوباره باز می‌شود (onResume) این تابع صدا زده می‌شود، همیشه تاریخِ «همان روزی
-     *  که کاربر اپ را باز کرده» نمایش داده می‌شود و نیازی به تایمر جداگانه نیست. */
     // رنگ‌های وضعیت دکمه‌ی فیلترشکن: خاکستری = قطع، سبز = یه وی‌پی‌ان سیستمی الان فعاله
     private val vpnColorDisconnected = Color.parseColor("#B8B5E8")
     private val vpnColorConnected = Color.parseColor("#22C55E")
 
-    /** دکمه‌ی فیلترشکن: اپ‌های فیلترشکن نصب‌شده رو (هر کدوم، بدون نیاز به دونستن
-     *  اسم‌شون از قبل) پیدا می‌کنه و بازشون می‌کنه. رنگ دکمه هم نشون می‌ده آیا الان
-     *  یه وی‌پی‌ان سیستمی (مال هر اپی) فعاله یا نه — چون وقتی کاربر از یکی از این
-     *  اپ‌ها وصل بشه، کل ترافیک گوشی از جمله وب‌ویوی خودِ آسان‌نت هم از همون تونل رد می‌شه. */
+    // اپ‌هایی که به‌اشتباه یه VpnService اعلام می‌کنن ولی وی‌پی‌ان واقعی نیستن
+    // (مثلاً به‌خاطر یه کتابخونه‌ی تبلیغاتی/آنالیتیکس داخلشون) — از لیست کنار گذاشته می‌شن
+    private val vpnAppExclusions = setOf(
+        "com.farsitel.bazaar",   // کافه بازار
+        "ir.mservices.market"    // مایکت
+    )
+
+    /** دکمه‌ی فیلترشکن: یه لیست انتخاب داخل خودِ اپ نشون می‌ده، از اپ‌های فیلترشکنی که
+     *  تونستیم رو گوشی تشخیص بدیم (بدون نیاز به دونستن اسم‌شون از قبل). چون این روش
+     *  نمی‌تونه ۱۰۰٪ کامل باشه (بعضی اپ‌ها سرویس‌شون رو عمداً مخفی نگه می‌دارن)، یه گزینه‌ی
+     *  آخر هم تو لیست هست برای بازکردن تنظیمات VPN خودِ گوشی، برای اپ‌هایی که تشخیص ندادیم.
+     *  رنگ دکمه هم نشون می‌ده آیا الان یه وی‌پی‌ان سیستمی (مال هر اپی) فعاله یا نه. */
     private fun setupVpnButton() {
         updateVpnStatusIcon()
         binding.btnVpn.setOnClickListener {
-            val vpnApps = findInstalledVpnApps()
-            when {
-                vpnApps.isEmpty() -> {
-                    Toast.makeText(
-                        this,
-                        "هیچ اپ فیلترشکنی روی گوشیت پیدا نشد. یکی مثل HotVPN یا Psiphon نصب کن.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                vpnApps.size == 1 -> launchVpnApp(vpnApps[0].packageName)
-                else -> showVpnAppPicker(vpnApps)
-            }
+            showVpnAppPicker(findInstalledVpnApps())
         }
     }
 
-    /** لیست پکیج‌نیم اپ‌های نصب‌شده‌ای که یه VpnService سیستمی اعلام کردن (یعنی
-     *  جزو اپ‌های فیلترشکن/وی‌پی‌ان هستن) — بدون نیاز به لیست دستی از اسم اپ‌ها. */
     private fun findInstalledVpnApps(): List<android.content.pm.ApplicationInfo> {
-        // اپ‌هایی که به‌اشتباه یه VpnService اعلام می‌کنن ولی وی‌پی‌ان واقعی نیستن
-        // (مثلاً به‌خاطر یه کتابخونه‌ی تبلیغاتی/آنالیتیکس داخلشون) — از لیست کنار گذاشته می‌شن
-        val vpnAppExclusions = setOf(
-            "com.farsitel.bazaar",   // کافه بازار
-            "ir.mservices.market",   // مایکت
-            packageName                 // خود آسان‌نت
-        )
         val pm = packageManager
         val intent = Intent("android.net.VpnService")
         val services = try {
@@ -268,7 +253,7 @@ class MainActivity : AppCompatActivity() {
                 null
             }
         }.distinctBy { it.packageName }
-            .filterNot { it.packageName in vpnAppExclusions }
+            .filterNot { it.packageName in vpnAppExclusions || it.packageName == packageName }
     }
 
     private fun launchVpnApp(packageName: String) {
@@ -282,10 +267,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun showVpnAppPicker(apps: List<android.content.pm.ApplicationInfo>) {
         val pm = packageManager
-        val labels = apps.map { it.loadLabel(pm).toString() }.toTypedArray()
+        val otherOption = "اپم تو لیست نیست (باز کردن تنظیمات VPN گوشی)"
+        val labels = apps.map { it.loadLabel(pm).toString() }.toTypedArray() + otherOption
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("کدوم فیلترشکن؟")
-            .setItems(labels) { _, which -> launchVpnApp(apps[which].packageName) }
+            .setItems(labels) { _, which ->
+                if (which == apps.size) {
+                    try {
+                        startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS))
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "گوشیت صفحه‌ی تنظیمات وی‌پی‌ان نداره.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    launchVpnApp(apps[which].packageName)
+                }
+            }
             .show()
     }
 
@@ -302,6 +298,9 @@ class MainActivity : AppCompatActivity() {
         return caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
     }
 
+    /** تاریخ شمسی و میلادی امروز را در هدر می‌نویسد. چون هر بار که صفحه‌ی اصلی
+     *  دوباره باز می‌شود (onResume) این تابع صدا زده می‌شود، همیشه تاریخِ «همان روزی
+     *  که کاربر اپ را باز کرده» نمایش داده می‌شود و نیازی به تایمر جداگانه نیست. */
     private fun updateHeaderDate() {
         val (gy, gm, gd) = PersianDateUtils.todayGregorian().let { Triple(it[0], it[1], it[2]) }
         val (jy, jm, jd) = PersianDateUtils.gregorianToJalali(gy, gm, gd).let { Triple(it[0], it[1], it[2]) }
