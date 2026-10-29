@@ -223,6 +223,7 @@
       <div class="main-tab" id="main-tab-docs">مدارک دریافتی</div>
       <div class="main-tab" id="main-tab-support">پیام‌ها</div>
       <div class="main-tab" id="main-tab-stats">آمار بازدید</div>
+      <div class="main-tab" id="main-tab-referrals">معرفی‌ها</div>
       <div class="main-tab" id="main-tab-linkfinder">لینک‌یاب</div>
       <div class="main-tab" id="main-tab-ads">تبلیغات</div>
       <div class="main-tab" id="main-tab-locks">قفل و توکن</div>
@@ -386,6 +387,23 @@
       <div class="card">
         <h2>لیست بازدیدکنندگان <input type="text" id="in-stats-search" placeholder="جستجو با نام یا شماره…" style="width:auto; display:inline-block; float:left; padding:6px 10px; font-size:13px;"></h2>
         <div id="stats-table"></div>
+      </div>
+    </div>
+
+    <div id="section-referrals" class="hidden">
+      <div class="card">
+        <h2>معرفی‌ها <button class="link-btn" id="btn-refresh-referrals" style="float:left;" onclick="loadReferrals()">بارگذاری مجدد</button></h2>
+        <div id="referrals-summary"><div class="empty-msg">در حال بارگذاری…</div></div>
+      </div>
+
+      <div class="card">
+        <h2>رتبه‌بندی معرف‌ها</h2>
+        <div id="referrals-ranking"></div>
+      </div>
+
+      <div class="card">
+        <h2>همه‌ی ثبت‌نام‌های معرفی‌شده <input type="text" id="in-referrals-search" oninput="renderReferrals()" placeholder="جستجو با نام، شماره یا کد…" style="width:auto; display:inline-block; float:left; padding:6px 10px; font-size:13px;"></h2>
+        <div id="referrals-list"></div>
       </div>
     </div>
 
@@ -1692,10 +1710,108 @@ function initTabs() {
   $('main-tab-docs').addEventListener('click', () => switchMainTab('docs'));
   $('main-tab-support').addEventListener('click', () => switchMainTab('support'));
   $('main-tab-stats').addEventListener('click', () => switchMainTab('stats'));
+  $('main-tab-referrals').addEventListener('click', () => switchMainTab('referrals'));
   $('main-tab-linkfinder').addEventListener('click', () => switchMainTab('linkfinder'));
   $('main-tab-ads').addEventListener('click', () => switchMainTab('ads'));
   $('main-tab-locks').addEventListener('click', () => switchMainTab('locks'));
   $('main-tab-cleanup').addEventListener('click', () => switchMainTab('cleanup'));
+}
+
+// ---------- Supabase: معرفی‌ها (دعوت دوستان) ----------
+let referralRows = [];
+
+async function loadReferrals() {
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    $('referrals-summary').innerHTML = '<div class="empty-msg">آدرس و کلید Supabase تنظیم نشده — از «تغییر تنظیمات» واردشان کن</div>';
+    return;
+  }
+  $('referrals-list').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
+  try {
+    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/referrals?select=*&order=created_at.desc`, { headers: sbHeaders() });
+    if (!res.ok) throw new Error('خطا در دریافت معرفی‌ها (' + res.status + ') — مطمئن شو فایل SQL را در Supabase اجرا کرده‌ای');
+    referralRows = await res.json();
+    renderReferrals();
+  } catch (e) {
+    $('referrals-list').innerHTML = '<div class="empty-msg">خطا در بارگذاری معرفی‌ها</div>';
+    toast(e.message, 'error');
+  }
+}
+
+function referralFullName(first, last) {
+  return ((first || '') + ' ' + (last || '')).trim() || '—';
+}
+
+function renderReferrals() {
+  const rows = referralRows;
+  const rewarded = rows.filter((r) => r.reward_given).length;
+  const referrers = new Set(rows.map((r) => r.referrer_national_code)).size;
+
+  $('referrals-summary').innerHTML = `
+    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+      <div><div class="muted" style="font-size:12px;">کل ثبت‌نام‌های معرفی‌شده</div><div style="font-size:24px; font-weight:700; color:var(--primary);">${rows.length}</div></div>
+      <div><div class="muted" style="font-size:12px;">تعداد معرف‌ها</div><div style="font-size:24px; font-weight:700;">${referrers}</div></div>
+      <div><div class="muted" style="font-size:12px;">جایزه داده‌شده</div><div style="font-size:24px; font-weight:700;">${rewarded}</div></div>
+    </div>`;
+
+  // رتبه‌بندی معرف‌ها
+  const byRef = {};
+  rows.forEach((r) => {
+    const k = r.referrer_national_code;
+    if (!byRef[k]) {
+      byRef[k] = { name: referralFullName(r.referrer_first_name, r.referrer_last_name), phone: r.referrer_phone || '', code: r.referrer_code || '', count: 0, rewarded: 0 };
+    }
+    byRef[k].count += 1;
+    if (r.reward_given) byRef[k].rewarded += 1;
+  });
+  const ranking = Object.values(byRef).sort((a, b) => b.count - a.count);
+  $('referrals-ranking').innerHTML = ranking.length
+    ? ranking.map((x, i) => `
+        <div class="item" style="justify-content:space-between;">
+          <div class="info">
+            <div class="t">${i + 1}. ${escapeHtml(x.name)}</div>
+            <div class="muted" style="font-size:12px;">${escapeHtml(x.phone)} — کد: <span dir="ltr">${escapeHtml(x.code)}</span></div>
+          </div>
+          <div style="font-weight:700; color:var(--primary);">${x.count} نفر <span class="muted" style="font-weight:400; font-size:12px;">(جایزه داده‌شده: ${x.rewarded})</span></div>
+        </div>`).join('')
+    : '<div class="empty-msg">هنوز معرفی ثبت نشده</div>';
+
+  // فهرست کامل با جستجو
+  const q = ($('in-referrals-search').value || '').trim().toLowerCase();
+  const filtered = !q ? rows : rows.filter((r) => [
+    r.new_first_name, r.new_last_name, r.new_phone, r.referrer_first_name, r.referrer_last_name, r.referrer_phone, r.referrer_code,
+  ].some((v) => (v || '').toString().toLowerCase().includes(q)));
+
+  $('referrals-list').innerHTML = filtered.length
+    ? filtered.map((r) => `
+        <div class="item" style="justify-content:space-between; gap:10px;">
+          <div class="info">
+            <div class="t">${escapeHtml(referralFullName(r.new_first_name, r.new_last_name))} <span class="muted" style="font-weight:400;">(${escapeHtml(r.new_phone || '')})</span></div>
+            <div class="muted" style="font-size:12px;">معرف: ${escapeHtml(referralFullName(r.referrer_first_name, r.referrer_last_name))} (${escapeHtml(r.referrer_phone || '')}) — کد <span dir="ltr">${escapeHtml(r.referrer_code || '')}</span></div>
+            <div class="muted" style="font-size:12px;">${new Date(r.created_at).toLocaleString('fa-IR')}</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:6px; white-space:nowrap; font-size:13px;">
+            <input type="checkbox" ${r.reward_given ? 'checked' : ''} onchange="setReferralReward(${Number(r.id)}, this.checked)">
+            جایزه داده شد
+          </label>
+        </div>`).join('')
+    : '<div class="empty-msg">موردی پیدا نشد</div>';
+}
+
+async function setReferralReward(id, value) {
+  try {
+    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/referrals?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: Object.assign({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, sbHeaders()),
+      body: JSON.stringify({ reward_given: value }),
+    });
+    if (!res.ok) throw new Error('ذخیره نشد (' + res.status + ')');
+    const row = referralRows.find((r) => r.id === id);
+    if (row) row.reward_given = value;
+    renderReferrals();
+  } catch (e) {
+    toast(e.message, 'error');
+    loadReferrals();
+  }
 }
 
 let docsLoaded = false;
@@ -1706,6 +1822,9 @@ function switchMainTab(which) {
   $('main-tab-docs').classList.toggle('active', which === 'docs');
   $('main-tab-support').classList.toggle('active', which === 'support');
   $('main-tab-stats').classList.toggle('active', which === 'stats');
+  $('main-tab-referrals').classList.toggle('active', which === 'referrals');
+  $('section-referrals').classList.toggle('hidden', which !== 'referrals');
+  if (which === 'referrals') loadReferrals();
   $('main-tab-linkfinder').classList.toggle('active', which === 'linkfinder');
   $('main-tab-ads').classList.toggle('active', which === 'ads');
   $('main-tab-locks').classList.toggle('active', which === 'locks');
