@@ -567,4 +567,73 @@ object SupabaseClient {
                 false
             }
         }
+
+    // ------------------------------------------------------------------ معرفی دوستان (کد معرف)
+
+    /** کد معرف را برای ارسال یکدست می‌کند: حروف بزرگ، بدون فاصله و خط تیره، و ارقام فارسی به انگلیسی. */
+    fun normalizeReferralCode(raw: String): String {
+        val sb = StringBuilder()
+        for (ch in raw) {
+            val c = when (ch) {
+                in '\u06F0'..'\u06F9' -> '0' + (ch - '\u06F0')
+                in '\u0660'..'\u0669' -> '0' + (ch - '\u0660')
+                else -> ch
+            }
+            if (c.isWhitespace() || c == '-' || c == '_') continue
+            sb.append(c)
+        }
+        return sb.toString().uppercase(java.util.Locale.ROOT)
+    }
+
+    /** یک تابع Supabase (RPC) را صدا می‌زند و متن پاسخ را برمی‌گرداند؛ اگر خطا بود null. */
+    private suspend fun rpc(context: Context, name: String, params: JSONObject): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = context.getString(R.string.supabase_url).trimEnd('/')
+                val anonKey = context.getString(R.string.supabase_anon_key)
+                if (baseUrl.isBlank() || anonKey.isBlank()) return@withContext null
+                val connection = URL("$baseUrl/rest/v1/rpc/$name").openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.doOutput = true
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.setRequestProperty("apikey", anonKey)
+                connection.setRequestProperty("Authorization", "Bearer $anonKey")
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.outputStream.use { it.write(params.toString().toByteArray(Charsets.UTF_8)) }
+                val code = connection.responseCode
+                val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+                val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                connection.disconnect()
+                if (code !in 200..299) null else text.trim()
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    /** آیا این کد معرف وجود دارد؟ (null یعنی اینترنت یا سرور مشکل داشت) */
+    suspend fun checkReferralCode(context: Context, code: String): Boolean? {
+        val text = rpc(context, "check_referral_code", JSONObject().put("p_code", code)) ?: return null
+        return text.trim().lowercase() == "true"
+    }
+
+    /** بعد از ثبت‌نام موفق، معرف را ثبت می‌کند. نتیجه: ok / invalid / self / already / ... */
+    suspend fun applyReferral(context: Context, nationalCode: String, code: String): String? {
+        val text = rpc(
+            context, "apply_referral",
+            JSONObject().put("p_new_national_code", nationalCode).put("p_code", code)
+        ) ?: return null
+        return text.trim().removeSurrounding("\"")
+    }
+
+    /** کد اختصاصی کاربر و تعداد دوستانی که با کد او ثبت‌نام کرده‌اند. */
+    suspend fun getReferralInfo(context: Context, nationalCode: String): Pair<String, Int>? {
+        val text = rpc(context, "get_referral_info", JSONObject().put("p_national_code", nationalCode)) ?: return null
+        return try {
+            val obj = JSONObject(text)
+            Pair(obj.getString("code"), obj.optInt("count", 0))
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
