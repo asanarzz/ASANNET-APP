@@ -13,9 +13,14 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-<activity
-            android:name=".ReferralActivity"
-            android:exported="false" />
+
+    <!-- برای اینکه اپ بتونه اپ‌های فیلترشکن نصب‌شده (مثل HotVPN) رو پیدا کنه -->
+    <queries>
+        <intent>
+            <action android:name="android.net.VpnService" />
+        </intent>
+    </queries>
+
     <application
         android:name=".KafinetApp"
         android:allowBackup="true"
@@ -25,6 +30,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kafinet"
         android:networkSecurityConfig="@xml/network_security_config">
+
+        <activity
+            android:name=".ReferralActivity"
+            android:exported="false" />
 
         <activity
             android:name=".SplashActivity"
