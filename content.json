@@ -2280,5 +2280,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793294469157",
+    "type": "link",
+    "title": "Eitaa",
+    "description": "شبکه اجتماعی ایتا",
+    "url": "https://web.eitaa.com/",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
