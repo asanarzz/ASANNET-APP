@@ -13,7 +13,9 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-
+<activity
+            android:name=".ReferralActivity"
+            android:exported="false" />
     <application
         android:name=".KafinetApp"
         android:allowBackup="true"
