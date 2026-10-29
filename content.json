@@ -2360,5 +2360,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793298367125",
+    "type": "link",
+    "title": "Fars",
+    "description": "خبرگزاری فارس",
+    "url": "https://farsnews.ir/showcase",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
