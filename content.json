@@ -2300,5 +2300,15 @@
     "section": "شبکه های اجتماعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793294664493",
+    "type": "link",
+    "title": "Shad",
+    "description": "شبکه اجتماعی شاد",
+    "url": "https://web.shad.ir/",
+    "section": "شبکه‌ های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
