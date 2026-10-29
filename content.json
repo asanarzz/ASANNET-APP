@@ -2330,5 +2330,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793297692027",
+    "type": "link",
+    "title": "Isna",
+    "description": "خبرگزاری ایسنا",
+    "url": "https://www.isna.ir/",
+    "section": "خبری",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
