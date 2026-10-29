@@ -2240,5 +2240,15 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
+  },
+  {
+    "id": "item_1793290660832",
+    "type": "link",
+    "title": "Facebook",
+    "description": "شبکه اجتماعی فیسبوک",
+    "url": "https://m.facebook.com/",
+    "section": "شبکه های اجتماعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
