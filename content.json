@@ -2671,5 +2671,14 @@
     "section": "ریمیکس",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793473216030",
+    "type": "music",
+    "title": "دیجی سوشی",
+    "description": "ریمیکس بندری",
+    "url": "https://musicviral.musitraf.com/Music/05-08/DJ%20Soushi%20-%20BANDAR.mp3",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
