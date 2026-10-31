@@ -32,6 +32,9 @@ class CategoryListActivity : AppCompatActivity() {
     private var currentQuery: String = ""
     private var categoryLabel: String = ""
 
+    // آیتم‌هایی که همین الان تو لیست نمایش داده می‌شن (برای ساختن صف پخش موزیک)
+    private var displayedItems: List<ContentItem> = emptyList()
+
     // دسته‌ی «فیلم» به‌جای لیست معمولی، با دو ردیف افقی (فیلم/سریال) نمایش داده می‌شه
     private var isVideoGalleryMode: Boolean = false
 
@@ -225,6 +228,7 @@ class CategoryListActivity : AppCompatActivity() {
         }
         // موارد پین‌شده از پنل مدیریت بالای لیست می‌آیند (ترتیب نسبی بقیه دست‌نخورده می‌ماند)
         filtered = filtered.sortedByDescending { it.pinned }
+        displayedItems = filtered
         adapter.updateItems(filtered)
         binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
@@ -287,13 +291,57 @@ class CategoryListActivity : AppCompatActivity() {
         // ما) — اول دانلودش می‌کنیم (که مشکل نوع فایل اشتباهِ گیت‌هاب رو دور بزنیم)
         // و بعد با اپ مناسب گوشی بازش می‌کنیم.
         if (item.type == ContentType.MUSIC) {
-            DownloadHelper.downloadAndOpenExternally(this, resolveUrl(item.url), item.title, "audio/*", showProgress = true)
+            showMusicOptions(item)
             return
         }
 
         // برای همه‌ی بقیه‌ی دسته‌ها، بر اساس پسوند فایل تصمیم گرفته می‌شه که چطور باز بشه —
         // نه بر اساس این‌که تو کدوم دسته قرار داره
         ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser, item.desktopMode)
+    }
+
+    /**
+     * با لمس یک آهنگ، سه انتخاب نشون داده می‌شه:
+     *  ۱) پخش همه با پلیر خود برنامه (از همین آهنگ به بعد، پشت‌سرهم تا آخر لیست همین پوشه)
+     *  ۲) فقط همین آهنگ با پلیر خود برنامه
+     *  ۳) روش قبلی: دانلود و باز کردن با برنامه‌ی پخش موزیکِ دیگه‌ی گوشی
+     */
+    private fun showMusicOptions(item: ContentItem) {
+        val labels = arrayOf(
+            "پخش همه از این آهنگ به بعد (پلیر برنامه)",
+            "فقط همین آهنگ (پلیر برنامه)",
+            "باز کردن با برنامه‌ی دیگر"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(item.title)
+            .setItems(labels) { _, which ->
+                when (which) {
+                    0 -> startInAppMusic(item, playAll = true)
+                    1 -> startInAppMusic(item, playAll = false)
+                    else -> DownloadHelper.downloadAndOpenExternally(
+                        this, resolveUrl(item.url), item.title, "audio/*", showProgress = true
+                    )
+                }
+            }
+            .show()
+    }
+
+    private fun startInAppMusic(item: ContentItem, playAll: Boolean) {
+        // صف = همه‌ی آهنگ‌های همین لیست (پوشه) به ترتیب نمایش؛ آهنگ‌های قفل‌شده‌ی دیگه
+        // (که لینک واقعی‌شون هنوز باز نشده) از صف کنار گذاشته می‌شن.
+        val queue = displayedItems
+            .filter { it.type == ContentType.MUSIC }
+            .map { if (it.id == item.id) item else it }
+            .filter { it.id == item.id || (!it.locked && it.url.isNotBlank()) }
+        val startIndex = queue.indexOfFirst { it.id == item.id }.coerceAtLeast(0)
+        val finalQueue = if (queue.isEmpty()) listOf(item) else queue
+        MusicPlayerActivity.launch(
+            this,
+            finalQueue.map { it.title },
+            finalQueue.map { resolveUrl(it.url) },
+            startIndex,
+            playAll
+        )
     }
 
     private fun resolveUrl(url: String): String {
