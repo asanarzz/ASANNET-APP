@@ -163,6 +163,16 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- پخش‌کننده‌ی مستقل موزیک (کاملاً جدا از رادیو) -->
+        <activity
+            android:name=".MusicPlayerActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".MusicPlayerService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <!-- سرویس پخش روی تلویزیون از طریق گوشی (برای اینکه با صفحه‌ی خاموش هم ادامه پیدا کند) -->
         <service
             android:name=".CastRelayService"
