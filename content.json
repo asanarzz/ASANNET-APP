@@ -2411,26 +2411,5 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
-  },
-  {
-    "id": "item_1793462900659",
-    "type": "music",
-    "title": "آریانا",
-    "description": "آهنگ های ساخت هوش مصنوعی",
-    "url": "",
-    "section": "هوش مصنوعی",
-    "images": [
-      "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Darya%20Mojen.mp3",
-      "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Mo%20Az%20Bushehr%20Mirom.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Beshkan%20Beshkane.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Kako%20Joon.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Baba%20Badet%20Biad.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moohat.mp3",
-      "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Patil.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moo%20Meshki.mp3",
-      "https://musicviral.musitraf.com/Music/05-05/unkown%20-%20Shol%20Mishe%20Pam%20Ai.mp3"
-    ],
-    "allowExternalBrowser": false,
-    "desktopMode": false
   }
 ]
