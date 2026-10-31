@@ -2471,5 +2471,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793463420550",
+    "type": "music",
+    "title": "آریانا",
+    "description": "موهات",
+    "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moohat.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
