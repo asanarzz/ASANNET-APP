@@ -2541,5 +2541,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793471404189",
+    "type": "music",
+    "title": "کردی",
+    "description": "میکس هوش مصنوعی",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Kordish%20Ai%20Songs%20Mix.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
