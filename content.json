@@ -2409,6 +2409,7 @@
     "url": "https://asanarzz.github.io/ASANNETT/home",
     "section": "مالی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   }
 ]
