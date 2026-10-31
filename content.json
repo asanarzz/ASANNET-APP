@@ -2420,7 +2420,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Darya%20Mojen.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463216456",
@@ -2430,7 +2431,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Mo%20Az%20Bushehr%20Mirom.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463259017",
@@ -2440,7 +2442,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Beshkan%20Beshkane.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463298840",
@@ -2450,7 +2453,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Khayam%20Khani%20(Bushehri).mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463339896",
@@ -2460,7 +2464,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Kako%20Joon.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463384922",
@@ -2470,7 +2475,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Baba%20Badet%20Biad.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463420550",
@@ -2480,7 +2486,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moohat.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463457913",
@@ -2490,7 +2497,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Patil.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463490935",
@@ -2500,7 +2508,8 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moo%20Meshki.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_1793463533627",
@@ -2510,6 +2519,7 @@
     "url": "https://musicviral.musitraf.com/Music/05-05/unkown%20-%20Shol%20Mishe%20Pam%20Ai.mp3",
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   }
 ]
