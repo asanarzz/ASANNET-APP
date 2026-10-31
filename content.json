@@ -2390,5 +2390,15 @@
     "section": "خبری",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793446645575",
+    "type": "software",
+    "title": "آموزش کد نویسی",
+    "description": "آموزش بسیار آسان کد نویسی آسان نت",
+    "url": "https://asanarzz.github.io/ASANNETT/codnevisi",
+    "section": "آموزشی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
