@@ -123,15 +123,44 @@
                 android:visibility="gone"/>
 
             <Button
-                android:id="@+id/btn_share"
+                android:id="@+id/btn_share_link"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
                 android:backgroundTint="#4F46E5"
                 android:enabled="false"
-                android:text="ارسال فایل برنامه + کد برای دوستان"
+                android:text="ارسال لینک دانلود + کد برای دوستان"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="در همه‌ی پیام‌رسان‌ها (ایتا، تلگرام، واتساپ و ...) کار می‌کند"
+                android:textColor="#6B7280"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/btn_share"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#818CF8"
+                android:enabled="false"
+                android:text="ارسال خود فایل برنامه + کد"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="بعضی پیام‌رسان‌ها (مثل ایتا) اجازه‌ی ارسال فایل نصب را نمی‌دهند؛ آنجا از دکمه‌ی لینک استفاده کنید"
+                android:textColor="#6B7280"
+                android:textSize="12sp"/>
 
             <Button
                 android:id="@+id/btn_copy"
