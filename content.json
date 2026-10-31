@@ -2481,5 +2481,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793463457913",
+    "type": "music",
+    "title": "آریانا",
+    "description": "پاتیل",
+    "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Patil.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
