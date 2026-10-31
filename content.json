@@ -2689,5 +2689,15 @@
     "url": "https://musicviral.musitraf.com/Music/05-08/Aryanerg%20-%20Bi%20Khabar.mp3",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793473407878",
+    "type": "music",
+    "title": "دیجی حمید خارجی",
+    "description": "نوستالژیک",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Dj%20Hamid%20Khareji%20-%20Sadaf%2063%20(%20MiX%20).mp3",
+    "section": "ریمیکس",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
