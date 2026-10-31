@@ -2631,5 +2631,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793472801451",
+    "type": "music",
+    "title": "شاد لری",
+    "description": "یوزارسیف",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Youzarsif%20Remix%20Shad.mp3",
+    "section": "ریمیکس",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
