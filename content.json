@@ -2531,5 +2531,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793471361478",
+    "type": "music",
+    "title": "افغانی",
+    "description": "میکس هوش مصنوعی",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Best%20of%20AI%20Songs%20Afghani%20Mix.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
