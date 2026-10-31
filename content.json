@@ -2400,5 +2400,15 @@
     "section": "آموزشی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793447963425",
+    "type": "software",
+    "title": "دستیار خانه",
+    "description": "مدیریت خرج خانه، پیشنهاد غذا و کلی قابلیت دیگه",
+    "url": "https://asanarzz.github.io/ASANNETT/home",
+    "section": "مالی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
