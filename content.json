@@ -2421,5 +2421,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793463216456",
+    "type": "music",
+    "title": "آریانا",
+    "description": "مو از بوشهر میرم",
+    "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Mo%20Az%20Bushehr%20Mirom.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
