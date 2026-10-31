@@ -2521,5 +2521,15 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
+  },
+  {
+    "id": "item_1793471298119",
+    "type": "music",
+    "title": "تو که نازی",
+    "description": "خواننده زن هوش مصنوعی",
+    "url": "https://musicviral.musitraf.com/Music/05-06/To%20Ke%20Naz%20Doost%20Dari%20Ai.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
