@@ -287,7 +287,7 @@ class CategoryListActivity : AppCompatActivity() {
         // ما) — اول دانلودش می‌کنیم (که مشکل نوع فایل اشتباهِ گیت‌هاب رو دور بزنیم)
         // و بعد با اپ مناسب گوشی بازش می‌کنیم.
         if (item.type == ContentType.MUSIC) {
-            DownloadHelper.downloadAndOpenExternally(this, resolveUrl(item.url), item.title, "audio/*")
+            DownloadHelper.downloadAndOpenExternally(this, resolveUrl(item.url), item.title, "audio/*", showProgress = true)
             return
         }
 
