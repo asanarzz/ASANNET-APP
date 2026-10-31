@@ -2621,5 +2621,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793472692224",
+    "type": "music",
+    "title": "ریمیکس",
+    "description": "Dj horent",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Dj%20Hornet%20-%20Top%20Hits%2011.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
