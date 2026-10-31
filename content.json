@@ -2431,5 +2431,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793463259017",
+    "type": "music",
+    "title": "آریانا",
+    "description": "بشکن بشکنه",
+    "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Beshkan%20Beshkane.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
