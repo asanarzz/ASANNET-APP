@@ -2551,5 +2551,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793471464950",
+    "type": "music",
+    "title": "فرهاد",
+    "description": "قوی اومدی",
+    "url": "https://musicviral.musitraf.com/Music/05-08/Farhad%20-%20Ghavi%20Oomadi.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
