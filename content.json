@@ -2501,5 +2501,15 @@
     "section": "هوش مصنوعی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793463533627",
+    "type": "music",
+    "title": "آریانا",
+    "description": "شل میشه پام",
+    "url": "https://musicviral.musitraf.com/Music/05-05/unkown%20-%20Shol%20Mishe%20Pam%20Ai.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
