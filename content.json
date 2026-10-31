@@ -2411,5 +2411,15 @@
     "allowExternalBrowser": false,
     "desktopMode": false,
     "pinned": true
+  },
+  {
+    "id": "item_1793463149939",
+    "type": "music",
+    "title": "آریانا",
+    "description": "دریا موجه",
+    "url": "https://musicviral.musitraf.com/Music/05-04/Ariana%20-%20Darya%20Mojen.mp3",
+    "section": "هوش مصنوعی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
