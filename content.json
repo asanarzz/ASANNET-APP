@@ -2767,5 +2767,21 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793525603682",
+    "type": "music",
+    "title": "معین",
+    "description": "آهنگهای معین",
+    "url": "",
+    "section": "معین",
+    "images": [
+      "https://dl.remiixbaz.com/playlist/Moein/Moein%20-%20Adamiat%20%28Remixbaz.com%29%20%28320%29.mp3",
+      "https://dl.remiixbaz.com/playlist/Moein/Moein%20-%20Adamiat%20%28Remixbaz.com%29%20%28320%29.mp3",
+      "https://dl.remiixbaz.com/playlist/Moein/Moein%20-%20Gole%20Naz%20Darom%20%28Remixbaz.com%29%20%28320%29.mp3",
+      "https://dl.remiixbaz.com/playlist/Moein/Moein%20-%20Khalegh%20%28Remixbaz.com%29%20%28320%29.mp3"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
