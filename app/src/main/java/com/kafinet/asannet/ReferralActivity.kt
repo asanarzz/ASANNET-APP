@@ -76,14 +76,21 @@ class ReferralActivity : AppCompatActivity() {
         Toast.makeText(this, "کد کپی شد", Toast.LENGTH_SHORT).show()
     }
 
+    /** متن پیامی که برای دوستان فرستاده می‌شود (هم در ارسال لینک، هم در ارسال فایل). */
+    private fun buildShareMessage(c: String): String =
+        "سلام! برنامه «آسان نت» را از این لینک دانلود و نصب کن:\n" +
+            DOWNLOAD_URL + "\n\n" +
+            "موقع ثبت‌نام، در کادر «کد معرف» این کد را بنویس:\n\n" +
+            c + "\n\n" +
+            "کانال  ایتا\n" +
+            "https://eitaa.com/ASANNETT\n\n" +
+            "کانال تلگرام\n" +
+            "https://t.me/ASANNNET"
+
     /** لینک دانلود برنامه را همراه کد معرف به‌صورت یک پیام متنی می‌فرستد (در همه‌ی پیام‌رسان‌ها کار می‌کند). */
     private fun shareLinkWithCode() {
         val c = code ?: return
-        val message = "سلام! برنامه «آسان نت» را از این لینک دانلود و نصب کن:\n" +
-            DOWNLOAD_URL + "\n\n" +
-            "موقع ثبت‌نام، در کادر «کد معرف» این کد را بنویس:\n" +
-            c + "\n\n" +
-            "کافی‌نت آسان نت | @ASANNETT"
+        val message = buildShareMessage(c)
         try {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -108,10 +115,7 @@ class ReferralActivity : AppCompatActivity() {
                     src.copyTo(dest, overwrite = true)
                     FileProvider.getUriForFile(this@ReferralActivity, "$packageName.fileprovider", dest)
                 }
-                val message = "سلام! برنامه «آسان نت» را نصب کن.\n" +
-                    "موقع ثبت‌نام، در کادر «کد معرف» این کد را بنویس:\n" +
-                    c + "\n" +
-                    "کافی‌نت آسان نت | @ASANNETT"
+                val message = buildShareMessage(c)
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/vnd.android.package-archive"
                     putExtra(Intent.EXTRA_STREAM, destUri)
