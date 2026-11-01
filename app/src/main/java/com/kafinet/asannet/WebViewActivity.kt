@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.view.View
+import android.webkit.HttpAuthHandler
 import android.webkit.JavascriptInterface
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
@@ -397,6 +398,20 @@ class WebViewActivity : AppCompatActivity() {
                     Toast.makeText(this@WebViewActivity, R.string.err_app_not_installed, Toast.LENGTH_SHORT).show()
                     true
                 }
+            }
+
+            // اگر پروکسی HTTP یوزر/پسورد داشته باشد، وب‌ویو از اینجا آن را می‌خواهد
+            override fun onReceivedHttpAuthRequest(
+                view: WebView?, handler: HttpAuthHandler?, host: String?, realm: String?
+            ) {
+                val p = ProxyManager.active
+                if (handler != null && p != null && p.type == "http" && !p.user.isNullOrBlank() &&
+                    host.equals(p.host, ignoreCase = true)
+                ) {
+                    handler.proceed(p.user, p.pass ?: "")
+                    return
+                }
+                super.onReceivedHttpAuthRequest(view, handler, host, realm)
             }
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {

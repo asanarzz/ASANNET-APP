@@ -136,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupVpnButton()
+        setupProxyButton()
 
         binding.navItemSettings.setOnClickListener {
             binding.drawerLayout.closeDrawers()
@@ -211,6 +212,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         updateHeaderDate()
         updateVpnStatusIcon()
+        updateProxyIcon()
         bannerAutoScrollHandler.removeCallbacks(bannerAutoScrollRunnable)
         bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
     }
@@ -236,6 +238,23 @@ class MainActivity : AppCompatActivity() {
         binding.btnVpn.setOnClickListener {
             showVpnAppPicker(findInstalledVpnApps())
         }
+    }
+
+    // دکمه‌ی پروکسی داخلی (مثل تلگرام): خاکستری=قطع، زرد=درحال اتصال، سبز=وصل
+    private fun setupProxyButton() {
+        updateProxyIcon()
+        binding.btnProxy.setOnClickListener {
+            ProxyListSheet(this) { updateProxyIcon() }.show()
+        }
+    }
+
+    private fun updateProxyIcon() {
+        val color = when {
+            ProxyManager.connecting -> Color.parseColor("#FACC15")
+            ProxyManager.active != null -> vpnColorConnected
+            else -> vpnColorDisconnected
+        }
+        binding.btnProxy.setColorFilter(color)
     }
 
     private fun findInstalledVpnApps(): List<android.content.pm.ApplicationInfo> {
