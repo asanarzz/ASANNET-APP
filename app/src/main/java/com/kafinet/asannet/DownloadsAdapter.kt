@@ -54,6 +54,12 @@ class DownloadsAdapter(
             }
         }
 
+        // اگه دانلود گیر کرده/متوقف/ناموفقه، دلیلش (از دانلودر اندروید) زیر وضعیت نوشته می‌شه
+        AppDownloadManager.describeProblem(status)?.let { problem ->
+            holder.binding.txtDownloadStatus.text =
+                holder.binding.txtDownloadStatus.text.toString() + "\n" + problem
+        }
+
         holder.binding.root.setOnClickListener { onClick(record, status) }
         holder.binding.btnRemoveDownload.setOnClickListener { onRemove(record) }
     }

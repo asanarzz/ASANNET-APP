@@ -19,7 +19,9 @@ enum class DownloadState { PENDING, RUNNING, PAUSED, SUCCESSFUL, FAILED, UNKNOWN
 data class DownloadStatus(
     val state: DownloadState,
     val bytesDownloaded: Long,
-    val bytesTotal: Long
+    val bytesTotal: Long,
+    /** کد «دلیل» دانلودر اندروید: برای متوقف‌شده کد مکث، برای ناموفق کد خطا یا کد HTTP. */
+    val reason: Int = 0
 )
 
 /**
@@ -89,6 +91,7 @@ object AppDownloadManager {
                     val statusCol = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
                     val downloadedCol = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
                     val totalCol = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                    val reasonCol = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
 
                     val statusInt = if (statusCol >= 0) cursor.getInt(statusCol) else -1
                     val state = when (statusInt) {
@@ -102,7 +105,8 @@ object AppDownloadManager {
                     return DownloadStatus(
                         state = state,
                         bytesDownloaded = if (downloadedCol >= 0) cursor.getLong(downloadedCol) else 0L,
-                        bytesTotal = if (totalCol >= 0) cursor.getLong(totalCol) else 0L
+                        bytesTotal = if (totalCol >= 0) cursor.getLong(totalCol) else 0L,
+                        reason = if (reasonCol >= 0) cursor.getInt(reasonCol) else 0
                     )
                 }
             }
@@ -110,6 +114,40 @@ object AppDownloadManager {
             // نادیده گرفته می‌شه؛ پایین UNKNOWN برمی‌گرده
         }
         return DownloadStatus(DownloadState.UNKNOWN, 0L, 0L)
+    }
+
+    /**
+     * توضیح فارسیِ وضعیت دانلود برای نمایش زیر هر ردیف تو صفحه‌ی «دانلودها».
+     * فقط برای دانلودهایی که گیر کرده، متوقف شده یا ناموفق بوده متن برمی‌گردونه؛ بقیه null.
+     */
+    fun describeProblem(status: DownloadStatus): String? {
+        return when (status.state) {
+            DownloadState.PENDING -> "در صف دانلودر سیستم (هنوز شروع نشده)"
+            DownloadState.RUNNING ->
+                if (status.bytesTotal <= 0L) "در حال اتصال به سرور (هنوز حجم فایل مشخص نشده)" else null
+            DownloadState.PAUSED -> when (status.reason) {
+                DownloadManager.PAUSED_WAITING_TO_RETRY -> "مکث: سرور جواب نداد، بعداً دوباره تلاش می‌شود"
+                DownloadManager.PAUSED_WAITING_FOR_NETWORK -> "مکث: منتظر اتصال به اینترنت"
+                DownloadManager.PAUSED_QUEUED_FOR_WIFI -> "مکث: فایل بزرگه و منتظر Wi-Fi است"
+                else -> "مکث: دلیل نامشخص (کد " + status.reason + ")"
+            }
+            DownloadState.FAILED -> when (status.reason) {
+                DownloadManager.ERROR_INSUFFICIENT_SPACE -> "خطا: جای کافی تو حافظه نیست"
+                DownloadManager.ERROR_FILE_ALREADY_EXISTS -> "خطا: فایلی با همین اسم از قبل هست"
+                DownloadManager.ERROR_FILE_ERROR -> "خطا: ذخیره‌ی فایل روی حافظه ممکن نشد"
+                DownloadManager.ERROR_DEVICE_NOT_FOUND -> "خطا: حافظه‌ی ذخیره‌سازی در دسترس نیست"
+                DownloadManager.ERROR_TOO_MANY_REDIRECTS -> "خطا: لینک بیش از حد هدایت می‌شود"
+                DownloadManager.ERROR_HTTP_DATA_ERROR -> "خطا: ارتباط با سرور وسط دانلود قطع شد"
+                DownloadManager.ERROR_CANNOT_RESUME -> "خطا: امکان ادامه‌ی دانلود نیست"
+                DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> "خطا: سرور جواب نامعتبر داد"
+                in 400..599 -> "خطای سرور (کد " + status.reason + ")" +
+                    if (status.reason == 403) " — سرور اجازه‌ی دانلود از داخل برنامه رو نمی‌ده"
+                    else if (status.reason == 404) " — فایل روی سرور پیدا نشد"
+                    else ""
+                else -> "خطای نامشخص (کد " + status.reason + ")"
+            }
+            else -> null
+        }
     }
 
     /** دانلودی که هنوز در حال انجامه رو واقعاً لغو می‌کنه (نه فقط از لیست اپ حذفش می‌کنه). */
