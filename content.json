@@ -2771,5 +2771,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793551191497",
+    "type": "home_banner",
+    "title": "ثبت فرم آگاهی از سلامت دانش آموزان",
+    "description": "📢 تکمیل فرم آگاهی از سلامت دانش‌آموزان\n🧑‍🎓 ویژه دانش‌آموزان سال تحصیلی ۱۴۰۶–۱۴۰۵\n✅ تکمیل فرم به‌صورت الکترونیکی\n✅ ثبت در سامانه آموزش‌وپرورش\n✅ انجام سریع و بدون دردسر\nاگر برای تکمیل فرم سلامت فرزندتان مشکل دارید، انجامش را به ما بسپارید.",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1793551187203-0-file-00000000b61481f4815c1b0c5fa1fbd2.png"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
