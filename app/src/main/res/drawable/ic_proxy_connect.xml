@@ -1,0 +1,5 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- هواپیمای کاغذی داخل یک سپر؛ رنگ آن در کد (قطع/اتصال/وصل) عوض می‌شود -->
+    <path android:fillColor="#FFFFFF" android:fillType="evenOdd" android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5L12,1z M17.2,8.6l-1.6,7.6c-0.1,0.5 -0.7,0.7 -1.1,0.4l-2.4,-1.8 -1.2,1.1c-0.3,0.3 -0.8,0.1 -0.9,-0.3l-0.5,-2.2 -2.2,-0.8c-0.5,-0.2 -0.5,-0.9 0,-1.1l8.4,-3.3c0.5,-0.2 0.9,0.1 0.8,0.5z"/>
+</vector>
