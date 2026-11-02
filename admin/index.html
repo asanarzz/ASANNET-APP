@@ -553,6 +553,23 @@
         </div>
 
         <div class="card">
+          <h2>پاک‌سازی خراب‌ها بر اساس گزارش کاربران</h2>
+          <p class="muted">
+            هر گوشی بعد از تست، فقط «کار کرد / کار نکرد» هر پروکسی را برای تو می‌فرستد (بدون هیچ اطلاعات شخصی).
+            اینجا پروکسی‌هایی را که چند بار خراب گزارش شده‌اند و حتی یک‌بار هم کار نکرده‌اند، یک‌جا پاک می‌کنی.
+            (اول باید فایل <b>supabase_proxy_reports.sql</b> را در Supabase اجرا کرده باشی.)
+          </p>
+          <label>حداقل تعداد گزارش خرابی برای حذف</label>
+          <input type="text" id="px-rep-min" value="3" style="direction:ltr; text-align:left;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn-outline btn-small" id="btn-px-rep-check">بررسی گزارش‌ها</button>
+            <button class="btn-danger btn-small" id="btn-px-rep-clean">حذف پروکسی‌های خراب</button>
+            <button class="btn-outline btn-small" id="btn-px-rep-clear">پاک کردن گزارش‌ها</button>
+          </div>
+          <div id="px-rep-info" class="muted" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="card">
           <h2>پروکسی‌های ثبت‌شده <span id="px-count" class="muted" style="font-weight:400; font-size:12px;"></span>
             <button class="link-btn" id="btn-px-refresh" style="float:left;">بارگذاری مجدد</button>
           </h2>
@@ -3192,6 +3209,60 @@ async function pxAction(act, id) {
   } catch (e) { toast(e.message, 'error'); }
 }
 
+let pxRepBad = [];
+
+async function pxRepCheck() {
+  const min = Math.max(1, parseInt(lkToEnDigits($('px-rep-min').value.trim()), 10) || 3);
+  try {
+    const res = await adsFetch('/rest/v1/rpc/proxy_report_summary', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    });
+    if (!res.ok) throw new Error('خطا در دریافت گزارش‌ها (' + res.status + ') — فایل supabase_proxy_reports.sql را اجرا کرده‌ای؟');
+    const rows = await res.json();
+    const map = new Map(rows.map((r) => [r.proxy_key, r]));
+    pxRepBad = [];
+    let reported = 0, good = 0;
+    pxRows.forEach((p) => {
+      const r = map.get(p.type + '://' + p.host + ':' + p.port);
+      if (!r) return;
+      reported++;
+      if (Number(r.ok_count) > 0) good++;
+      else if (Number(r.fail_count) >= min) pxRepBad.push(p);
+    });
+    $('px-rep-info').textContent =
+      'از ' + pxRows.length + ' پروکسی ثبت‌شده، ' + reported + ' تا گزارش دارند؛ ' + good +
+      ' تا حداقل یک‌بار کار کرده‌اند و ' + pxRepBad.length + ' تا (حداقل ' + min + ' گزارش خرابی و بدون هیچ گزارش موفق) خراب‌اند.';
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function pxRepClean() {
+  await pxRepCheck();
+  if (!pxRepBad.length) { toast('پروکسی خرابی برای حذف پیدا نشد', 'error'); return; }
+  if (!confirm(pxRepBad.length + ' پروکسی خراب برای همیشه حذف شود؟')) return;
+  try {
+    for (let i = 0; i < pxRepBad.length; i += 50) {
+      const ids = pxRepBad.slice(i, i + 50).map((p) => p.id).join(',');
+      const res = await adsFetch('/rest/v1/proxies?id=in.(' + ids + ')', { method: 'DELETE' });
+      if (!res.ok) throw new Error('حذف ناموفق بود (' + res.status + ')');
+    }
+    toast(pxRepBad.length + ' پروکسی خراب حذف شد', 'success');
+    pxRepBad = [];
+    $('px-rep-info').textContent = '';
+    pxLoad();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function pxRepClear() {
+  if (!confirm('همه‌ی گزارش‌های ذخیره‌شده پاک شود؟ (پروکسی‌ها دست نمی‌خورند)')) return;
+  try {
+    const res = await adsFetch('/rest/v1/proxy_reports?id=gt.0', { method: 'DELETE' });
+    if (!res.ok) throw new Error('پاک کردن ناموفق بود (' + res.status + ')');
+    toast('گزارش‌ها پاک شد', 'success');
+    $('px-rep-info').textContent = '';
+    pxRepBad = [];
+  } catch (e) { toast(e.message, 'error'); }
+}
+
 async function pxBulkAction(kind) {
   const text = {
     disable: 'همه‌ی پروکسی‌ها غیرفعال شوند؟ (کاربران دیگر آن‌ها را نمی‌بینند)',
@@ -3224,6 +3295,9 @@ $('btn-px-add').addEventListener('click', pxAddOne);
 $('btn-px-bulk').addEventListener('click', pxBulkAdd);
 $('btn-px-fetch').addEventListener('click', pxFetchUrl);
 $('btn-px-file').addEventListener('click', pxAddFromFile);
+$('btn-px-rep-check').addEventListener('click', pxRepCheck);
+$('btn-px-rep-clean').addEventListener('click', pxRepClean);
+$('btn-px-rep-clear').addEventListener('click', pxRepClear);
 $('px-file').addEventListener('change', () => { const f = $('px-file').files[0]; $('px-file-info').textContent = f ? ('فایل انتخاب‌شده: ' + f.name) : ''; });
 $('btn-px-disable-all').addEventListener('click', () => pxBulkAction('disable'));
 $('btn-px-delete-disabled').addEventListener('click', () => pxBulkAction('deleteDisabled'));
