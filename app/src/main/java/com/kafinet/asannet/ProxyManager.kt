@@ -301,10 +301,23 @@ object ProxyManager {
         return try {
             if (!probe(entry, "https://www.google.com/generate_204", timeoutMs)) return null
             if (!strict) return (System.nanoTime() - start) / 1_000_000
-            // تست سخت‌گیرانه: بعضی پروکسی‌ها گوگل را رد می‌کنند ولی اینستاگرام (متا) IP آن‌ها را بسته است؛
-            // پس برای «سالم» حساب شدن، پروکسی باید واقعاً به اینستاگرام هم برسد. پینگ هم همین مرحله حساب می‌شود.
-            val t2 = System.nanoTime()
-            if (probe(entry, "https://www.instagram.com/", timeoutMs)) (System.nanoTime() - t2) / 1_000_000 else null
+            // تست سخت‌گیرانه: پروکسی باید به چند سایتِ فیلترشده‌ی مختلف برسد (اینستاگرام، یوتیوب، تلگرام)،
+            // نه فقط یکی. اگر حداقل ۲ تا از این ۳ سایت باز شوند «سالم» حساب می‌شود و پینگ، میانگین همین‌هاست.
+            val sites = listOf(
+                "https://www.instagram.com/",
+                "https://www.youtube.com/generate_204",
+                "https://telegram.org/"
+            )
+            var okCount = 0
+            var failCount = 0
+            var totalMs = 0L
+            for (u in sites) {
+                val t = System.nanoTime()
+                val ok = try { probe(entry, u, timeoutMs) } catch (e: Exception) { false }
+                if (ok) { okCount++; totalMs += (System.nanoTime() - t) / 1_000_000 } else failCount++
+                if (okCount >= 2 || failCount >= 2) break
+            }
+            if (okCount >= 2) totalMs / okCount else null
         } catch (e: Exception) {
             null
         }
