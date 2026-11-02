@@ -56,21 +56,12 @@ class MusicPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun toFa(s: String): String =
-        s.map { c ->
-            when {
-                c in '0'..'9' -> '۰' + (c - '0')
-                c == '.' -> '٫'
-                else -> c
-            }
-        }.joinToString("")
-
     private fun mb(bytes: Long): String =
-        toFa(String.format(java.util.Locale.US, "%.1f", bytes / 1048576.0))
+        String.format(java.util.Locale.US, "%.1f", bytes / 1048576.0)
 
     private fun clock(ms: Long): String {
         val total = (ms / 1000).coerceAtLeast(0)
-        return toFa(String.format(java.util.Locale.US, "%d:%02d", total / 60, total % 60))
+        return String.format(java.util.Locale.US, "%d:%02d", total / 60, total % 60)
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
@@ -233,7 +224,7 @@ class MusicPlayerActivity : AppCompatActivity() {
         val index = MusicPlayerService.currentIndex
         titleView.text = titles.getOrNull(index).orEmpty()
         counterView.text = if (titles.size > 1) {
-            "آهنگ " + toFa((index + 1).toString()) + " از " + toFa(titles.size.toString())
+            "آهنگ " + (index + 1).toString() + " از " + titles.size.toString()
         } else ""
 
         val error = MusicPlayerService.errorText
@@ -251,7 +242,7 @@ class MusicPlayerActivity : AppCompatActivity() {
                 val percent = (done * 100 / total).toInt().coerceIn(0, 100)
                 prepareBar.isIndeterminate = false
                 prepareBar.progress = percent
-                prepareDetail.text = toFa(percent.toString()) + "٪ — " + mb(done) + " از " + mb(total) + " مگابایت"
+                prepareDetail.text = percent.toString() + "٪ - " + mb(done) + " از " + mb(total) + " مگابایت"
             } else if (done > 0) {
                 prepareBar.isIndeterminate = true
                 prepareDetail.text = mb(done) + " مگابایت دانلود شد"
@@ -266,9 +257,9 @@ class MusicPlayerActivity : AppCompatActivity() {
         prevButton.isEnabled = true
         nextButton.isEnabled = index + 1 < titles.size
         modeButton.text = if (MusicPlayerService.playAll) {
-            "حالت پخش: پخش همه (پشت‌سرهم) — برای تغییر بزن"
+            "حالت پخش: پخش همه (برای تغییر بزن)"
         } else {
-            "حالت پخش: یکی‌یکی — برای تغییر بزن"
+            "حالت پخش: یکی‌یکی (برای تغییر بزن)"
         }
         updateSeek()
     }

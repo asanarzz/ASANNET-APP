@@ -85,11 +85,25 @@ class VideoDetailActivity : AppCompatActivity() {
         button.setOnClickListener {
             if (DownloadHelper.ensureStoragePermission(this)) {
                 val downloadTitle = if (label.isBlank()) itemTitle else "$itemTitle - $label"
-                DownloadHelper.downloadUrl(this, resolveUrl(url), downloadTitle)
+                showDownloadChoice(resolveUrl(url), downloadTitle)
             }
         }
 
         binding.layoutDownloadLinks.addView(button, params)
+    }
+
+    /** دو انتخاب: دانلود همین الان، یا فقط اضافه‌کردن به لیست دانلود (بعداً از «دانلودها» شروعش می‌کنی). */
+    private fun showDownloadChoice(url: String, downloadTitle: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(downloadTitle)
+            .setItems(arrayOf("دانلود همین الان", "افزودن به لیست دانلود")) { _, which ->
+                if (which == 0) {
+                    DownloadHelper.downloadUrl(this, url, downloadTitle)
+                } else {
+                    DownloadHelper.addToDownloadList(this, url, downloadTitle)
+                }
+            }
+            .show()
     }
 
     private fun resolveUrl(url: String): String {

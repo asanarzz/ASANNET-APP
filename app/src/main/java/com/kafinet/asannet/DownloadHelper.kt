@@ -38,27 +38,41 @@ object DownloadHelper {
         return granted
     }
 
-    /** فایل را از لینک داده‌شده در پوشه‌ی عمومی Downloads گوشی ذخیره می‌کند. */
+    /**
+     * فایل را از لینک داده‌شده با موتور دانلودِ خود برنامه (AppDownloadService) در پوشه‌ی
+     * Downloads/آسان نت ذخیره می‌کند و همین الان شروع می‌کند.
+     */
     fun downloadUrl(context: Context, url: String, title: String) {
+        enqueueAppDownload(context, url, title, startNow = true)
+    }
+
+    /** لینک را فقط به «لیست دانلود» اضافه می‌کند؛ دانلود وقتی شروع می‌شود که کاربر تو صفحه‌ی دانلودها ▶ را بزند. */
+    fun addToDownloadList(context: Context, url: String, title: String) {
+        enqueueAppDownload(context, url, title, startNow = false)
+    }
+
+    private fun enqueueAppDownload(context: Context, url: String, title: String, startNow: Boolean) {
         if (url.isBlank() || !(url.startsWith("http://") || url.startsWith("https://"))) {
             Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
             return
         }
         try {
-            val fileName = title.ifBlank { "kafinet_file" }.replace(Regex("[^A-Za-z0-9آ-ی_\\- ]"), "_") +
-                guessExtension(url)
-
-            val request = DownloadManager.Request(Uri.parse(url))
-                .setTitle(fileName)
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-                .setAllowedOverMetered(true)
-                .setAllowedOverRoaming(true)
-
-            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val id = manager.enqueue(request)
-            AppDownloadManager.registerDownload(context, id, fileName, url)
-            Toast.makeText(context, "در حال دانلود در پوشه‌ی Downloads…", Toast.LENGTH_SHORT).show()
+            // اگه همین لینک قبلاً تو لیست بوده یا نیمه‌کاره مونده، همون رو ادامه می‌دیم (نه یه ردیف تکراری)
+            val existing = AppDownloadManager.findOpenAppRecordByUrl(context, url)
+            val id = existing?.downloadId ?: run {
+                val fileName = AppDownloadStorage.sanitize(title.ifBlank { "kafinet_file" }) + guessExtension(url)
+                AppDownloadManager.registerAppDownload(context, fileName, url)
+            }
+            if (startNow) {
+                AppDownloadService.start(context, id)
+                Toast.makeText(
+                    context, "دانلود شروع شد — پیشرفتش رو تو «دانلودها» ببین", Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    context, "به لیست دانلود اضافه شد — از «دانلودها» شروعش کن", Toast.LENGTH_SHORT
+                ).show()
+            }
         } catch (e: Exception) {
             Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
         }
@@ -98,12 +112,15 @@ object DownloadHelper {
                 val values = android.content.ContentValues().apply {
                     put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                     put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + AppDownloadStorage.FOLDER_NAME)
                 }
                 val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return false
                 resolver.openOutputStream(uri)?.use { it.write(bytes) } ?: return false
             } else {
-                val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val dir = java.io.File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    AppDownloadStorage.FOLDER_NAME
+                )
                 if (!dir.exists()) dir.mkdirs()
                 java.io.File(dir, fileName).outputStream().use { it.write(bytes) }
             }
@@ -408,6 +425,13 @@ object DownloadHelper {
     }
 
     /**
+     * حجم به مگابایت، با ارقام لاتین. فونت برنامه (یکان بوم) خودش ارقام لاتین رو با شکل فارسی
+     * می‌کشه؛ ولی ارقام فارسی ۰۱۲۳۷۸۹ تو فونت نیست و با فونت دیگه‌ای کشیده می‌شه که بالا‌پایین دیده می‌شه.
+     */
+    private fun mbPlain(bytes: Long): String =
+        String.format(java.util.Locale.US, "%.1f", bytes / 1048576.0)
+
+    /**
      * مثل downloadAndOpenExternally، ولی به‌جای توست، یه پنجره با متن «در حال آماده‌سازی فایل…»
      * و زیرش نوار پر‌شونده‌ی دانلود (درصد + حجم + دکمه‌ی لغو) نشون می‌ده. بعد از تموم‌شدن
      * دانلود، همون لیست انتخاب پلیر باز می‌شه. فعلاً فقط برای موزیک استفاده می‌شه.
@@ -503,9 +527,9 @@ object DownloadHelper {
                                     if (total > 0) {
                                         val percent = (d * 100 / total).toInt().coerceIn(0, 100)
                                         bar.progress = percent
-                                        detailText.text = toFa(percent.toString()) + "٪ — " + mb(d) + " از " + mb(total) + " مگابایت"
+                                        detailText.text = percent.toString() + "٪ - " + mbPlain(d) + " از " + mbPlain(total) + " مگابایت"
                                     } else {
-                                        detailText.text = mb(d) + " مگابایت دانلود شد"
+                                        detailText.text = mbPlain(d) + " مگابایت دانلود شد"
                                     }
                                 }
                             }

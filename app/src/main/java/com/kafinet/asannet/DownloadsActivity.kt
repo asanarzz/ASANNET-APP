@@ -20,7 +20,7 @@ class DownloadsActivity : AppCompatActivity() {
     private val refreshRunnable = object : Runnable {
         override fun run() {
             loadDownloads()
-            refreshHandler.postDelayed(this, 1500)
+            refreshHandler.postDelayed(this, 1000)
         }
     }
 
@@ -42,12 +42,23 @@ class DownloadsActivity : AppCompatActivity() {
                 val status = AppDownloadManager.queryStatus(this, record.downloadId)
                 val stillActive = status.state == DownloadState.RUNNING ||
                     status.state == DownloadState.PENDING ||
-                    status.state == DownloadState.PAUSED
+                    status.state == DownloadState.PAUSED ||
+                    status.state == DownloadState.LISTED ||
+                    status.state == DownloadState.FAILED
                 if (stillActive) {
+                    // برای دانلودهای نیمه‌کاره، فایل ناقص هم پاک می‌شه
                     AppDownloadManager.cancelDownload(this, record.downloadId)
                 }
                 AppDownloadManager.removeRecord(this, record.downloadId)
                 loadDownloads()
+            },
+            onToggle = { record, status ->
+                if (status.state == DownloadState.RUNNING) {
+                    AppDownloadService.pause(this, record.downloadId)
+                } else if (DownloadHelper.ensureStoragePermission(this)) {
+                    // شروع (از لیست)، ادامه (بعد از توقف) یا تلاش دوباره (بعد از خطا)
+                    AppDownloadService.start(this, record.downloadId)
+                }
             }
         )
         binding.recyclerDownloads.layoutManager = LinearLayoutManager(this)
@@ -58,7 +69,7 @@ class DownloadsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        refreshHandler.postDelayed(refreshRunnable, 1500)
+        refreshHandler.postDelayed(refreshRunnable, 1000)
     }
 
     override fun onPause() {
