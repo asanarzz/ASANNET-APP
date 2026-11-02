@@ -3,6 +3,8 @@ package com.kafinet.asannet
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -52,6 +54,31 @@ class ProxyListSheet(
     private var testJob: Job? = null
     private var loadingList = false
 
+    // فهرست شناسه‌ها را یک‌بار می‌خوانیم؛ قبلاً برای هر ردیف و در هر بار رسم، فایل ذخیره‌شده دوباره
+    // خوانده و تجزیه می‌شد و با ۲۰۰ پروکسی صفحه را قفل می‌کرد.
+    private var customIds: Set<String> = emptySet()
+    private var cachedIds: Set<String> = emptySet()
+
+    private fun reloadSets() {
+        customIds = ProxyRepository.custom(activity).map { it.id }.toSet()
+        cachedIds = ProxyRepository.cached(activity).map { it.id }.toSet()
+    }
+
+    private fun isCustom(p: ProxyEntry): Boolean = p.id in customIds && p.id !in cachedIds
+
+    // رسم دوباره‌ی لیست را در حین تست حداکثر هر ۳۰۰ میلی‌ثانیه یک‌بار انجام می‌دهیم
+    private val uiHandler = Handler(Looper.getMainLooper())
+    private var renderPending = false
+
+    private fun scheduleRender() {
+        if (renderPending) return
+        renderPending = true
+        uiHandler.postDelayed({
+            renderPending = false
+            if (dialog.isShowing) render()
+        }, 300)
+    }
+
     fun show() {
         dialog = BottomSheetDialog(activity)
         dialog.setContentView(buildContent())
@@ -60,6 +87,7 @@ class ProxyListSheet(
             testing.clear()
             onChanged()
         }
+        reloadSets()
         items = ProxyRepository.all(activity)
         items.forEach { p -> ProxyManager.cachedPing(p.id)?.let { pings[p.id] = it } }
         render()
@@ -147,7 +175,7 @@ class ProxyListSheet(
         listBox.removeAllViews()
         if (::clearCustomLink.isInitialized) {
             clearCustomLink.visibility =
-                if (ProxyRepository.custom(activity).isNotEmpty()) View.VISIBLE else View.GONE
+                if (customIds.isNotEmpty()) View.VISIBLE else View.GONE
         }
 
         if (items.isEmpty()) {
@@ -193,7 +221,7 @@ class ProxyListSheet(
             nameCol.addView(text(p.name, 14f, cText, bold = true).apply { maxLines = 1 })
             val sub = buildString {
                 append(p.typeLabel)
-                if (ProxyRepository.isCustom(activity, p)) append("  •  دستی")
+                if (isCustom(p)) append("  •  دستی")
                 if (!p.user.isNullOrBlank()) append("  •  رمزدار")
             }
             nameCol.addView(text(sub, 11f, cMuted))
@@ -210,7 +238,7 @@ class ProxyListSheet(
             row.addView(text(label, 12f, color, bold = true))
 
             // پروکسی‌هایی که خود کاربر اضافه کرده، دکمه‌ی حذف جدا دارند
-            if (ProxyRepository.isCustom(activity, p)) {
+            if (isCustom(p)) {
                 row.addView(text("حذف", 12f, cRed, bold = true).apply {
                     setPadding(dp(14), dp(8), dp(2), dp(8))
                     setOnClickListener { confirmDelete(p) }
@@ -219,7 +247,7 @@ class ProxyListSheet(
 
             row.setOnClickListener { connect(p) }
             row.setOnLongClickListener {
-                if (ProxyRepository.isCustom(activity, p)) confirmDelete(p)
+                if (isCustom(p)) confirmDelete(p)
                 true
             }
             listBox.addView(row, LinearLayout.LayoutParams(
@@ -259,6 +287,7 @@ class ProxyListSheet(
             val remote = ProxyRepository.fetchRemote(activity)
             loadingList = false
             if (!dialog.isShowing) return@launch
+            reloadSets()
             items = ProxyRepository.all(activity)
             if (remote == null && items.isNotEmpty()) {
                 toast("به سرور وصل نشدم؛ لیست ذخیره‌شده‌ی قبلی را می‌بینی.")
@@ -284,12 +313,13 @@ class ProxyListSheet(
                             val ms = ProxyManager.test(p, 3500, quick = true)
                             pings[p.id] = ms ?: -1L
                             testing.remove(p.id)
-                            if (dialog.isShowing) render()
+                            scheduleRender()
                         }
                     }
                 }.awaitAll()
             } finally {
                 testing.clear()
+                scheduleRender()
             }
         }
     }
@@ -322,6 +352,7 @@ class ProxyListSheet(
                 }
                 if (ok.isNotEmpty()) {
                     ProxyRepository.addCustom(activity, ok)
+                    reloadSets()
                     items = ProxyRepository.all(activity)
                     testAll()
                 }
@@ -341,8 +372,11 @@ class ProxyListSheet(
             .setMessage("همه‌ی پروکسی‌هایی که خودت اضافه کرده‌ای حذف شود؟ (لیست اصلی برنامه دست نمی‌خورد)")
             .setPositiveButton("حذف همه") { _, _ ->
                 val a = ProxyManager.active
-                if (a != null && ProxyRepository.isCustom(activity, a)) ProxyManager.setActive(activity, null)
+                if (a != null && isCustom(a)) ProxyManager.setActive(activity, null)
+                testJob?.cancel()
+                testing.clear()
                 ProxyRepository.clearCustom(activity)
+                reloadSets()
                 items = ProxyRepository.all(activity)
                 updateStatus(); render(); onChanged()
             }
@@ -356,6 +390,7 @@ class ProxyListSheet(
             .setPositiveButton("حذف") { _, _ ->
                 if (ProxyManager.active?.id == p.id) ProxyManager.setActive(activity, null)
                 ProxyRepository.removeCustom(activity, p)
+                reloadSets()
                 items = ProxyRepository.all(activity)
                 updateStatus(); render(); onChanged()
             }
