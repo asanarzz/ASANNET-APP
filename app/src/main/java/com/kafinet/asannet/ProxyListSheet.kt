@@ -44,6 +44,7 @@ class ProxyListSheet(
     private lateinit var statusText: TextView
     private lateinit var listBox: LinearLayout
     private lateinit var disconnectBtn: TextView
+    private lateinit var clearCustomLink: TextView
 
     private var items: List<ProxyEntry> = emptyList()
     private val pings = HashMap<String, Long>()      // پینگ به میلی‌ثانیه؛ ‎-1 یعنی کار نمی‌کند
@@ -102,6 +103,12 @@ class ProxyListSheet(
         buttons.addView(disconnectBtn, pillLp())
         root.addView(buttons)
 
+        clearCustomLink = text("حذف همه‌ی پروکسی‌هایی که خودم اضافه کرده‌ام", 12f, cRed, bold = true).apply {
+            setPadding(0, dp(12), 0, dp(2))
+            setOnClickListener { confirmClearCustom() }
+        }
+        root.addView(clearCustomLink)
+
         listBox = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             layoutDirection = View.LAYOUT_DIRECTION_RTL
@@ -138,6 +145,10 @@ class ProxyListSheet(
     private fun render() {
         if (!::listBox.isInitialized) return
         listBox.removeAllViews()
+        if (::clearCustomLink.isInitialized) {
+            clearCustomLink.visibility =
+                if (ProxyRepository.custom(activity).isNotEmpty()) View.VISIBLE else View.GONE
+        }
 
         if (items.isEmpty()) {
             val msg = if (loadingList) "در حال دریافت لیست…"
@@ -197,6 +208,14 @@ class ProxyListSheet(
                 else -> "$ping ms" to cOrange
             }
             row.addView(text(label, 12f, color, bold = true))
+
+            // پروکسی‌هایی که خود کاربر اضافه کرده، دکمه‌ی حذف جدا دارند
+            if (ProxyRepository.isCustom(activity, p)) {
+                row.addView(text("حذف", 12f, cRed, bold = true).apply {
+                    setPadding(dp(14), dp(8), dp(2), dp(8))
+                    setOnClickListener { confirmDelete(p) }
+                })
+            }
 
             row.setOnClickListener { connect(p) }
             row.setOnLongClickListener {
@@ -312,6 +331,20 @@ class ProxyListSheet(
                     if (bad > 0) append(" (نامعتبر: $bad)")
                 }
                 toast(msg)
+            }
+            .setNegativeButton("انصراف", null)
+            .show()
+    }
+
+    private fun confirmClearCustom() {
+        AlertDialog.Builder(activity)
+            .setMessage("همه‌ی پروکسی‌هایی که خودت اضافه کرده‌ای حذف شود؟ (لیست اصلی برنامه دست نمی‌خورد)")
+            .setPositiveButton("حذف همه") { _, _ ->
+                val a = ProxyManager.active
+                if (a != null && ProxyRepository.isCustom(activity, a)) ProxyManager.setActive(activity, null)
+                ProxyRepository.clearCustom(activity)
+                items = ProxyRepository.all(activity)
+                updateStatus(); render(); onChanged()
             }
             .setNegativeButton("انصراف", null)
             .show()

@@ -39,6 +39,12 @@ object ProxyRepository {
         ProxyManager.refreshKnown(context)
     }
 
+    /** همه‌ی پروکسی‌هایی که خود کاربر دستی اضافه کرده را پاک می‌کند (لیست سرور دست نمی‌خورد). */
+    fun clearCustom(context: Context) {
+        writeList(context, KEY_CUSTOM, emptyList())
+        ProxyManager.refreshKnown(context)
+    }
+
     fun isCustom(context: Context, entry: ProxyEntry): Boolean =
         custom(context).any { it.id == entry.id } && cached(context).none { it.id == entry.id }
 
