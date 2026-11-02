@@ -560,7 +560,7 @@
             (اول باید فایل <b>supabase_proxy_reports.sql</b> را در Supabase اجرا کرده باشی.)
           </p>
           <label>حداقل تعداد گزارش خرابی برای حذف</label>
-          <input type="text" id="px-rep-min" value="3" style="direction:ltr; text-align:left;">
+          <input type="text" id="px-rep-min" value="1" style="direction:ltr; text-align:left;">
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
             <button class="btn-outline btn-small" id="btn-px-rep-check">بررسی گزارش‌ها</button>
             <button class="btn-danger btn-small" id="btn-px-rep-clean">حذف پروکسی‌های خراب</button>
@@ -3212,7 +3212,7 @@ async function pxAction(act, id) {
 let pxRepBad = [];
 
 async function pxRepCheck() {
-  const min = Math.max(1, parseInt(lkToEnDigits($('px-rep-min').value.trim()), 10) || 3);
+  const min = Math.max(1, parseInt(lkToEnDigits($('px-rep-min').value.trim()), 10) || 1);
   try {
     const res = await adsFetch('/rest/v1/rpc/proxy_report_summary', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
