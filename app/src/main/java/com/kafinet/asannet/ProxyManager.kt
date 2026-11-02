@@ -226,10 +226,36 @@ object ProxyManager {
      * یک درخواست واقعی HTTPS را از داخل همین پروکسی می‌فرستد.
      * اگر جواب بدهد، پروکسی واقعاً کار می‌کند و پینگ (میلی‌ثانیه) برمی‌گردد؛ وگرنه null.
      */
-    suspend fun test(entry: ProxyEntry, timeoutMs: Int = 7000): Long? = withContext(Dispatchers.IO) {
+    suspend fun test(entry: ProxyEntry, timeoutMs: Int = 7000, quick: Boolean = false): Long? =
+        withContext(Dispatchers.IO) {
+            val ms = doTest(entry, timeoutMs, quick)
+            pingCache[entry.id] = Pair(ms ?: -1L, System.currentTimeMillis())
+            ms
+        }
+
+    // نتیجه‌ی تست‌ها ۱۰ دقیقه نگه داشته می‌شود تا هر بار که پنجره باز می‌شود از اول تست نشود
+    private val pingCache = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Long>>()
+    private const val PING_CACHE_MS = 10 * 60 * 1000L
+
+    /** آخرین نتیجه‌ی تست این پروکسی (اگر کمتر از ۱۰ دقیقه گذشته باشد)؛ ‎-1 یعنی کار نمی‌کرد. */
+    fun cachedPing(id: String): Long? {
+        val p = pingCache[id] ?: return null
+        return if (System.currentTimeMillis() - p.second < PING_CACHE_MS) p.first else null
+    }
+
+    private fun doTest(entry: ProxyEntry, timeoutMs: Int, quick: Boolean): Long? {
         registerKnown(entry)
         val start = System.nanoTime()
-        try {
+        // تست سریع: اول فقط ببین پورت پروکسی اصلاً باز است یا نه. پروکسی‌های مرده همین‌جا
+        // در کمتر از ۲ ثانیه کنار گذاشته می‌شوند و منتظر تایم‌اوت کامل نمی‌مانیم.
+        if (quick) {
+            try {
+                java.net.Socket().use { s -> s.connect(InetSocketAddress(entry.host, entry.port), 2000) }
+            } catch (e: Exception) {
+                return null
+            }
+        }
+        return try {
             val conn = URL("https://www.google.com/generate_204").openConnection(entry.toJavaProxy()) as HttpURLConnection
             conn.connectTimeout = timeoutMs
             conn.readTimeout = timeoutMs
@@ -238,8 +264,6 @@ object ProxyManager {
             val code = conn.responseCode
             conn.disconnect()
             if (code in 200..399) (System.nanoTime() - start) / 1_000_000 else null
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
             null
         }

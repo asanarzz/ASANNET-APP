@@ -60,6 +60,7 @@ class ProxyListSheet(
             onChanged()
         }
         items = ProxyRepository.all(activity)
+        items.forEach { p -> ProxyManager.cachedPing(p.id)?.let { pings[p.id] = it } }
         render()
         dialog.show()
         dialog.behavior.skipCollapsed = true
@@ -96,7 +97,7 @@ class ProxyListSheet(
             toast("پروکسی قطع شد.")
             updateStatus(); render(); onChanged()
         }
-        buttons.addView(pill("به‌روزرسانی و تست", filled = true, color = cPrimary) { refresh() }, pillLp())
+        buttons.addView(pill("به‌روزرسانی و تست", filled = true, color = cPrimary) { refresh(force = true) }, pillLp())
         buttons.addView(pill("افزودن دستی", filled = false, color = cPrimary) { showAddDialog() }, pillLp())
         buttons.addView(disconnectBtn, pillLp())
         root.addView(buttons)
@@ -231,7 +232,7 @@ class ProxyListSheet(
     }
 
     /** لیست را از سرور می‌گیرد و بعد همه را تست می‌کند. */
-    private fun refresh() {
+    private fun refresh(force: Boolean = false) {
         if (loadingList) return
         loadingList = true
         render()
@@ -244,23 +245,24 @@ class ProxyListSheet(
                 toast("به سرور وصل نشدم؛ لیست ذخیره‌شده‌ی قبلی را می‌بینی.")
             }
             render()
-            testAll()
+            testAll(force)
         }
     }
 
-    private fun testAll() {
+    /** force=false: فقط پروکسی‌هایی که در ۱۰ دقیقه‌ی اخیر تست نشده‌اند تست می‌شوند. */
+    private fun testAll(force: Boolean = true) {
         testJob?.cancel()
-        val targets = items.toList()
+        val targets = items.filter { force || ProxyManager.cachedPing(it.id) == null }
         if (targets.isEmpty()) return
         targets.forEach { pings.remove(it.id); testing.add(it.id) }
         render()
         testJob = activity.lifecycleScope.launch {
             try {
-                val sem = Semaphore(10)
+                val sem = Semaphore(40)
                 targets.map { p ->
                     async {
                         sem.withPermit {
-                            val ms = ProxyManager.test(p, 6000)
+                            val ms = ProxyManager.test(p, 3500, quick = true)
                             pings[p.id] = ms ?: -1L
                             testing.remove(p.id)
                             if (dialog.isShowing) render()
