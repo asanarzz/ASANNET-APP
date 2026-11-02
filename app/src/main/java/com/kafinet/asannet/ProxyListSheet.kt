@@ -46,6 +46,7 @@ class ProxyListSheet(
     private lateinit var statusText: TextView
     private lateinit var listBox: LinearLayout
     private lateinit var disconnectBtn: TextView
+    private lateinit var countText: TextView
     private lateinit var clearCustomLink: TextView
 
     private var items: List<ProxyEntry> = emptyList()
@@ -112,6 +113,10 @@ class ProxyListSheet(
         statusText = text("", 13f, cMuted).apply { setPadding(0, dp(4), 0, 0) }
         root.addView(statusText)
 
+        // شمارنده: تعداد کل، سالم، خراب و آن‌هایی که هنوز در حال تست‌اند
+        countText = text("", 12f, cMuted, bold = true).apply { setPadding(0, dp(6), 0, 0) }
+        root.addView(countText)
+
         root.addView(text(
             "یکی از پروکسی‌ها را لمس کن تا وصل شود. وقتی وصل باشی، همه‌ی برنامه (از جمله لینک‌هایی مثل اینستاگرام) از سد فیلترینگ رد می‌شود.",
             12f, cMuted
@@ -170,8 +175,34 @@ class ProxyListSheet(
         disconnectBtn.visibility = if (a != null) View.VISIBLE else View.GONE
     }
 
+    private fun updateCounts() {
+        if (!::countText.isInitialized) return
+        val total = items.size
+        if (total == 0) {
+            countText.text = ""
+            return
+        }
+        var ok = 0
+        var dead = 0
+        items.forEach { p ->
+            val v = pings[p.id]
+            if (v != null && v > 0) ok++ else if (v != null && v < 0) dead++
+        }
+        val inTest = items.count { it.id in testing }
+        val sb = StringBuilder("کل: $total   •   سالم: $ok   •   خراب: $dead")
+        if (inTest > 0) {
+            sb.append("   •   در حال تست: $inTest")
+            countText.setTextColor(cOrange)
+        } else {
+            sb.append("   •   تست تمام شد ✓")
+            countText.setTextColor(cMuted)
+        }
+        countText.text = sb.toString()
+    }
+
     private fun render() {
         if (!::listBox.isInitialized) return
+        updateCounts()
         listBox.removeAllViews()
         if (::clearCustomLink.isInitialized) {
             clearCustomLink.visibility =
