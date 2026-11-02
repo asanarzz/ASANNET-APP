@@ -253,9 +253,9 @@ object ProxyManager {
      * یک درخواست واقعی HTTPS را از داخل همین پروکسی می‌فرستد.
      * اگر جواب بدهد، پروکسی واقعاً کار می‌کند و پینگ (میلی‌ثانیه) برمی‌گردد؛ وگرنه null.
      */
-    suspend fun test(entry: ProxyEntry, timeoutMs: Int = 7000, quick: Boolean = false): Long? =
+    suspend fun test(entry: ProxyEntry, timeoutMs: Int = 7000, quick: Boolean = false, strict: Boolean = false): Long? =
         withContext(Dispatchers.IO) {
-            val ms = doTest(entry, timeoutMs, quick)
+            val ms = doTest(entry, timeoutMs, quick, strict)
             pingCache[entry.id] = Pair(ms ?: -1L, System.currentTimeMillis())
             ms
         }
@@ -270,7 +270,23 @@ object ProxyManager {
         return if (System.currentTimeMillis() - p.second < PING_CACHE_MS) p.first else null
     }
 
-    private fun doTest(entry: ProxyEntry, timeoutMs: Int, quick: Boolean): Long? {
+    /** یک درخواست HTTPS از داخل همین پروکسی؛ true یعنی سایت واقعاً جواب داد. */
+    private fun probe(entry: ProxyEntry, url: String, timeoutMs: Int): Boolean {
+        val conn = URL(url).openConnection(entry.toJavaProxy()) as HttpURLConnection
+        conn.connectTimeout = timeoutMs
+        conn.readTimeout = timeoutMs
+        conn.instanceFollowRedirects = false
+        conn.useCaches = false
+        conn.setRequestProperty(
+            "User-Agent",
+            "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
+        )
+        val code = conn.responseCode
+        conn.disconnect()
+        return code in 200..399
+    }
+
+    private fun doTest(entry: ProxyEntry, timeoutMs: Int, quick: Boolean, strict: Boolean): Long? {
         registerKnown(entry)
         val start = System.nanoTime()
         // تست سریع: اول فقط ببین پورت پروکسی اصلاً باز است یا نه. پروکسی‌های مرده همین‌جا
@@ -283,14 +299,12 @@ object ProxyManager {
             }
         }
         return try {
-            val conn = URL("https://www.google.com/generate_204").openConnection(entry.toJavaProxy()) as HttpURLConnection
-            conn.connectTimeout = timeoutMs
-            conn.readTimeout = timeoutMs
-            conn.instanceFollowRedirects = false
-            conn.useCaches = false
-            val code = conn.responseCode
-            conn.disconnect()
-            if (code in 200..399) (System.nanoTime() - start) / 1_000_000 else null
+            if (!probe(entry, "https://www.google.com/generate_204", timeoutMs)) return null
+            if (!strict) return (System.nanoTime() - start) / 1_000_000
+            // تست سخت‌گیرانه: بعضی پروکسی‌ها گوگل را رد می‌کنند ولی اینستاگرام (متا) IP آن‌ها را بسته است؛
+            // پس برای «سالم» حساب شدن، پروکسی باید واقعاً به اینستاگرام هم برسد. پینگ هم همین مرحله حساب می‌شود.
+            val t2 = System.nanoTime()
+            if (probe(entry, "https://www.instagram.com/", timeoutMs)) (System.nanoTime() - t2) / 1_000_000 else null
         } catch (e: Exception) {
             null
         }

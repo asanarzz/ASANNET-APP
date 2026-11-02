@@ -20,7 +20,7 @@ object ProxyRepository {
     private const val KEY_CACHE = "cached"
     private const val KEY_CUSTOM = "custom"
     private const val KEY_LAST_REPORT = "last_report"
-    private const val REPORT_GAP_MS = 30 * 60 * 1000L
+    private const val REPORT_GAP_MS = 60 * 1000L   // فقط برای جلوگیری از ارسال پشت‌سرهم (اسپم)
 
     fun cached(context: Context): List<ProxyEntry> = readList(context, KEY_CACHE)
 
@@ -62,7 +62,7 @@ object ProxyRepository {
         val routes: List<Proxy> = listOfNotNull(Proxy.NO_PROXY, ProxyManager.active?.toJavaProxy()).distinct()
         for (route in routes) {
             try {
-                val url = URL("$base/rest/v1/proxies?select=*&enabled=eq.true&order=sort_order.asc,created_at.asc&limit=300")
+                val url = URL("$base/rest/v1/proxies?select=*&enabled=eq.true&order=sort_order.asc,created_at.asc&limit=1000")
                 val conn = url.openConnection(route) as HttpURLConnection
                 conn.connectTimeout = 8000
                 conn.readTimeout = 8000
@@ -116,7 +116,7 @@ object ProxyRepository {
         if (base.isBlank() || key.isBlank()) return@withContext
 
         val arr = JSONArray()
-        results.take(500).forEach { (id, ms) ->
+        results.take(1000).forEach { (id, ms) ->
             arr.put(JSONObject().apply {
                 put("proxy_key", id)
                 put("ok", ms > 0)

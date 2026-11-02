@@ -51,6 +51,11 @@ class ProxyListSheet(
     private lateinit var countText: TextView
     private lateinit var deadToggle: TextView
     private var showDead = false
+
+    companion object {
+        // حداکثر تعداد ردیفی که همزمان رسم می‌شود (بقیه پشت صحنه تست می‌شوند و بعد از پنهان شدن خراب‌ها دیده می‌شوند)
+        private const val MAX_ROWS = 150
+    }
     private lateinit var clearCustomLink: TextView
 
     private var items: List<ProxyEntry> = emptyList()
@@ -250,7 +255,8 @@ class ProxyListSheet(
         }.thenBy { pings[it.id]?.takeIf { v -> v > 0 } ?: Long.MAX_VALUE })
 
         val active = ProxyManager.active
-        sorted.forEach { p ->
+        val shown = sorted.take(MAX_ROWS)
+        shown.forEach { p ->
             val isActive = active?.id == p.id
             val ping = pings[p.id]
             val dead = ping != null && ping < 0
@@ -305,6 +311,16 @@ class ProxyListSheet(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dp(8) })
         }
+
+        if (sorted.size > shown.size) {
+            listBox.addView(text(
+                "و ${sorted.size - shown.size} پروکسی دیگر (بعد از پایان تست و پنهان شدن خراب‌ها دیده می‌شوند)",
+                12f, cMuted
+            ).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(8), dp(8), dp(8), dp(16))
+            })
+        }
     }
 
     // ------------------------------------------------------------------ کارها
@@ -355,14 +371,14 @@ class ProxyListSheet(
         if (targets.isEmpty()) return
         targets.forEach { pings.remove(it.id); testing.add(it.id) }
         render()
+        val finished = java.util.concurrent.ConcurrentHashMap<String, Long>()
         testJob = activity.lifecycleScope.launch {
             try {
                 val sem = Semaphore(40)
-                val finished = java.util.concurrent.ConcurrentHashMap<String, Long>()
                 targets.map { p ->
                     async {
                         sem.withPermit {
-                            val ms = ProxyManager.test(p, 3500, quick = true)
+                            val ms = ProxyManager.test(p, 4500, quick = true, strict = true)
                             pings[p.id] = ms ?: -1L
                             finished[p.id] = ms ?: -1L
                             testing.remove(p.id)
@@ -370,16 +386,15 @@ class ProxyListSheet(
                         }
                     }
                 }.awaitAll()
-
-                // تست کامل شد: نتیجه‌ی پروکسی‌های لیست سرور را برای مدیر بفرست (برای پاک‌سازی خراب‌ها از پنل)
+            } finally {
+                testing.clear()
+                scheduleRender()
+                // نتیجه‌ی تست پروکسی‌های لیست سرور را همان لحظه برای مدیر می‌فرستد (حتی اگر پنجره وسط تست بسته شده باشد)
                 val toReport = finished.filterKeys { it in cachedIds }.map { Pair(it.key, it.value) }
                 if (toReport.isNotEmpty()) {
                     val app = activity.applicationContext
                     CoroutineScope(Dispatchers.IO).launch { ProxyRepository.reportResults(app, toReport) }
                 }
-            } finally {
-                testing.clear()
-                scheduleRender()
             }
         }
     }
