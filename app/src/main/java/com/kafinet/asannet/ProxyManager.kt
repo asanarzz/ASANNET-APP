@@ -89,9 +89,31 @@ object ProxyManager {
 
     private var hooksInstalled = false
 
+    /**
+     * سایت‌هایی که هیچ‌وقت از پروکسی رد نمی‌شوند، چون یا خودِ سرویس‌های برنامه‌اند (سوپابیس، گیت‌هاب) یا
+     * سایت ایرانی‌اند (دامنه‌ی ‎.ir‎) و از پروکسی خارجی کندتر باز می‌شوند یا حتی IP خارجی را قبول نمی‌کنند.
+     * پروکسی فقط برای بقیه‌ی سایت‌ها (مثل اینستاگرام) استفاده می‌شود.
+     */
+    @Volatile
+    private var directSuffixes: List<String> = listOf(
+        ".ir", ".supabase.co", ".githubusercontent.com", ".github.io", ".github.com"
+    )
+
+    private fun isDirectHost(host: String?): Boolean {
+        if (host.isNullOrBlank()) return true
+        val h = host.lowercase()
+        return directSuffixes.any { suf -> h == suf.removePrefix(".") || h.endsWith(suf) }
+    }
+
     /** باید در Application.onCreate و قبل از هر درخواست شبکه صدا زده شود. */
     fun init(context: Context) {
         val app = context.applicationContext
+        try {
+            val sbHost = URI(app.getString(R.string.supabase_url)).host
+            if (!sbHost.isNullOrBlank()) directSuffixes = directSuffixes + sbHost.lowercase()
+        } catch (e: Exception) {
+            // مهم نیست؛ پسوند .supabase.co از قبل در لیست هست
+        }
         installHooks()
         refreshKnown(app)
         val saved = loadActive(app)
@@ -149,7 +171,7 @@ object ProxyManager {
                 }
                 val scheme = uri.scheme?.lowercase()
                 if (scheme != "http" && scheme != "https") return listOf(Proxy.NO_PROXY)
-                if (isLocalHost(uri.host)) return listOf(Proxy.NO_PROXY)
+                if (isLocalHost(uri.host) || isDirectHost(uri.host)) return listOf(Proxy.NO_PROXY)
                 return listOf(p.toJavaProxy())
             }
 
@@ -202,6 +224,11 @@ object ProxyManager {
                     .addProxyRule(rule)
                     .addBypassRule("localhost")
                     .addBypassRule("*.local")
+                    .addBypassRule("*.ir")
+                    .addBypassRule("*.supabase.co")
+                    .addBypassRule("*.githubusercontent.com")
+                    .addBypassRule("*.github.io")
+                    .addBypassRule("github.com")
                     .addBypassRule("127.0.0.0/8")
                     .addBypassRule("10.0.0.0/8")
                     .addBypassRule("172.16.0.0/12")
