@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -47,6 +49,8 @@ class ProxyListSheet(
     private lateinit var listBox: LinearLayout
     private lateinit var disconnectBtn: TextView
     private lateinit var countText: TextView
+    private lateinit var deadToggle: TextView
+    private var showDead = false
     private lateinit var clearCustomLink: TextView
 
     private var items: List<ProxyEntry> = emptyList()
@@ -117,6 +121,14 @@ class ProxyListSheet(
         countText = text("", 12f, cMuted, bold = true).apply { setPadding(0, dp(6), 0, 0) }
         root.addView(countText)
 
+        // پروکسی‌های خراب به‌طور پیش‌فرض پنهان‌اند تا لیست سبک بماند
+        deadToggle = text("", 12f, cPrimary, bold = true).apply {
+            setPadding(0, dp(6), 0, 0)
+            visibility = View.GONE
+            setOnClickListener { showDead = !showDead; render() }
+        }
+        root.addView(deadToggle)
+
         root.addView(text(
             "یکی از پروکسی‌ها را لمس کن تا وصل شود. وقتی وصل باشی، همه‌ی برنامه (از جمله لینک‌هایی مثل اینستاگرام) از سد فیلترینگ رد می‌شود.",
             12f, cMuted
@@ -180,6 +192,7 @@ class ProxyListSheet(
         val total = items.size
         if (total == 0) {
             countText.text = ""
+            deadToggle.visibility = View.GONE
             return
         }
         var ok = 0
@@ -198,6 +211,8 @@ class ProxyListSheet(
             countText.setTextColor(cMuted)
         }
         countText.text = sb.toString()
+        deadToggle.visibility = if (dead > 0) View.VISIBLE else View.GONE
+        deadToggle.text = if (showDead) "پنهان کردن پروکسی‌های خراب" else "نمایش پروکسی‌های خراب ($dead)"
     }
 
     private fun render() {
@@ -209,9 +224,14 @@ class ProxyListSheet(
                 if (customIds.isNotEmpty()) View.VISIBLE else View.GONE
         }
 
-        if (items.isEmpty()) {
-            val msg = if (loadingList) "در حال دریافت لیست…"
-            else "هنوز پروکسی‌ای در لیست نیست.\nاگر پروکسی داری، با «افزودن دستی» اضافه‌اش کن، یا از مدیر بخواه لیست را در پنل اضافه کند."
+        val visible = if (showDead) items else items.filter { (pings[it.id] ?: 0L) >= 0L }
+        if (visible.isEmpty()) {
+            val msg = when {
+                loadingList -> "در حال دریافت لیست…"
+                items.isEmpty() -> "هنوز پروکسی‌ای در لیست نیست.\nاگر پروکسی داری، با «افزودن دستی» اضافه‌اش کن، یا از مدیر بخواه لیست را در پنل اضافه کند."
+                testing.isNotEmpty() -> "در حال تست پروکسی‌ها…"
+                else -> "هیچ پروکسی سالمی پیدا نشد.\n«نمایش پروکسی‌های خراب» را بزن یا کمی بعد دوباره «به‌روزرسانی و تست» کن."
+            }
             listBox.addView(text(msg, 13f, cMuted).apply {
                 gravity = Gravity.CENTER
                 setPadding(dp(8), dp(24), dp(8), dp(24))
@@ -220,7 +240,7 @@ class ProxyListSheet(
         }
 
         // کارکرده‌ها (با کمترین پینگ) → تست‌نشده‌ها → خراب‌ها
-        val sorted = items.sortedWith(compareBy<ProxyEntry> {
+        val sorted = visible.sortedWith(compareBy<ProxyEntry> {
             val p = pings[it.id]
             when {
                 p == null -> 1
@@ -338,16 +358,25 @@ class ProxyListSheet(
         testJob = activity.lifecycleScope.launch {
             try {
                 val sem = Semaphore(40)
+                val finished = java.util.concurrent.ConcurrentHashMap<String, Long>()
                 targets.map { p ->
                     async {
                         sem.withPermit {
                             val ms = ProxyManager.test(p, 3500, quick = true)
                             pings[p.id] = ms ?: -1L
+                            finished[p.id] = ms ?: -1L
                             testing.remove(p.id)
                             scheduleRender()
                         }
                     }
                 }.awaitAll()
+
+                // تست کامل شد: نتیجه‌ی پروکسی‌های لیست سرور را برای مدیر بفرست (برای پاک‌سازی خراب‌ها از پنل)
+                val toReport = finished.filterKeys { it in cachedIds }.map { Pair(it.key, it.value) }
+                if (toReport.isNotEmpty()) {
+                    val app = activity.applicationContext
+                    CoroutineScope(Dispatchers.IO).launch { ProxyRepository.reportResults(app, toReport) }
+                }
             } finally {
                 testing.clear()
                 scheduleRender()

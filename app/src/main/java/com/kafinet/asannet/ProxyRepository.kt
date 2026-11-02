@@ -19,6 +19,8 @@ object ProxyRepository {
     private const val PREFS = "proxy_lists"
     private const val KEY_CACHE = "cached"
     private const val KEY_CUSTOM = "custom"
+    private const val KEY_LAST_REPORT = "last_report"
+    private const val REPORT_GAP_MS = 30 * 60 * 1000L
 
     fun cached(context: Context): List<ProxyEntry> = readList(context, KEY_CACHE)
 
@@ -97,6 +99,54 @@ object ProxyRepository {
             }
         }
         null
+    }
+
+    /**
+     * نتیجه‌ی تست پروکسی‌های لیست سرور را (فقط «این پروکسی کار کرد یا نه»، بدون هیچ اطلاعات شخصی) برای مدیر می‌فرستد
+     * تا از پنل بتواند پروکسی‌هایی را که همه جا خراب‌اند پاک کند.
+     * هر گوشی حداکثر هر ۳۰ دقیقه یک‌بار گزارش می‌دهد. results: شناسه‌ی پروکسی و پینگ (‎-1 یعنی خراب)
+     */
+    suspend fun reportResults(context: Context, results: List<Pair<String, Long>>) = withContext(Dispatchers.IO) {
+        if (results.isEmpty()) return@withContext
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        if (now - prefs.getLong(KEY_LAST_REPORT, 0L) < REPORT_GAP_MS) return@withContext
+        val base = context.getString(R.string.supabase_url).trimEnd('/')
+        val key = context.getString(R.string.supabase_anon_key)
+        if (base.isBlank() || key.isBlank()) return@withContext
+
+        val arr = JSONArray()
+        results.take(500).forEach { (id, ms) ->
+            arr.put(JSONObject().apply {
+                put("proxy_key", id)
+                put("ok", ms > 0)
+                put("ms", if (ms > 0) ms else JSONObject.NULL)
+            })
+        }
+        val bytes = arr.toString().toByteArray(Charsets.UTF_8)
+        val routes: List<Proxy> = listOfNotNull(Proxy.NO_PROXY, ProxyManager.active?.toJavaProxy()).distinct()
+        for (route in routes) {
+            try {
+                val conn = URL("$base/rest/v1/proxy_reports").openConnection(route) as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.connectTimeout = 8000
+                conn.readTimeout = 8000
+                conn.setRequestProperty("apikey", key)
+                conn.setRequestProperty("Authorization", "Bearer $key")
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.setRequestProperty("Prefer", "return=minimal")
+                conn.outputStream.use { it.write(bytes) }
+                val code = conn.responseCode
+                conn.disconnect()
+                if (code in 200..299) {
+                    prefs.edit().putLong(KEY_LAST_REPORT, now).apply()
+                    return@withContext
+                }
+            } catch (e: Exception) {
+                // مسیر بعدی
+            }
+        }
     }
 
     private fun readList(context: Context, key: String): List<ProxyEntry> {
