@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -172,6 +173,12 @@
             android:name=".MusicPlayerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <!-- موتور دانلودِ خود برنامه (با توقف/ادامه، ذخیره در Downloads/آسان نت) -->
+        <service
+            android:name=".AppDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <!-- سرویس پخش روی تلویزیون از طریق گوشی (برای اینکه با صفحه‌ی خاموش هم ادامه پیدا کند) -->
         <service
