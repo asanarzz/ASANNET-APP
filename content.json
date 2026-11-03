@@ -3293,43 +3293,151 @@
     "description": "آهنگهای معین",
     "url": "",
     "section": "معین",
-    "images": [
-      "https://musicsweb.ir/download-music/https://dl.dibasmusic.com/dlha/Moein%20-%20Elaheh%20Naaz.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Chegoioneh%20Ghegooneh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Kenare%20To.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Khoshbinee.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Doaa.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Khalegh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Be%20Didaram%20Bia.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bi%20Bi%20Gol%20II.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Kaftare%20Kacol%20Besar.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Kaftare%20Kacol%20Besar.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Delbaram%20Delbar.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Ghasre%20Arezooha.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Asheghaneh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Ham%20Ghasam.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Ghasam%20Nakhor.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Betou%20Miandisham.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Mosafer.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Khodam%20Miyam%20Mibaramet.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Gozashteh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Aei%20Anke.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Be%20To%20Goftam,%20Nagoftam.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bahaneh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Ashegh%20Ke%20Beshi.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Del%20Sookhteh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bibigol.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Ey%20Eshgh.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Che%20Sali%20Beshe%20Emsal.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Baraye%20Didane%20Tou.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bavaram%20Kon.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bedidaram%20Beeya.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Zendegi.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Hamseda.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bi%20To%20Nemitoonam.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Degar%20Cheh%20Khahee.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Bot%20Parast.mp3",
-      "https://dl.dibasmusic.com/dlha/Moein%20-%20Eshghe%20Moondegar.mp3"
+    "links": [
+      {
+        "label": "Moein - Elaheh Naaz",
+        "url": "https://musicsweb.ir/download-music/https://dl.dibasmusic.com/dlha/Moein%20-%20Elaheh%20Naaz.mp3"
+      },
+      {
+        "label": "Moein - Chegoioneh Ghegooneh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Chegoioneh%20Ghegooneh.mp3"
+      },
+      {
+        "label": "Moein - Kenare To",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Kenare%20To.mp3"
+      },
+      {
+        "label": "Moein - Khoshbinee",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Khoshbinee.mp3"
+      },
+      {
+        "label": "Moein - Doaa",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Doaa.mp3"
+      },
+      {
+        "label": "Moein - Khalegh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Khalegh.mp3"
+      },
+      {
+        "label": "Moein - Be Didaram Bia",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Be%20Didaram%20Bia.mp3"
+      },
+      {
+        "label": "Moein - Bi Bi Gol II",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bi%20Bi%20Gol%20II.mp3"
+      },
+      {
+        "label": "Moein - Kaftare Kacol Besar",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Kaftare%20Kacol%20Besar.mp3"
+      },
+      {
+        "label": "Moein - Kaftare Kacol Besar",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Kaftare%20Kacol%20Besar.mp3"
+      },
+      {
+        "label": "Moein - Delbaram Delbar",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Delbaram%20Delbar.mp3"
+      },
+      {
+        "label": "Moein - Ghasre Arezooha",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Ghasre%20Arezooha.mp3"
+      },
+      {
+        "label": "Moein - Asheghaneh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Asheghaneh.mp3"
+      },
+      {
+        "label": "Moein - Ham Ghasam",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Ham%20Ghasam.mp3"
+      },
+      {
+        "label": "Moein - Ghasam Nakhor",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Ghasam%20Nakhor.mp3"
+      },
+      {
+        "label": "Moein - Betou Miandisham",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Betou%20Miandisham.mp3"
+      },
+      {
+        "label": "Moein - Mosafer",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Mosafer.mp3"
+      },
+      {
+        "label": "Moein - Khodam Miyam Mibaramet",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Khodam%20Miyam%20Mibaramet.mp3"
+      },
+      {
+        "label": "Moein - Gozashteh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Gozashteh.mp3"
+      },
+      {
+        "label": "Moein - Aei Anke",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Aei%20Anke.mp3"
+      },
+      {
+        "label": "Moein - Be To Goftam, Nagoftam",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Be%20To%20Goftam,%20Nagoftam.mp3"
+      },
+      {
+        "label": "Moein - Bahaneh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bahaneh.mp3"
+      },
+      {
+        "label": "Moein - Ashegh Ke Beshi",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Ashegh%20Ke%20Beshi.mp3"
+      },
+      {
+        "label": "Moein - Del Sookhteh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Del%20Sookhteh.mp3"
+      },
+      {
+        "label": "Moein - Bibigol",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bibigol.mp3"
+      },
+      {
+        "label": "Moein - Ey Eshgh",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Ey%20Eshgh.mp3"
+      },
+      {
+        "label": "Moein - Che Sali Beshe Emsal",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Che%20Sali%20Beshe%20Emsal.mp3"
+      },
+      {
+        "label": "Moein - Baraye Didane Tou",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Baraye%20Didane%20Tou.mp3"
+      },
+      {
+        "label": "Moein - Bavaram Kon",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bavaram%20Kon.mp3"
+      },
+      {
+        "label": "Moein - Bedidaram Beeya",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bedidaram%20Beeya.mp3"
+      },
+      {
+        "label": "Moein - Zendegi",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Zendegi.mp3"
+      },
+      {
+        "label": "Moein - Hamseda",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Hamseda.mp3"
+      },
+      {
+        "label": "Moein - Bi To Nemitoonam",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bi%20To%20Nemitoonam.mp3"
+      },
+      {
+        "label": "Moein - Degar Cheh Khahee",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Degar%20Cheh%20Khahee.mp3"
+      },
+      {
+        "label": "Moein - Bot Parast",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Bot%20Parast.mp3"
+      },
+      {
+        "label": "Moein - Eshghe Moondegar",
+        "url": "https://dl.dibasmusic.com/dlha/Moein%20-%20Eshghe%20Moondegar.mp3"
+      }
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
