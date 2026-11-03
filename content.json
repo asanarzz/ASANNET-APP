@@ -3484,5 +3484,20 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793739661494",
+    "type": "image",
+    "title": "تست 3",
+    "description": "سلام بله",
+    "url": "",
+    "links": [
+      {
+        "label": "",
+        "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moo%20Meshki.mp3"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
