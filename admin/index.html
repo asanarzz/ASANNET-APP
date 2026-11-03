@@ -2081,7 +2081,8 @@ function parseBulkLinks() {
   // ممکنه خط‌ها از بین برن و همه سرهم با فاصله بشن)، مستقیم دنبال هر
   // چیزی که با http شروع می‌شه می‌گردیم — فرقی نمی‌کنه با خط جدید جدا
   // شده باشن، با فاصله، یا پشت‌سرهم چسبیده.
-  const urlRegex = /https?:\/\/\S+/g;
+  // اگه چند لینک بدون فاصله و خط جدید به هم چسبیده باشن (…mp3https://…) هم از هم جدا می‌شن
+  const urlRegex = /https?:\/\/(?:(?!(?<![=\/?&:%])https?:\/\/)\S)+/g;
   const matches = [...raw.matchAll(urlRegex)];
   if (!matches.length) { toast('هیچ لینک معتبری پیدا نشد', 'error'); return; }
 
