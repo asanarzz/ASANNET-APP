@@ -313,22 +313,56 @@ class CategoryListActivity : AppCompatActivity() {
             return
         }
         val labels = arrayOf(
-            "پخش همه از این آهنگ به بعد (پلیر برنامه)",
-            "فقط همین آهنگ (پلیر برنامه)",
-            "باز کردن با برنامه‌ی دیگر"
+            "پخش همه به ترتیب",
+            "پخش فقط همین آهنگ",
+            "پخش با پلیر بیرونی"
         )
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(item.title)
-            .setItems(labels) { _, which ->
-                when (which) {
-                    0 -> startInAppMusic(item, playAll = true)
-                    1 -> startInAppMusic(item, playAll = false)
-                    else -> DownloadHelper.downloadAndOpenExternally(
-                        this, resolveUrl(item.url), item.title, "audio/*", showProgress = true
-                    )
-                }
+        showButtonDialog(item.title, labels.toList()) { which ->
+            when (which) {
+                0 -> startInAppMusic(item, playAll = true)
+                1 -> startInAppMusic(item, playAll = false)
+                else -> DownloadHelper.downloadAndOpenExternally(
+                    this, resolveUrl(item.url), item.title, "audio/*", showProgress = true
+                )
             }
-            .show()
+        }
+    }
+
+    /** پنجره‌ای که گزینه‌هایش دکمه‌های جدا (هرکدام در یک کادر) هستند. */
+    private fun showButtonDialog(title: String, labels: List<String>, onPick: (Int) -> Unit) {
+        val density = resources.displayMetrics.density
+        val container = android.widget.LinearLayout(this)
+        container.orientation = android.widget.LinearLayout.VERTICAL
+        val sidePad = (20 * density).toInt()
+        container.setPadding(sidePad, (12 * density).toInt(), sidePad, (8 * density).toInt())
+        var dialog: androidx.appcompat.app.AlertDialog? = null
+        labels.forEachIndexed { i, label ->
+            val button = android.widget.Button(this)
+            button.text = label
+            button.isAllCaps = false
+            button.textSize = 15f
+            button.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primary)
+                )
+            )
+            button.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white))
+            val params = android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                (50 * density).toInt()
+            )
+            if (i > 0) params.topMargin = (10 * density).toInt()
+            button.setOnClickListener {
+                dialog?.dismiss()
+                onPick(i)
+            }
+            container.addView(button, params)
+        }
+        dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(container)
+            .create()
+        dialog.show()
     }
 
     /** آهنگ‌های یک مورد: آدرس خودِ مورد (اگر باشد) + همه‌ی لینک‌های برچسب‌دارش. */
@@ -361,22 +395,19 @@ class CategoryListActivity : AppCompatActivity() {
 
     private fun showSongOptions(titles: List<String>, urls: List<String>, index: Int) {
         val labels = arrayOf(
-            "پخش همه از این آهنگ به بعد (پلیر برنامه)",
-            "فقط همین آهنگ (پلیر برنامه)",
-            "باز کردن با برنامه‌ی دیگر"
+            "پخش همه به ترتیب",
+            "پخش فقط همین آهنگ",
+            "پخش با پلیر بیرونی"
         )
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(titles[index])
-            .setItems(labels) { _, which ->
-                when (which) {
-                    0 -> MusicPlayerActivity.launch(this, titles, urls, index, true)
-                    1 -> MusicPlayerActivity.launch(this, titles, urls, index, false)
-                    else -> DownloadHelper.downloadAndOpenExternally(
-                        this, urls[index], titles[index], "audio/*", showProgress = true
-                    )
-                }
+        showButtonDialog(titles[index], labels.toList()) { which ->
+            when (which) {
+                0 -> MusicPlayerActivity.launch(this, titles, urls, index, true)
+                1 -> MusicPlayerActivity.launch(this, titles, urls, index, false)
+                else -> DownloadHelper.downloadAndOpenExternally(
+                    this, urls[index], titles[index], "audio/*", showProgress = true
+                )
             }
-            .show()
+        }
     }
 
     /** اسم نمایشی آهنگ در پخش‌کننده: «خواننده – اسم آهنگ» (اگر زیرعنوان کوتاه و متفاوت باشد). */
