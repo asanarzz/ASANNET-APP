@@ -569,7 +569,10 @@
               <div style="flex:1;"><label>حداکثر از این لیست</label>
                 <input type="text" id="pxa-max" value="300" style="direction:ltr; text-align:left;"></div>
             </div>
-            <button class="btn-outline btn-small" id="btn-pxa-add" style="margin-top:10px;">افزودن منبع</button>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <button class="btn-outline btn-small" id="btn-pxa-add">افزودن منبع</button>
+              <button class="btn-outline btn-small hidden" id="btn-pxa-cancel">لغو ویرایش</button>
+            </div>
           </div>
           <div style="margin-top:14px; border-top:1px solid rgba(128,128,128,.25); padding-top:12px;">
             <label>ساعت‌های اجرا (به وقت تهران، عدد ۰ تا ۲۳)</label>
@@ -3351,6 +3354,7 @@ async function pxaLoad() {
             آخرین اجرا: ${escapeHtml(pxaFmtTime(r.last_run))}${r.last_run ? ' • ' + escapeHtml(String(r.last_found || 0)) + ' پیدا، ' + escapeHtml(String(r.last_added || 0)) + ' جدید • ' + escapeHtml(r.last_status || '') : ''}</div>
         </div>
         <div class="actions">
+          <button class="btn-outline btn-small" data-pxa-act="edit" data-id="${escapeHtml(String(r.id))}">ویرایش</button>
           <button class="btn-outline btn-small" data-pxa-act="toggle" data-id="${escapeHtml(String(r.id))}">${r.enabled ? 'غیرفعال' : 'فعال'}</button>
           <button class="btn-danger btn-small" data-pxa-act="delete" data-id="${escapeHtml(String(r.id))}">حذف</button>
         </div>
@@ -3379,18 +3383,33 @@ async function pxaLoad() {
   }
 }
 
+let pxaEditId = null;
+
+function pxaEditMode(row) {
+  pxaEditId = row ? row.id : null;
+  $('pxa-url').value = row ? row.url : '';
+  $('pxa-type').value = row ? row.type : 'socks5';
+  $('pxa-max').value = row ? row.max_count : 300;
+  $('btn-pxa-add').textContent = row ? 'ذخیره‌ی ویرایش' : 'افزودن منبع';
+  $('btn-pxa-cancel').classList.toggle('hidden', !row);
+  if (row) $('pxa-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 async function pxaAdd() {
   const url = $('pxa-url').value.trim();
-  if (!/^https:\/\//i.test(url)) { toast('یک آدرس https معتبر وارد کن', 'error'); return; }
+  if (!/^https:\/\/[^\s]+$/i.test(url)) { toast('آدرس باید با https:// شروع شود و فاصله یا کلمه‌ی اضافه (مثل curl) نداشته باشد', 'error'); return; }
   const max = Math.min(2000, Math.max(1, parseInt(lkToEnDigits($('pxa-max').value.trim()), 10) || 300));
   try {
-    const res = await adsFetch('/rest/v1/proxy_sources', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ url, type: $('pxa-type').value, max_count: max, enabled: true }),
-    });
+    const body = JSON.stringify({ url, type: $('pxa-type').value, max_count: max });
+    const res = pxaEditId
+      ? await adsFetch('/rest/v1/proxy_sources?id=eq.' + encodeURIComponent(pxaEditId), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body })
+      : await adsFetch('/rest/v1/proxy_sources', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ url, type: $('pxa-type').value, max_count: max, enabled: true }) });
     if (!res.ok) throw new Error(res.status === 409 ? 'این آدرس قبلاً اضافه شده' : 'ذخیره ناموفق بود (' + res.status + ')');
-    $('pxa-url').value = '';
-    toast('منبع اضافه شد', 'success');
+    toast(pxaEditId ? 'ویرایش ذخیره شد' : 'منبع اضافه شد', 'success');
+    pxaEditMode(null);
     pxaLoad();
   } catch (e) { toast(e.message, 'error'); }
 }
@@ -3398,6 +3417,11 @@ async function pxaAdd() {
 async function pxaAction(act, id) {
   try {
     let res;
+    if (act === 'edit') {
+      const row = pxaSources.find((r) => String(r.id) === String(id));
+      if (row) pxaEditMode(row);
+      return;
+    }
     if (act === 'delete') {
       if (!confirm('این منبع حذف شود؟')) return;
       res = await adsFetch('/rest/v1/proxy_sources?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
@@ -3449,6 +3473,7 @@ async function pxaRun() {
 }
 
 $('btn-pxa-add').addEventListener('click', pxaAdd);
+$('btn-pxa-cancel').addEventListener('click', () => pxaEditMode(null));
 $('btn-pxa-save').addEventListener('click', pxaSave);
 $('btn-pxa-run').addEventListener('click', pxaRun);
 $('pxa-sources').addEventListener('click', (e) => {
