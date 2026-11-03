@@ -94,9 +94,12 @@ data class ContentItem(
                         pinned = obj.optBoolean("pinned", false)
                     )
 
-                // آهنگ با چند لینک (مثلاً یک خواننده با ۳۶ آهنگ): هر لینک تبدیل می‌شود به
-                // یک آهنگِ جدا در همان پوشه، دقیقاً مثل وقتی که آهنگ‌ها جدا جدا اضافه شده بودند.
-                if (parsedItem.type == ContentType.MUSIC && !parsedItem.locked && parsedItem.links.isNotEmpty()) {
+                // مورد با چند لینک (مثلاً یک خواننده با ۳۶ آهنگ، یا چند فایل PDF): هر لینک تبدیل
+                // می‌شود به یک کارتِ جدا در همان پوشه، دقیقاً مثل وقتی که جدا جدا اضافه شده بودند.
+                // هر کارت بعداً بر اساس پسوند لینکش باز می‌شود (mp3 پخش، pdf نمایش، عکس، apk و...).
+                // فیلم/سریال، تلویزیون و رادیو و بنرها مثل قبل از links خودشان استفاده می‌کنند.
+                val splitTypes = setOf(ContentType.VIDEO, ContentType.TV, ContentType.RADIO, ContentType.BANNER, ContentType.HOME_BANNER)
+                if (parsedItem.type !in splitTypes && !parsedItem.locked && parsedItem.links.isNotEmpty()) {
                     if (parsedItem.url.isNotBlank()) {
                         result.add(parsedItem.copy(links = emptyList()))
                     }
