@@ -379,6 +379,16 @@ class CategoryListActivity : AppCompatActivity() {
             .show()
     }
 
+    /** اسم نمایشی آهنگ در پخش‌کننده: «خواننده – اسم آهنگ» (اگر زیرعنوان کوتاه و متفاوت باشد). */
+    private fun musicDisplayName(item: ContentItem): String {
+        val song = item.description.trim()
+        return if (song.isNotBlank() && song.length <= 60 && !song.contains('\n') && song != item.title) {
+            item.title + " – " + song
+        } else {
+            item.title
+        }
+    }
+
     private fun startInAppMusic(item: ContentItem, playAll: Boolean) {
         // صف = همه‌ی آهنگ‌های همین لیست (پوشه) به ترتیب نمایش؛ آهنگ‌های قفل‌شده‌ی دیگه
         // (که لینک واقعی‌شون هنوز باز نشده) از صف کنار گذاشته می‌شن.
@@ -390,7 +400,7 @@ class CategoryListActivity : AppCompatActivity() {
         val finalQueue = if (queue.isEmpty()) listOf(item) else queue
         MusicPlayerActivity.launch(
             this,
-            finalQueue.map { it.title },
+            finalQueue.map { musicDisplayName(it) },
             finalQueue.map { resolveUrl(it.url) },
             startIndex,
             playAll

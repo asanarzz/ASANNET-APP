@@ -77,7 +77,7 @@ data class ContentItem(
                         links.add(DownloadLink(linkLabel, linkUrl))
                     }
                 }
-                result.add(
+                val parsedItem =
                     ContentItem(
                         id = obj.optString("id", "item_$i"),
                         type = ContentType.fromKey(obj.optString("type")),
@@ -93,7 +93,27 @@ data class ContentItem(
                         desktopMode = obj.optBoolean("desktopMode", true),
                         pinned = obj.optBoolean("pinned", false)
                     )
-                )
+
+                // آهنگ با چند لینک (مثلاً یک خواننده با ۳۶ آهنگ): هر لینک تبدیل می‌شود به
+                // یک آهنگِ جدا در همان پوشه، دقیقاً مثل وقتی که آهنگ‌ها جدا جدا اضافه شده بودند.
+                if (parsedItem.type == ContentType.MUSIC && !parsedItem.locked && parsedItem.links.isNotEmpty()) {
+                    if (parsedItem.url.isNotBlank()) {
+                        result.add(parsedItem.copy(links = emptyList()))
+                    }
+                    parsedItem.links.forEachIndexed { idx, link ->
+                        result.add(
+                            parsedItem.copy(
+                                id = parsedItem.id + "__" + idx,
+                                // عنوان = اسم خواننده (همان عنوان مورد)، زیرعنوان = اسم آهنگ
+                                description = link.label.ifBlank { parsedItem.title + " " + (idx + 1) },
+                                url = link.url,
+                                links = emptyList()
+                            )
+                        )
+                    }
+                } else {
+                    result.add(parsedItem)
+                }
             }
             return result
         }
