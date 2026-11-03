@@ -3467,5 +3467,17 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793738078352",
+    "type": "image",
+    "title": "تست",
+    "description": "تست کردن",
+    "url": "",
+    "images": [
+      "https://intocdn.top/wp-content/uploads/2026/07/7-7-360x480.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
