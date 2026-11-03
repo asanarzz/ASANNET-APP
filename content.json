@@ -3468,5 +3468,18 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793737683358",
+    "type": "poll",
+    "title": "تست",
+    "description": "تست",
+    "url": "",
+    "section": "تست",
+    "images": [
+      "https://intocdn.top/wp-content/uploads/2026/07/7-7-360x480.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
