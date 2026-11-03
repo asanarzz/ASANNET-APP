@@ -307,6 +307,11 @@ class CategoryListActivity : AppCompatActivity() {
      *  ۳) روش قبلی: دانلود و باز کردن با برنامه‌ی پخش موزیکِ دیگه‌ی گوشی
      */
     private fun showMusicOptions(item: ContentItem) {
+        // اگر این مورد چند آهنگ (لینک با برچسب) دارد، اول لیست آهنگ‌هایش نشان داده می‌شود
+        if (item.links.isNotEmpty()) {
+            showMusicSongList(item)
+            return
+        }
         val labels = arrayOf(
             "پخش همه از این آهنگ به بعد (پلیر برنامه)",
             "فقط همین آهنگ (پلیر برنامه)",
@@ -320,6 +325,54 @@ class CategoryListActivity : AppCompatActivity() {
                     1 -> startInAppMusic(item, playAll = false)
                     else -> DownloadHelper.downloadAndOpenExternally(
                         this, resolveUrl(item.url), item.title, "audio/*", showProgress = true
+                    )
+                }
+            }
+            .show()
+    }
+
+    /** آهنگ‌های یک مورد: آدرس خودِ مورد (اگر باشد) + همه‌ی لینک‌های برچسب‌دارش. */
+    private fun musicSongsOf(item: ContentItem): List<Pair<String, String>> {
+        val songs = mutableListOf<Pair<String, String>>()
+        if (item.url.isNotBlank()) songs.add(item.title to resolveUrl(item.url))
+        item.links.forEachIndexed { i, l ->
+            songs.add(l.label.ifBlank { "${item.title} ${i + 1}" } to resolveUrl(l.url))
+        }
+        return songs
+    }
+
+    /** لیست آهنگ‌های یک مورد: «پخش همه» + هر آهنگ جدا. */
+    private fun showMusicSongList(item: ContentItem) {
+        val songs = musicSongsOf(item)
+        val titles = songs.map { it.first }
+        val urls = songs.map { it.second }
+        val entries = (listOf("▶ پخش همه (${songs.size} آهنگ)") + titles).toTypedArray()
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(item.title)
+            .setItems(entries) { _, which ->
+                if (which == 0) {
+                    MusicPlayerActivity.launch(this, titles, urls, 0, true)
+                } else {
+                    showSongOptions(titles, urls, which - 1)
+                }
+            }
+            .show()
+    }
+
+    private fun showSongOptions(titles: List<String>, urls: List<String>, index: Int) {
+        val labels = arrayOf(
+            "پخش همه از این آهنگ به بعد (پلیر برنامه)",
+            "فقط همین آهنگ (پلیر برنامه)",
+            "باز کردن با برنامه‌ی دیگر"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(titles[index])
+            .setItems(labels) { _, which ->
+                when (which) {
+                    0 -> MusicPlayerActivity.launch(this, titles, urls, index, true)
+                    1 -> MusicPlayerActivity.launch(this, titles, urls, index, false)
+                    else -> DownloadHelper.downloadAndOpenExternally(
+                        this, urls[index], titles[index], "audio/*", showProgress = true
                     )
                 }
             }
