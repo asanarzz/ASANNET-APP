@@ -3499,5 +3499,14 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793740174534",
+    "type": "image",
+    "title": "تست 4",
+    "description": "سلام تبادل میکنین",
+    "url": "https://dl.nomrebartar.com/9/Soal/Riazi/ftf_new/soal_Riazi_Fsl1_BaJavab.pdf",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
