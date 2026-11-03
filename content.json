@@ -3466,5 +3466,21 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793738503604",
+    "type": "file",
+    "title": "سوالات ریاضی نهم",
+    "description": "نمونه سوالات فصل اول با جواب",
+    "url": "",
+    "section": "پایه نهم",
+    "links": [
+      {
+        "label": "",
+        "url": "https://dl.nomrebartar.com/9/Soal/Riazi/ftf_new/soal_Riazi_Fsl1_BaJavab.pdf"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
