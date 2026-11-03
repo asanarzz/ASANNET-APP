@@ -3459,16 +3459,29 @@ async function pxaSave() {
 async function pxaRun() {
   const btn = $('btn-pxa-run');
   btn.disabled = true;
-  $('pxa-info').textContent = 'در حال اجرا… (ممکن است تا یک دقیقه طول بکشد)';
+  const info = $('pxa-info');
   try {
+    const startedAt = Date.now();
     const res = await adsFetch('/rest/v1/rpc/proxy_auto_run_now', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-    if (!res.ok) throw new Error('اجرا ناموفق بود (' + res.status + ') — فایل supabase_proxy_auto.sql را اجرا کرده‌ای؟');
-    const msg = await res.json();
-    $('pxa-info').textContent = String(msg || '');
-    toast('انجام شد', 'success');
-    pxLoad();
-    pxaLoad();
-  } catch (e) { toast(e.message, 'error'); $('pxa-info').textContent = ''; }
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error('اجرا ناموفق بود (' + res.status + ') ' + t.slice(0, 160) + ' — فایل supabase_proxy_auto_patch.sql را اجرا کرده‌ای؟');
+    }
+    info.textContent = 'اجرا در صف قرار گرفت و تا حدود یک دقیقه طول می‌کشد… (لازم نیست منتظر بمانی؛ صفحه را باز نگه دار یا بعداً «بارگذاری مجدد» بزن)';
+    for (let i = 0; i < 24; i++) {
+      await new Promise((r) => setTimeout(r, 5000));
+      const r2 = await adsFetch('/rest/v1/proxy_auto_settings?select=last_run,last_message&id=eq.1');
+      if (!r2.ok) continue;
+      const st = (await r2.json())[0];
+      if (st && st.last_run && new Date(st.last_run).getTime() >= startedAt - 2000) {
+        info.textContent = 'تمام شد: ' + (st.last_message || '');
+        toast('انجام شد', 'success');
+        pxLoad();
+        return;
+      }
+    }
+    info.textContent = 'هنوز تمام نشده؛ چند دقیقه بعد «بارگذاری مجدد» را بزن.';
+  } catch (e) { toast(e.message, 'error'); info.textContent = ''; }
   finally { btn.disabled = false; }
 }
 
