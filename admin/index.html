@@ -327,6 +327,7 @@
           <div class="muted" style="margin-top:4px;">حجم پیشنهادی هر فایل: کمتر از ۲۰ مگابایت — حداکثر ۵۰ فایل</div>
           <input type="file" id="in-file" multiple>
         </div>
+        <button type="button" class="btn-outline btn-full hidden" id="btn-imgs-to-links" style="margin-top:8px;">🔗 تبدیل فایل‌های قبلیِ غیر عکس (مثل mp3) به لینک</button>
         <div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
       </div>
 
@@ -1584,7 +1585,18 @@ async function handleAdd() {
       }
     }
 
-    const linksValue = (selectedType === 'video' || selectedType === 'tv') ? collectLinks() : [];
+    // لینک‌های باکس «لینک‌های دانلود»:
+    //  - فیلم/سریال و تلویزیون: مثل قبل داخل links ذخیره می‌شن
+    //  - بقیه‌ی دسته‌ها: لینکِ عکس (jpg/png/...) به‌عنوان عکس، و بقیه (mp3، pdf، apk و...) مثل سریال داخل links با برچسب
+    const isImageUrl = (u) => /\.(jpe?g|png|gif|webp|bmp|svg|avif|heic)(\?|#|$)/i.test(u);
+    const allLinkRows = collectLinks();
+    let linksValue = [];
+    let linkImageUrls = [];
+    if (selectedType === 'video' || selectedType === 'tv') {
+      linksValue = allLinkRows;
+    } else if (selectedType !== 'radio') {
+      allLinkRows.forEach((l) => { if (isImageUrl(l.url)) linkImageUrls.push(l.url); else linksValue.push(l); });
+    }
 
     // برای تلویزیون: اگر لینک بالا خالی بود، اولین لینکِ «لینک‌های دانلود» به‌عنوان لینک شبکه استفاده می‌شود
     if (selectedType === 'tv' && !url && linksValue.length) {
@@ -1593,10 +1605,8 @@ async function handleAdd() {
 
     // برای همه‌ی دسته‌ها به‌جز فیلم و رادیو، لینک‌های باکس «لینک‌های دانلود» مستقیم
     // به‌عنوان آدرس فایل/عکس به آیتم اضافه می‌شن (مثل آپلود فایل) — نه فقط فیلم و تلویزیون
-    let linkImageUrls = [];
-    if (selectedType !== 'video' && selectedType !== 'radio') {
-      const rawLinks = (selectedType === 'tv') ? linksValue : collectLinks();
-      linkImageUrls = rawLinks.map((l) => l.url).filter(Boolean);
+    if (selectedType === 'tv') {
+      linkImageUrls = linksValue.map((l) => l.url).filter(Boolean);
     }
 
     const combinedImages = (editingId ? editingExistingImages.concat(newImages) : newImages).concat(linkImageUrls);
@@ -1691,6 +1701,33 @@ async function handleAdd() {
   }
 }
 
+function isPlainImageUrl(u) { return /\.(jpe?g|png|gif|webp|bmp|svg|avif|heic)(\?|#|$)/i.test(u); }
+
+function updateImgsToLinksBtn() {
+  const b = $('btn-imgs-to-links');
+  if (!b) return;
+  const n = editingExistingImages.filter((u) => !isPlainImageUrl(u)).length;
+  const ok = editingId && n > 0 && selectedType !== 'video' && selectedType !== 'radio' && selectedType !== 'tv';
+  b.classList.toggle('hidden', !ok);
+  if (ok) b.textContent = '🔗 تبدیل ' + n + ' فایلِ قبلیِ غیر عکس (مثل mp3) به لینک';
+}
+
+function convertImagesToLinks() {
+  const move = editingExistingImages.filter((u) => !isPlainImageUrl(u));
+  if (!move.length) return;
+  // ردیف خالیِ پیش‌فرض پاک می‌شه
+  document.querySelectorAll('#links-list .link-row').forEach((row) => {
+    if (!row.querySelector('.link-url').value.trim() && !row.querySelector('.link-label').value.trim()) row.remove();
+  });
+  move.forEach((u) => addLinkRow(fileNameFromUrl(u) || 'لینک', u));
+  editingExistingImages = editingExistingImages.filter((u) => isPlainImageUrl(u));
+  $('drop-label').textContent = editingExistingImages.length
+    ? `این مورد الان ${editingExistingImages.length} عکس/فایل داره — فایل جدید انتخاب کن تا اضافه بشه`
+    : 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
+  updateImgsToLinksBtn();
+  toast(move.length + ' مورد به لینک تبدیل شد — «ذخیره‌ی تغییرات» را بزن', 'success');
+}
+
 function startEdit(id) {
   const item = contentItems.find((i) => i.id === id);
   if (!item) return;
@@ -1725,6 +1762,7 @@ function startEdit(id) {
   $('drop-label').textContent = editingExistingImages.length
     ? `این مورد الان ${editingExistingImages.length} عکس/فایل داره — فایل جدید انتخاب کن تا اضافه بشه`
     : 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
+  updateImgsToLinksBtn();
 
   $('in-title').value = item.title || '';
   $('in-desc').value = item.description || '';
@@ -1757,6 +1795,7 @@ function resetForm() {
   $('in-desktop-mode').checked = true;
   selectedFiles = [];
   editingExistingImages = [];
+  if ($('btn-imgs-to-links')) $('btn-imgs-to-links').classList.add('hidden');
   $('in-file').value = '';
   $('drop-label').textContent = 'برای انتخاب فایل کلیک کن (می‌تونی چندتا رو با هم انتخاب کنی)';
 
@@ -2113,6 +2152,9 @@ function parseBulkLinks() {
     toast('هیچ لینک معتبری پیدا نشد', 'error');
   }
 }
+
+const btnImgsToLinks = $('btn-imgs-to-links');
+if (btnImgsToLinks) btnImgsToLinks.addEventListener('click', convertImagesToLinks);
 
 const btnParseBulk = $('btn-parse-bulk');
 if (btnParseBulk) btnParseBulk.addEventListener('click', parseBulkLinks);
