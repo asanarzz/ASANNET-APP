@@ -311,7 +311,7 @@
         <button type="button" class="btn-outline btn-full" id="btn-toggle-bulk-link" style="margin-top:8px; color:#2563EB; border-color:#2563EB;">+ افزودن چند لینک با هم</button>
         <div id="bulk-link-box" class="hidden" style="margin-top:10px;">
           <textarea id="in-url-bulk" placeholder="هر خط یه لینک&#10;https://... 720p&#10;https://... 1080p&#10;..." style="min-height:120px;"></textarea>
-          <p class="muted">هر خط: آدرس + فاصله + برچسب (مثلاً 720p یا قسمت 1). اگه برچسب نباشه، خودش می‌سازه.</p>
+          <p class="muted">هر خط: آدرس + فاصله + برچسب (مثلاً 720p یا قسمت 1). اگه برچسب نباشه، اسم فایل رو از توی لینک درمیاره و می‌نویسه. این قابلیت برای همه‌ی دسته‌ها کار می‌کنه.</p>
           <button type="button" class="btn-primary btn-full" id="btn-parse-bulk" style="margin-top:8px;">✓ تبدیل به ردیف‌ها</button>
         </div>
       </div>
@@ -2062,6 +2062,17 @@ if (btnToggleBulk && bulkBox) {
   });
 }
 
+// اسم فایل را از آخر آدرس درمی‌آورد (بدون کوئری، دیکد‌شده و بدون پسوند)
+function fileNameFromUrl(url) {
+  try {
+    let path = url.split('#')[0].split('?')[0].replace(/^https?:\/\/[^\/]+/i, '');
+    let name = path.split('/').filter(Boolean).pop() || '';
+    try { name = decodeURIComponent(name); } catch (e) {}
+    name = name.replace(/\+/g, ' ').replace(/\.[A-Za-z0-9]{1,5}$/, '').trim();
+    return name;
+  } catch (e) { return ''; }
+}
+
 function parseBulkLinks() {
   const raw = $('in-url-bulk').value.trim();
   if (!raw) { toast('حداقل یه خط وارد کن', 'error'); return; }
@@ -2074,6 +2085,10 @@ function parseBulkLinks() {
   const matches = [...raw.matchAll(urlRegex)];
   if (!matches.length) { toast('هیچ لینک معتبری پیدا نشد', 'error'); return; }
 
+  // ردیف‌های کاملاً خالی (مثل ردیف اولِ پیش‌فرض) قبل از اضافه‌شدن لینک‌های جدید پاک می‌شن
+  document.querySelectorAll('#links-list .link-row').forEach((row) => {
+    if (!row.querySelector('.link-url').value.trim() && !row.querySelector('.link-label').value.trim()) row.remove();
+  });
   let added = 0;
   matches.forEach((match, idx) => {
     const url = match[0].replace(/[",;'\)\]]+$/, '');
@@ -2082,7 +2097,8 @@ function parseBulkLinks() {
     let label = raw.slice(segStart, segEnd).trim().split(/\n/)[0].trim();
     if (!label) {
       const m = url.match(/[_-](\d{3,4}p)[._-]?/i);
-      label = m ? m[1] : ('لینک ' + (added + 1));
+      if (selectedType === 'video' && m) label = m[1];
+      else label = fileNameFromUrl(url) || (m ? m[1] : ('لینک ' + (added + 1)));
     }
     addLinkRow(label, url);
     added++;
