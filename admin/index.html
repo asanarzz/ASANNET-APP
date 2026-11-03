@@ -553,6 +553,44 @@
         </div>
 
         <div class="card">
+          <h2>دریافت خودکار روزی ۲ بار</h2>
+          <p class="muted">
+            خودِ Supabase در ساعت‌هایی که تعیین می‌کنی، لیست‌های زیر را می‌گیرد و پروکسی‌های جدید را اضافه می‌کند؛
+            لازم نیست پنل باز باشد. قبلش پروکسی‌های خرابِ گزارش‌شده را هم پاک می‌کند.
+            (اول باید فایل <b>supabase_proxy_auto.sql</b> را در Supabase اجرا کرده باشی.)
+          </p>
+          <div id="pxa-sources"><div class="empty-msg">در حال بارگذاری…</div></div>
+          <div style="margin-top:12px; border-top:1px solid rgba(128,128,128,.25); padding-top:12px;">
+            <label>افزودن آدرس لیست (فایل متنی raw که در هر خط یک پروکسی دارد)</label>
+            <input type="url" id="pxa-url" placeholder="https://raw.githubusercontent.com/…/socks5.txt" style="direction:ltr; text-align:left;">
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <div style="flex:1;"><label>نوعِ خط‌های بدون پیشوند</label>
+                <select id="pxa-type"><option value="socks5">SOCKS5</option><option value="http">HTTP</option></select></div>
+              <div style="flex:1;"><label>حداکثر از این لیست</label>
+                <input type="text" id="pxa-max" value="300" style="direction:ltr; text-align:left;"></div>
+            </div>
+            <button class="btn-outline btn-small" id="btn-pxa-add" style="margin-top:10px;">افزودن منبع</button>
+          </div>
+          <div style="margin-top:14px; border-top:1px solid rgba(128,128,128,.25); padding-top:12px;">
+            <label>ساعت‌های اجرا (به وقت تهران، عدد ۰ تا ۲۳)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="pxa-h1" value="6" style="direction:ltr; text-align:left; flex:1;">
+              <input type="text" id="pxa-h2" value="18" style="direction:ltr; text-align:left; flex:1;">
+            </div>
+            <label style="margin-top:10px;">سقف کل پروکسی‌های فعال</label>
+            <input type="text" id="pxa-total" value="1000" style="direction:ltr; text-align:left;">
+            <label style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="pxa-cleanup" checked style="width:auto;"> قبل از دریافت، پروکسی‌های خراب (طبق گزارش کاربران) پاک شوند
+            </label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn-small" id="btn-pxa-save">ذخیره‌ی ساعت‌ها و تنظیمات</button>
+              <button class="btn-outline btn-small" id="btn-pxa-run">همین الان اجرا کن</button>
+            </div>
+            <div id="pxa-info" class="muted" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <div class="card">
           <h2>پاک‌سازی خراب‌ها بر اساس گزارش کاربران</h2>
           <p class="muted">
             هر گوشی بعد از تست، فقط «کار کرد / کار نکرد» هر پروکسی را برای تو می‌فرستد (بدون هیچ اطلاعات شخصی).
@@ -3024,6 +3062,7 @@ async function pxLoad() {
     if (!res.ok) throw new Error('خطا در دریافت پروکسی‌ها (' + res.status + ') — فایل supabase_proxies.sql را در Supabase اجرا کرده‌ای؟');
     pxRows = await res.json();
     pxRender();
+    pxaLoad();
   } catch (e) {
     $('px-list').innerHTML = '<div class="empty-msg">خطا در بارگذاری پروکسی‌ها</div>';
     toast(e.message, 'error');
@@ -3289,6 +3328,134 @@ async function pxBulkAction(kind) {
 }
 
 $('btn-px-login').addEventListener('click', pxLogin);
+
+// ───────── دریافت خودکار (Supabase cron) ─────────
+let pxaSources = [];
+
+function pxaFmtTime(t) {
+  if (!t) return 'هنوز اجرا نشده';
+  try { return new Date(t).toLocaleString('fa-IR'); } catch (e) { return String(t); }
+}
+
+async function pxaLoad() {
+  try {
+    const r1 = await adsFetch('/rest/v1/proxy_sources?select=*&order=id.asc');
+    if (!r1.ok) throw new Error('جدول منبع‌ها پیدا نشد (' + r1.status + ') — فایل supabase_proxy_auto.sql را اجرا کرده‌ای؟');
+    pxaSources = await r1.json();
+    const area = $('pxa-sources');
+    area.innerHTML = pxaSources.length ? pxaSources.map((r) => `
+      <div class="item" style="flex-wrap:wrap; ${r.enabled ? '' : 'opacity:.55;'}">
+        <div class="info" style="min-width:55%;">
+          <div class="t" style="direction:ltr; text-align:right; word-break:break-all;">${escapeHtml(r.url)}</div>
+          <div class="d">${r.type === 'http' ? 'HTTP' : 'SOCKS5'} • حداکثر ${escapeHtml(String(r.max_count))} •
+            آخرین اجرا: ${escapeHtml(pxaFmtTime(r.last_run))}${r.last_run ? ' • ' + escapeHtml(String(r.last_found || 0)) + ' پیدا، ' + escapeHtml(String(r.last_added || 0)) + ' جدید • ' + escapeHtml(r.last_status || '') : ''}</div>
+        </div>
+        <div class="actions">
+          <button class="btn-outline btn-small" data-pxa-act="toggle" data-id="${escapeHtml(String(r.id))}">${r.enabled ? 'غیرفعال' : 'فعال'}</button>
+          <button class="btn-danger btn-small" data-pxa-act="delete" data-id="${escapeHtml(String(r.id))}">حذف</button>
+        </div>
+      </div>`).join('') : '<div class="empty-msg">منبعی ثبت نشده</div>';
+
+    const r2 = await adsFetch('/rest/v1/proxy_auto_settings?select=*&id=eq.1');
+    if (r2.ok) {
+      const st = (await r2.json())[0];
+      if (st) {
+        $('pxa-total').value = st.max_total;
+        $('pxa-cleanup').checked = !!st.cleanup;
+        $('pxa-info').textContent = 'آخرین اجرا: ' + pxaFmtTime(st.last_run) + (st.last_message ? ' — ' + st.last_message : '');
+      }
+    }
+    const r3 = await adsFetch('/rest/v1/rpc/proxy_auto_get_schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    if (r3.ok) {
+      const expr = String(await r3.json() || '');
+      const m = expr.match(/^30 (\d+),(\d+) /);
+      if (m) {
+        $('pxa-h1').value = (parseInt(m[1], 10) + 4) % 24;
+        $('pxa-h2').value = (parseInt(m[2], 10) + 4) % 24;
+      }
+    }
+  } catch (e) {
+    $('pxa-sources').innerHTML = '<div class="empty-msg">' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function pxaAdd() {
+  const url = $('pxa-url').value.trim();
+  if (!/^https:\/\//i.test(url)) { toast('یک آدرس https معتبر وارد کن', 'error'); return; }
+  const max = Math.min(2000, Math.max(1, parseInt(lkToEnDigits($('pxa-max').value.trim()), 10) || 300));
+  try {
+    const res = await adsFetch('/rest/v1/proxy_sources', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ url, type: $('pxa-type').value, max_count: max, enabled: true }),
+    });
+    if (!res.ok) throw new Error(res.status === 409 ? 'این آدرس قبلاً اضافه شده' : 'ذخیره ناموفق بود (' + res.status + ')');
+    $('pxa-url').value = '';
+    toast('منبع اضافه شد', 'success');
+    pxaLoad();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function pxaAction(act, id) {
+  try {
+    let res;
+    if (act === 'delete') {
+      if (!confirm('این منبع حذف شود؟')) return;
+      res = await adsFetch('/rest/v1/proxy_sources?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
+    } else {
+      const row = pxaSources.find((r) => String(r.id) === String(id));
+      if (!row) return;
+      res = await adsFetch('/rest/v1/proxy_sources?id=eq.' + encodeURIComponent(id), {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: !row.enabled }),
+      });
+    }
+    if (!res.ok) throw new Error('انجام نشد (' + res.status + ')');
+    pxaLoad();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function pxaSave() {
+  const h1 = parseInt(lkToEnDigits($('pxa-h1').value.trim()), 10);
+  const h2 = parseInt(lkToEnDigits($('pxa-h2').value.trim()), 10);
+  const total = Math.min(5000, Math.max(1, parseInt(lkToEnDigits($('pxa-total').value.trim()), 10) || 1000));
+  if (!(h1 >= 0 && h1 <= 23 && h2 >= 0 && h2 <= 23)) { toast('ساعت‌ها باید عددی بین ۰ تا ۲۳ باشند', 'error'); return; }
+  try {
+    const r1 = await adsFetch('/rest/v1/proxy_auto_settings?id=eq.1', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ max_total: total, cleanup: $('pxa-cleanup').checked }),
+    });
+    if (!r1.ok) throw new Error('ذخیره‌ی تنظیمات ناموفق بود (' + r1.status + ')');
+    const r2 = await adsFetch('/rest/v1/rpc/proxy_auto_set_schedule', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ h1, h2 }),
+    });
+    if (!r2.ok) throw new Error('تنظیم ساعت ناموفق بود (' + r2.status + ')');
+    toast('ذخیره شد؛ هر روز ساعت ' + h1 + ' و ' + h2 + ' (وقت تهران) اجرا می‌شود', 'success');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function pxaRun() {
+  const btn = $('btn-pxa-run');
+  btn.disabled = true;
+  $('pxa-info').textContent = 'در حال اجرا… (ممکن است تا یک دقیقه طول بکشد)';
+  try {
+    const res = await adsFetch('/rest/v1/rpc/proxy_auto_run_now', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    if (!res.ok) throw new Error('اجرا ناموفق بود (' + res.status + ') — فایل supabase_proxy_auto.sql را اجرا کرده‌ای؟');
+    const msg = await res.json();
+    $('pxa-info').textContent = String(msg || '');
+    toast('انجام شد', 'success');
+    pxLoad();
+    pxaLoad();
+  } catch (e) { toast(e.message, 'error'); $('pxa-info').textContent = ''; }
+  finally { btn.disabled = false; }
+}
+
+$('btn-pxa-add').addEventListener('click', pxaAdd);
+$('btn-pxa-save').addEventListener('click', pxaSave);
+$('btn-pxa-run').addEventListener('click', pxaRun);
+$('pxa-sources').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-pxa-act]');
+  if (b) pxaAction(b.getAttribute('data-pxa-act'), b.getAttribute('data-id'));
+});
+
 $('btn-px-logout').addEventListener('click', pxLogout);
 $('btn-px-refresh').addEventListener('click', (e) => { e.preventDefault(); pxLoad(); });
 $('btn-px-add').addEventListener('click', pxAddOne);
