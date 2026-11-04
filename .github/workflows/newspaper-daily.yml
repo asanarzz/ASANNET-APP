@@ -1,0 +1,67 @@
+name: Newspaper Daily
+
+# ربات روزنامه‌ی آسان نت:
+#   ۰۷:۳۰ تهران (۰۴:۰۰ UTC) ← عکس صفحه‌ی اول روزنامه‌های امروز رو از jaaar.com می‌گیره و تو content.json می‌ذاره
+#   ۲۳:۳۰ تهران (۲۰:۰۰ UTC) ← روزنامه‌هایی که خودِ ربات ساخته پاک می‌شن
+# (ایران ساعت تابستانی نداره؛ تفاوتش با UTC همیشه ۳:۳۰ ساعته. گیت‌هاب گاهی زمان‌بندی‌ها رو ۵ تا ۳۰ دقیقه دیر اجرا می‌کنه.)
+# فقط «لینک» عکس‌ها تو content.json نوشته می‌شه؛ خود عکس‌ها تو گیت‌هاب ذخیره نمی‌شن.
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'fetch = گرفتن روزنامه‌ها، clean = پاک کردن روزنامه‌های خودکار'
+        type: choice
+        options:
+          - fetch
+          - clean
+        default: fetch
+      ignore_date:
+        description: 'فقط برای تست: چک «تاریخ امروز» و «جمعه» رو نادیده بگیر'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: newspaper-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Run bot and commit changes
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '0 20 * * *' && 'clean' || 'fetch') }}
+          IGNORE_DATE: ${{ github.event_name == 'workflow_dispatch' && inputs.ignore_date && 'true' || 'false' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main --quiet
+            git reset --hard origin/main --quiet
+            python3 scripts/newspaper_bot.py
+            if git diff --quiet -- content.json; then
+              echo "تغییری در content.json لازم نبود."
+              exit 0
+            fi
+            git add content.json
+            git commit -m "روزنامه‌ها (خودکار): $MODE"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "ارسال ناموفق بود (احتمالاً هم‌زمان یه تغییر دیگه ثبت شده)؛ تلاش دوباره..."
+            sleep 5
+          done
+          echo "::error::بعد از ۳ تلاش نتونستم تغییر رو ثبت کنم."
+          exit 1
