@@ -123,10 +123,11 @@ object ContentOpener {
         allowExternalBrowser: Boolean = true,
         desktopMode: Boolean = true
     ) {
-        // خود وب‌ویوی اندروید پی‌دی‌اف رو مستقیم نمایش نمی‌ده؛ از نمایشگر آنلاین گوگل
-        // به‌عنوان یه نمایشگر پی‌دی‌اف داخل همون صفحه‌ی وب داخلی اپ استفاده می‌کنیم
-        val viewerUrl = "https://docs.google.com/gview?embedded=true&url=" + Uri.encode(url)
-        openWeb(activity, viewerUrl, title, allowDownload = true, allowExternalBrowser, desktopMode)
+        // PDF داخل نمایشگر خودِ برنامه باز می‌شود (بدون گوگل و بدون نوار دانلود)
+        val intent = Intent(activity, PdfViewerActivity::class.java)
+        intent.putExtra(PdfViewerActivity.EXTRA_URL, resolveUrl(url))
+        intent.putExtra(PdfViewerActivity.EXTRA_TITLE, title)
+        activity.startActivity(intent)
     }
 
     private fun resolveUrl(url: String): String {
