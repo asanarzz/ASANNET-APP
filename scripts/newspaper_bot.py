@@ -24,11 +24,17 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 
 KIOSK_URL = "https://www.jaaar.com/kiosk"
 IMAGE_HOST = "https://static.jaaar.com"
 BOT_ID_PREFIX = "item_newsauto_"
+
+# سایت از هر روزنامه دو نسخه می‌ذاره: بندانگشتی کم‌کیفیت (حدود ۴۰۰ پیکسل) و نسخه‌ی با کیفیت (حدود ۱۲۰۰ پیکسل).
+# فقط عکس‌هایی که ضلع بزرگ‌ترشون حداقل این‌قدر باشه نگه داشته می‌شن.
+MIN_IMAGE_SIDE = 700
+IMAGE_READ_BYTES = 256 * 1024
 
 TEHRAN = timezone(timedelta(hours=3, minutes=30))  # ایران ساعت تابستانی نداره (UTC+3:30 ثابت)
 
@@ -39,7 +45,7 @@ WEEKDAYS = ["دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنب
 FRIDAY = 4
 
 IMAGE_RE = re.compile(
-    r"((?:https?:)?//[A-Za-z0-9.-]+)?"
+    r"((?:https?:)?//[A-Za-z0-9.-]+(?::\d+)?)?"
     r"(/assets/images/pishkhan/(\d{4})/(\d{1,2})/(\d{1,2})/[0-9A-Za-z_-]+\.(?:jpg|jpeg|png|webp))"
 )
 
@@ -159,6 +165,98 @@ def extract_groups(html):
     return groups
 
 
+# ───────────────────────── انتخاب نسخه‌ی با کیفیت ─────────────────────────
+
+def _jpeg_size(b):
+    if b[:2] != b"\xff\xd8":
+        return None
+    i, n = 2, len(b)
+    while i + 9 < n:
+        if b[i] != 0xFF:
+            i += 1
+            continue
+        marker = b[i + 1]
+        if marker == 0xFF:
+            i += 1
+            continue
+        if marker in (0x01, 0xD8) or 0xD0 <= marker <= 0xD7:
+            i += 2
+            continue
+        seg_len = int.from_bytes(b[i + 2:i + 4], "big")
+        if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+            height = int.from_bytes(b[i + 5:i + 7], "big")
+            width = int.from_bytes(b[i + 7:i + 9], "big")
+            return width, height
+        i += 2 + seg_len
+    return None
+
+
+def _png_size(b):
+    if b[:8] != b"\x89PNG\r\n\x1a\n" or len(b) < 24:
+        return None
+    return int.from_bytes(b[16:20], "big"), int.from_bytes(b[20:24], "big")
+
+
+def _webp_size(b):
+    if b[:4] != b"RIFF" or b[8:12] != b"WEBP" or len(b) < 30:
+        return None
+    kind = b[12:16]
+    if kind == b"VP8X":
+        return 1 + int.from_bytes(b[24:27], "little"), 1 + int.from_bytes(b[27:30], "little")
+    if kind == b"VP8 ":
+        return (int.from_bytes(b[26:28], "little") & 0x3FFF,
+                int.from_bytes(b[28:30], "little") & 0x3FFF)
+    if kind == b"VP8L":
+        bits = int.from_bytes(b[21:25], "little")
+        return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+    return None
+
+
+def image_size(url):
+    """ابعاد (عرض، ارتفاع) عکس رو فقط با خوندن ابتدای فایل درمیاره؛ اگه نشد None."""
+    try:
+        request = urllib.request.Request(url, headers={
+            "User-Agent": ("Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 "
+                           "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"),
+            "Referer": KIOSK_URL,
+            "Accept": "image/*,*/*;q=0.8",
+            "Accept-Encoding": "identity",
+            "Range": "bytes=0-%d" % (IMAGE_READ_BYTES - 1),
+        })
+        with urllib.request.urlopen(request, timeout=30) as response:
+            head = response.read(IMAGE_READ_BYTES)
+        return _jpeg_size(head) or _png_size(head) or _webp_size(head)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def keep_high_quality(urls):
+    """از هر روزنامه فقط نسخه‌ی با کیفیت رو نگه می‌داره (کم‌کیفیت‌ها کنار گذاشته می‌شن)."""
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        sizes = dict(zip(urls, pool.map(image_size, urls)))
+    known = [u for u in urls if sizes[u]]
+    if not known:
+        print("::warning::ابعاد هیچ عکسی خونده نشد؛ همه‌ی لینک‌ها نگه داشته شد.")
+        return urls
+    kept, dropped = [], []
+    for u in urls:
+        size = sizes[u]
+        if size is None or max(size) >= MIN_IMAGE_SIDE:
+            kept.append(u)  # اگه ابعادش معلوم نشد، برای اینکه روزنامه‌ای گم نشه نگهش می‌داریم
+        else:
+            dropped.append(u)
+    for u in dropped:
+        print("کم‌کیفیت، کنار گذاشته شد (%dx%d): %s" % (sizes[u][0], sizes[u][1], u))
+    unknown = [u for u in kept if sizes[u] is None]
+    if unknown:
+        print("::warning::ابعاد %d عکس معلوم نشد و نگه داشته شد." % len(unknown))
+    if not kept:
+        print("::warning::همه‌ی عکس‌ها کم‌کیفیت تشخیص داده شدن؛ همه نگه داشته شد.")
+        return urls
+    print("نسخه‌ی با کیفیت: %d عکس نگه داشته شد، %d عکس کم‌کیفیت حذف شد." % (len(kept), len(dropped)))
+    return kept
+
+
 # ───────────────────────── content.json ─────────────────────────
 
 def load_content(path):
@@ -216,7 +314,7 @@ def run_fetch(path, ignore_date):
         return
 
     jy, jm, jd = chosen
-    urls = groups[chosen][:100]
+    urls = keep_high_quality(groups[chosen])[:100]
     gy, gm, gd = jalali_to_gregorian(jy, jm, jd)
     weekday = WEEKDAYS[date(gy, gm, gd).weekday()]
     item_id = "%s%04d%02d%02d" % (BOT_ID_PREFIX, jy, jm, jd)
