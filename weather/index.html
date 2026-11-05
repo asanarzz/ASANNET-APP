@@ -1,1 +1,96 @@
-
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>آب‌وهوا - کافی نت آسان نت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{max-width:100%;overflow-x:hidden}
+  body{background:#e4e9ef;font-family:'Vazirmatn',Tahoma,sans-serif;padding:8px;display:flex;flex-direction:column;align-items:center;gap:14px;color:#1b2733}
+  .wrap{width:100%;max-width:640px}
+  .bn{width:100%;--u:.33px;--rh:26px;--c-head:#4f0af5;--c-headtext:#fff;--c-row1:#ddebf7;--c-row2:#f3f8fe;--c-name:#0e2a47;--c-desc:#4f6275;--c-range:#4f0af5;--c-temp:#0b3a63;background:var(--c-row2);overflow:hidden}
+  .hd{background:var(--c-head);color:var(--c-headtext);display:flex;justify-content:space-between;align-items:flex-end;padding:calc(var(--u)*22) calc(var(--u)*40) calc(var(--u)*18)}
+  .hd h1{font-size:calc(var(--u)*60);font-weight:800;line-height:1.3}
+  .hd .sub{font-size:calc(var(--u)*36);font-weight:600;line-height:1.4;opacity:.92}
+  .hd .dt{font-size:calc(var(--u)*32);line-height:1.5;text-align:left;opacity:.95}
+  .row{display:grid;grid-template-columns:1.15fr 1fr 1.15fr .7fr;align-items:center;column-gap:calc(var(--u)*8);height:var(--rh);padding:0 calc(var(--u)*40)}
+  .row:nth-child(odd){background:var(--c-row1)}.row:nth-child(even){background:var(--c-row2)}
+  .nm{font-size:calc(var(--rh)*.54);font-weight:800;color:var(--c-name);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ds{font-size:calc(var(--rh)*.36);color:var(--c-desc);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rg{font-size:calc(var(--rh)*.58);font-weight:800;color:var(--c-range);text-align:center;white-space:nowrap}
+  .rg small{font-size:calc(var(--rh)*.36);font-weight:600;color:var(--c-desc);margin:0 calc(var(--u)*6)}
+  .tp{font-size:calc(var(--rh)*.62);font-weight:800;color:var(--c-temp);text-align:left;white-space:nowrap}
+  .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+  .ft{background:var(--c-head);color:var(--c-headtext);display:flex;justify-content:space-between;align-items:center;padding:calc(var(--u)*16) calc(var(--u)*40)}
+  .ft .b{font-size:calc(var(--u)*44);font-weight:800}
+  .ft .h{font-size:calc(var(--u)*38);font-weight:600;direction:ltr;letter-spacing:1px}
+  button,a.btn{font-family:inherit;font-size:16px;padding:10px 16px;border:0;border-radius:12px;background:#4f0af5;color:#fff;text-decoration:none;display:inline-block;margin:8px 0}
+  .out{text-align:center}.out img{width:100%;border-radius:10px;border:1px solid #9ab;margin-top:6px}
+  .hint{font-size:14px;color:#5a6b7b;text-align:center}
+  #err{display:none;padding:30px 10px;text-align:center;font-size:18px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="err">لینک آب‌وهوا معتبر نیست یا منقضی شده است.</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const PER=15;
+const fa=n=>Math.round(n).toLocaleString('fa-IR');
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function wx(c){
+  if(c===0) return ['☀️','آفتابی'];
+  if(c<=2) return ['🌤','کمی ابری'];
+  if(c===3) return ['☁️','ابری'];
+  if(c===45||c===48) return ['🌫','مه‌آلود'];
+  if(c>=51&&c<=57) return ['🌦','نم‌نم باران'];
+  if(c>=61&&c<=67) return ['🌧','بارانی'];
+  if(c>=71&&c<=77) return ['🌨','برفی'];
+  if(c>=80&&c<=82) return ['🌦','رگبار'];
+  if(c===85||c===86) return ['🌨','بارش برف'];
+  if(c>=95) return ['⛈','رعد و برق'];
+  return ['🌡','نامشخص'];
+}
+function decode(){
+  let s=new URLSearchParams(location.search).get('s'); if(!s) return null;
+  s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
+  try{ return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)))); }catch(e){ return null; }
+}
+const D=decode();
+if(!D||!Array.isArray(D.c)||!D.c.length){ document.getElementById('err').style.display='block'; }
+else{
+  const when=new Date((D.t||Date.now()/1000)*1000);
+  const dF=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Tehran'});
+  const tF=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Tehran'});
+  const prov=D.p||'', parts=[]; for(let i=0;i<D.c.length;i+=PER) parts.push(D.c.slice(i,i+PER));
+  const title=!prov?'آب‌وهوای شهرهای ایران':prov==='سایر شهرها'?'آب‌وهوای سایر شهرها':'آب‌وهوای استان '+prov;
+  const app=document.getElementById('app');
+  parts.forEach((part,i)=>{
+    const box=document.createElement('div');
+    const sub='کافی نت آسان نت'+(parts.length>1?' · '+fa(i+1)+' از '+fa(parts.length):'');
+    box.innerHTML='<div class="bn"><div class="hd"><div><h1>'+esc(title)+'</h1><div class="sub">'+sub+'</div></div><div class="dt">'+dF.format(when)+'<br>ساعت '+tF.format(when)+'</div></div>'
+      +part.map(r=>{const [ic,ds]=wx(+r[4]);return '<div class="row"><div class="nm">'+esc(r[0])+'</div><div class="ds">'+ic+' '+ds+'</div><div class="rg"><span class="ltr">'+fa(r[2])+'°</span><small>تا</small><span class="ltr">'+fa(r[3])+'°</span></div><div class="tp"><span class="ltr">'+fa(r[1])+'°</span></div></div>';}).join('')
+      +'<div class="ft"><div class="b">کافی نت آسان نت</div><div class="h">@ASANNETT</div></div></div>'
+      +'<div class="out"><button>📷 ساخت عکس برای ذخیره</button><div class="res"></div></div>';
+    const bn=box.querySelector('.bn');
+    if(D.k) Object.keys(D.k).forEach(k=>bn.style.setProperty(k,D.k[k]));
+    app.appendChild(box); app.appendChild(document.createElement('br'));
+    const fit=()=>{ const u=bn.clientWidth/1080; bn.style.setProperty('--u',u+'px'); bn.style.setProperty('--rh',Math.min(118*u,(2200-270)*u/Math.max(1,part.length))+'px'); };
+    fit(); window.addEventListener('resize',fit);
+    box.querySelector('button').onclick=async e=>{
+      const btn=e.target, res=box.querySelector('.res'); btn.disabled=true; btn.textContent='در حال ساخت...';
+      try{
+        if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+        const cv=await html2canvas(bn,{scale:Math.min(4,1350/bn.clientWidth),backgroundColor:null,useCORS:true});
+        const url=cv.toDataURL('image/png');
+        res.innerHTML='<img src="'+url+'" alt="بنر"><div class="hint">روی عکس انگشت را نگه دار و «ذخیره تصویر» را بزن، یا:</div><a class="btn" download="asannet-weather-'+fa(i+1)+'.png" href="'+url+'">💾 ذخیره</a>';
+        btn.style.display='none';
+      }catch(err){ btn.disabled=false; btn.textContent='نشد؛ دوباره امتحان کن'; }
+    };
+  });
+}
+</script>
+</body>
+</html>
