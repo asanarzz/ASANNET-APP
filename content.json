@@ -3726,6 +3726,8 @@
     "type": "price",
     "title": "قیمت دلار و طلا — ساعت 02:00",
     "description": "جمعه 15 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzkzOTE3ODM0LCJpIjpbWyJ1c2RfdXNkdCIsMjcxNTAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI2MDg2MTUwXSxbInVzZF9idGMiLDIwNjIyMDE1NTMwXSxbInVzZF9ldGgiLDYwNjkxNTY5MF0sWyJldGgiLDYwNjkxNTY5MF0sWyJ1c2QiLDI2ODIwMF1dfQ"
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzkzOTE3ODM0LCJpIjpbWyJ1c2RfdXNkdCIsMjcxNTAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI2MDg2MTUwXSxbInVzZF9idGMiLDIwNjIyMDE1NTMwXSxbInVzZF9ldGgiLDYwNjkxNTY5MF0sWyJldGgiLDYwNjkxNTY5MF0sWyJ1c2QiLDI2ODIwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
