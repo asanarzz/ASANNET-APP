@@ -3652,5 +3652,14 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1793863783881",
+    "type": "weather",
+    "title": "آب و هوا",
+    "description": "آب و هوای شهرهای کشور",
+    "url": "https://asanarzz.github.io/ASANNETT/weather",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
