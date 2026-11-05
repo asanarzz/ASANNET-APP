@@ -21,6 +21,7 @@ enum class ContentType(val key: String) {
     NEWSPAPER("newspaper"),
     PRICE("price"),
     SERVICES("services"),
+    WEATHER("weather"),
     HOME_BANNER("home_banner");
 
     companion object {

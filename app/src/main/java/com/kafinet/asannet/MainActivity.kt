@@ -86,10 +86,12 @@ class MainActivity : AppCompatActivity() {
             CategoryEntry(ContentType.PRICE, "دلار و طلا", R.drawable.cat_price, 0),
             CategoryEntry(ContentType.POLL, getString(R.string.cat_poll), R.drawable.cat_poll, 0),
             CategoryEntry(ContentType.TEST, getString(R.string.cat_test), R.drawable.cat_test, 0),
-            // ردیف چهارم: ارسال مدارک، همه خدمات
+            // ردیف چهارم: ارسال مدارک، همه خدمات، آب و هوا، دستیار
             CategoryEntry(null, getString(R.string.cat_docs), R.drawable.cat_docs, 0, isSubmit = true),
             CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0),
-            // ردیف پنجم: دستیار آسان‌نت (ربات محلی داخل برنامه)
+            // آب و هوا: مثل بقیهٔ بخش‌ها از پنل مدیریت (نوع weather) فایل و لینک می‌گیرد
+            CategoryEntry(ContentType.WEATHER, getString(R.string.cat_weather), R.drawable.cat_weather, 0),
+            // دستیار آسان‌نت (ربات محلی داخل برنامه)
             CategoryEntry(null, "دستیار", R.drawable.cat_assistant, 0)
         )
 

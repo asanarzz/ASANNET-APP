@@ -43,6 +43,7 @@ class ContentAdapter(
             ContentType.NEWSPAPER -> R.drawable.ic_newspaper to R.drawable.icon_circle_newspaper
             ContentType.PRICE -> R.drawable.ic_price to R.drawable.icon_circle_price
             ContentType.SERVICES -> R.drawable.ic_services to R.drawable.icon_circle_services
+            ContentType.WEATHER -> R.drawable.ic_weather to R.drawable.icon_circle_weather
             ContentType.HOME_BANNER -> R.drawable.ic_image to R.drawable.icon_circle_image
         }
         binding.imgTypeIcon.setImageResource(iconRes)
