@@ -1,10 +1,9 @@
 name: Weather Daily
 
-# ربات آب‌وهوای آسان نت:
-#   ۰۷:۰۰ تهران (۰۳:۳۰ UTC) ← آب‌وهوای همه‌ی شهرها رو می‌گیره، عکس بنرها (هر عکس ≤۱۵ شهر) رو می‌سازه،
-#                              روی سرویس عکس آپلود می‌کنه و «فقط لینک‌ها» رو تو content.json (بخش آب و هوا) می‌نویسه
-#   ۲۳:۳۰ تهران (۲۰:۰۰ UTC) ← همه‌ی آیتم‌هایی که خودِ ربات ساخته پاک می‌شن
-# هیچ عکسی تو گیت‌هاب ذخیره نمی‌شه. (گیت‌هاب گاهی زمان‌بندی‌ها رو ۵ تا ۳۰ دقیقه دیر اجرا می‌کنه.)
+# ربات آب‌وهوای آسان نت (مثل ربات قیمت — بدون عکس و بدون سرویس آپلود):
+#   ساعت ۰۷:۰۰ تهران ← دمای همه‌ی شهرها رو می‌گیره و برای هر استان یه «لینک» تو content.json می‌ذاره
+#   ساعت ۲۳:۳۰ تهران ← آیتم‌هایی که خودِ ربات ساخته پاک می‌شن
+# اجرای دقیق‌ساعت: توسط Supabase (workflow_dispatch). cron های پایین فقط پشتیبانن.
 
 on:
   schedule:
@@ -13,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'fetch = ساخت عکس‌ها و ثبت لینک‌ها، clean = پاک کردن آیتم‌های خودکار'
+        description: 'fetch = گرفتن آب‌وهوا، clean = پاک کردن آیتم‌های خودکار'
         type: choice
         options:
           - fetch
@@ -30,41 +29,20 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Decide mode
-        id: m
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then M="${{ inputs.mode }}"; elif [ "${{ github.event.schedule }}" = "0 20 * * *" ]; then M=clean; else M=fetch; fi
-          echo "mode=$M" >> "$GITHUB_OUTPUT"
-
-      - name: Install browser and fonts
-        if: steps.m.outputs.mode == 'fetch'
-        run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-color-emoji fonts-vazirmatn || true
-          pip install playwright && python -m playwright install --with-deps chromium
-
-      - name: Build banners and upload (only links are kept)
-        if: steps.m.outputs.mode == 'fetch'
+      - name: Run bot and commit changes
         env:
-          MODE: generate
-          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
-          WEATHER_RESULT: ${{ runner.temp }}/weather_result.json
-        run: python3 scripts/weather_bot.py
-
-      - name: Write links to content.json and commit
-        env:
-          MODE: ${{ steps.m.outputs.mode == 'clean' && 'clean' || 'apply' }}
-          WEATHER_RESULT: ${{ runner.temp }}/weather_result.json
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '0 20 * * *' && 'clean' || 'fetch') }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for attempt in 1 2 3 4; do
+          for attempt in 1 2 3; do
             git fetch origin main --quiet
             git reset --hard origin/main --quiet
             python3 scripts/weather_bot.py
@@ -78,7 +56,7 @@ jobs:
               exit 0
             fi
             echo "ارسال ناموفق بود (احتمالاً هم‌زمان تغییر دیگه‌ای ثبت شده)؛ تلاش دوباره..."
-            sleep 8
+            sleep 5
           done
-          echo "::error::بعد از ۴ تلاش نتونستم تغییر رو ثبت کنم."
+          echo "::error::بعد از ۳ تلاش نتونستم تغییر رو ثبت کنم."
           exit 1
