@@ -3660,6 +3660,7 @@
     "description": "آب و هوای شهرهای کشور",
     "url": "https://asanarzz.github.io/ASANNETT/weather",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   }
 ]
