@@ -1,1 +1,401 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
+<title>قیمت لحظه‌ای آسان‌نت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#e9f3ec; }
+  #msg { font-family:'Vazirmatn', sans-serif; text-align:center; padding:48px 16px; color:#17352b; font-size:15px; }
+  #out { display:none; width:100%; height:auto; }
+  canvas, #downloadBanner { display:none; }
+</style>
+</head>
+<body>
+<!--
+  صفحه‌ی نمایش بنر قیمت (ساخته‌شده خودکار از روی ابزار «بنرساز قیمت»؛ طراحی دقیقاً همونه).
+  هیچ عکسی جایی ذخیره نمی‌شه: قیمت‌ها و زمان داخل خودِ لینک هستن و بنر همین‌جا روی گوشی کاربر
+  کشیده می‌شه و به‌صورت عکس نمایش داده می‌شه.
+-->
+<div id="msg">در حال ساخت بنر…</div>
+<img id="out" alt="قیمت لحظه‌ای دلار، طلا و سکه">
+<canvas id="hiddenCanvas" width="1080" height="1080"></canvas>
+<canvas id="bannerCanvas"></canvas>
+<a id="downloadBanner"></a>
 
+<script>
+const bannerCanvas = document.getElementById('bannerCanvas');
+const downloadBanner = document.getElementById('downloadBanner');
+const hiddenCanvas = document.getElementById('hiddenCanvas');
+const hctx = hiddenCanvas.getContext('2d');
+
+const LABELS = {
+  usd: 'دلار آمریکا', eur: 'یورو', gbp: 'پوند انگلیس', aed: 'درهم امارات',
+  try: 'لیر ترکیه', cad: 'دلار کانادا', aud: 'دلار استرالیا', chf: 'فرانک سوئیس',
+  cny: 'یوان چین', jpy: 'ین ژاپن', kwd: 'دینار کویت', sar: 'ریال عربستان',
+  qar: 'ریال قطر', omr: 'ریال عمان', iqd: 'دینار عراق', hkd: 'دلار هنگ‌کنگ',
+  inr: 'روپیه هند', nzd: 'دلار نیوزیلند', afn: 'افغانی افغانستان', bhd: 'دینار بحرین',
+  syp: 'لیر سوریه', pkr: 'روپیه پاکستان', sgd: 'دلار سنگاپور', myr: 'رینگیت مالزی',
+  thb: 'بات تایلند', rub: 'روبل روسیه', azn: 'مانات آذربایجان', amd: 'درام ارمنستان',
+  gel: 'لاری گرجستان', dkk: 'کرون دانمارک', sek: 'کرون سوئد', nok: 'کرون نروژ',
+  gol18: 'طلای ۱۸ عیار', geram18: 'طلای ۱۸ عیار', gold18: 'طلای ۱۸ عیار',
+  gol24: 'طلای ۲۴ عیار', geram24: 'طلای ۲۴ عیار', gold24: 'طلای ۲۴ عیار',
+  mesghal: 'مثقال طلا', ons: 'انس جهانی', ounce: 'انس جهانی',
+  emami: 'سکه امامی', sekee: 'سکه امامی', sekee_emami: 'سکه امامی',
+  azadi1: 'بهار آزادی', bahar: 'بهار آزادی', seke_bahar: 'بهار آزادی',
+  nim: 'نیم سکه', rob: 'ربع سکه', gerami: 'سکه گرمی',
+  // navasan.tech-specific codes
+  '18ayar': 'طلای ۱۸ عیار', abshodeh: 'طلای آب‌شده', xau: 'انس جهانی',
+  sekkeh: 'سکه امامی', usd_sherkat: 'دلار شرکتی', usd_shakhs: 'دلار شخصی'
+};
+
+function fmtNumber(n){
+  const num = Number(n);
+  if(isNaN(num)) return String(n);
+  return num.toLocaleString('en-US');
+}
+
+function prettifyKey(k){
+  return k.replace(/_/g, ' ').toUpperCase();
+}
+
+const JALALI_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const WEEKDAY_FA = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه']; // JS getDay(): 0=Sunday
+function toFaDigits(s){ return String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+
+function toJalaliManual(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy;
+  if(gy <= 1600){ jy = 0; gy -= 621; }
+  else { jy = 979; gy -= 1600; }
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100)
+    + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+  jy += 33 * Math.floor(days / 12053);
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    jy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
+  }
+  let jm, jd;
+  if (days < 186) { jm = 1 + Math.floor(days / 31); jd = 1 + (days % 31); }
+  else { jm = 7 + Math.floor((days - 186) / 30); jd = 1 + ((days - 186) % 30); }
+  return [jy, jm, jd];
+}
+
+// ---- زمانِ بنر: از خودِ لینک (ثانیه‌ی یونیکس) و همیشه به وقت تهران، مستقل از ساعت گوشی ----
+let SNAP_DATE = null;
+function snapParts(){
+  const base = SNAP_DATE ? SNAP_DATE.getTime() : Date.now();
+  const d = new Date(base + 12600000); // تهران = UTC+3:30
+  return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(),
+           wd: d.getUTCDay(), h: d.getUTCHours(), mi: d.getUTCMinutes() };
+}
+function todayJalaliParts(){
+  const s = snapParts();
+  const [jy, jm, jd] = toJalaliManual(s.y, s.m, s.d);
+  return { weekday: WEEKDAY_FA[s.wd], day: toFaDigits(jd), month: JALALI_MONTHS[jm - 1], year: toFaDigits(jy) };
+}
+
+function todayJalaliString(){
+  const p = todayJalaliParts();
+  return `${p.weekday}، ${p.day} ${p.month} ${p.year}`;
+}
+
+// Shrinks font size until text fits maxWidth, so large text never overflows its box.
+function fitFontSize(c, text, maxWidth, startSize, weight, family, minSize){
+  let size = startSize;
+  const floor = minSize || 24;
+  while(size > floor){
+    c.font = `${weight} ${size}px ${family}`;
+    if(c.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
+// ---- Card style classification: currency / gold / coin ----
+function getCardStyle(key){
+  const k = String(key).toLowerCase();
+  const goldKeys = ['ir_gold_18k','ir_gold_24k','ir_gold_melted','xauusd','geram18','geram24','gol18','gol24','gold18','gold24','mesghal','ons','ounce','18ayar','abshodeh','xau'];
+  const coinKeys = ['ir_coin_1g','ir_coin_quarter','ir_coin_half','ir_coin_emami','ir_coin_bahar','sekee_emami','emami','sekee','seke_bahar','azadi1','bahar','nim','rob','gerami','sekkeh'];
+  if(goldKeys.includes(k)) return { type:'gold', border:'#d4af37', text:'#b8860b', icon:'gold' };
+  if(coinKeys.includes(k)) return { type:'coin', border:'#2563eb', text:'#1d4ed8', icon:'coin' };
+  if(k.includes('btc')) return { type:'btc', border:'#f7931a', text:'#c2720a', icon:'btc' };
+  if(k.includes('eth')) return { type:'eth', border:'#627eea', text:'#3c4fb0', icon:'eth' };
+  return { type:'currency', border:'#16a34a', text:'#15803d', icon:'cash' };
+}
+
+function unitFor(key){
+  return 'تومان';
+}
+
+// navasan.tech quirk, confirmed against real market prices on 1405-05-31:
+//  - usd, gold-per-gram (18ayar/24ayar), gold ounce (xau), and crypto (btc/eth/...)
+//    all come back ALREADY in full Toman (e.g. usd:"192600" = 192,600 Toman/USD,
+//    18ayar:"20961260" = ~20.96M Toman/gram — both match real prices as-is).
+//  - physical coins (sekkeh/bahar/nim/rob/gerami) come back scaled down by 1000
+//    (e.g. sekkeh:"209000" when the real emami coin price that day was ~209,000,000
+//    Toman) — these need ×1000.
+// brsapi.ir-style sources give ready-to-display values with their own "unit" field,
+// which is trusted as-is.
+const NAVASAN_COIN_KEYS = ['sekkeh','bahar','azadi1','seke_bahar','nim','rob','gerami','emami','sekee','sekee_emami','ir_coin_1g','ir_coin_quarter','ir_coin_half','ir_coin_emami','ir_coin_bahar'];
+function displayValueFor(item){
+  if(item.unit) return item.value;
+  const num = Number(item.value);
+  if(isNaN(num)) return item.value;
+  if(NAVASAN_COIN_KEYS.includes(item.key)) return num * 1000;
+  return num;
+}
+
+// ---- Modern banner rendering (appearance only) ----
+function drawIcon(c, type, cx, cy, r){
+  c.save();
+  const white='#ffffff';
+  let accent = type==='gold' ? '#c9972b' : type==='coin' ? '#4c78d8' : type==='btc' ? '#f7931a' : type==='eth' ? '#627eea' : '#238b63';
+  c.shadowColor='rgba(23,53,43,.16)'; c.shadowBlur=16; c.shadowOffsetY=5;
+  c.fillStyle='rgba(255,255,255,.96)'; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+  c.shadowColor='transparent'; c.lineWidth=4; c.strokeStyle=accent; c.stroke();
+  c.fillStyle=accent;
+  c.beginPath(); c.arc(cx,cy,r*.58,0,Math.PI*2); c.fill();
+
+  if(type==='cash'){
+    c.fillStyle=white; c.font=`900 ${r*.55}px Arial,sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('$',cx,cy+2);
+  }else if(type==='gold'){
+    // gold ingot/bar shape with a shine highlight
+    const bw=r*.66, bh=r*.34, bx=cx-bw/2, by=cy-bh/2;
+    c.fillStyle=white;
+    c.beginPath();
+    c.moveTo(bx+bw*0.12, by); c.lineTo(bx+bw*0.88, by);
+    c.lineTo(bx+bw, by+bh); c.lineTo(bx, by+bh);
+    c.closePath(); c.fill();
+    c.strokeStyle=accent; c.lineWidth=2.5; c.stroke();
+    c.strokeStyle='rgba(255,255,255,.9)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(bx+bw*0.28, by+bh*0.28); c.lineTo(bx+bw*0.5, by+bh*0.28); c.stroke();
+  }else if(type==='coin'){
+    // coin emblem: outer ring, dot rosette, center boss
+    c.strokeStyle=white; c.lineWidth=3;
+    c.beginPath(); c.arc(cx,cy,r*.40,0,Math.PI*2); c.stroke();
+    c.fillStyle=white;
+    for(let i=0;i<8;i++){
+      const ang=(Math.PI*2/8)*i;
+      c.beginPath(); c.arc(cx+Math.cos(ang)*r*.40, cy+Math.sin(ang)*r*.40, r*.05,0,Math.PI*2); c.fill();
+    }
+    c.beginPath(); c.arc(cx,cy,r*.13,0,Math.PI*2); c.fill();
+  }else if(type==='btc'){
+    c.fillStyle=white; c.font=`900 ${r*.5}px Arial,sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('₿',cx,cy+2);
+  }else if(type==='eth'){
+    // faceted diamond, the classic Ethereum silhouette
+    const s=r*.36;
+    c.fillStyle=white;
+    c.beginPath();
+    c.moveTo(cx, cy-s); c.lineTo(cx+s*.62, cy+s*.05); c.lineTo(cx, cy+s); c.lineTo(cx-s*.62, cy+s*.05);
+    c.closePath(); c.fill();
+    c.globalAlpha=.5; c.fillStyle=accent;
+    c.beginPath(); c.moveTo(cx, cy-s); c.lineTo(cx+s*.62, cy+s*.05); c.lineTo(cx, cy+s*.18); c.closePath(); c.fill();
+    c.globalAlpha=1;
+  }
+  c.restore();
+}
+
+function drawModernBackground(c,W,H){
+  const bg=c.createLinearGradient(0,0,W,H); bg.addColorStop(0,'#eafff1'); bg.addColorStop(.55,'#c9f3d6'); bg.addColorStop(1,'#a9e8c0');
+  c.fillStyle=bg; c.fillRect(0,0,W,H);
+  // soft decorative blobs
+  c.save(); c.globalAlpha=.42;
+  c.fillStyle='#ffffff'; c.beginPath(); c.arc(W-35,55,150,0,Math.PI*2); c.fill();
+  c.fillStyle='#b8dfc8'; c.beginPath(); c.arc(30,H-20,170,0,Math.PI*2); c.fill();
+  c.restore();
+  // subtle grid
+  c.save(); c.globalAlpha=.055; c.strokeStyle='#17352b'; c.lineWidth=1;
+  for(let x=0;x<W;x+=36){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke();}
+  for(let y=0;y<H;y+=36){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
+  c.restore();
+  // diagonal accent lines
+  c.save(); c.globalAlpha=.10; c.strokeStyle='#238b63'; c.lineWidth=8;
+  c.beginPath(); c.moveTo(-80,H*.35); c.lineTo(W*.32,-40); c.stroke();
+  c.beginPath(); c.moveTo(W*.72,H+40); c.lineTo(W+90,H*.55); c.stroke();
+  c.restore();
+}
+
+function drawTrendLine(c,x,y,w,h){
+  c.save(); c.strokeStyle='rgba(35,139,99,.26)'; c.lineWidth=4; c.lineCap='round';
+  const pts=[[x,y+h*.72],[x+w*.18,y+h*.58],[x+w*.34,y+h*.64],[x+w*.51,y+h*.35],[x+w*.67,y+h*.46],[x+w*.82,y+h*.20],[x+w,y+h*.28]];
+  c.beginPath(); pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])); c.stroke();
+  c.fillStyle='#238b63'; const p=pts[pts.length-1]; c.beginPath(); c.arc(p[0],p[1],6,0,Math.PI*2); c.fill(); c.restore();
+}
+
+function drawBanner(selected){
+  const W=1080, cardH=170, gap=16, topH=344, discH=52, discGap=14, footH=215, bottomMargin=22;
+  const n=Math.max(selected.length,1);
+  const H=topH+n*cardH+(n-1)*gap+discH+discGap+footH+bottomMargin;
+  hiddenCanvas.width=W; hiddenCanvas.height=H;
+  const c=hctx; c.clearRect(0,0,W,H); drawModernBackground(c,W,H);
+
+  // HERO
+  c.save(); c.shadowColor='rgba(23,53,43,.20)'; c.shadowBlur=28; c.shadowOffsetY=12;
+  const hero=c.createLinearGradient(28,24,W-28,280); hero.addColorStop(0,'#17352b'); hero.addColorStop(1,'#245c47');
+  c.fillStyle=hero; roundRect(c,28,24,W-56,300,34); c.fill(); c.restore();
+  // hero decorative ring
+  c.save(); c.globalAlpha=.12; c.strokeStyle='#ffffff'; c.lineWidth=2;
+  c.beginPath(); c.arc(W-95,105,86,0,Math.PI*2); c.stroke(); c.beginPath(); c.arc(W-95,105,112,0,Math.PI*2); c.stroke(); c.restore();
+  drawTrendLine(c,W-300,55,220,100);
+
+  c.direction='rtl'; c.textAlign='center';
+  c.fillStyle='#bde6cd'; c.font='800 20px Vazirmatn,sans-serif'; c.fillText('آسان‌نت  •  گزارش لحظه‌ای بازار',W/2,65);
+  c.fillStyle='#ffffff'; c.font='900 78px Vazirmatn,sans-serif'; c.fillText('قیمت روز',W/2,137);
+  c.fillStyle='#d9f5e4'; c.font='800 40px Vazirmatn,sans-serif'; c.fillText('ارز  •  طلا  •  سکه',W/2,188);
+  c.fillStyle='#bde6cd'; c.font='600 24px Vazirmatn,sans-serif'; c.fillText('نرخ‌های به‌روز | مرجع اطلاع‌رسانی آسان‌نت',W/2,222);
+
+  const chipY=244, chipH=64, chipW=(W-126)/2, chipPad=32;
+  c.fillStyle='rgba(255,255,255,.12)'; roundRect(c,48,chipY,chipW,chipH,20); c.fill(); roundRect(c,78+chipW,chipY,chipW,chipH,20); c.fill();
+  c.fillStyle='#ffffff';
+  const dateText=todayJalaliString(), timeStr='ساعت '+toFaDigits(String(snapParts().h).padStart(2,'0'))+':'+toFaDigits(String(snapParts().mi).padStart(2,'0'));
+  const dateSize=fitFontSize(c,dateText,chipW-chipPad,40,700,'Vazirmatn,sans-serif',24);
+  c.font=`700 ${dateSize}px Vazirmatn,sans-serif`; c.fillText(dateText,48+chipW/2,chipY+45);
+  const timeSize=fitFontSize(c,timeStr,chipW-chipPad,40,700,'Vazirmatn,sans-serif',24);
+  c.font=`700 ${timeSize}px Vazirmatn,sans-serif`; c.fillText(timeStr,78+chipW+chipW/2,chipY+45);
+
+  // PRICE CARDS
+  const startY=topH, cardX=28, cardW=W-56;
+  selected.forEach((item,i)=>{
+    const y=startY+i*(cardH+gap), style=getCardStyle(item.key);
+    c.save(); c.shadowColor='rgba(23,53,43,.14)'; c.shadowBlur=20; c.shadowOffsetY=8;
+    c.fillStyle='rgba(255,255,255,.94)'; roundRect(c,cardX,y,cardW,cardH,28); c.fill(); c.restore();
+    // colored top edge
+    c.fillStyle=style.border; roundRect(c,cardX,y,cardW,7,4); c.fill();
+    drawIcon(c,style.icon,cardX+88,y+cardH/2,56);
+    c.direction='rtl'; c.textAlign='center';
+    const ls=fitFontSize(c,item.label,390,42,900,'Vazirmatn,sans-serif',26);
+    c.fillStyle='#17352b'; c.font=`900 ${ls}px Vazirmatn,sans-serif`; c.fillText(item.label,cardX+340,y+72);
+    c.fillStyle='#71847a'; c.font='600 19px Vazirmatn,sans-serif'; c.fillText('آخرین نرخ',cardX+340,y+108);
+    // divider
+    c.fillStyle='#e3ece6'; c.fillRect(cardX+555,y+27,2,cardH-54);
+    const valueText=toFaDigits(fmtNumber(displayValueFor(item)));
+    const vs=fitFontSize(c,valueText,340,64,900,'Vazirmatn,sans-serif',27);
+    c.fillStyle=style.text; c.font=`900 ${vs}px Vazirmatn,sans-serif`; c.fillText(valueText,cardX+760,y+73);
+    const unitText=item.unit||unitFor(item.key), us=fitFontSize(c,unitText,260,23,800,'Vazirmatn,sans-serif',16);
+    c.fillStyle='#60736a'; c.font=`800 ${us}px Vazirmatn,sans-serif`; c.fillText(unitText,cardX+760,y+107);
+    c.fillStyle='#238b63'; c.beginPath(); c.arc(cardX+cardW-43,y+34,7,0,Math.PI*2); c.fill();
+    c.fillStyle='#238b63'; c.font='700 14px Vazirmatn,sans-serif'; c.textAlign='right'; c.fillText('LIVE',cardX+cardW-58,y+39);
+  });
+
+  const discY=startY+n*cardH+(n-1)*gap+14;
+  c.fillStyle='#17352b'; roundRect(c,28,discY,W-56,discH,18); c.fill();
+  c.fillStyle='#d9f5e4'; const dt='نرخ‌ها ممکن است در طول روز تغییر کنند.'; const ds=fitFontSize(c,dt,W-100,21,700,'Vazirmatn,sans-serif',15); c.font=`700 ${ds}px Vazirmatn,sans-serif`; c.textAlign='center'; c.fillText(dt,W/2,discY+34);
+
+  // FOOTER / BRAND
+  const footY=discY+discH+discGap;
+  c.save(); c.shadowColor='rgba(23,53,43,.16)'; c.shadowBlur=22; c.shadowOffsetY=8; c.fillStyle='#ffffff'; roundRect(c,28,footY,W-56,footH,30); c.fill(); c.restore();
+  c.fillStyle='#17352b'; c.font='900 38px Vazirmatn,sans-serif'; c.direction='rtl'; c.textAlign='center'; c.fillText('قیمت‌ها را سریع ببین؛ فرصت‌ها را از دست نده!',W/2,footY+55);
+
+  // brand handle with a messenger-app style logo badge in front of it
+  const brandText='@ASANNETT', brandFontSize=56;
+  c.font=`900 ${brandFontSize}px Vazirmatn,sans-serif`;
+  const brandTextW=c.measureText(brandText).width;
+  const logoR=30, logoGap=16;
+  const groupW=brandTextW+logoGap+logoR*2;
+  const groupX=W/2-groupW/2;
+  drawEitaaLogo(c, groupX+logoR, footY+101, logoR);
+  c.fillStyle='#238b63'; c.direction='ltr'; c.textAlign='left';
+  c.fillText(brandText, groupX+logoR*2+logoGap, footY+119);
+
+  c.fillStyle='#60736a'; c.font='800 32px Vazirmatn,sans-serif'; c.direction='rtl'; c.textAlign='center'; c.fillText('کافی‌نت آسان‌نت  •  کانال اطلاع‌رسانی ایتا',W/2,footY+165);
+  // small brand line
+  c.fillStyle='#d8e9df'; roundRect(c,250,footY+187,580,4,2); c.fill();
+
+  bannerCanvas.width=W; bannerCanvas.height=H; const vctx=bannerCanvas.getContext('2d'); vctx.clearRect(0,0,W,H); vctx.drawImage(hiddenCanvas,0,0);
+  hiddenCanvas.toBlob(blob=>{downloadBanner.href=URL.createObjectURL(blob);},'image/png');
+}
+
+function drawEitaaLogo(c, cx, cy, r){
+  c.save();
+  c.shadowColor='rgba(23,53,43,.18)'; c.shadowBlur=10; c.shadowOffsetY=3;
+  c.fillStyle='#00A99D';
+  c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+  c.shadowColor='transparent';
+  c.fillStyle='#ffffff';
+  c.beginPath();
+  c.moveTo(cx - r*0.5, cy - r*0.02);
+  c.lineTo(cx + r*0.55, cy - r*0.45);
+  c.lineTo(cx - r*0.02, cy + r*0.5);
+  c.lineTo(cx - r*0.14, cy + r*0.02);
+  c.closePath();
+  c.fill();
+  c.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+// ---- خواندن لینک و ساخت بنر ----
+// لینک: ?s=<base64url از {"t": ثانیه‌ی یونیکس, "i": [[کلید, قیمت], ...]}>
+const msgEl = document.getElementById('msg');
+const outEl = document.getElementById('out');
+
+function readSnapshot(){
+  const raw = new URLSearchParams(location.search).get('s');
+  if(!raw) return null;
+  try{
+    let b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+    while(b64.length % 4) b64 += '=';
+    const data = JSON.parse(atob(b64));
+    const t = Number(data.t);
+    if(!isFinite(t) || t < 1500000000 || t > 4100000000) return null;
+    if(!Array.isArray(data.i) || data.i.length === 0 || data.i.length > 30) return null;
+    const items = [];
+    for(const pair of data.i){
+      if(!Array.isArray(pair) || pair.length < 2) continue;
+      const key = String(pair[0]).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 40);
+      const num = Number(pair[1]);
+      if(!key || !isFinite(num)) continue;
+      items.push({ key: key, label: LABELS[key] || prettifyKey(key), value: num, selected: true });
+    }
+    if(items.length === 0) return null;
+    return { t: t, items: items };
+  }catch(e){
+    return null;
+  }
+}
+
+function withTimeout(promise, ms){
+  return Promise.race([promise, new Promise(resolve => setTimeout(resolve, ms))]);
+}
+
+async function run(){
+  const snap = readSnapshot();
+  if(!snap){
+    msgEl.textContent = 'لینک این بنر نامعتبره.';
+    return;
+  }
+  SNAP_DATE = new Date(snap.t * 1000);
+  try{
+    const sample = 'قیمت روز ۱۲۳ ABC';
+    await withTimeout(Promise.all([400, 500, 600, 700, 800, 900].map(w =>
+      document.fonts.load(w + ' 40px Vazirmatn', sample))), 6000);
+    await withTimeout(document.fonts.ready, 3000);
+  }catch(e){}
+  try{
+    drawBanner(snap.items);
+    outEl.src = hiddenCanvas.toDataURL('image/png');
+    outEl.style.display = 'block';
+    msgEl.style.display = 'none';
+  }catch(e){
+    console.error(e);
+    msgEl.textContent = 'ساخت بنر ناموفق بود.';
+  }
+}
+run();
+</script>
+</body>
+</html>
