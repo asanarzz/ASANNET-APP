@@ -34,6 +34,9 @@ BOT_ID_PREFIX = "item_newsauto_"
 # سایت از هر روزنامه دو نسخه می‌ذاره: بندانگشتی کم‌کیفیت (حدود ۴۰۰ پیکسل) و نسخه‌ی با کیفیت (حدود ۱۲۰۰ پیکسل).
 # فقط عکس‌هایی که ضلع بزرگ‌ترشون حداقل این‌قدر باشه نگه داشته می‌شن.
 MIN_IMAGE_SIDE = 700
+# صفحه‌ی روزنامه «عمودی»ه (ارتفاع بیشتر از عرض). عکس‌هایی که ارتفاعشون کمتر از این نسبت × عرضشونه
+# فقط یه تکه‌ی بالای صفحه‌ان (برش‌خورده/نصفه) و کنار گذاشته می‌شن.
+MIN_ASPECT = 1.15
 IMAGE_READ_BYTES = 256 * 1024
 
 TEHRAN = timezone(timedelta(hours=3, minutes=30))  # ایران ساعت تابستانی نداره (UTC+3:30 ثابت)
@@ -241,10 +244,12 @@ def keep_high_quality(urls):
     kept, dropped = [], []
     for u in urls:
         size = sizes[u]
-        if size is None or max(size) >= MIN_IMAGE_SIDE:
+        if size is None:
             kept.append(u)  # اگه ابعادش معلوم نشد، برای اینکه روزنامه‌ای گم نشه نگهش می‌داریم
+        elif max(size) < MIN_IMAGE_SIDE or size[1] < MIN_ASPECT * size[0]:
+            dropped.append(u)  # کم‌کیفیت یا برش‌خورده (نصفه)
         else:
-            dropped.append(u)
+            kept.append(u)
     for u in dropped:
         print("کم‌کیفیت، کنار گذاشته شد (%dx%d): %s" % (sizes[u][0], sizes[u][1], u))
     unknown = [u for u in kept if sizes[u] is None]
