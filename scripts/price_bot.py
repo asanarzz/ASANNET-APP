@@ -55,6 +55,12 @@ def pick_items(items):
     chosen = [it for it in items
               if norm(it.get("label", "")) in wanted
               or ETH_RE.search(str(it.get("key", ""))) or ETH_RE.search(str(it.get("label", "")))]
+    # اگه API اتریوم رو با دو اسم داد (مثلاً USD ETH و ETH با یه قیمت)، فقط یکی‌شون تو بنر می‌ره
+    eth = [it for it in chosen
+           if ETH_RE.search(str(it.get("key", ""))) or ETH_RE.search(str(it.get("label", "")))]
+    if len(eth) > 1:
+        keep = next((it for it in eth if it.get("key") == "usd_eth"), eth[0])
+        chosen = [it for it in chosen if not any(it is e for e in eth) or it is keep]
     if not chosen:
         chosen = [it for it in items if it.get("key") in FALLBACK_KEYS]
     return chosen
@@ -254,6 +260,9 @@ def run_fetch(path):
     item["title"] = "قیمت دلار و طلا — ساعت " + clock
     item["description"] = "%s %d %s %d" % (WEEKDAYS[now.weekday()], jd, MONTHS[jm - 1], jy)
     item["url"] = link
+    # دکمه‌ی «باز کردن در مرورگر بیرونی» و حالت دسکتاپ برای این آیتم‌ها خاموشه
+    item["allowExternalBrowser"] = False
+    item["desktopMode"] = False
     save_content(path, data, newline)
     print("آیتم قیمت ساعت %s اضافه شد." % clock)
 
