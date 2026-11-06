@@ -7,7 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   html, body { margin:0; padding:0; background:#e9f3ec; }
-  #msg { font-family:'Vazirmatn', sans-serif; text-align:center; padding:48px 16px; color:#17352b; font-size:15px; }
+  #loader { position:fixed; top:0; right:0; bottom:0; left:0; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; padding:24px; box-sizing:border-box; }
+  #msg { font-family:'Vazirmatn', sans-serif; text-align:center; color:#17352b; font-size:26px;
+         font-weight:700; line-height:1.7; }
+  #bar { width:min(78vw, 360px); height:12px; margin-top:22px; background:#cbe0d3; border-radius:999px; overflow:hidden; }
+  #fill { height:100%; width:0%; background:linear-gradient(90deg, #1f8a5b, #34c58a); border-radius:999px;
+          transition:width .25s ease-out; }
   #out { display:none; width:100%; height:auto; }
   canvas, #downloadBanner { display:none; }
 </style>
@@ -18,7 +24,10 @@
   هیچ عکسی جایی ذخیره نمی‌شه: قیمت‌ها و زمان داخل خودِ لینک هستن و بنر همین‌جا روی گوشی کاربر
   کشیده می‌شه و به‌صورت عکس نمایش داده می‌شه.
 -->
-<div id="msg">در حال ساخت بنر…</div>
+<div id="loader">
+  <div id="msg">در حال دریافت قیمت‌ها...</div>
+  <div id="bar"><div id="fill"></div></div>
+</div>
 <img id="out" alt="قیمت لحظه‌ای دلار، طلا و سکه">
 <canvas id="hiddenCanvas" width="1080" height="1080"></canvas>
 <canvas id="bannerCanvas"></canvas>
@@ -342,6 +351,24 @@ function roundRect(ctx, x, y, w, h, r){
 // لینک: ?s=<base64url از {"t": ثانیه‌ی یونیکس, "i": [[کلید, قیمت], ...]}>
 const msgEl = document.getElementById('msg');
 const outEl = document.getElementById('out');
+const loaderEl = document.getElementById('loader');
+const barEl = document.getElementById('bar');
+const fillEl = document.getElementById('fill');
+
+// نوار پیشرفت: مرحله‌به‌مرحله جلو می‌ره و تا آماده‌شدن بنر آروم به ۹۰٪ نزدیک می‌شه
+let progress = 0;
+function setProgress(v){
+  progress = Math.max(progress, v);
+  fillEl.style.width = progress + '%';
+}
+const creep = setInterval(function(){
+  if(progress < 90) setProgress(progress + (90 - progress) * 0.06);
+}, 120);
+function showError(text){
+  clearInterval(creep);
+  msgEl.textContent = text;
+  barEl.style.display = 'none';
+}
 
 function readSnapshot(){
   const raw = new URLSearchParams(location.search).get('s');
@@ -375,9 +402,10 @@ function withTimeout(promise, ms){
 async function run(){
   const snap = readSnapshot();
   if(!snap){
-    msgEl.textContent = 'لینک این بنر نامعتبره.';
+    showError('لینک این بنر نامعتبره.');
     return;
   }
+  setProgress(12);
   SNAP_DATE = new Date(snap.t * 1000);
   try{
     const sample = 'قیمت روز ۱۲۳ ABC';
@@ -385,14 +413,19 @@ async function run(){
       document.fonts.load(w + ' 40px Vazirmatn', sample))), 6000);
     await withTimeout(document.fonts.ready, 3000);
   }catch(e){}
+  setProgress(75);
   try{
     drawBanner(snap.items);
     outEl.src = hiddenCanvas.toDataURL('image/png');
-    outEl.style.display = 'block';
-    msgEl.style.display = 'none';
+    setProgress(100);
+    clearInterval(creep);
+    setTimeout(function(){
+      loaderEl.style.display = 'none';
+      outEl.style.display = 'block';
+    }, 280);
   }catch(e){
     console.error(e);
-    msgEl.textContent = 'ساخت بنر ناموفق بود.';
+    showError('ساخت بنر ناموفق بود.');
   }
 }
 run();
