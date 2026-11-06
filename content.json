@@ -4034,5 +4034,14 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/weather/?s=eyJ0IjoxNzkzOTY0MDk4LCJwIjoi2LPYp9uM2LEg2LTZh9ix2YfYpyIsImMiOltbItmF2KfZh9i02YfYsSIsMjksMjAsMjksM11dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050815_1553",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 15:53",
+    "description": "جمعه 15 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzkzOTY3ODM1LCJpIjpbWyJ1c2RfdXNkdCIsMjcwMjAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI1ODg5OTMwXSxbInVzZF9idGMiLDIwNTgyMjI5MTAwXSxbInVzZF9ldGgiLDYwNjMxNTY0MF0sWyJ1c2QiLDI2ODIwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
