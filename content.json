@@ -3041,21 +3041,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_1793739583128",
-    "type": "file",
-    "title": "تست 2",
-    "description": "سلام",
-    "url": "",
-    "links": [
-      {
-        "label": "",
-        "url": "https://musicviral.musitraf.com/Music/05-05/Ariana%20-%20Moo%20Meshki.mp3"
-      }
-    ],
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_1793775364736",
     "type": "music",
     "title": "معین",
