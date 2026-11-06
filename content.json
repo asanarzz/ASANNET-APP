@@ -3799,7 +3799,8 @@
     "description": "آب و هوای شهرهای استان سمنان - 15 آبان 1405",
     "url": "https://asanarzz.github.io/ASANNET-APP/weather/?s=eyJ0IjoxNzkzOTQ4NTc1LCJwIjoi2LPZhdmG2KfZhiIsImMiOltbItiz2YXZhtin2YYiLDE3LDExLDIxLDBdLFsi2LTYp9mH2LHZiNivIiwxNiwxMCwxOSwzXSxbItiv2KfZhdi62KfZhiIsMTcsMTIsMjEsMV0sWyLaqdmE2KfYqtmHINiu24zYrCIsMTUsOSwxOCwyXSxbItmF24zYp9mF24wiLDE4LDYsMjIsM10sWyLYp9mF24zYsduM2YciLDE2LDEwLDIyLDBdLFsi2KfbjNmI2KfZhtqp24wiLDE5LDEzLDIyLDBdLFsi2KLYsdin2K_Yp9mGIiwyMiwxMywyNCwwXSxbItio2LPYt9in2YUiLDE2LDgsMTgsM10sWyLYqNuM2KfYsdis2YXZhtivIiwyMSwxMSwyMywzXSxbItiv2LHYrNiy24zZhiIsMTUsMTAsMTksMF0sWyLYr9uM2KjYp9isIiwxMiw4LDE0LDFdLFsi2LPYsdiu2YciLDE3LDEyLDIxLDBdLFsi2LTZh9mF24zYsdiy2KfYryIsMTEsNiwxMywwXSxbItqv2LHZhdiz2KfYsSIsMjEsMTYsMjQsMF0sWyLZhdis2YYiLDExLDQsMTMsM10sWyLZhdmH2K_bjCDYtNmH2LEiLDEzLDksMTYsMF1dfQ",
     "allowExternalBrowser": false,
-    "desktopMode": false
+    "desktopMode": false,
+    "pinned": true
   },
   {
     "id": "item_weatherauto_14050815_16",
