@@ -29,12 +29,15 @@
   button,a.btn{font-family:inherit;font-size:16px;padding:10px 16px;border:0;border-radius:12px;background:#4f0af5;color:#fff;text-decoration:none;display:inline-block;margin:8px 0}
   .out{text-align:center}.out img{width:100%;border-radius:10px;border:1px solid #9ab;margin-top:6px}
   .hint{font-size:14px;color:#5a6b7b;text-align:center}
-  #err{display:none;padding:30px 10px;text-align:center;font-size:18px}
+  #loader{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#e4e9ef;z-index:9}
+  #msg{text-align:center;color:#17274b;font-size:26px;font-weight:700;line-height:1.7}
+  #bar{width:min(78vw,360px);height:12px;margin-top:22px;background:#cfd6f5;border-radius:999px;overflow:hidden}
+  #fill{height:100%;width:0%;background:linear-gradient(90deg,#4f0af5,#7b61ff);border-radius:999px;transition:width .25s ease-out}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<div id="err">لینک آب‌وهوا معتبر نیست یا منقضی شده است.</div>
+<div id="loader"><div id="msg">در حال دریافت آب‌وهوا...</div><div id="bar"><div id="fill"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 const PER=15;
@@ -58,9 +61,20 @@ function decode(){
   s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
   try{ return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)))); }catch(e){ return null; }
 }
-const D=decode();
-if(!D||!Array.isArray(D.c)||!D.c.length){ document.getElementById('err').style.display='block'; }
-else{
+const msgEl=document.getElementById('msg'), barEl=document.getElementById('bar'), fillEl=document.getElementById('fill'), loaderEl=document.getElementById('loader');
+let progress=0;
+function setProgress(v){ progress=Math.max(progress,v); fillEl.style.width=progress+'%'; }
+const creep=setInterval(()=>{ if(progress<90) setProgress(progress+(90-progress)*0.06); },120);
+function showError(t){ clearInterval(creep); msgEl.textContent=t; barEl.style.display='none'; }
+const withTimeout=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+async function run(){
+  setProgress(12);
+  const D=decode();
+  if(!D||!Array.isArray(D.c)||!D.c.length){ showError('لینک آب‌وهوا معتبر نیست یا منقضی شده است.'); return; }
+  try{ await withTimeout(Promise.all([400,600,800].map(w=>document.fonts.load(w+' 40px Vazirmatn','آب‌وهوا ۱۲۳'))),6000); await withTimeout(document.fonts.ready,3000); }catch(e){}
+  setProgress(75);
+  try{
+
   const when=new Date((D.t||Date.now()/1000)*1000);
   const dF=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Tehran'});
   const tF=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Tehran'});
@@ -90,7 +104,12 @@ else{
       }catch(err){ btn.disabled=false; btn.textContent='نشد؛ دوباره امتحان کن'; }
     };
   });
+
+    setProgress(100); clearInterval(creep);
+    setTimeout(()=>{ loaderEl.style.display='none'; },280);
+  }catch(e){ console.error(e); showError('نمایش آب‌وهوا ناموفق بود.'); }
 }
+run();
 </script>
 </body>
 </html>
