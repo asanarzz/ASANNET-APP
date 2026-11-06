@@ -4016,5 +4016,14 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzkzOTUwNzY5LCJpIjpbWyJ1c2RfdXNkdCIsMjcxNTAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI1OTM2MTAwXSxbInVzZF9idGMiLDIwNDYxMzM0ODgwXSxbInVzZF9ldGgiLDYwMTkxMjU0MF0sWyJ1c2QiLDI2ODIwMF1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050815_1200",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 12:00",
+    "description": "جمعه 15 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzkzOTUzODM3LCJpIjpbWyJ1c2RfdXNkdCIsMjcxMzAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI1OTU5MTkwXSxbInVzZF9idGMiLDIwNTI1MjEyNTkwXSxbInVzZF9ldGgiLDYwNDI1MjM3MF0sWyJ1c2QiLDI2ODIwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
