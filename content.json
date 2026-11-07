@@ -4156,5 +4156,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794079636088",
+    "type": "video",
+    "title": "آقای زالو",
+    "description": "🔰 ژانر: درام | کمدی \n📆 سال تولید: 1404\n📆 سال انتشار: 1404\n\n👥 بازیگران: امین حیایی، هادی کاظمی، مونا فرجاد، مهران مدیری، ژاله صامتی، بهرنگ علوی، محمدرضا علیمردانی، یوسف صیادی، غلامرضا نیکخواه، خسرو احمدی، مهران احمدی و…\n\nکارگردان: مهران احمدی\n\nخلاصه داستان:میخی که بیرون می‌زنه چکش می‌خوره!",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794079630415-0-img-20261107-225434-357.jpg"
+    ],
+    "links": [
+      {
+        "label": "720p کیفیت",
+        "url": "https://cf.linkulu.com/dl/6aef7b2fde32c56eaccce679"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
