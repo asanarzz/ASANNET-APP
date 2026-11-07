@@ -3718,5 +3718,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794081832717",
+    "type": "video",
+    "title": "ماریا",
+    "description": "ژانر: درام | عاشقانه\n📆 سال تولید: 1403\n📆 سال انتشار: 1405\n\n👥 بازیگران: صابر ابر، پانته‌آ پناهی‌ها، حسین محجوب، کامیاب گرانمایه، مهشید خدادی، محمد صدیقی‌مهر، صادق سهرابی، نکیسا نوری...\n\n👤 کارگردان: مهدی اصغری ازغدی\n\n📄خلاصه داستان: پخش شدن ناخواسته یک فیلم تمرین بازیگری از یک دختر جوان علاقه مند به بازیگری یک گروه فیلمسازی را وارد معمایی پیچیده کرده است...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794081828525-0-img-20261107-233035-863.jpg"
+    ],
+    "links": [
+      {
+        "label": "720p کیفیت",
+        "url": "https://cf.linkulu.com/dl/6aef83ecde32c56eaccce7fe"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
