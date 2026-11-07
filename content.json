@@ -3775,5 +3775,14 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050816_2355",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 23:55",
+    "description": "شنبه 16 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDgzMTI3LCJpIjpbWyJ1c2RfdXNkdCIsMjY3MjAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NDkwNTYwXSxbInVzZF9idGMiLDIwMjQ4Mjk5NTEwXSxbInVzZF9ldGgiLDU5Njk4NDUwMF0sWyJ1c2QiLDI2NjAwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
