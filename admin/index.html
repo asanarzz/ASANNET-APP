@@ -298,8 +298,10 @@
         <div class="type-tabs" id="video-kind-tabs">
           <div class="type-tab active" data-kind="movie">فیلم</div>
           <div class="type-tab" data-kind="series">سریال</div>
+          <div class="type-tab" data-kind="movie_ir">فیلم ایرانی</div>
+          <div class="type-tab" data-kind="series_ir">سریال ایرانی</div>
         </div>
-        <p class="muted">این مشخص می‌کنه تو صفحه‌ی «فیلم» این مورد زیر کدوم ردیف (فیلم‌ها یا سریال‌ها) نشون داده بشه.</p>
+        <p class="muted">این مشخص می‌کنه تو صفحه‌ی «فیلم» این مورد زیر کدوم ردیف (فیلم‌ها، سریال‌ها، فیلم ایرانی یا سریال ایرانی) نشون داده بشه.</p>
       </div>
 
       <div id="links-box" style="margin-top:14px;">
@@ -1621,7 +1623,7 @@ async function handleAdd() {
     }
 
     const sectionValue = selectedType === 'video'
-      ? (selectedVideoKind === 'series' ? 'سریال' : '')
+      ? ({ series: 'سریال', movie_ir: 'فیلم ایرانی', series_ir: 'سریال ایرانی' }[selectedVideoKind] || '')
       : $('in-section').value.trim();
 
     const allowExternalBrowser = $('in-allow-external-browser').checked;
@@ -1747,7 +1749,7 @@ function startEdit(id) {
   selectedType = item.type;
 
   document.querySelectorAll('#video-kind-tabs .type-tab').forEach((t) => t.classList.remove('active'));
-  selectedVideoKind = item.section === 'سریال' ? 'series' : 'movie';
+  selectedVideoKind = ({ 'سریال': 'series', 'فیلم ایرانی': 'movie_ir', 'سریال ایرانی': 'series_ir' })[item.section] || 'movie';
   const kindTab = document.querySelector(`#video-kind-tabs .type-tab[data-kind="${selectedVideoKind}"]`);
   if (kindTab) kindTab.classList.add('active');
 
