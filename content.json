@@ -4109,5 +4109,24 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDczNzI0LCJpIjpbWyJ1c2RfdXNkdCIsMjY3MzAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NTU1MjAwXSxbInVzZF9idGMiLDIwMjc4NDY0ODAwXSxbInVzZF9ldGgiLDU5NzkxMDc3MF0sWyJ1c2QiLDI2NjAwMF1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794075152803",
+    "type": "video",
+    "title": "طهران 57",
+    "description": "ژانر : خانوادگی | کمدی  \n\nسال تولید: ۱۴۰۵  \nسال انتشار: ۱۴۰۵\n\nبازیگران:  احمد مهرانفر، حامد آهنگی، آناهیتا درگاهی، مریم سعادت، سیاوش چراغی پور، یوسف صیادی، سعید سالمی، عین الله دریایی و پژمان جمشیدی و…\n\nکارگردان:  ایمان یزدی\n\nخلاصه داستان: دونالد ترامپِ جوان به ایران آمده تا کازینویی در شمال راه اندازی کند. دو ستاره هالیوودی، جک نیکلسون و وارن بیتی او را در این سفر همراهی می کنند. خسرو بی خبر از اتفاقات غیرمنتظره ای که در راه است به کمک دوستش پرویز که مترجم این مهمانان خارجی است، سعی دارد تا در کازینوی ترامپ با او شریک شود. شراکتی که زندگی اش را زیر و رو می کند..",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794075148664-0-img-20261107-213901-792.jpg"
+    ],
+    "links": [
+      {
+        "label": "کیفیت 720p",
+        "url": "https://cf.linkulu.com/dl/6aef6988de32c56eaccce31a"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
