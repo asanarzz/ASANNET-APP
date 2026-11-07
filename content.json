@@ -4194,5 +4194,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794080536089",
+    "type": "video",
+    "title": "برای یک زندگی معمولی",
+    "description": "🔰 ژانر: درام | اجتماعی \n🗓 سال تولید: 1401\n🗓 سال انتشار: 1404\n\n👥 بازیگران: نرگس محمدی، فریبا نادری، هانا هرندی، محمدرضا شریفی‌نیا، مریم بوبانی امیر دژاکام، سام نوری، امیررضا دلاوری، حسن زارعی، هدیه بازوند و...\n\n👤 کارگردان: عباس رافعی\n\n📄 خلاصه داستان: داستان زنی برای رسیدن به خودش است...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794080530883-0-img-20261107-230829-386.jpg"
+    ],
+    "links": [
+      {
+        "label": "720p کیفیت",
+        "url": "https://cf.linkulu.com/dl/6aef7ebdde32c56eaccce705"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
