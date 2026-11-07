@@ -26,6 +26,8 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var sectionAdapter: SectionFolderAdapter
     private lateinit var moviesAdapter: PosterCarouselAdapter
     private lateinit var seriesAdapter: PosterCarouselAdapter
+    private lateinit var moviesIrAdapter: PosterCarouselAdapter
+    private lateinit var seriesIrAdapter: PosterCarouselAdapter
 
     private var allItems: List<ContentItem> = emptyList()
     private var typeFilter: ContentType? = null
@@ -65,6 +67,8 @@ class CategoryListActivity : AppCompatActivity() {
         sectionAdapter = SectionFolderAdapter(emptyList()) { folder -> openSection(folder) }
         moviesAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
         seriesAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
+        moviesIrAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
+        seriesIrAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
 
         binding.recyclerContent.layoutManager = LinearLayoutManager(this)
         binding.recyclerContent.adapter = adapter
@@ -78,6 +82,12 @@ class CategoryListActivity : AppCompatActivity() {
             binding.recyclerSeries.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
             binding.recyclerSeries.adapter = seriesAdapter
+            binding.recyclerMoviesIr.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerMoviesIr.adapter = moviesIrAdapter
+            binding.recyclerSeriesIr.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerSeriesIr.adapter = seriesIrAdapter
         }
 
         binding.swipeRefresh.setOnRefreshListener { loadContent() }
@@ -156,13 +166,22 @@ class CategoryListActivity : AppCompatActivity() {
         }
 
         val series = videos.filter { it.section?.trim() == "سریال" }
-        val movies = videos.filter { it.section?.trim() != "سریال" }
+        val seriesIr = videos.filter { it.section?.trim() == "سریال ایرانی" }
+        val moviesIr = videos.filter { it.section?.trim() == "فیلم ایرانی" }
+        val movies = videos.filter {
+            val s = it.section?.trim()
+            s != "سریال" && s != "سریال ایرانی" && s != "فیلم ایرانی"
+        }
 
         moviesAdapter.updateItems(movies)
         seriesAdapter.updateItems(series)
+        moviesIrAdapter.updateItems(moviesIr)
+        seriesIrAdapter.updateItems(seriesIr)
 
         binding.sectionMovies.visibility = if (movies.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         binding.sectionSeries.visibility = if (series.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        binding.sectionMoviesIr.visibility = if (moviesIr.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        binding.sectionSeriesIr.visibility = if (seriesIr.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         binding.layoutVideoEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
