@@ -3756,5 +3756,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794082608431",
+    "type": "video",
+    "title": "لاک پشت",
+    "description": "🎭 ژانر : اجتماعی | خانوادگی\n📆 سال تولید: ۱۴۰۲  \n📆 سال انتشار: ۱۴۰۴\n\n💎 بازیگران:  صابر ابر، فرهاد اصلانی، نازنین بیاتی، نازنین کریمی، هومن برق نورد، آزیتا حاجیان و ...\n\n👤 کارگردان:  بهمن کامیار\n\n📖 خلاصه داستان: فیلم لاک‌پشت، دکتر پیروز ارجمند برای یک‌شب، میزبان معشوقه سابق همسرش است که در گذشته، عشق پورشوری بین آن دو بوده. او از دیدار مجدد و زنده شدن عشق قدیمی بین آنها و فروپاشی زندگی‌اش می‌ترسد.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794082604751-0-img-20261107-234444-734.jpg"
+    ],
+    "links": [
+      {
+        "label": "720p کیفیت",
+        "url": "https://cf.linkulu.com/dl/6aef86d8de32c56eaccce8af"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
