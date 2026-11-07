@@ -4137,5 +4137,24 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDc4MDA5LCJpIjpbWyJ1c2RfdXNkdCIsMjY3OTAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NDkwNTYwXSxbInVzZF9idGMiLDIwMzAyOTYxNDcwXSxbInVzZF9ldGgiLDU5ODg2NDI4MF0sWyJ1c2QiLDI2NjAwMF1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794078254204",
+    "type": "video",
+    "title": "آدم فروش",
+    "description": "ژانر : خانوادگی | درام  | اجتماعی\nسال تولید: ۱۴۰۲  \nسال انتشار: ۱۴۰۵\n\nبازیگران: مهران مدیری، فریبا نادری، سمیرا حسن پور، پژمان بازغی،  صابر ابر، علی شادمان، نسیم ادبی، رایان سرلک  و…\n\nکارگردان:  محمود  کلاری\n\nخلاصه داستان: داستان پسری هفت ساله به نام عطا است که او را نزد رمالی می‌برند تا دزد طلاهای عمه‌اش را پیدا کند، اما او برای رهایی از این موقعیت، ناخواسته دروغی می‌گوید که سرنوشت تلخی برای تمام خانواده رقم می‌زند.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794078247470-0-img-20261107-223012-020.jpg"
+    ],
+    "links": [
+      {
+        "label": "720p کیفیت",
+        "url": "https://cf.linkulu.com/dl/6aef75aade32c56eaccce573"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
