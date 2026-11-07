@@ -4100,5 +4100,14 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDY5MzkzLCJpIjpbWyJ1c2RfdXNkdCIsMjY3NDAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NTg5ODIwXSxbInVzZF9idGMiLDIwMjYyNjUzOTUwXSxbInVzZF9ldGgiLDU5ODIzNjQ2MF0sWyJ1c2QiLDI2NjIwMF1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050816_2118",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 21:18",
+    "description": "شنبه 16 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDczNzI0LCJpIjpbWyJ1c2RfdXNkdCIsMjY3MzAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NTU1MjAwXSxbInVzZF9idGMiLDIwMjc4NDY0ODAwXSxbInVzZF9ldGgiLDU5NzkxMDc3MF0sWyJ1c2QiLDI2NjAwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
