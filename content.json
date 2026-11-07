@@ -4037,5 +4037,14 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/weather/?s=eyJ0IjoxNzk0MDQ3ODMwLCJwIjoi2LPYp9uM2LEg2LTZh9ix2YfYpyIsImMiOltbItmF2KfZh9i02YfYsSIsMzEsMjIsMzIsM11dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050816_1446",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 14:46",
+    "description": "شنبه 16 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDUwMTgyLCJpIjpbWyJ1c2RfdXNkdCIsMjY3OTAwXSxbInNla2tlaCIsMjYwNTAwXSxbImJhaGFyIiwyNTIwMDBdLFsibmltIiwxMzgwMDBdLFsicm9iIiw3NDAwMF0sWyIxOGF5YXIiLDI1Nzc0NTAwXSxbInVzZF9idGMiLDIwMzU2MzAyNTYwXSxbInVzZF9ldGgiLDYwMTY1MjQ3MF0sWyJ1c2QiLDI2NzAwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
