@@ -4001,5 +4001,14 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/16/788d9869.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/16/e7f8a7fb.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050816_0800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:00",
+    "description": "شنبه 16 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MDI1ODM0LCJpIjpbWyJ1c2RfdXNkdCIsMjY4NzAwXSxbInNla2tlaCIsMjY3MDAwXSxbImJhaGFyIiwyNTYwMDBdLFsibmltIiwxNDA1MDBdLFsicm9iIiw3NjAwMF0sWyIxOGF5YXIiLDI1ODg5OTMwXSxbInVzZF9idGMiLDIwMzgwODU4MzkwXSxbInVzZF9ldGgiLDYwMjg5MTA1MF0sWyJ1c2QiLDI2NzUwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
