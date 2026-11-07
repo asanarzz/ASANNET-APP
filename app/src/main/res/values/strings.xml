@@ -144,6 +144,8 @@
     <string name="search_hint">جستجو…</string>
     <string name="video_movies_section">فیلم‌ها</string>
     <string name="video_series_section">سریال‌ها</string>
+    <string name="video_movies_ir_section">فیلم ایرانی</string>
+    <string name="video_series_ir_section">سریال ایرانی</string>
 
     <!--
       اطلاعات اتصال به Supabase (برای ثبت‌نام کاربران).
