@@ -4208,5 +4208,14 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/weather/?s=eyJ0IjoxNzk0MTM0NjA5LCJwIjoi2LPYp9uM2LEg2LTZh9ix2YfYpyIsImMiOltbItmF2KfZh9i02YfYsSIsMjksMTksMjksMl1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050817_1458",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 14:58",
+    "description": "یکشنبه 17 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MTM3MzI3LCJpIjpbWyJ1c2RfdXNkdCIsMjY2ODAwXSxbInNla2tlaCIsMjU4MDAwXSxbImJhaGFyIiwyNDkwMDBdLFsibmltIiwxMzcwMDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NDgxMzIwXSxbInVzZF9idGMiLDIwMjgwNjc3MzgwXSxbInVzZF9ldGgiLDU5NzU3NjIxMF0sWyJ1c2QiLDI2NjIwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
