@@ -3784,5 +3784,24 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MTcwNDc1LCJpIjpbWyJ1c2RfdXNkdCIsMjY2MTAwXSxbInNla2tlaCIsMjU5MDAwXSxbImJhaGFyIiwyNDkwMDBdLFsibmltIiwxMzcwMDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NDQ0MzkwXSxbInVzZF9idGMiLDIwMTc1NTI3OTgwXSxbInVzZF9ldGgiLDU5Mjc0MTAxMF0sWyJ1c2QiLDI2NTUwMF1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794173803337",
+    "type": "video",
+    "title": "گوزن های اتوبان",
+    "description": "🔰 ژانر: درام | اجتماعی \n📆 سال تولید: 1403\n📆 سال انتشار: 1404\n\n👥 بازیگران: الناز شاکردوست، نوید پورفرج، صدف اسپهبدی، بهنوش بختیاری، سامان صفاری، سیامک ادیب، پیمان قاسم خانی و...\n\n👤 کارگردان: ابوالفضل صفاری \n\n📄 خلاصه داستان: عابس، پیک موتوری یک مرغ سوخاری است. در بیکاری بعد از ظهری، او با همکارانش در حال بازی بیست و یک هستند. در این بازی آنها به جای ورق، پلاک ماشین‌های عبوری را می‌خوانند. در حالیکه عابس روی ته مانده پولش شرط بسته، ماشینی رد می‌شود که پلاکش خوانده نمی‌شود. تکلیف این بازی باید روشن شود..",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1794173798059-0-img-20261109-010409-997.jpg"
+    ],
+    "links": [
+      {
+        "label": "Gavaznhaye.Otuban.720p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/FILM/Gavaznhaye.Otuban.720p.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
