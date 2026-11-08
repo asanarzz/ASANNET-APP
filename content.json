@@ -4172,5 +4172,14 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/17/afd48367.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/17/788d9869.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050817_0800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:00",
+    "description": "یکشنبه 17 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MTEyMjQ1LCJpIjpbWyJ1c2RfdXNkdCIsMjY3MjAwXSxbInNla2tlaCIsMjYwMDAwXSxbImJhaGFyIiwyNTEwMDBdLFsibmltIiwxMzc1MDBdLFsicm9iIiw3MzUwMF0sWyIxOGF5YXIiLDI1NDkwNTYwXSxbInVzZF9idGMiLDIwMjg0MDQ3NTIwXSxbInVzZF9ldGgiLDU5NzgzNDg4MF0sWyJ1c2QiLDI2NjAwMF1dfQ",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
