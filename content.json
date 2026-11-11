@@ -4288,5 +4288,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050820_2315",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 23:15",
+    "description": "چهارشنبه 20 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDI2MzQ4LCJpIjpbWyJ1c2RfdXNkdCIsMjY0NDAwXSxbInNla2tlaCIsMjU1MDAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzQ1MDBdLFsicm9iIiw3MzAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5Njg0MTgzNzYwXSxbInVzZF9ldGgiLDU1MDE4OTc0MF0sWyJ1c2QiLDI2NDIwMF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
