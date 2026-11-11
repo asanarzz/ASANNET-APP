@@ -3794,23 +3794,5 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050820_0028",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 00:28",
-    "description": "چهارشنبه 20 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MzQ0MzA2LCJpIjpbWyJ1c2RfdXNkdCIsMjU0MDAwXSxbInNla2tlaCIsMjU0MDAwXSxbImJhaGFyIiwyNDYwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE4NzMxNjM0ODgwXSxbInVzZF9ldGgiLDUyMjMyMzY2MF0sWyJ1c2QiLDI2MDkwMF1dfQ",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050820_0123",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 01:23",
-    "description": "چهارشنبه 20 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0MzQ3NjM2LCJpIjpbWyJ1c2RfdXNkdCIsMjQ5NjAwXSxbInNla2tlaCIsMjU0MDAwXSxbImJhaGFyIiwyNDYwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE4NDM4MjMwODQwXSxbInVzZF9ldGgiLDUxMzc2OTk3MF0sWyJ1c2QiLDI2MDkwMF1dfQ",
-    "allowExternalBrowser": false,
-    "desktopMode": false
   }
 ]
