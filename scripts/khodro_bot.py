@@ -8,7 +8,7 @@
 حالت fetch (هر روز صبح):
   ۱) اسکرپر (scripts/scrape_cars.py) قیمت خودروها رو از چند سایت خبری می‌گیره.
   ۲) قیمت‌های خراب یا تکراری حذف می‌شن (جدیدترین گزارش هر خودرو) و همه‌ی خودروها تو یه لینک می‌رن.
-  ۳) مطمئن می‌شه که صفحه‌ی khodro-viewer.html با اون لینک همه‌ی بنرها رو درست می‌سازه
+  ۳) مطمئن می‌شه که صفحه‌ی khodro/index.html با اون لینک همه‌ی بنرها رو درست می‌سازه
      (بنرها به تفکیک شرکت: ایران‌خودرو، سایپا، سایر شرکت‌ها؛ هر بنر حداکثر ۳۰ خودرو)،
      و بعد یه آیتم تو دسته‌ی «دلار و طلا» / پوشه‌ی «قیمت خودرو» اضافه می‌کنه.
 
@@ -23,10 +23,12 @@ import subprocess
 import sys
 from datetime import date, datetime, timedelta, timezone
 
-VIEWER_BASE = os.environ.get("KHODRO_VIEWER_URL", "https://asanarzz.github.io/ASANNET-APP/khodro-viewer.html")
+# مهم: آدرس نباید به «.html» ختم بشه! برنامه برای لینک‌های .html خودش متن صفحه رو دانلود می‌کنه و
+# بخش بعد از # (که قیمت‌ها داخلشه) از بین می‌ره. آدرسِ پوشه (آخرش /) مثل ربات کالاهای اساسی درست کار می‌کنه.
+VIEWER_BASE = os.environ.get("KHODRO_VIEWER_URL", "https://asanarzz.github.io/ASANNET-APP/khodro/")
 BOT_ID_PREFIX = "item_khodroauto_"
 SECTION_NAME = "قیمت خودرو"
-PER_PAGE = 30            # باید با PER_PAGE تو khodro-viewer.html یکی باشه
+PER_PAGE = 30            # باید با PER_PAGE تو khodro/index.html یکی باشه
 MIN_ITEMS = 30           # اگه کمتر از این تعداد خودرو گرفته بشه، آیتمی اضافه نمی‌شه
 MAX_AGE_DAYS = 4         # قیمتی که گزارشش قدیمی‌تر از این باشه کنار گذاشته می‌شه
 MIN_PRICE = 500_000_000  # قیمت‌های کمتر/بیشتر از این بازه تقریباً حتماً خطای خوندن جدول هستن
@@ -162,7 +164,7 @@ def sort_items(items):
 
 
 def count_pages(items):
-    """همون تقسیم‌بندیِ khodro-viewer.html: هر گروه یه یا چند بنر مساوی (حداکثر PER_PAGE تا تو هر بنر)."""
+    """همون تقسیم‌بندیِ khodro/index.html: هر گروه یه یا چند بنر مساوی (حداکثر PER_PAGE تا تو هر بنر)."""
     total = 0
     for gi in range(len(GROUPS)):
         n = sum(1 for x in items if group_index(x) == gi)
@@ -249,7 +251,7 @@ def verify_viewer(link, expected_pages):
                 raise
         except Exception as e:
             raise RuntimeError(
-                "صفحه‌ی نمایش بنر (%s) درست کار نکرد: %s — اگه همین الان فایل khodro-viewer.html رو آپلود "
+                "صفحه‌ی نمایش بنر (%s) درست کار نکرد: %s — اگه همین الان فایل khodro/index.html رو آپلود "
                 "کردی، یکی دو دقیقه صبر کن تا GitHub Pages منتشرش کنه و دوباره اجرا کن." % (VIEWER_BASE, e))
         finally:
             browser.close()
