@@ -260,6 +260,7 @@ def run_fetch(path):
     item["title"] = "قیمت دلار و طلا — ساعت " + clock
     item["description"] = "%s %d %s %d" % (WEEKDAYS[now.weekday()], jd, MONTHS[jm - 1], jy)
     item["url"] = link
+    item["section"] = "دلار و طلا"  # پوشه‌ی داخل دسته‌ی «دلار و طلا»
     # دکمه‌ی «باز کردن در مرورگر بیرونی» و حالت دسکتاپ برای این آیتم‌ها خاموشه
     item["allowExternalBrowser"] = False
     item["desktopMode"] = False
