@@ -1,0 +1,87 @@
+{
+ "maxAgeDays": 14,
+ "maxPerListing": 3,
+ "maxArticles": 30,
+ "minItems": 150,
+ "linkPattern": "قیمت.*(کالاهای اساسی|مرغ|تخم|برنج|روغن|گوشت|لبنیات)",
+ "listings": [
+  {
+   "id": "eghtesadnews",
+   "name": "اقتصادنیوز",
+   "url": "https://www.eghtesadnews.com/بخش-اقتصادی-67",
+   "enabled": true
+  },
+  {
+   "id": "didbaniran",
+   "name": "دیدبان ایران",
+   "url": "https://www.didbaniran.ir/بخش-اقتصادی-4",
+   "enabled": true
+  },
+  {
+   "id": "ecoiran",
+   "name": "اکوایران",
+   "url": "https://ecoiran.com/بخش-اقتصاد-کلان-186",
+   "enabled": true
+  },
+  {
+   "id": "nabzgheymat",
+   "name": "نبض قیمت",
+   "url": "https://nabzgheymat.ir/",
+   "enabled": true
+  },
+  {
+   "id": "vananews",
+   "name": "وانا نیوز",
+   "url": "https://vananews.com/",
+   "enabled": true
+  },
+  {
+   "id": "avash",
+   "name": "آواش",
+   "url": "https://avash.ir/بخش-اقتصادی-4",
+   "enabled": true
+  }
+ ],
+ "articles": [],
+ "backupListings": [
+  {
+   "id": "sharghdaily",
+   "name": "روزنامه شرق",
+   "url": "https://www.sharghdaily.com/بخش-اقتصادی-12",
+   "enabled": true
+  },
+  {
+   "id": "mehrnews",
+   "name": "خبرگزاری مهر",
+   "url": "https://www.mehrnews.com/service/economy",
+   "enabled": true
+  },
+  {
+   "id": "khabaronline",
+   "name": "خبرآنلاین",
+   "url": "https://www.khabaronline.ir/service/economy",
+   "enabled": true
+  },
+  {
+   "id": "eghtesadonline",
+   "name": "اقتصادآنلاین",
+   "url": "https://www.eghtesadonline.com/",
+   "enabled": true
+  },
+  {
+   "id": "taadol",
+   "name": "روزنامه تعادل",
+   "url": "https://www.taadolnewspaper.ir/",
+   "enabled": true
+  }
+ ],
+ "backupArticles": [],
+ "maxBackupArticles": 20,
+ "fallbackData": [
+  {
+   "id": "personal",
+   "name": "داده‌ی آماده‌ی ابزار نبض بازار",
+   "url": "https://asanarzz.github.io/ASANNETT/nabze-bazar/data/scraped.json"
+  }
+ ]
+}
