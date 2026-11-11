@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
+<title>قیمت کالاهای اساسی آسان‌نت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#f0f9ff; }
+  #loader { position:fixed; top:0; right:0; bottom:0; left:0; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; padding:24px; box-sizing:border-box; background:#f0f9ff; z-index:5; }
+  #msg { font-family:'Vazirmatn', sans-serif; text-align:center; color:#082f49; font-size:26px;
+         font-weight:700; line-height:1.7; }
+  #bar { width:min(78vw, 360px); height:12px; margin-top:22px; background:#cfe7f5; border-radius:999px; overflow:hidden; }
+  #fill { height:100%; width:0%; background:linear-gradient(90deg, #0284c7, #38bdf8); border-radius:999px;
+          transition:width .25s ease-out; }
+  #cnt { margin-top:14px; font-family:'Vazirmatn', sans-serif; font-size:15px; color:#075985; min-height:22px; }
+  #out img { display:block; width:100%; height:auto; margin:0 0 10px 0; }
+  canvas { display:none; }
+</style>
+</head>
+<body>
+<!--
+  صفحه‌ی نمایش بنرهای «قیمت کالاهای اساسی» (برگرفته از ابزار «نبض قیمت بازار»؛ طراحی بنر دقیقاً همونه).
+  هیچ عکسی جایی ذخیره نمی‌شه: لیست کالاها و قیمت‌ها داخل خودِ لینک (بعد از #) هستن و بنرها همین‌جا روی گوشی
+  کاربر کشیده می‌شن و به‌صورت چند عکس (هر عکس ۳۰ کالا) زیر هم نشون داده می‌شن.
+-->
+<div id="loader">
+  <div id="msg">در حال دریافت قیمت‌ها...</div>
+  <div id="bar"><div id="fill"></div></div>
+  <div id="cnt"></div>
+</div>
+<div id="out"></div>
 
+<script>
+const PER_PAGE = 20;
+const msgEl = document.getElementById('msg');
+const barEl = document.getElementById('bar');
+const fillEl = document.getElementById('fill');
+const cntEl = document.getElementById('cnt');
+const loaderEl = document.getElementById('loader');
+const outEl = document.getElementById('out');
+window.__nabze = { pages: 0, done: false, error: null };
+
+const fa = n => Number(n).toLocaleString('fa-IR');
+
+// ---- نوار پیشرفت ----
+let progress = 0;
+function setProgress(v){ progress = Math.max(progress, Math.min(100, v)); fillEl.style.width = progress + '%'; }
+const creep = setInterval(function(){ if(progress < 14) setProgress(progress + (14 - progress) * 0.08); }, 120);
+function showError(text){
+  clearInterval(creep);
+  msgEl.textContent = text;
+  barEl.style.display = 'none';
+  cntEl.textContent = '';
+  window.__nabze.error = text;
+}
+
+// ---- خواندن لینک: #d=<base64url از {"t":ثانیه, "u":[واحدها], "c":[دسته‌ها], "n":[[نام,واحد,قیمت,دسته,روز]...]}> ----
+function readData(){
+  const m = /(?:^#|&)d=([A-Za-z0-9_-]+)/.exec(location.hash);
+  if(!m) return null;
+  try{
+    let b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    while(b64.length % 4) b64 += '=';
+    const bin = atob(b64), bytes = new Uint8Array(bin.length);
+    for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const data = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    const t = Number(data.t);
+    if(!isFinite(t) || t < 1500000000 || t > 4100000000) return null;
+    if(!Array.isArray(data.n) || data.n.length === 0 || data.n.length > 3000) return null;
+    const units = Array.isArray(data.u) ? data.u : [];
+    const items = [];
+    for(const r of data.n){
+      if(!Array.isArray(r) || r.length < 5) continue;
+      const max = Number(r[2]), day = Number(r[4]);
+      const name = String(r[0]).slice(0, 120);
+      if(!name || !isFinite(max) || max <= 0) continue;
+      items.push({ name: name, unit: String(units[r[1]] == null ? '' : units[r[1]]).slice(0, 60), max: max,
+                   reportDate: isFinite(day) ? new Date(day * 86400000).toISOString().slice(0, 10) : null });
+    }
+    if(items.length === 0) return null;
+    return { t: t, items: items };
+  }catch(e){
+    return null;
+  }
+}
+
+// ---- تابع‌های رسم بنر (از ابزار «نبض قیمت بازار») ----
+function fit(c, t, w, sz, wt){ let s = sz; do{ c.font = `${wt} ${s}px Vazirmatn,Tahoma,sans-serif`; s -= 2; }while(c.measureText(t).width > w && s > 16); }
+function wrap(g, t, w){ const ws = t.split(' '); let ls = [], c = ''; ws.forEach(x => { const n = c ? c + ' ' + x : x; if(g.measureText(n).width > w && c){ ls.push(c); c = x } else c = n }); if(c) ls.push(c); return ls }
+const pdate = d => d ? new Date(d).toLocaleDateString('fa-IR-u-ca-persian', { year:'numeric', month:'long', day:'numeric', timeZone:'UTC' }) : 'تاریخ نامشخص';
+
+function drawPage(part, p, pages, snap){
+  const ac = '#7dd3fc', bg = '#f0f9ff', tx = '#082f49', k = 1;
+  const hd = '#082f49', hs = '#075985';
+  const NOTE = 'قیمت هر کالا، بالاترین قیمت گزارش‌شده در منابع منتشرشده است', HH = 262, LH = 54;
+  const stale = x => x.reportDate ? ((snap.t * 1000 - new Date(x.reportDate)) / 864e5) > 10 : true;
+  const mc = document.createElement('canvas').getContext('2d'); mc.direction = 'rtl'; mc.font = '400 50px Vazirmatn,Tahoma,sans-serif';
+  const nl = wrap(mc, NOTE, 1080);
+  const ds = part.map(x => x.reportDate).filter(Boolean).sort();
+  const dr = ds.length ? (ds[0] === ds[ds.length - 1] ? 'تاریخ گزارش: ' + pdate(ds[0]) : 'تاریخ گزارش‌ها: ' + pdate(ds[0]) + ' تا ' + pdate(ds[ds.length - 1])) : '';
+  mc.font = '400 48px Vazirmatn,Tahoma,sans-serif';
+  const dl2 = dr ? wrap(mc, dr, 1080) : [];
+  const FH = 62 + (nl.length + dl2.length - 1) * LH + 156, H = HH + 20 + part.length * 88 + 20 + FH, fy = H - FH;
+  const c = document.createElement('canvas'); c.width = 1200; c.height = H;
+  const g = c.getContext('2d'); g.direction = 'rtl';
+  g.fillStyle = bg; g.fillRect(0, 0, 1200, H); g.fillStyle = ac; g.fillRect(0, 0, 1200, HH); g.fillStyle = hs; g.fillRect(0, HH, 1200, 8);
+  g.textAlign = 'right'; g.fillStyle = hd; const T = 'قیمت کالاهای اساسی'; fit(g, T, 1000, 72 * k, 800); g.fillText(T, 1140, 80);
+  g.fillStyle = hs; g.font = '700 64px Vazirmatn,Tahoma,sans-serif'; g.fillText('کافی نت آسان نت', 1140, 150);
+  g.fillStyle = hd;
+  const when = new Date(snap.t * 1000);
+  const D = when.toLocaleDateString('fa-IR-u-ca-persian', { year:'numeric', month:'long', day:'numeric', timeZone:'Asia/Tehran' })
+          + ' — ساعت ' + when.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit', hourCycle:'h23', timeZone:'Asia/Tehran' });
+  fit(g, D, 1000, 56, 400); g.fillText(D, 1140, 222);
+  if(pages > 1){ g.textAlign = 'left'; g.fillStyle = hd; g.font = '400 36px Vazirmatn,Tahoma,sans-serif'; g.fillText(`${fa(p + 1)} از ${fa(pages)}`, 50, 222); }
+  const y0 = HH + 20;
+  part.forEach((x, i) => {
+    const y = y0 + i * 88;
+    if(i % 2 == 0){ g.fillStyle = 'rgba(2,132,199,.10)'; g.fillRect(40, y, 1120, 84); }
+    const note = x.unit + (stale(x) ? ' • قدیمی' : '');
+    g.textAlign = 'right'; g.fillStyle = tx; fit(g, x.name, 640, 34 * k, 700); g.fillText(x.name, 1150, y + 38);
+    g.fillStyle = '#4b6a80'; g.font = '400 24px Vazirmatn,Tahoma,sans-serif'; g.fillText(note, 1150, y + 72);
+    g.textAlign = 'left'; g.fillStyle = '#075985'; const price = fa(x.max) + ' تومان'; fit(g, price, 430, 34 * k, 800); g.fillText(price, 55, y + 55);
+  });
+  g.fillStyle = ac; g.fillRect(0, fy, 1200, FH); g.textAlign = 'center'; g.fillStyle = hd; let yy = fy + 62;
+  g.font = '400 50px Vazirmatn,Tahoma,sans-serif'; nl.forEach(l => { g.fillText(l, 600, yy); yy += LH; });
+  g.font = '400 48px Vazirmatn,Tahoma,sans-serif'; dl2.forEach(l => { g.fillText(l, 600, yy); yy += LH; });
+  yy += 24; g.font = '800 62px Vazirmatn,Tahoma,sans-serif'; g.fillText('کافی نت آسان نت', 600, yy); yy += 56;
+  g.direction = 'ltr'; g.fillStyle = hs; g.font = '700 44px Vazirmatn,Tahoma,sans-serif'; g.fillText('@ASANNETT', 600, yy);
+  return c;
+}
+
+function withTimeout(promise, ms){ return Promise.race([promise, new Promise(resolve => setTimeout(resolve, ms))]); }
+function toBlob(canvas){ return new Promise(resolve => canvas.toBlob(resolve, 'image/png')); }
+
+async function run(){
+  const snap = readData();
+  if(!snap){ showError('لینک این صفحه نامعتبره.'); return; }
+  const pages = Math.ceil(snap.items.length / PER_PAGE);
+  window.__nabze.pages = pages;
+  try{
+    const sample = 'قیمت کالاهای اساسی ۱۲۳ ABC';
+    await withTimeout(Promise.all([400, 700, 800].map(w => document.fonts.load(w + ' 36px Vazirmatn', sample))), 6000);
+    await withTimeout(document.fonts.ready, 3000);
+  }catch(e){}
+  clearInterval(creep);
+  setProgress(15);
+  try{
+    const urls = [];
+    for(let p = 0; p < pages; p++){
+      const canvas = drawPage(snap.items.slice(p * PER_PAGE, (p + 1) * PER_PAGE), p, pages, snap);
+      const blob = await toBlob(canvas);
+      canvas.width = 0; canvas.height = 0;   // آزاد کردن حافظه
+      urls.push(URL.createObjectURL(blob));
+      setProgress(15 + 85 * (p + 1) / pages);
+      cntEl.textContent = fa(p + 1) + ' از ' + fa(pages);
+      await new Promise(r => setTimeout(r, 0));
+    }
+    const imgs = urls.map((u, i) => { const im = new Image(); im.alt = 'قیمت کالاهای اساسی ' + (i + 1); im.decoding = 'async'; im.src = u; outEl.appendChild(im); return im; });
+    await withTimeout(Promise.all(imgs.map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve())), 15000);
+    setTimeout(function(){ loaderEl.style.display = 'none'; window.__nabze.done = true; }, 250);
+  }catch(e){
+    console.error(e);
+    showError('ساخت بنر ناموفق بود.');
+  }
+}
+run();
+</script>
+</body>
+</html>
