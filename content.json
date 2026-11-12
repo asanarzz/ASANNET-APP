@@ -4301,5 +4301,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794502227262",
+    "type": "video",
+    "title": "سگ دست",
+    "description": "فیلم سینمایی #سگ_دست\n🎪 ژانر: #درام - #خانوادگی \n\n🎩 کارگردان: تقی علی آبادی \n🗓 تاریخ تولید و انتشار: ۱۴۰۵ ـ ۱۴۰۰\n\n\n🎭 بازیگران: کامبیز ‌امینی، سامان ‌دارابی، علیرضا ‌مهران، روناک پوریادگار، کیمیا گیلانی، فرشاد ‌مجرب، تقی ‌علی ‌آبادی، فرزاد ‌دشتی و...\n\n💬 خلاصه داستان: مراد و پروانه زوجی هستند که امیدهای بسیاری برای زندگی دارند ولی شرایط به شکلی رقم می خورد و انها وارد چالشهای جدیدی در زندگی خود می شوند و...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794502224666-0-img-20261112-201921-397.jpg"
+    ],
+    "links": [
+      {
+        "label": "sagdas-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/sagdas-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
