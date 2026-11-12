@@ -49,6 +49,8 @@ data class ContentItem(
     val allowExternalBrowser: Boolean = true,
     /** false یعنی این لینک با نسخه‌ی موبایل (نه دسکتاپ) نمایش داده شود. */
     val desktopMode: Boolean = true,
+    /** false یعنی دکمه‌ی «دانلود عکس» برای این مورد مخفی بماند (فقط برای روزنامه، دلار/طلا و آب‌وهوا اثر داره). */
+    val allowImageDownload: Boolean = true,
     /** true یعنی این مورد (یا پوشه‌ای که عضوشه) از پنل مدیریت پین شده و باید بالای لیست بیاد. */
     val pinned: Boolean = false
 ) {
@@ -92,6 +94,7 @@ data class ContentItem(
                         lockGroup = obj.optString("lockGroup", "").trim().ifBlank { null },
                         allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true),
                         desktopMode = obj.optBoolean("desktopMode", true),
+                        allowImageDownload = obj.optBoolean("allowImageDownload", true),
                         pinned = obj.optBoolean("pinned", false)
                     )
 

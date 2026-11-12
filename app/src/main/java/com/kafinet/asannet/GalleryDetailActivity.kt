@@ -28,6 +28,8 @@ class GalleryDetailActivity : AppCompatActivity() {
         const val EXTRA_IS_FILE = "extra_is_file"
         const val EXTRA_ALLOW_EXTERNAL_BROWSER = "extra_allow_external_browser"
         const val EXTRA_DESKTOP_MODE = "extra_desktop_mode"
+        /** true: فلش دانلودِ عکسی که الان نشون داده می‌شه، بالای صفحه نشون داده می‌شه */
+        const val EXTRA_SHOW_DOWNLOAD = "extra_show_download"
 
         private const val IMAGE_WEIGHT_COLLAPSED = 4f
         private const val CAPTION_WEIGHT_COLLAPSED = 1f
@@ -64,6 +66,23 @@ class GalleryDetailActivity : AppCompatActivity() {
         binding.txtDescription.visibility = if (description.isBlank()) View.GONE else View.VISIBLE
 
         binding.btnBack.setOnClickListener { finish() }
+
+        // فلش بالای صفحه: فقط همون عکسی رو دانلود می‌کنه که الان جلوی چشمته (نه همه‌ی عکس‌ها)
+        if (intent.getBooleanExtra(EXTRA_SHOW_DOWNLOAD, false) && images.isNotEmpty()) {
+            binding.btnDownload.visibility = View.VISIBLE
+            binding.btnDownload.setOnClickListener {
+                val layoutManager = binding.recyclerImages.layoutManager as? LinearLayoutManager
+                var position = layoutManager?.findFirstCompletelyVisibleItemPosition() ?: -1
+                if (position < 0) position = layoutManager?.findFirstVisibleItemPosition() ?: 0
+                if (position < 0) position = 0
+                val imageUrl = images.getOrNull(position) ?: return@setOnClickListener
+                if (DownloadHelper.ensureStoragePermission(this)) {
+                    DownloadHelper.downloadUrl(
+                        this, imageUrl, "asannet-newspaper-${System.currentTimeMillis() / 1000}-${position + 1}"
+                    )
+                }
+            }
+        }
 
         setupImageGallery(images, title, allowExternalBrowser, desktopMode)
         setupCaptionToggle()
