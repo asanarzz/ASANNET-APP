@@ -37,6 +37,16 @@
             android:maxLines="1"
             android:ellipsize="end"
             tools:text="عنوان"/>
+
+        <ImageView
+            android:id="@+id/btn_download"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:src="@drawable/ic_download"
+            android:visibility="gone"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/btn_download"/>
     </LinearLayout>
 
     <!-- عکس ۹۰٪ و توضیحات ۱۰٪ باقیمونده‌ی صفحه؛ با لمس توضیحات، به‌صورت کامل باز می‌شه -->
