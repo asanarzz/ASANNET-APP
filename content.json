@@ -3794,16 +3794,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050821_1010",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 10:10",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDY1NjIzLCJpIjpbWyJ1c2RfdXNkdCIsMjY0MTAwXSxbInNla2tlaCIsMjU2MDAwXSxbImJhaGFyIiwyNDgwMDBdLFsibmltIiwxMzQ1MDBdLFsicm9iIiw3MzAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDM5MTI3MjgwXSxbInVzZF9ldGgiLDU0MTAxNjQxMF0sWyJ1c2QiLDI2NDIwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_newsauto_14050821",
     "type": "newspaper",
     "title": "پنجشنبه",
@@ -4169,26 +4159,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050821_1638",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 16:38",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDg4OTEwLCJpIjpbWyJ1c2RfdXNkdCIsMjY2NjAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDI1MzMzMTkwXSxbInVzZF9ldGgiLDUzOTA1MDY3MF0sWyJ1c2QiLDI2NzMwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050821_1902",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 19:02",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDk3NTc0LCJpIjpbWyJ1c2RfdXNkdCIsMjcwMDAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5MjkxOTA0NjMwXSxbInVzZF9ldGgiLDU0MDkwMDQ5MF0sWyJ1c2QiLDI2OTIwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_1794501512446",
     "type": "video",
     "title": "زن و بچه",
@@ -4379,31 +4349,11 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050821_2027",
+    "id": "item_priceauto_14050822_0103",
     "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 20:27",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NTAyNjM0LCJpIjpbWyJ1c2RfdXNkdCIsMjcwNjAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5Mzk0MDU2ODQwXSxbInVzZF9ldGgiLDU0MjE4NTgxMF0sWyJ1c2QiLDI2OTAwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050821_2203",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 22:03",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NTA4MzkzLCJpIjpbWyJ1c2RfdXNkdCIsMjcxMDAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDk5ODE2MDgwXSxbInVzZF9ldGgiLDU0NzQ2NDMxMF0sWyJ1c2QiLDI2OTUwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050821_2343",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 23:43",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NTE0Mzk2LCJpIjpbWyJ1c2RfdXNkdCIsMjcxMjAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDE1MjU5NzMwXSxbInVzZF9ldGgiLDU0NzEzODk4MF0sWyJ1c2QiLDI2OTUwMF1dfQ",
+    "title": "قیمت دلار و طلا — ساعت 01:03",
+    "description": "جمعه 22 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NTE5MjIxLCJpIjpbWyJ1c2RfdXNkdCIsMjcxMjAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDIyNzIzMjcwXSxbInVzZF9ldGgiLDU0Nzg4OTAzMF0sWyJ1c2QiLDI2OTUwMF1dfQ",
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
