@@ -4207,5 +4207,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794501637318",
+    "type": "video",
+    "title": "غریزه",
+    "description": "🎭 ژانر : عاشقانه | درام | خانوادگی\n📆 سال تولید: ۱۴۰۳\n📆 سال انتشار: ۱۴۰۵\n👥 بازیگران:امین حیایی، پانته‌آ پناهی‌ها، ژاله صامتی، فرهاد شریفی، افشین سنگ چاپ، پردیس پورعابدینی، لادن ژاوه‌وند، رضا کرد و…\n👤کارگردان:سیاوش اسعدی\n\n📖 خلاصه داستان:فیلم غریزه قصه‌ای عاشقانه‌ است که در اواخر دهه 40 خورشیدی روایت می‌شود. عاشقانه‌ای که با یک اتفاق تلخ سرنوشت شخصیت‌های داستان به شکل عجیبی تغییر می‌کند",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794501628213-0-img-20261112-200931-269.jpg"
+    ],
+    "links": [
+      {
+        "label": "gharizeh-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/gharizeh-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
