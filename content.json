@@ -3794,5 +3794,15 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050821_1010",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 10:10",
+    "description": "پنجشنبه 21 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDY1NjIzLCJpIjpbWyJ1c2RfdXNkdCIsMjY0MTAwXSxbInNla2tlaCIsMjU2MDAwXSxbImJhaGFyIiwyNDgwMDBdLFsibmltIiwxMzQ1MDBdLFsicm9iIiw3MzAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NDM5MTI3MjgwXSxbInVzZF9ldGgiLDU0MTAxNjQxMF0sWyJ1c2QiLDI2NDIwMF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
