@@ -280,7 +280,7 @@
       <div class="switch-row">
         <span class="switch-label">نمایش دکمه‌ی «باز کردن در مرورگر بیرونی» (فلش بالا) برای این مورد</span>
         <label class="switch">
-          <input type="checkbox" id="in-allow-external-browser" checked>
+          <input type="checkbox" id="in-allow-external-browser">
           <span class="slider"></span>
         </label>
       </div>
@@ -288,7 +288,15 @@
       <div class="switch-row">
         <span class="switch-label">باز شدن این لینک به‌صورت نسخه‌ی دسکتاپ (خاموش = نسخه‌ی موبایل)</span>
         <label class="switch">
-          <input type="checkbox" id="in-desktop-mode" checked>
+          <input type="checkbox" id="in-desktop-mode">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="switch-row" id="row-image-download" style="display:none;">
+        <span class="switch-label">نمایش دکمه‌ی «دانلود عکس» (برای هر عکس جدا) برای این مورد</span>
+        <label class="switch">
+          <input type="checkbox" id="in-allow-image-download" checked>
           <span class="slider"></span>
         </label>
       </div>
@@ -728,12 +736,16 @@ let cfg = null;          // {owner, repo, branch, token}
 let contentSha = null;   // sha of content.json for updates
 let contentItems = [];   // parsed array
 let selectedType = 'link';
+const IMAGE_DOWNLOAD_TYPES = ['newspaper', 'price', 'weather'];
 let selectedVideoKind = 'movie';
 
 function updateVideoBoxesVisibility() {
   const isVideo = selectedType === 'video';
   const kindBox = document.getElementById('video-kind-box');
   if (kindBox) kindBox.classList.toggle('hidden', !isVideo);
+  // گزینه‌ی «دانلود عکس» فقط برای روزنامه، دلار/طلا و آب‌وهوا نشون داده می‌شه
+  const dlRow = document.getElementById('row-image-download');
+  if (dlRow) dlRow.style.display = IMAGE_DOWNLOAD_TYPES.includes(selectedType) ? '' : 'none';
   // links-box is now always visible for all content types
 }
 
@@ -1628,6 +1640,7 @@ async function handleAdd() {
 
     const allowExternalBrowser = $('in-allow-external-browser').checked;
     const desktopMode = $('in-desktop-mode').checked;
+    const allowImageDownload = $('in-allow-image-download').checked || !IMAGE_DOWNLOAD_TYPES.includes(selectedType);
 
     if (editingId) {
       const id = editingId;
@@ -1643,6 +1656,7 @@ async function handleAdd() {
       if (linksValue.length) updatedItem.links = linksValue;
       if (!allowExternalBrowser) updatedItem.allowExternalBrowser = false;
       if (!desktopMode) updatedItem.desktopMode = false;
+      if (!allowImageDownload) updatedItem.allowImageDownload = false;
 
       // اگر پوشه‌ی مقصد قفل است، آیتم قبل از ذخیره قفل می‌شود (لینکش هرگز عمومی نمی‌شود)
       const editGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1679,6 +1693,7 @@ async function handleAdd() {
     if (linksValue.length) newItem.links = linksValue;
     if (!allowExternalBrowser) newItem.allowExternalBrowser = false;
     if (!desktopMode) newItem.desktopMode = false;
+    if (!allowImageDownload) newItem.allowImageDownload = false;
 
     // اگر پوشه‌ی مقصد قفل است، آیتم جدید قبل از ذخیره خودکار قفل می‌شود
     const newGroup = lkFolderGroupFor(selectedType, sectionValue);
@@ -1775,6 +1790,7 @@ function startEdit(id) {
   $('in-url').value = item.url || '';
   $('in-allow-external-browser').checked = item.allowExternalBrowser !== false;
   $('in-desktop-mode').checked = item.desktopMode !== false;
+  $('in-allow-image-download').checked = item.allowImageDownload !== false;
 
   $('btn-add').textContent = 'ذخیره‌ی تغییرات';
   $('form-mode-title').textContent = 'ویرایش محتوا';
@@ -1796,8 +1812,9 @@ function resetForm() {
   $('in-desc').value = '';
   $('in-section').value = '';
   $('in-url').value = '';
-  $('in-allow-external-browser').checked = true;
-  $('in-desktop-mode').checked = true;
+  $('in-allow-external-browser').checked = false;
+  $('in-desktop-mode').checked = false;
+  $('in-allow-image-download').checked = true;
   selectedFiles = [];
   editingExistingImages = [];
   if ($('btn-imgs-to-links')) $('btn-imgs-to-links').classList.add('hidden');

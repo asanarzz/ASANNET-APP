@@ -72,6 +72,119 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_ALLOW_DOWNLOAD = "extra_allow_download"
         const val EXTRA_ALLOW_EXTERNAL_BROWSER = "extra_allow_external_browser"
         const val EXTRA_DESKTOP_MODE = "extra_desktop_mode"
+        /** true: رو هر عکسِ صفحه (بنرها) یه دکمه‌ی دانلودِ جدا نشون داده می‌شه — از پنل مدیریت برای هر مورد روشن/خاموش می‌شه */
+        const val EXTRA_ALLOW_IMAGE_DOWNLOAD = "extra_allow_image_download"
+
+        // رو هر عکس (و تو صفحه‌ی آب‌وهوا رو هر بنر) یه دکمه‌ی دانلودِ شناور می‌ذاره؛ فقط همون عکس ذخیره می‌شه.
+        // تو آب‌وهوا اگه عکسِ بنر هنوز ساخته نشده، اول ساخته می‌شه و بعد ذخیره می‌شه.
+        private const val IMAGE_DOWNLOAD_JS = """
+(function () {
+  if (window.__asImgDl) return;
+  window.__asImgDl = 1;
+  var SEC = (location.pathname.split('/')[2] || 'banner').toLowerCase();
+  var STAMP = Math.floor(Date.now() / 1000);
+  var ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>';
+  var layer = document.createElement('div');
+  layer.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;z-index:2147483647;';
+  document.documentElement.appendChild(layer);
+  var map = new Map();
+  var shown = false;
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function toDataUri(src) {
+    return fetch(src).then(function (r) { return r.blob(); }).then(function (b) {
+      return new Promise(function (res) {
+        var fr = new FileReader();
+        fr.onloadend = function () { res(fr.result); };
+        fr.readAsDataURL(b);
+      });
+    });
+  }
+  function bigImages() {
+    return Array.prototype.slice.call(document.images).filter(function (i) {
+      return i.complete && i.naturalWidth >= 300 && !i.closest('.res');
+    });
+  }
+  function targets() {
+    var list = bigImages().map(function (i) { return { el: i, kind: 'img' }; });
+    Array.prototype.slice.call(document.querySelectorAll('.bn')).forEach(function (b) { list.push({ el: b, kind: 'bn' }); });
+    list.sort(function (a, b) {
+      return (a.el.compareDocumentPosition(b.el) & 4) ? -1 : 1;
+    });
+    return list;
+  }
+  async function saveTarget(t, n) {
+    var img = null;
+    if (t.kind === 'img') {
+      img = t.el;
+    } else {
+      var box = t.el.parentNode;
+      img = box.querySelector('.res img');
+      if (!img) {
+        var b = box.querySelector('.out button');
+        if (b && !b.disabled) b.click();
+        for (var k = 0; k < 120 && !img; k++) {
+          await sleep(250);
+          var c = box.querySelector('.res img');
+          if (c && c.complete && c.naturalWidth > 0) img = c;
+        }
+      }
+    }
+    if (!img) return;
+    var uri = await toDataUri(img.currentSrc || img.src);
+    AndroidDownloader.onBlobReady(uri, 'asannet-' + SEC + '-' + STAMP + '-' + n);
+  }
+  function makeBtn(t, n) {
+    var b = document.createElement('div');
+    b.innerHTML = ICON;
+    b.style.cssText = 'position:fixed;width:46px;height:46px;border-radius:23px;background:#4f46e5;'
+      + 'box-shadow:0 2px 10px rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;'
+      + 'opacity:.95;-webkit-tap-highlight-color:transparent;';
+    var busy = false;
+    b.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (busy) return;
+      busy = true; b.style.opacity = '.45';
+      var idx = targets().findIndex(function (x) { return x.el === t.el; });
+      saveTarget(t, (idx < 0 ? n : idx) + 1).catch(function () {}).then(function () { busy = false; b.style.opacity = '.95'; });
+    }, true);
+    layer.appendChild(b);
+    return b;
+  }
+  function update() {
+    var list = targets(), alive = new Set();
+    list.forEach(function (t, i) {
+      alive.add(t.el);
+      var rec = map.get(t.el);
+      if (!rec) { rec = { t: t, btn: makeBtn(t, i) }; map.set(t.el, rec); }
+      var r = t.el.getBoundingClientRect();
+      var show = shown && r.width > 60 && r.height > 60 && r.bottom > 60 && r.top < window.innerHeight - 20;
+      if (!show) { rec.btn.style.display = 'none'; return; }
+      var top = Math.min(Math.max(r.top, 0) + 10, r.bottom - 56);
+      rec.btn.style.top = top + 'px';
+      rec.btn.style.left = (Math.max(r.left, 0) + 10) + 'px';
+      rec.btn.style.display = 'flex';
+    });
+    map.forEach(function (rec, el) {
+      if (!alive.has(el)) { rec.btn.remove(); map.delete(el); }
+    });
+  }
+  // فلش بالای صفحه این تابع رو صدا می‌زنه: اگه فقط یه عکس هست همون رو ذخیره می‌کنه؛
+  // اگه چند عکس هست، دکمه‌ی دانلودِ هر عکس رو نشون می‌ده/پنهان می‌کنه تا کاربر خودش انتخاب کنه.
+  window.__asImgDlToggle = function () {
+    var list = targets();
+    if (list.length === 0) return 'none';
+    if (list.length === 1) { saveTarget(list[0], 1).catch(function () {}); return 'single'; }
+    shown = !shown;
+    update();
+    return shown ? 'shown' : 'hidden';
+  };
+  setInterval(update, 300);
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+"""
 
         // یوزرایجنت یه مرورگر معمولی دسکتاپ — بعضی سرورها (مثل رادیوهای اینترنتی) درخواست‌های
         // UA پیش‌فرض وب‌ویو اندروید رو رد می‌کنن یا کانکشن رو ری‌ست می‌کنن؛ با این UA اون مشکل حل می‌شه.
@@ -88,6 +201,7 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWebviewBinding
     private var currentUrl: String = ""
     private var didAutoRetry: Boolean = false
+    private var imageDownloadEnabled: Boolean = false
 
     // انتخاب فایل برای صفحه‌های HTML داخل وب‌ویو (مثلاً «بازیابی پشتیبان» در وقت سالن)
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
@@ -122,6 +236,7 @@ class WebViewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         currentUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
+        imageDownloadEnabled = intent.getBooleanExtra(EXTRA_ALLOW_IMAGE_DOWNLOAD, false)
         val title = intent.getStringExtra(EXTRA_TITLE).orEmpty()
         binding.txtToolbarTitle.text = title
 
@@ -132,8 +247,25 @@ class WebViewActivity : AppCompatActivity() {
             return
         }
 
+        if (imageDownloadEnabled) {
+            // فلش دانلود بالای صفحه: عکس‌ها رو یکی‌یکی دانلود می‌کنه (نه همه با هم)
+            binding.btnDownload.visibility = View.VISIBLE
+            binding.btnDownload.setOnClickListener {
+                if (!DownloadHelper.ensureStoragePermission(this)) return@setOnClickListener
+                binding.webView.evaluateJavascript("(window.__asImgDlToggle ? window.__asImgDlToggle() : 'none')") { r ->
+                    val msg = when (r?.trim('"')) {
+                        "shown" -> "روی دکمه‌ی دانلودِ هر عکس بزن"
+                        "hidden" -> "دکمه‌های دانلود بسته شد"
+                        "single" -> "در حال ذخیره‌ی عکس…"
+                        else -> "هنوز عکسی برای دانلود آماده نیست"
+                    }
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         val allowDownload = intent.getBooleanExtra(EXTRA_ALLOW_DOWNLOAD, false)
-        if (allowDownload) {
+        if (allowDownload && !imageDownloadEnabled) {
             binding.btnDownload.visibility = View.VISIBLE
             binding.btnDownload.setOnClickListener {
                 if (DownloadHelper.ensureStoragePermission(this)) {
@@ -428,6 +560,7 @@ class WebViewActivity : AppCompatActivity() {
                     "window.print = function() { AndroidDownloader.requestPrint(); };", null
                 )
                 view?.evaluateJavascript(SHARE_POLYFILL_JS, null)
+                if (imageDownloadEnabled) view?.evaluateJavascript(IMAGE_DOWNLOAD_JS, null)
             }
 
             override fun onReceivedError(

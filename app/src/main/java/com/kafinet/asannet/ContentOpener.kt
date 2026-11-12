@@ -24,7 +24,8 @@ object ContentOpener {
         url: String,
         title: String,
         allowExternalBrowser: Boolean = true,
-        desktopMode: Boolean = true
+        desktopMode: Boolean = true,
+        allowImageDownload: Boolean = false
     ) {
         if (url.isBlank()) return
 
@@ -32,7 +33,7 @@ object ContentOpener {
         val extension = cleanUrl.substringAfterLast('.', "")
 
         when (extension) {
-            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true, allowExternalBrowser, desktopMode)
+            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true, allowExternalBrowser, desktopMode, allowImageDownload)
             "pdf" -> openPdf(activity, url, title, allowExternalBrowser, desktopMode)
             "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
             in imageExtensions -> openImage(activity, url, title)
@@ -49,7 +50,7 @@ object ContentOpener {
             in videoExtensions -> DownloadHelper.downloadAndOpenExternally(activity, resolveUrl(url), title, "video/*")
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
-                    openWeb(activity, url, title, allowDownload = false, allowExternalBrowser, desktopMode)
+                    openWeb(activity, url, title, allowDownload = false, allowExternalBrowser, desktopMode, allowImageDownload)
                 } else if (DownloadHelper.ensureStoragePermission(activity)) {
                     DownloadHelper.downloadUrl(activity, url, title)
                 }
@@ -78,7 +79,8 @@ object ContentOpener {
         title: String,
         allowDownload: Boolean,
         allowExternalBrowser: Boolean = true,
-        desktopMode: Boolean = true
+        desktopMode: Boolean = true,
+        allowImageDownload: Boolean = false
     ) {
         val intent = Intent(activity, WebViewActivity::class.java)
         intent.putExtra(WebViewActivity.EXTRA_URL, url)
@@ -86,6 +88,7 @@ object ContentOpener {
         intent.putExtra(WebViewActivity.EXTRA_ALLOW_DOWNLOAD, allowDownload)
         intent.putExtra(WebViewActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, allowExternalBrowser)
         intent.putExtra(WebViewActivity.EXTRA_DESKTOP_MODE, desktopMode)
+        intent.putExtra(WebViewActivity.EXTRA_ALLOW_IMAGE_DOWNLOAD, allowImageDownload)
         activity.startActivity(intent)
     }
 

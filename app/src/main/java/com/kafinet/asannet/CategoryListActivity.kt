@@ -276,6 +276,11 @@ class CategoryListActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    /** دکمه‌ی «دانلود عکس» فقط برای روزنامه، دلار/طلا و آب‌وهوا (تا وقتی از پنل مدیریت خاموش نشده) نشون داده می‌شه. */
+    private fun canDownloadImages(item: ContentItem): Boolean =
+        item.allowImageDownload &&
+            (item.type == ContentType.NEWSPAPER || item.type == ContentType.PRICE || item.type == ContentType.WEATHER)
+
     private fun openItem(item: ContentItem) {
         LockManager.withAccess(this, item) { openItemUnlocked(it) }
     }
@@ -292,6 +297,7 @@ class CategoryListActivity : AppCompatActivity() {
             intent.putExtra(GalleryDetailActivity.EXTRA_IS_FILE, item.type == ContentType.FILE)
             intent.putExtra(GalleryDetailActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, item.allowExternalBrowser)
             intent.putExtra(GalleryDetailActivity.EXTRA_DESKTOP_MODE, item.desktopMode)
+            intent.putExtra(GalleryDetailActivity.EXTRA_SHOW_DOWNLOAD, canDownloadImages(item))
             startActivity(intent)
             return
         }
@@ -316,7 +322,7 @@ class CategoryListActivity : AppCompatActivity() {
 
         // برای همه‌ی بقیه‌ی دسته‌ها، بر اساس پسوند فایل تصمیم گرفته می‌شه که چطور باز بشه —
         // نه بر اساس این‌که تو کدوم دسته قرار داره
-        ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser, item.desktopMode)
+        ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser, item.desktopMode, canDownloadImages(item))
     }
 
     /**
