@@ -4358,5 +4358,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794502540622",
+    "type": "video",
+    "title": "هفته ای یکبار آدم باش",
+    "description": "🎥 دانلود فیلم «#هفته‌ای_یک_بار_آدم_باش»\n🔰 ژانر: #کمدی | #خانوادگی\n📆 سال تولید: 1402\n📆 سال انتشار: 1404\n💎 بازیگران: پژمان جمشیدی، رعنا آزادی ور، پژمان بازغی، ساغر قناعت، علیرضا استادی، شیرین یزدان بخش، هوشنگ رادی پور و ... \n\n🎬 کارگردان: شهرام شاه حسینی\n📝 خلاصه داستان: روایتگر داستان زندگی دو برادر با سبک زندگی متفاوت است که با تشخیص بیماری آلزایمر پدرشان، آینده آنها دستخوش تغییرات اساسی می‌شود ...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794502534429-0-img-20261112-202409-746.jpg"
+    ],
+    "links": [
+      {
+        "label": "Hafteie.Yekbar.Adam.Bash-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Hafteie.Yekbar.Adam.Bash-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
