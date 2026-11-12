@@ -4320,5 +4320,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794502335356",
+    "type": "video",
+    "title": "نیم شب",
+    "description": "🎬 فیلم  #نیم_شب \n🎭 ژانر : #اجتماعی | #خانوادگی\n📆 سال تولید: ۱۴۰۴  \n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران:  احساس منصوری، الناز ملک، یونس حران اف، آرمین خزائلی، شکوفه حیدریان، سیامک مردانه، سید سامن بهشتی  و…\n\n👤 کارگردان:  محمدحسین مهدویان \n📖 خلاصه داستان:  در نیم‌ْ‌شب آخرین روز خرداد ۱۴۰۴، مردم خیابان بیست و سوم یوسف‌آباد جایی میان مرگ و زندگی قرار می‌گیرند. برزخ همین‌جاست. آدم‌ها باید تصمیم بگیرند. این فقط یک داستان نیست. ماجرایی واقعی از زندگی مردمی است که به آغوش تهران پناه می‌برند",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794502314048-0-img-20261112-202057-498.jpg"
+    ],
+    "links": [
+      {
+        "label": "nimshab-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/nimshab-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
