@@ -4201,25 +4201,5 @@
     "url": "https://asanarzz.github.io/ASANNET-APP/weather/?s=eyJ0IjoxNzk0Mzk2MzA1LCJwIjoi2LPYp9uM2LEg2LTZh9ix2YfYpyIsImMiOltbItmF2KfZh9i02YfYsSIsMjAsMTMsMjEsMV1dfQ",
     "allowExternalBrowser": false,
     "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050821_0100",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 01:00",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDMyNjM3LCJpIjpbWyJ1c2RfdXNkdCIsMjY0MTAwXSxbInNla2tlaCIsMjU1MDAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzQ1MDBdLFsicm9iIiw3MzAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NzI4MDU0MTEwXSxbInVzZF9ldGgiLDU0OTQ4NTYwMF0sWyJ1c2QiLDI2NDIwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050821_0226",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 02:26",
-    "description": "پنجشنبه 21 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NDM3Nzg0LCJpIjpbWyJ1c2RfdXNkdCIsMjY0MTAwXSxbInNla2tlaCIsMjU1MDAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzQ1MDBdLFsicm9iIiw3MzAwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE5NTYxOTY2MTYwXSxbInVzZF9ldGgiLDU0MzMyMDYyMF0sWyJ1c2QiLDI2NDIwMF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
   }
 ]
