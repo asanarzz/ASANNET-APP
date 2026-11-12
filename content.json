@@ -4226,5 +4226,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794501822294",
+    "type": "video",
+    "title": "کمدی الهی",
+    "description": "💥 نسخه لورفته \n🎭  ژانر : درام  l کمدی\n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران: بهرام ارک، صدف عسگری، حسین سلیمانی و محمد سوری و ...\n👤 کارگردان:  علی عسگری\n\n📖 خلاصه داستان: «بهرام»، فیلمسازی ۴۰ ساله است که تمام عمر حرفه‌ای خود را صرف ساخت فیلم‌هایی کرده که هیچ‌گاه در ایران اجازه اکران نگرفته‌اند. پس از توقیف مجدد جدیدترین اثرش، او به همراه تهیه‌کننده‌ای ایده‌پرداز به نام «صدف» تلاش می‌کند تا فیلم خود را به نحوی به دست مخاطب برساند و در این مسیر با موقعیت‌های تلخ و شیرینی روبه‌رو می‌شود",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794501818509-0-img-20261112-201122-378.jpg"
+    ],
+    "links": [
+      {
+        "label": "Divine.Comedy.2025.WEB-DL.720p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Divine.Comedy.2025.WEB-DL.720p.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
