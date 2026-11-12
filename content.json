@@ -4282,5 +4282,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794502134403",
+    "type": "video",
+    "title": "دو روز دیرتر",
+    "description": "🎬 دانلود فیلم سینمایی  #دو_روز_دیرتر \n🎭 ژانر : #کمدی | #عاشقانه | #اجتماعی \n📆 سال تولید: 1402\n📆 سال انتشار: 1405\n💎 بازیگران:سینا مهراد، پردیس احمدیه، فرهاد آئیش، گوهر خیراندیش، کمند امیرسلیمانی، ناهید مسلمی، سید جواد یحیوی، سیاوش چراغی پور، محمد فیلی، علیرضا داوودنژاد، آزاده اسماعیل‌خانی، علی مهربان و…\n👤 کارگردان: اصغر نعیمی\n📖 خلاصه داستان: آقا جون می‌خوای ریش گرو بذاری، بذار، می‌خوای از اون دنیا امداد غیبی بفرستی، بفرست… من دیگه رد دادم…",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794502131471-0-img-20261112-201753-758.jpg"
+    ],
+    "links": [
+      {
+        "label": "2rooz-dirtar-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/2rooz-dirtar-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
