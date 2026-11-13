@@ -4249,5 +4249,24 @@
     "section": "قیمت خودرو",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794570060643",
+    "type": "video",
+    "title": "مدیترانه",
+    "description": "دانلود فیلم سینمایی #مدیترانه \n\n🔰 ژانر: #عاشقانه | #جنگی | #اجتماعی \n📆 سال تولید: 1399\n📆 سال انتشار: 1404\n\n💎 بازیگران: مهراوه شریفی نیا ، پوریا پورسرخ ، بهرنگ علوی ، قاسم زارع ، سبا سلیمانی ، علیرضا اسحاقی ، محمد الهی حصاری ، #گسعید توکلی ، علیرضا رواندل و ...\n \n\n🎬 کارگردان: هادی هاجتمند \n\n📝 خلاصه داستان: یعنی میشه یه بارم که شده از دل یه فاجعه یه نفر زنده بیرون بیاد و آخر قصه رو تعریف کنه؟! …",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794570057378-0-img-20261113-150959-047.jpg"
+    ],
+    "links": [
+      {
+        "label": "master-79",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/master-79.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
