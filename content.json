@@ -4039,5 +4039,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794568563485",
+    "type": "video",
+    "title": "بندربند",
+    "description": "دانلود فیلم جدید #بندربند\n\nنسخه اکران انلاین\nژانر: #درام | #اجتماعی \nسال تولید: ۱۳۹۹\nسال انتشار: ۱۴۰۰\nبازیگران: پگاه آهنگرانی، رضا کولغانى، امیرحسین طاهری، مهلا موسوی و... \nکارگردان: منیژه حکمت\nخلاصه داستان: تعدادی خواننده زن ایرانی قصد دارند بعد از مدت‌ها در یک کافی شاپ در تهران وارد یک رقابت غیررسمی شوند... \n برنده جایزه بهترین فیلم جشنواره کلکته و جایزه نتپک جشنواره اولجو",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794568559935-0-img-20261113-144530-523.jpg"
+    ],
+    "links": [
+      {
+        "label": "Bandar.Band-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Bandar.Band-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
