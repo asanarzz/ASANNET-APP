@@ -4278,5 +4278,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050823_0135",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 01:35",
+    "description": "شنبه 23 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NjA3NTM0LCJpIjpbWyJ1c2RfdXNkdCIsMjY5MDAwXSxbInNla2tlaCIsMjU0NTAwXSxbImJhaGFyIiwyNDcwMDBdLFsibmltIiwxMzM1MDBdLFsicm9iIiw3MjUwMF0sWyIxOGF5YXIiLDI1NzYyOTYwXSxbInVzZF9idGMiLDE4Mzk1NDk1MzcwXSxbInVzZF9ldGgiLDUxODU0OTE3MF0sWyJ1c2QiLDI3MTgwMF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
