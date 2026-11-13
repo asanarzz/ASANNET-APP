@@ -4220,5 +4220,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569965605",
+    "type": "video",
+    "title": "اینجا کسی نمی‌میرد",
+    "description": "فیلم سینمایی #اینجا_کسی_نمیمیرد\n\n📌 موضوع: #درام | #اجتماعی\n📆 سال تولید: 1400\n📆 سال انتشار: 1401\n💎 بازیگران: هومن سیدی، بهار کاتوزی، رضا بهبودی، مهدی حسینی نیا و…\n\n👤 کارگردان: حسین کندری\n\n☑️ خلاصه داستان: اشکان برای گذراندن بخشی از دوره ی سربازی اش، راهی منطقه ای مرزی میشود. او که در تلاش برای کنار آمدن با شرایط جدید است، به مرور متوجه اتفاقات عجیبی در اطرافش می شود...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569961942-0-img-20261113-150831-943.jpg"
+    ],
+    "links": [
+      {
+        "label": "HereOneDoesNotDie.480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/HereOneDoesNotDie.480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
