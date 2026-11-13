@@ -21,6 +21,7 @@ class VideoPlayerActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_URL = "extra_url"
         const val EXTRA_TITLE = "extra_title"
+        const val EXTRA_HIDE_DOWNLOAD = "extra_hide_download"
     }
 
     private lateinit var binding: ActivityVideoPlayerBinding
@@ -108,6 +109,8 @@ class VideoPlayerActivity : AppCompatActivity() {
             binding.videoView.pause()
             DlnaCaster.showDevicePicker(this, url, binding.txtTitle.text.toString())
         }
+        // تو بخش تلویزیون (پخش زنده) فلش دانلود کاربردی نداره
+        if (intent.getBooleanExtra(EXTRA_HIDE_DOWNLOAD, false)) binding.btnDownload.visibility = View.GONE
         binding.btnDownload.setOnClickListener {
             if (DownloadHelper.ensureStoragePermission(this)) {
                 DownloadHelper.downloadUrl(this, url, binding.txtTitle.text.toString())

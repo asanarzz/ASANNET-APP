@@ -25,7 +25,8 @@ object ContentOpener {
         title: String,
         allowExternalBrowser: Boolean = true,
         desktopMode: Boolean = true,
-        allowImageDownload: Boolean = false
+        allowImageDownload: Boolean = false,
+        hideVideoDownload: Boolean = false
     ) {
         if (url.isBlank()) return
 
@@ -43,10 +44,11 @@ object ContentOpener {
                     Intent(activity, M3uPlaylistActivity::class.java).apply {
                         putExtra(M3uPlaylistActivity.EXTRA_URL, url)
                         putExtra(M3uPlaylistActivity.EXTRA_TITLE, title)
+                        putExtra(VideoPlayerActivity.EXTRA_HIDE_DOWNLOAD, hideVideoDownload)
                     }
                 )
             }
-            "m3u8" -> openVideo(activity, url, title)
+            "m3u8" -> openVideo(activity, url, title, hideVideoDownload)
             in videoExtensions -> DownloadHelper.downloadAndOpenExternally(activity, resolveUrl(url), title, "video/*")
             else -> {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -110,12 +112,13 @@ object ContentOpener {
         activity.startActivity(intent)
     }
 
-    private fun openVideo(activity: AppCompatActivity, url: String, title: String) {
+    private fun openVideo(activity: AppCompatActivity, url: String, title: String, hideDownload: Boolean = false) {
         // برای برگشت به پخش‌کننده‌ی قبلی، USE_EXO_PLAYER را false کنید
         val target = if (USE_EXO_PLAYER) ExoPlayerActivity::class.java else VideoPlayerActivity::class.java
         val intent = Intent(activity, target)
         intent.putExtra(VideoPlayerActivity.EXTRA_URL, url)
         intent.putExtra(VideoPlayerActivity.EXTRA_TITLE, title)
+        intent.putExtra(VideoPlayerActivity.EXTRA_HIDE_DOWNLOAD, hideDownload)
         activity.startActivity(intent)
     }
 

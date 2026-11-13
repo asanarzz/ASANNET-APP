@@ -322,7 +322,7 @@ class CategoryListActivity : AppCompatActivity() {
 
         // برای همه‌ی بقیه‌ی دسته‌ها، بر اساس پسوند فایل تصمیم گرفته می‌شه که چطور باز بشه —
         // نه بر اساس این‌که تو کدوم دسته قرار داره
-        ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser, item.desktopMode, canDownloadImages(item))
+        ContentOpener.open(this, resolveUrl(item.url), item.title, item.allowExternalBrowser, item.desktopMode, canDownloadImages(item), item.type == ContentType.TV)
     }
 
     /**

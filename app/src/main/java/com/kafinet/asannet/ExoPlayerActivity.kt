@@ -108,6 +108,8 @@ class ExoPlayerActivity : AppCompatActivity() {
             player?.pause()
             DlnaCaster.showDevicePicker(this, url, binding.txtTitle.text.toString())
         }
+        // تو بخش تلویزیون (پخش زنده) فلش دانلود کاربردی نداره
+        if (intent.getBooleanExtra(VideoPlayerActivity.EXTRA_HIDE_DOWNLOAD, false)) binding.btnDownload.visibility = View.GONE
         binding.btnDownload.setOnClickListener {
             if (DownloadHelper.ensureStoragePermission(this)) {
                 DownloadHelper.downloadUrl(this, url, binding.txtTitle.text.toString())

@@ -85,6 +85,10 @@ class M3uPlaylistActivity : AppCompatActivity() {
                                         VideoPlayerActivity.EXTRA_TITLE,
                                         filteredNames[position]
                                     )
+                                    putExtra(
+                                        VideoPlayerActivity.EXTRA_HIDE_DOWNLOAD,
+                                        intent.getBooleanExtra(VideoPlayerActivity.EXTRA_HIDE_DOWNLOAD, false)
+                                    )
                                 }
                             )
                         }
