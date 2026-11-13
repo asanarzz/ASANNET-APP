@@ -4144,5 +4144,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569643220",
+    "type": "video",
+    "title": "شنل",
+    "description": "فیلم سینمایی #شنل\n📌 موضوع: #درام | #اجتماعی\n📆 سال تولید: 1395\n📆 سال انتشار: 1398\n\n💎 بازیگران: باران کوثری، رضا بهبودی، بهار کاتوزی، مهدی حسینی نیا، آیسان حداد، مسعود فروتن, بابک انصاری و ...\n👤 کارگردان: حسین کندری\n☑️ خلاصه داستان: فیلم شنل داستان زنی جوان است که با پرستاری، زندگی خود و دخترش را اداره می کند او مخفیانه به عقد مردی در آماده است. زن جوان با شنیدن خبر مرگ شوهرش به دنبال شناسنامه او می گردد اما این تازه شروع ماجرا است.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569639927-0-img-20261113-150310-253.jpg"
+    ],
+    "links": [
+      {
+        "label": "Cape.480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Cape.480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
