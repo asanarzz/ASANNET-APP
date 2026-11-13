@@ -4087,5 +4087,24 @@
     "section": "کالاهای اساسی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569325484",
+    "type": "video",
+    "title": "حکم تجدید نظر",
+    "description": "دانلود فیلم جدید #حکم_تجدید_نظر\n\n#نسخه_اکران_انلاین\nژانر: #اجتماعی | #خانوادگی \nسال تولید: ۱۳۹۹\nسال انتشار: ۱۴۰۰\nبازیگران: ژاله صامتی، همایون ارشادی، آرش عدل‌پور، زیبا کرمعلی، فرید سجادی حسینی، گیتی قاسمی، شاهرخ فروتنیان، احسان امانی و... \nکارگردان: محمدامین کریم‌پور\n\nخلاصه داستان: آرش که متهم به قتل نامزدش لیدا است، در انتظار حکم دادگاه در زندان به سر می‌برد. او برای مادرش قسم می‌خورد که بی‌گناه است. گاهی پذیرش واقعیت و تجدید نظر در عقاید و باورهای انسان، سخت تر از حکم قصاص است...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569322362-0-img-20261113-145751-987.jpg"
+    ],
+    "links": [
+      {
+        "label": "Hokme.Tajdid.Nazar-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Hokme.Tajdid.Nazar-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
