@@ -4058,5 +4058,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794568671028",
+    "type": "video",
+    "title": "بی داد",
+    "description": "🎥 دانلود فیلم توقیفی #بی_داد \n💠 نسخه لورفته \n🎭  ژانر : درام \n📆 سال تولید: ۱۴۰۳\n📆 سال انتشار: ۱۴۰۵\n💎 بازیگران:  امیر جدیدی، لیلی رشیدی، علی ملاقلی‌پور\n👤 کارگردان: سهیل بیرقی\n📖 خلاصه داستان:دختری از نسل Z، که برای حق آواز خواندن به خیابان می‌آید.\n⚠️برنده جایزه ویژه هیئت داوران جشنواره بین‌المللی فیلم کارلووی واری",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794568667642-0-img-20261113-144630-669.jpg"
+    ],
+    "links": [
+      {
+        "label": "480p bidad.",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/480p.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
