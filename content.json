@@ -4163,5 +4163,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569730258",
+    "type": "video",
+    "title": "پایان یک کابوس",
+    "description": "فیلم سینمایی #پایان_یک_کابوس\n📌 موضوع: #درام | #اجتماعی\n📆 سال تولید: 1394\n📆 سال انتشار: 1397\n\n💎 بازیگران: نیما شاهرخ شاهی، مونا فرجاد، مسعود بهارلو، افشین سنگ چاپ، مهدی معبودی، محمد فیلی، حسین ناصری، سمیه انصاری، شقایق فتحی، نسرین خلخالی، رضا رویگری و…\n👤 کارگردان: سامان ناصری\n\n☑️ خلاصه داستان: پسری که برای بدست آوردن دختر مورد علاقه اش دچار چالش های زیادی است این بار قصد دارد تا یک ریسک بزرگ را قبول کند تا بتواند به خواسته اش برسد اما\n …",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569726735-0-img-20261113-150435-757.jpg"
+    ],
+    "links": [
+      {
+        "label": "PayaneYekKaboos.480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/PayaneYekKaboos.480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
