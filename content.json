@@ -4201,5 +4201,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569882174",
+    "type": "video",
+    "title": "یک قناری یک کلاغ",
+    "description": "فیلم سینمایی #یک_قناری_یک_کلاغ\n\n📌 موضوع: #اجتماعی\n📆 سال تولید: 1399\n📆 سال انتشار: 1401\n\n💎 بازیگران: هنگامه قاضیانی، حبیب رضایی و ...\n\n👤 کارگردان: اصغر عبداللهی \n\n☑️ خلاصه داستان: مردی در یک لحظه غفلت و در عصبانیت با تفنگ به همسرش شلیک می‎کند و به چشم او آسیب می‎زند. خانواده و دوستان آن مرد به او هشدار می‌دهند که همسرش اگر در خانه مانده برای انتقام از اوست. سکوت میان زن و مرد مزمن و مداوم شده تا روزی فرا می‎رسد که باید تکلیف این سکوت یک ساله روشن شود…",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569878371-0-img-20261113-150715-406.jpg"
+    ],
+    "links": [
+      {
+        "label": "ACanaryaCrow.480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/ACanaryaCrow.480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
