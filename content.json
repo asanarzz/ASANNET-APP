@@ -4106,5 +4106,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794569489697",
+    "type": "video",
+    "title": "تمارض",
+    "description": "فیلم سینمایی #تمارض\n📌 موضوع: #درام | #زندگینامه\n📆 سال تولید: 1398\n📆 سال انتشار: 1400\n💎 بازیگران: عبد آبست، وحيد راد، مجيد يوسفی، دانيال خجسته، شهرزاد سيفی، اصغر پيران، جواد پورحيدری، جواد پولادی و ...\n👤 کارگردان: عبد آبست\n🌀 خلاصه داستان: سه مرد جوان در آخر هفته به منزل یک پیرمرد می روند...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794569485832-0-img-20261113-150019-888.jpg"
+    ],
+    "links": [
+      {
+        "label": "480p tamaroz",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/480p.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
