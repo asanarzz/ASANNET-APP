@@ -4818,61 +4818,11 @@
     ]
   },
   {
-    "id": "item_priceauto_14050824_1540",
+    "id": "item_priceauto_14050825_0040",
     "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 15:40",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzQ0NjU0LCJpIjpbWyJzZWtrZWgiLDI1MjUxNTAwMF0sWyIxOGF5YXIiLDI0Nzk0NTAwXSxbInVzZCIsMjY5OTAwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050824_1745",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 17:45",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzUyMTMxLCJpIjpbWyJzZWtrZWgiLDI1MjUxNTAwMF0sWyIxOGF5YXIiLDI0Nzk0NTAwXSxbInVzZCIsMjY5OTAwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050824_1915",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 19:15",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzU3NTU5LCJpIjpbWyJzZWtrZWgiLDI1MDgxMDAwMF0sWyIxOGF5YXIiLDI0NjE2MzAwXSxbInVzZCIsMjY1NzEwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050824_2052",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 20:52",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzYzMzY3LCJpIjpbWyJzZWtrZWgiLDI1MDgxMDAwMF0sWyIxOGF5YXIiLDI0NjE2MzAwXSxbInVzZCIsMjY1NzEwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050824_2230",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 22:30",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzY5MjMwLCJpIjpbWyJzZWtrZWgiLDI1MDgxMDAwMF0sWyIxOGF5YXIiLDI0NjE2MzAwXSxbInVzZCIsMjY1NzEwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050824_2325",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 23:25",
-    "description": "یکشنبه 24 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzcyNTM2LCJpIjpbWyJzZWtrZWgiLDI1MDgxMDAwMF0sWyIxOGF5YXIiLDI0NjE2MzAwXSxbInVzZCIsMjY1NzEwXV19",
+    "title": "قیمت دلار و طلا — ساعت 00:40",
+    "description": "دوشنبه 25 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0Nzc3MDAxLCJpIjpbWyJzZWtrZWgiLDI0OTg2NTAwMF0sWyIxOGF5YXIiLDI0NTU3NzAwXSxbInVzZCIsMjY1ODA1XV19",
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
