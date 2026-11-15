@@ -4826,5 +4826,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050824_1745",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 17:45",
+    "description": "یکشنبه 24 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0NzUyMTMxLCJpIjpbWyJzZWtrZWgiLDI1MjUxNTAwMF0sWyIxOGF5YXIiLDI0Nzk0NTAwXSxbInVzZCIsMjY5OTAwXV19",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
