@@ -4951,5 +4951,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794855059581",
+    "type": "video",
+    "title": "ویولن",
+    "description": "فیلم سینمایی #ویولن\n📌 موضوع: #اجتماعی | #خانوادگی\n📆 سال تولید: 1396\n📆 سال انتشار: 1399\n💎 بازیگران: حسین مهری، افسانه فتاحی، میرطاهر مظلومی، مریم شاه ولی و...\n👤 کارگردان: سید محمدرضا ممتاز\n\n🌀 خلاصه داستان: قصه ی فیلم درباره جوان آهنگسازیست که عاشق دختری است اما دختر از خانواده ای مذهبی است و خانواده آنها با هم تفاوت های فکری دارند. با ورود نفر سوم در کلاس موسیقی مشکلاتی برای آنها پیش می آید و...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794855055618-0-img-20261116-221837-897.jpg"
+    ],
+    "links": [
+      {
+        "label": "ویولن.480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/download-41.mp4.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
