@@ -4970,5 +4970,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794855188115",
+    "type": "video",
+    "title": "این زن حقش را می‌خواهد",
+    "description": "فیلم سینمایی #این_زن_حقش_را_میخواهد\n📌 موضوع: #درام\n📆 سال تولید: 1396\n📆 سال انتشار: 1399\n\n💎 بازیگران: افسانه پاکرو، لعیا زنگنه، میترا حجار، کامران تفتی، رسول توکلی، رضا آشتیانی...\n\n👥 کارگردان: حسین توکل\n\n☑️ خلاصه داستان: در مورد یک زن به اسم فرزانه حجازی است که چهار سال تلاش کرده است تا بتواند حق قانونی خود را از یه دختر عاشق کینه جو که از طرف او مورد ظلم و آزار و اذیت قرار گرفته است بگیرد، ولی وقتی می‌خواهد حق خودش را بگیرد حادثه های عجیب و پیچیده ای برایش اتفاق میفتد که جالب و دیدنی است…",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794855182013-0-img-20261116-222116-117.jpg"
+    ],
+    "links": [
+      {
+        "label": "in zan haghash ra mikhahad.480pp",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/inzanhaghaashramikhahad480p.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
