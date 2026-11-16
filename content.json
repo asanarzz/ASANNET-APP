@@ -4989,5 +4989,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794855270626",
+    "type": "video",
+    "title": "آنتیک",
+    "description": "دانلود فیلم جدید #آنتیک\n🔔 ژانر: کمدی | تاريخي\n📆 سال تولید: 1403\n📆 سال انتشار: 1405\n\n💎 بازیگران:پژمان جمشیدی ، بیژن بنفشه‌ خواه ستاره پسیانی ، آناهیتا افشار و...\n\n👤 کارگردان: هادی ناییجی\n\n🌀 خلاصه داستان:انقلاب شده و کاسبی اِبی و وَلی، آنتیک بازهای قبل انقلاب کساد است اما درِ بازِ ضریح پر از پول یک امامزاده، مسیر زندگیشان را تغییر می‌ دهد...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794855266722-0-img-20261116-222330-398.jpg"
+    ],
+    "links": [
+      {
+        "label": "Aantik-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Aantk-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
