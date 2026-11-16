@@ -4816,5 +4816,15 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/25/afd48367.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/25/788d9869.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050825_1634",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 16:34",
+    "description": "دوشنبه 25 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0ODM0Mjk4LCJpIjpbWyJzZWtrZWgiLDI0OTg2NTAwMF0sWyIxOGF5YXIiLDI0NTU3NzAwXSxbInVzZCIsMjY1ODA1XV19",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
