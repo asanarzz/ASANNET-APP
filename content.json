@@ -4865,5 +4865,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794854551488",
+    "type": "video",
+    "title": "کامیون",
+    "description": "فیلم جدید  #کامیون \n🎭  ژانر : #درام | #اجتماعی\n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران: سعید آقاخانی، نیکی کریمی، رامین راستاد، نسرین مرادی، ترسکه جولای، یعقوب پرسا، الینا امینی‌نیا و...\n\n👤 کارگردان: کامبوزیا پرتوی\n\n📖 خلاصه داستان: در جریان حمله داعش به ایزدی‌های عراق، یک راننده کامیون، زنی ایزدی و فرزندش را به امانت می‌گیرد تا آن‌ها را به همسر زن در تهران برساند؛ اما پس از رسیدن به ایران و با وجود جست‌وجوهای فراوان، هیچ ردی از شوهر او پیدا نمی‌شود...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794854548211-0-img-20261116-221100-827.jpg"
+    ],
+    "links": [
+      {
+        "label": "Kamiyoun-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Kamyouns-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
