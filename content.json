@@ -5163,5 +5163,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794934995020",
+    "type": "video",
+    "title": "ضابط",
+    "description": "فیلم جدید #ضابط\n📌 موضوع: درام | اجتماعی \n📆 سال تولید: ۱۴۰۰\n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران:نسیم ادبی - سیامک صفری - رضا سخایی - شهرزاد صانع\n\n👤 کارگردان:رضا سخایی\n\n☑️ خلاصه داستان:در نیمه یک شب در اطراف تهران و منطقه‌ای خلوت زنی سراسیمه و هراسان جلوی یک خودرو را می‌گیرد و می‌خواهد تا اندیشه او را ببرد، راننده در طول مسیر با ماجرای مشکوک و عجیب زن مواجه شده و تصمیم می‌گیرد صدای او را ضبط کند و این اتفاق حوادث پیچیده دیگری را رقم می‌زند.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794934990190-0-img-20261117-203210-755.jpg"
+    ],
+    "links": [
+      {
+        "label": "zabet-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/zabet-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
