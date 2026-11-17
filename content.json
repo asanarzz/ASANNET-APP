@@ -5068,5 +5068,24 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794934125019",
+    "type": "video",
+    "title": "پپرونی برای دیکتاتور",
+    "description": "فیلم تئاتر #پپرونی_برای_دیکتاتور\n\n🎭 ژانر : #تئاتر | #کمدی \n📆 سال تولید: ۱۴۰۳\n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران:خسرو احمدی، رویا میرعلمی، پژمان جمشیدی، محسن کیایی، حدیث بیابانگرد،علی احمدی\n\n👤 کارگردان:علی احمدی\n\n📖 خلاصه داستان:در یک مهمانی خانوادگی، مرد از نام عجیبی که برای فرزندش انتخاب کرده صحبت می کند که با مخالفت همه اعضا مهمانی مواجه می شود و درگیری هایی بین آنها شکل می گیرد که باعث افشا شدن رازهایی می شود و زندگی همه را دگرگون می کند.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794934120863-0-img-20261117-201511-624.jpg"
+    ],
+    "links": [
+      {
+        "label": "peproni.baraye.diktator-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/peproni.baraye.diktator-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
