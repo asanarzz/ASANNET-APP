@@ -4786,5 +4786,15 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050827_0039",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 00:39",
+    "description": "چهارشنبه 27 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0OTQ5Nzk5LCJpIjpbWyJzZWtrZWgiLDI1MTUxMDAwMF0sWyIxOGF5YXIiLDI0NjUwMDAwXSxbInVzZCIsMjY2OTAwXV19",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
