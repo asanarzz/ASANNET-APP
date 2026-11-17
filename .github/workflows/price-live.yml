@@ -1,0 +1,64 @@
+name: Price Live
+
+# ربات قیمت زنده‌ی دلار و طلای آسان نت (جایگزین ربات قیمت قبلی) — هیچ عکسی ذخیره نمی‌شه؛ فقط یه آیتم با «لینک صفحه‌ی زنده» تو content.json گذاشته می‌شه.
+#   fetch: یه آیتم تو دسته‌ی «دلار و طلا» ساخته می‌شه که صفحه‌ی زنده‌ی قیمت رو باز می‌کنه (قیمت‌ها رو خودِ صفحه هر بار تازه می‌گیره)
+#   clean: همه‌ی آیتم‌های خودکارِ این ربات پاک می‌شن (آیتم‌های ربات‌های دیگه و دستی دست نمی‌خورن)
+# (ایران ساعت تابستانی نداره؛ ساعت UTC = ساعت تهران − ۳:۳۰.)
+# اجرا: فقط توسط Supabase سر ساعت دقیق (workflow_dispatch). زمان‌بندی خودِ گیت‌هاب نداره چون چند ساعت دیر اجرا می‌کرد.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'fetch = ساخت آیتم امروز، clean = پاک کردن آیتم‌های خودکار'
+        type: choice
+        options:
+          - fetch
+          - clean
+        default: fetch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: price-live
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run bot and commit changes
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '0 20 * * *' && 'clean' || 'fetch') }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main --quiet
+            git reset --hard origin/main --quiet
+            python3 scripts/price_live_bot.py
+            if git diff --quiet -- content.json; then
+              echo "تغییری در content.json لازم نبود."
+              exit 0
+            fi
+            git add content.json
+            git commit -m "قیمت زنده (خودکار): $MODE"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "ارسال ناموفق بود (احتمالاً هم‌زمان یه تغییر دیگه ثبت شده)؛ تلاش دوباره..."
+            sleep 5
+          done
+          echo "::error::بعد از ۳ تلاش نتونستم تغییر رو ثبت کنم."
+          exit 1
