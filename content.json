@@ -5125,5 +5125,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794934738238",
+    "type": "video",
+    "title": "هورام",
+    "description": "فیلم سینمایی #هورام\n📌 موضوع: #اجتماعی | #خانوادگی\n\n📆 سال تولید: 1397\n📆 سال انتشار: 1399\n\n💎 بازیگران: کامران تفتی، مهدی مقدم، سید مهرداد ضیایی، ایمان پیرهادی، حدیثه تهرانی، غزل عبدی، نیما شاهرخ شاهی و ...\n\n👤 کارگردان: حسین گنج خانی\n\n☑️ خلاصه داستان: هورام فرزند ناتنی انوش، بعد از فوت مادرش تصمیم می گیرد با فرهاد که پسر تنی انوش می باشد ازدواج کند، اما انوش که بشدت مخالف این ازدواج است تصمیم می گیرد از طریق ناصر که مباشر او در مباحث کاری و غیره کاری است هورام را مورد آزار و اذیت قرار دهد و…",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794934734017-0-img-20261117-202654-866.jpg"
+    ],
+    "links": [
+      {
+        "label": "Hooram.480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
