@@ -5220,5 +5220,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794935876282",
+    "type": "video",
+    "title": "بیگانه",
+    "description": "فیلم #بیگانه\n📌 موضوع:  #درام | #خانوادگی\n📆 سال تولید: ۱۳۹۲\n📆 سال انتشار: ۱۳۹۵\n\n💎بازیگران: مهناز افشار، پانته آ بهرام، امیر جعفری، هومن برق نورد، سید علی صالحی و مصطفی زمانی\n\n👤کارگردان: بهرام توکلی\n\n🌀خلاصه داستان: قتباسی از نمایشنامه «اتوبوسی به نام هوس» نوشته تنسی ویلیامز نسرین معلم نقاشی یک آموزشگاه آزاد است که به خانه خواهر ناتنی اش به بهانه دیدن می آید. اما آنجا برای چند روزی ماندگار می شود. اوکه در انتظار دیدن شوهر خواهرش است و...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794935872179-0-img-20261117-204629-115.jpg"
+    ],
+    "links": [
+      {
+        "label": "Biganeh.480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/9_480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
