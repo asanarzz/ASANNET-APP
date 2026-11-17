@@ -5087,5 +5087,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794934312351",
+    "type": "video",
+    "title": "چرخه",
+    "description": "فیلم کوتاه #چرخه\n🔰 ژانر: #رازآلود | #هیجان_انگیز\n📆 سال تولید: 1404\n📆 سال انتشار: 1405\n\n💎 بازیگران: پیام احمدی نیا، هستی ثامری پور، حیات دریس، حسن یماسی، جواد شریفی ، مهدی شاهمرادی، عباس حقانی و...\n\n👤 کارگردان: بهنام خلیلی زاده\n\n🌀 خلاصه داستان: باستان شناسی پس از یافتن هزارمین کاروانسرای شاه عباسی به دنبال راز مخفی بودن این کاروانسرا می گردد که به با راهنمایی عوامل ماورا الطبیعه این راز را کشف می کند و متوجه طلسم چرخه تکرار زمان می شود ولی پس از کشف این راز او خود بخشی از چرخه و طلسم می شود...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794934308361-0-img-20261117-202055-427.jpg"
+    ],
+    "links": [
+      {
+        "label": "Charkhe-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Charkhe-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
