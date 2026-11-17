@@ -5106,5 +5106,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794934470965",
+    "type": "video",
+    "title": "شهر دودی",
+    "description": "فیلم #شهر_دودی \n\n🎭  ژانر : #درام  l #اجتماعی l #خانوادگی\n📆 سال انتشار: ۱۴۰۵\n\n💎 بازیگران: \n\nبهنوش بختیاری، حسین عابدینی، فاطمه شکری، رایحه تیموری، شیدا یوسفی و...\n\n👤 کارگردان: محمدرضا یکانی\n\n📖 خلاصه داستان: \n\n محسن پس از مرگ همسر و فرزندش، برای پیدا کردن کار از شهرستان راهی تهران می‌شود. او در تهران با دختری به نام ملینا آشنا می‌شود و این آشنایی، آغازگر اتفاقات و چالش‌های تازه‌ای در زندگی او می‌شود.",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794934466991-0-img-20261117-202310-932.jpg"
+    ],
+    "links": [
+      {
+        "label": "Shahre-doodi-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Shahre-doodi-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
