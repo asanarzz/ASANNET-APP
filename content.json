@@ -4978,5 +4978,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050826_1000",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 10:00",
+    "description": "سه‌شنبه 26 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0ODk3MDMyLCJpIjpbWyJzZWtrZWgiLDI1MDU1NTAwMF0sWyIxOGF5YXIiLDI0NTY3NDAwXSxbInVzZCIsMjY4NzA1XV19",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
