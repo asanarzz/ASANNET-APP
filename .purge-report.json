@@ -1,1 +1,1 @@
-{"id": "1792579393813", "mode": "real", "ok": true, "error": "", "files": 1, "kept": 64, "before_kb": 219980, "after_kb": 204704, "sample": ["apk/latest.apk"]}
+{"id": "1794912503155", "mode": "dry", "ok": true, "error": "", "files": 1, "kept": 162, "before_kb": 471136, "after_kb": 441176, "sample": ["apk/latest.apk"]}
