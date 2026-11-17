@@ -4998,5 +4998,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_pricelive_14050826",
+    "type": "price",
+    "title": "قیمت دلار و طلا — زنده",
+    "description": "سه‌شنبه 26 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNETT/price/",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": true,
+    "desktopMode": false
   }
 ]
