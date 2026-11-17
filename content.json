@@ -5048,5 +5048,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050826_1955",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 19:55",
+    "description": "سه‌شنبه 26 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0OTMyNzAyLCJpIjpbWyJzZWtrZWgiLDI1MjU5MDAwMF0sWyIxOGF5YXIiLDI0Njk5OTAwXSxbInVzZCIsMjY4NDg1XV19",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
