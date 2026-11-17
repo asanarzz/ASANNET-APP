@@ -5182,5 +5182,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1794935135181",
+    "type": "video",
+    "title": "هم درد",
+    "description": "دانلود فیلم کوتاه #هم_درد\n🎭  ژانر : #درام  l #اجتماعی \n📆 سال انتشار: ۱۴۰۴\n💎 بازیگران: شیرین اسماعیلی، رضا اخلاقی راد، علی زکریایی و...\n\n👤 کارگردان: حجت احمدی زر\n\n📖 خلاصه داستان:   داستان لیلا است که به همراه برادرش علی، مستأصل و درمانده دنبال تهیه پول عمل اضطراری قلب مادرشان هستند، از مسجد محل گرفته تا هر دوست و رفیق و آشنا. حالا تنها شانسشان پس‌انداز مادر در یک صندوق مالی است که ظاهرا به مشکل خورده و گرفتن این پول به آسانی ممکن نیست...",
+    "url": "",
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1794935130098-0-img-20261117-203346-727.jpg"
+    ],
+    "links": [
+      {
+        "label": "ham.dard-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/ham.dard-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
