@@ -25,7 +25,7 @@ class CategoryListActivity : AppCompatActivity() {
         private const val SECTION_MISC = "__misc__"
         // فیلم/سریال/قسمتی که تو این تعداد روز اخیر اضافه شده، تو بنر «جدیدها» میاد
         private const val NEW_ARRIVAL_DAYS = 10L
-        private const val MAX_NEW_ARRIVALS = 8
+        private const val MAX_NEW_ARRIVALS = 10
         private const val ARRIVALS_SCROLL_MS = 4000L
     }
 
