@@ -100,7 +100,7 @@ data class ContentItem(
                         desktopMode = obj.optBoolean("desktopMode", true),
                         allowImageDownload = obj.optBoolean("allowImageDownload", true),
                         pinned = obj.optBoolean("pinned", false),
-                        addedAt = obj.optLong("addedAt", 0L),
+                        addedAt = obj.optLong("addedAt", 0L).takeIf { it > 0L } ?: timestampFromId(obj.optString("id", "")),
                         episodeAt = obj.optLong("episodeAt", 0L)
                     )
 
@@ -132,3 +132,10 @@ data class ContentItem(
         }
     }
 }
+
+// پنل مدیریت شناسه‌ی هر مورد جدید رو به شکل item_<زمان به میلی‌ثانیه> می‌سازه؛ اگه فیلدِ
+// addedAt ثبت نشده بود (مثلاً با نسخه‌ی قدیمی پنل اضافه شده)، زمان رو از همین شناسه درمیاریم.
+private val ITEM_ID_TIMESTAMP = Regex("^item_(\\d{13})$")
+
+private fun timestampFromId(id: String): Long =
+    ITEM_ID_TIMESTAMP.find(id)?.groupValues?.get(1)?.toLongOrNull() ?: 0L
