@@ -3,6 +3,8 @@ package com.kafinet.asannet
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
@@ -10,6 +12,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.kafinet.asannet.databinding.ActivityCategoryListBinding
 import kotlinx.coroutines.launch
 
@@ -19,6 +23,10 @@ class CategoryListActivity : AppCompatActivity() {
         const val EXTRA_TYPE = "extra_type"
         const val EXTRA_LABEL = "extra_label"
         private const val SECTION_MISC = "__misc__"
+        // فیلم/سریال/قسمتی که تو این تعداد روز اخیر اضافه شده، تو بنر «جدیدها» میاد
+        private const val NEW_ARRIVAL_DAYS = 10L
+        private const val MAX_NEW_ARRIVALS = 8
+        private const val ARRIVALS_SCROLL_MS = 4000L
     }
 
     private lateinit var binding: ActivityCategoryListBinding
@@ -28,6 +36,20 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var seriesAdapter: PosterCarouselAdapter
     private lateinit var moviesIrAdapter: PosterCarouselAdapter
     private lateinit var seriesIrAdapter: PosterCarouselAdapter
+    private lateinit var newArrivalsAdapter: NewArrivalsAdapter
+    private val arrivalsSnapHelper = PagerSnapHelper()
+    private val arrivalsHandler = Handler(Looper.getMainLooper())
+    private var arrivalsIndex = 0
+    private val arrivalsRunnable = object : Runnable {
+        override fun run() {
+            val count = newArrivalsAdapter.itemCount
+            if (count > 1) {
+                arrivalsIndex = (arrivalsIndex + 1) % count
+                binding.recyclerNewArrivals.smoothScrollToPosition(arrivalsIndex)
+            }
+            arrivalsHandler.postDelayed(this, ARRIVALS_SCROLL_MS)
+        }
+    }
 
     private var allItems: List<ContentItem> = emptyList()
     private var typeFilter: ContentType? = null
@@ -69,6 +91,7 @@ class CategoryListActivity : AppCompatActivity() {
         seriesAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
         moviesIrAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
         seriesIrAdapter = PosterCarouselAdapter(emptyList()) { item -> openVideoDetail(item) }
+        newArrivalsAdapter = NewArrivalsAdapter(emptyList()) { item -> openVideoDetail(item) }
 
         binding.recyclerContent.layoutManager = LinearLayoutManager(this)
         binding.recyclerContent.adapter = adapter
@@ -88,6 +111,20 @@ class CategoryListActivity : AppCompatActivity() {
             binding.recyclerSeriesIr.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
             binding.recyclerSeriesIr.adapter = seriesIrAdapter
+
+            binding.recyclerNewArrivals.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerNewArrivals.adapter = newArrivalsAdapter
+            arrivalsSnapHelper.attachToRecyclerView(binding.recyclerNewArrivals)
+            binding.recyclerNewArrivals.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val lm = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                        val snapView = arrivalsSnapHelper.findSnapView(lm) ?: return
+                        arrivalsIndex = lm.getPosition(snapView)
+                    }
+                }
+            })
         }
 
         binding.swipeRefresh.setOnRefreshListener { loadContent() }
@@ -183,6 +220,52 @@ class CategoryListActivity : AppCompatActivity() {
         binding.sectionMoviesIr.visibility = if (moviesIr.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         binding.sectionSeriesIr.visibility = if (seriesIr.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         binding.layoutVideoEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+
+        updateNewArrivals()
+    }
+
+    /** بنر «جدیدها» رو می‌سازه؛ وقتی کاربر داره جستجو می‌کنه یا چیزی تازه نیست، مخفی می‌شه. */
+    private fun updateNewArrivals() {
+        val arrivals = if (currentQuery.isBlank()) buildNewArrivals(allItems) else emptyList()
+        newArrivalsAdapter.updateItems(arrivals)
+        binding.recyclerNewArrivals.visibility =
+            if (arrivals.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        arrivalsIndex = 0
+        if (arrivals.isNotEmpty()) binding.recyclerNewArrivals.scrollToPosition(0)
+    }
+
+    private fun buildNewArrivals(items: List<ContentItem>): List<NewArrival> {
+        val now = System.currentTimeMillis()
+        val windowMs = NEW_ARRIVAL_DAYS * 24L * 60L * 60L * 1000L
+        return items
+            .filter { it.type == ContentType.VIDEO }
+            .mapNotNull { item ->
+                val ts = maxOf(item.addedAt, item.episodeAt)
+                if (ts <= 0L || now - ts > windowMs) return@mapNotNull null
+                val section = item.section?.trim()
+                val isSeries = section == "سریال" || section == "سریال ایرانی"
+                val kind = when {
+                    item.episodeAt > item.addedAt -> ArrivalKind.NEW_EPISODE
+                    isSeries -> ArrivalKind.NEW_SERIES
+                    else -> ArrivalKind.NEW_MOVIE
+                }
+                NewArrival(item, kind, ts)
+            }
+            .sortedByDescending { it.timestamp }
+            .take(MAX_NEW_ARRIVALS)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isVideoGalleryMode) {
+            arrivalsHandler.removeCallbacks(arrivalsRunnable)
+            arrivalsHandler.postDelayed(arrivalsRunnable, ARRIVALS_SCROLL_MS)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        arrivalsHandler.removeCallbacks(arrivalsRunnable)
     }
 
     private fun showFolderList(items: List<ContentItem>) {

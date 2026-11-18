@@ -52,7 +52,11 @@ data class ContentItem(
     /** false یعنی دکمه‌ی «دانلود عکس» برای این مورد مخفی بماند (فقط برای روزنامه، دلار/طلا و آب‌وهوا اثر داره). */
     val allowImageDownload: Boolean = true,
     /** true یعنی این مورد (یا پوشه‌ای که عضوشه) از پنل مدیریت پین شده و باید بالای لیست بیاد. */
-    val pinned: Boolean = false
+    val pinned: Boolean = false,
+    /** زمان اضافه‌شدن مورد (میلی‌ثانیه، از پنل مدیریت ثبت می‌شه). صفر یعنی ثبت نشده (مورد قدیمی). */
+    val addedAt: Long = 0L,
+    /** آخرین باری که برای این سریال قسمت جدید اضافه شده (میلی‌ثانیه). صفر یعنی هیچ‌وقت. */
+    val episodeAt: Long = 0L
 ) {
     companion object {
         fun listFromJson(jsonText: String): List<ContentItem> {
@@ -95,7 +99,9 @@ data class ContentItem(
                         allowExternalBrowser = obj.optBoolean("allowExternalBrowser", true),
                         desktopMode = obj.optBoolean("desktopMode", true),
                         allowImageDownload = obj.optBoolean("allowImageDownload", true),
-                        pinned = obj.optBoolean("pinned", false)
+                        pinned = obj.optBoolean("pinned", false),
+                        addedAt = obj.optLong("addedAt", 0L),
+                        episodeAt = obj.optLong("episodeAt", 0L)
                     )
 
                 // مورد با چند لینک (مثلاً یک خواننده با ۳۶ آهنگ، یا چند فایل PDF): هر لینک تبدیل
