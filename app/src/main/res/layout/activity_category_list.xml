@@ -143,6 +143,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- بنر «جدیدها»: فیلم/سریال/قسمت‌هایی که تو ۱۰ روز اخیر اضافه شدن -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_new_arrivals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:paddingHorizontal="12dp"
+                android:clipToPadding="false"
+                android:visibility="gone"/>
+
             <LinearLayout
                 android:id="@+id/section_movies"
                 android:layout_width="match_parent"
