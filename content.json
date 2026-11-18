@@ -4788,16 +4788,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050827_0039",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 00:39",
-    "description": "چهارشنبه 27 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0OTQ5Nzk5LCJpIjpbWyJzZWtrZWgiLDI1MTUxMDAwMF0sWyIxOGF5YXIiLDI0NjUwMDAwXSxbInVzZCIsMjY2OTAwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_1794950060774",
     "type": "video",
     "title": "Coyote vs. Acme 2026",
@@ -4812,26 +4802,6 @@
         "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Movie/2026/Coyote.Vs.Acme.2026/R4DUB/Coyote.vs.Acme.2026.480p.WEB-DL.Farsi.4Dubbed.Film2Media.mkv?v=505052337154"
       }
     ],
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050827_0205",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 02:05",
-    "description": "چهارشنبه 27 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0OTU0OTM4LCJpIjpbWyJzZWtrZWgiLDI1MTUxMDAwMF0sWyIxOGF5YXIiLDI0NjUwMDAwXSxbInVzZCIsMjY2OTAwXV19",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050827_0307",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 03:07",
-    "description": "چهارشنبه 27 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk0OTU4NjMyLCJpIjpbWyJzZWtrZWgiLDI1MTUxMDAwMF0sWyIxOGF5YXIiLDI0NjUwMDAwXSxbInVzZCIsMjY2OTAwXV19",
-    "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
   }
