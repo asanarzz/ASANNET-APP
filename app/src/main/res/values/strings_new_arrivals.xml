@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_arrival_movie">فیلم جدید اضافه شد</string>
+    <string name="new_arrival_series">سریال جدید اضافه شد</string>
+    <string name="new_arrival_episode">قسمت جدید اضافه شد</string>
+    <string name="new_arrival_today">امروز</string>
+    <string name="new_arrival_yesterday">دیروز</string>
+    <string name="new_arrival_days_ago">%1$d روز پیش</string>
+</resources>
