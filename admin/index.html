@@ -1644,6 +1644,7 @@ async function handleAdd() {
 
     if (editingId) {
       const id = editingId;
+      const prevItem = contentItems.find((i) => i.id === id) || {};
       const updatedItem = {
         id,
         type: selectedType,
@@ -1651,6 +1652,15 @@ async function handleAdd() {
         description,
         url,
       };
+      // زمان‌های ثبت‌شده‌ی قبلی (و پین) موقع ویرایش از بین نمی‌رن
+      if (prevItem.addedAt) updatedItem.addedAt = prevItem.addedAt;
+      if (prevItem.episodeAt) updatedItem.episodeAt = prevItem.episodeAt;
+      if (prevItem.pinned) updatedItem.pinned = true;
+      // اگه تعداد قسمت‌های یه سریال بیشتر شد، یعنی قسمت جدید اضافه شده (برای بنر «جدیدها» تو اپ)
+      if (selectedType === 'video' && (sectionValue === 'سریال' || sectionValue === 'سریال ایرانی')) {
+        const prevCount = (Array.isArray(prevItem.links) ? prevItem.links.length : 0) || (prevItem.url ? 1 : 0);
+        if (linksValue.length > prevCount) updatedItem.episodeAt = Date.now();
+      }
       if (sectionValue) updatedItem.section = sectionValue;
       if (combinedImages.length) updatedItem.images = combinedImages;
       if (linksValue.length) updatedItem.links = linksValue;
@@ -1688,6 +1698,8 @@ async function handleAdd() {
       description,
       url,
     };
+    // زمان اضافه‌شدن فیلم/سریال (برای بنر «جدیدها» تو اپ)
+    if (selectedType === 'video') newItem.addedAt = Date.now();
     if (sectionValue) newItem.section = sectionValue;
     if (combinedImages.length) newItem.images = combinedImages;
     if (linksValue.length) newItem.links = linksValue;
