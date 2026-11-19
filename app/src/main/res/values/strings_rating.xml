@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rating_votes_format">%1$d رأی</string>
+    <string name="rating_rate_button">⭐ امتیاز بده</string>
+    <string name="rating_change_button">امتیاز شما: %1$d — تغییر امتیاز</string>
+    <string name="rating_dialog_title">امتیاز به این فیلم</string>
+    <string name="rating_choose">یک امتیاز از ۱ تا ۱۰ انتخاب کن</string>
+    <string name="rating_selected">امتیاز شما: %1$d از ۱۰</string>
+    <string name="rating_submit">ثبت امتیاز</string>
+    <string name="rating_cancel">انصراف</string>
+    <string name="rating_saved">امتیاز شما ثبت شد</string>
+    <string name="rating_failed">ثبت امتیاز ناموفق بود. اینترنت رو چک کن</string>
+    <string name="rating_pick_first">اول یه امتیاز انتخاب کن</string>
+</resources>
