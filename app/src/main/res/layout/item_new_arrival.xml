@@ -66,6 +66,17 @@
                 android:textColor="#E0E7FF"
                 android:textSize="13sp"
                 tools:text="امروز"/>
+
+            <TextView
+                android:id="@+id/txt_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#FBBF24"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="★ 7.8"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
