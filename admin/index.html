@@ -78,6 +78,9 @@
   .link-row{display:flex; gap:6px; margin-top:8px; align-items:center;}
   .link-row input{margin-top:0;}
   .link-row input.link-label{flex:0 0 34%;}
+  .link-row input.link-season{display:none; flex:0 0 64px; text-align:center; padding-left:4px; padding-right:4px;}
+  #links-list.show-season .link-row input.link-season{display:block;}
+  #links-list.show-season .link-row input.link-label{flex:0 0 28%;}
   .link-row input.link-url{flex:1;}
   .link-row .btn-remove-link{flex:0 0 auto; padding:9px 12px; border-radius:10px; border:1px solid var(--danger); color:var(--danger); background:#fff; cursor:pointer; font-size:16px; line-height:1;}
 
@@ -746,18 +749,54 @@ function updateVideoBoxesVisibility() {
   // گزینه‌ی «دانلود عکس» فقط برای روزنامه، دلار/طلا و آب‌وهوا نشون داده می‌شه
   const dlRow = document.getElementById('row-image-download');
   if (dlRow) dlRow.style.display = IMAGE_DOWNLOAD_TYPES.includes(selectedType) ? '' : 'none';
+  // کادر «فصل» کنار هر قسمت فقط برای سریال‌ها نشون داده می‌شه
+  const linksList = document.getElementById('links-list');
+  if (linksList) {
+    const isSeries = isVideo && (selectedVideoKind === 'series' || selectedVideoKind === 'series_ir');
+    linksList.classList.toggle('show-season', isSeries);
+  }
   // links-box is now always visible for all content types
 }
 
-function makeLinkRow(label, url) {
+// شماره‌ی فصل رو از اسم قسمت درمیاره (S02.E05 یا Season 2 یا فصل ۲)؛ اگه پیدا نشد صفر
+function detectSeason(label) {
+  if (!label) return 0;
+  const text = String(label)
+    .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  const m = text.match(/(?:^|[^a-z0-9])s0*(\d{1,2})[\s._-]*e\d+/i)
+    || text.match(/season[\s._-]*0*(\d{1,2})/i)
+    || text.match(/فصل[\s._-]*0*(\d{1,2})/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+function makeLinkRow(label, url, season) {
   const row = document.createElement('div');
   row.className = 'link-row';
   row.innerHTML = `
     <input type="text" class="link-label" placeholder="برچسب (مثلاً 720p یا قسمت 1)">
+    <input type="number" class="link-season" placeholder="فصل" min="1" max="99" inputmode="numeric" title="شماره‌ی فصل">
     <input type="url" class="link-url" placeholder="https://...">
     <button type="button" class="btn-remove-link" title="حذف این ردیف">×</button>`;
-  row.querySelector('.link-label').value = label || '';
+  const labelInput = row.querySelector('.link-label');
+  const seasonInput = row.querySelector('.link-season');
+  labelInput.value = label || '';
   row.querySelector('.link-url').value = url || '';
+  // فصل: اگه ثبت شده همونه، وگرنه از روی اسم قسمت حدس زده می‌شه (و قابل تغییره)
+  if (season) {
+    seasonInput.value = season;
+  } else {
+    const guess = detectSeason(label);
+    if (guess) { seasonInput.value = guess; seasonInput.dataset.auto = '1'; }
+  }
+  seasonInput.addEventListener('input', () => { seasonInput.dataset.auto = ''; });
+  labelInput.addEventListener('input', () => {
+    if (!seasonInput.value || seasonInput.dataset.auto === '1') {
+      const g = detectSeason(labelInput.value);
+      seasonInput.value = g || '';
+      seasonInput.dataset.auto = g ? '1' : '';
+    }
+  });
   row.querySelector('.btn-remove-link').addEventListener('click', () => {
     row.remove();
     if (!document.getElementById('links-list').children.length) addLinkRow();
@@ -765,13 +804,13 @@ function makeLinkRow(label, url) {
   return row;
 }
 
-function addLinkRow(label, url) {
+function addLinkRow(label, url, season) {
   const list = document.getElementById('links-list');
   if (list.children.length >= 500) {
     toast('حداکثر ۵۰۰ لینک قابل اضافه کردنه', 'error');
     return;
   }
-  list.appendChild(makeLinkRow(label, url));
+  list.appendChild(makeLinkRow(label, url, season));
 }
 
 function clearLinkRows() {
@@ -784,7 +823,14 @@ function collectLinks() {
   rows.forEach((row) => {
     const url = row.querySelector('.link-url').value.trim();
     const label = row.querySelector('.link-label').value.trim();
-    if (url) result.push({ label, url });
+    const season = parseInt(row.querySelector('.link-season').value, 10);
+    if (url) {
+      const entry = { label, url };
+      // فصل فقط برای سریال‌ها ذخیره می‌شه
+      if (season > 0 && selectedType === 'video'
+          && (selectedVideoKind === 'series' || selectedVideoKind === 'series_ir')) entry.season = season;
+      result.push(entry);
+    }
   });
   return result;
 }
@@ -1782,7 +1828,7 @@ function startEdit(id) {
 
   clearLinkRows();
   if (Array.isArray(item.links) && item.links.length) {
-    item.links.forEach((l) => addLinkRow(l.label, l.url));
+    item.links.forEach((l) => addLinkRow(l.label, l.url, l.season));
   } else {
     addLinkRow();
   }
@@ -1875,6 +1921,7 @@ function initTabs() {
       document.querySelectorAll('#video-kind-tabs .type-tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       selectedVideoKind = tab.getAttribute('data-kind');
+      updateVideoBoxesVisibility();
     });
   });
 
