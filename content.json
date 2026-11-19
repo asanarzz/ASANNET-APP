@@ -5226,5 +5226,17 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795082964806",
+    "type": "fun",
+    "title": "Solitaire",
+    "description": "",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795082961031-0-screenshot-20261119133404.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
