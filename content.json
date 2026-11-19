@@ -97,10 +97,14 @@
   {
     "id": "item_1787693780505",
     "type": "fun",
-    "title": "بازی 2048 آسان نت",
-    "description": "نمونه بازی تحت وب با طرح دلخواه شما",
-    "url": "https://asanarzz.github.io/ASANNETT/Game2048/",
-    "allowExternalBrowser": false
+    "title": "2048",
+    "description": "",
+    "url": "https://gabrielecirulli.github.io/2048/",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795084078314-0-screenshot-20261119135625.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   },
   {
     "id": "item_1787893325193",
