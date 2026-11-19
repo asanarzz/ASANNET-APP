@@ -30,7 +30,8 @@ enum class ContentType(val key: String) {
     }
 }
 
-data class DownloadLink(val label: String, val url: String)
+/** یک لینک دانلود (یا یک قسمت از سریال). season: شماره‌ی فصل؛ صفر یعنی ثبت نشده. */
+data class DownloadLink(val label: String, val url: String, val season: Int = 0)
 
 data class ContentItem(
     val id: String,
@@ -81,7 +82,7 @@ data class ContentItem(
                         val linkUrl = linkObj.optString("url", "").trim()
                         if (linkUrl.isBlank()) continue
                         val linkLabel = linkObj.optString("label", "").trim()
-                        links.add(DownloadLink(linkLabel, linkUrl))
+                        links.add(DownloadLink(linkLabel, linkUrl, linkObj.optInt("season", 0).coerceAtLeast(0)))
                     }
                 }
                 val parsedItem =

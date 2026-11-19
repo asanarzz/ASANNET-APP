@@ -205,7 +205,7 @@ object LockManager {
                 val obj = linksArray.optJSONObject(i) ?: continue
                 val linkUrl = obj.optString("url", "").trim()
                 if (linkUrl.isBlank()) continue
-                links.add(DownloadLink(obj.optString("label", "").trim(), linkUrl))
+                links.add(DownloadLink(obj.optString("label", "").trim(), linkUrl, obj.optInt("season", 0).coerceAtLeast(0)))
             }
         }
 

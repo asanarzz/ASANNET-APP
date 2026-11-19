@@ -27,6 +27,7 @@ class VideoDetailActivity : AppCompatActivity() {
         const val EXTRA_VIDEO_URL = "extra_video_url"
         const val EXTRA_LINK_LABELS = "extra_link_labels"
         const val EXTRA_LINK_URLS = "extra_link_urls"
+        const val EXTRA_LINK_SEASONS = "extra_link_seasons"
     }
 
     private lateinit var binding: ActivityVideoDetailBinding
@@ -45,6 +46,7 @@ class VideoDetailActivity : AppCompatActivity() {
         val videoUrl = intent.getStringExtra(EXTRA_VIDEO_URL).orEmpty()
         val linkLabels = intent.getStringArrayListExtra(EXTRA_LINK_LABELS) ?: arrayListOf()
         val linkUrls = intent.getStringArrayListExtra(EXTRA_LINK_URLS) ?: arrayListOf()
+        val linkSeasons = intent.getIntegerArrayListExtra(EXTRA_LINK_SEASONS) ?: arrayListOf()
 
         binding.txtHeaderTitle.text = forceEnglishDigits(itemTitle)
         binding.txtTitle.text = forceEnglishDigits(itemTitle)
@@ -72,13 +74,83 @@ class VideoDetailActivity : AppCompatActivity() {
         }
 
         if (linkUrls.isNotEmpty()) {
-            for (i in linkUrls.indices) {
-                val label = linkLabels.getOrNull(i).orEmpty()
-                addDownloadButton(label, linkUrls[i])
-            }
+            setupLinks(linkLabels, linkUrls, linkSeasons)
         } else if (videoUrl.isNotBlank()) {
             addDownloadButton("", videoUrl)
         }
+    }
+
+    private data class LinkEntry(val label: String, val url: String, val season: Int)
+
+    /**
+     * دکمه‌های دانلود رو می‌سازه. اگه سریال بیشتر از یک فصل داشته باشه، بالای لیست تب‌های
+     * «فصل ۱ | فصل ۲ | …» میاد و فقط قسمت‌های همون فصل نشون داده می‌شه؛ وگرنه مثل قبل یه لیست ساده.
+     * شماره‌ی فصل از پنل می‌آد؛ اگه ثبت نشده بود، از اسم قسمت (مثلاً S02.E05) حدس زده می‌شه.
+     */
+    private fun setupLinks(labels: List<String>, urls: List<String>, seasons: List<Int>) {
+        val entries = urls.indices.map { i ->
+            val label = labels.getOrNull(i).orEmpty()
+            val explicit = seasons.getOrNull(i) ?: 0
+            LinkEntry(label, urls[i], if (explicit > 0) explicit else detectSeasonFromLabel(label))
+        }
+        val numbered = entries.map { it.season }.filter { it > 0 }.distinct().sorted()
+        if (numbered.size < 2) {
+            entries.forEach { addDownloadButton(it.label, it.url) }
+            return
+        }
+
+        val density = resources.displayMetrics.density
+        val tabKeys = ArrayList<Int>(numbered)
+        if (entries.any { it.season == 0 }) tabKeys.add(0)
+        var selected = numbered.last()
+        val tabViews = LinkedHashMap<Int, TextView>()
+
+        fun render() {
+            binding.layoutDownloadLinks.removeAllViews()
+            entries.filter { it.season == selected }.forEach { addDownloadButton(it.label, it.url) }
+            for ((key, tv) in tabViews) styleSeasonTab(tv, key == selected)
+        }
+
+        for (key in tabKeys) {
+            val tv = TextView(this)
+            tv.text = if (key == 0) getString(R.string.season_tab_other) else getString(R.string.season_tab_format, key)
+            tv.textSize = 14f
+            tv.setTypeface(tv.typeface, android.graphics.Typeface.BOLD)
+            tv.gravity = Gravity.CENTER
+            tv.setPadding((18 * density).toInt(), (9 * density).toInt(), (18 * density).toInt(), (9 * density).toInt())
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.marginEnd = (8 * density).toInt()
+            tv.setOnClickListener {
+                selected = key
+                render()
+            }
+            tabViews[key] = tv
+            binding.layoutSeasonTabs.addView(tv, params)
+        }
+
+        binding.scrollSeasonTabs.visibility = View.VISIBLE
+        val listParams = binding.layoutDownloadLinks.layoutParams as ViewGroup.MarginLayoutParams
+        listParams.topMargin = (14 * density).toInt()
+        binding.layoutDownloadLinks.layoutParams = listParams
+        render()
+    }
+
+    private fun styleSeasonTab(tab: TextView, active: Boolean) {
+        val density = resources.displayMetrics.density
+        val primary = ContextCompat.getColor(this, R.color.primary)
+        val bg = android.graphics.drawable.GradientDrawable()
+        bg.cornerRadius = 20 * density
+        if (active) {
+            bg.setColor(primary)
+        } else {
+            bg.setColor(Color.TRANSPARENT)
+            bg.setStroke((1.5f * density).toInt(), primary)
+        }
+        tab.background = bg
+        tab.setTextColor(if (active) Color.WHITE else primary)
     }
 
     /** میانگین امتیاز (★ 7.8) و متن دکمه‌ی امتیازدهی رو به‌روز می‌کنه. */

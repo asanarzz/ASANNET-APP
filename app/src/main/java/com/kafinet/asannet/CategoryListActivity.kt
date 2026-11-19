@@ -362,6 +362,10 @@ class CategoryListActivity : AppCompatActivity() {
             VideoDetailActivity.EXTRA_LINK_URLS,
             ArrayList(item.links.map { it.url })
         )
+        intent.putIntegerArrayListExtra(
+            VideoDetailActivity.EXTRA_LINK_SEASONS,
+            ArrayList(item.links.map { it.season })
+        )
         startActivity(intent)
     }
 
