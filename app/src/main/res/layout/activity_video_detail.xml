@@ -151,6 +151,23 @@
                 android:text="@string/btn_download"
                 android:visibility="gone"/>
 
+            <!-- تب‌های فصل (فقط وقتی سریال بیشتر از یک فصل داشته باشه) -->
+            <HorizontalScrollView
+                android:id="@+id/scroll_season_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/layout_season_tabs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+
             <LinearLayout
                 android:id="@+id/layout_download_links"
                 android:layout_width="match_parent"
