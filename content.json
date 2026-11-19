@@ -5262,5 +5262,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050828_1657",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 16:57",
+    "description": "پنجشنبه 28 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MDk0ODMxLCJpIjpbWyJ1c2QiLDI2ODEzNV0sWyIxOGF5YXIiLDI0MjY3MTc0XSxbInNla2tlaCIsMjQ5NzgwXSxbImJhaGFyIiwyMzk5MjhdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNzA5MjY1NDM3MV0sWyJ1c2RfZXRoIiw0ODM3OTg2NjJdLFsidXNkX3VzZHQiLDI3MDk4MF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
