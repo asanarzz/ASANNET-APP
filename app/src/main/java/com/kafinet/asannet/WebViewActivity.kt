@@ -323,8 +323,21 @@ class WebViewActivity : AppCompatActivity() {
             }
         }, "AndroidDownloader")
 
-        binding.webView.setDownloadListener { url, _, _, mimetype, _ ->
+        binding.webView.setDownloadListener { url, _, contentDisposition, mimetype, _ ->
+            // اگه فایل PDF باشه (حتی وقتی آدرس پسوند .pdf نداره) به‌جای دانلود، تو نمایشگر خودِ اپ باز می‌شه
+            val lowerUrl = url.lowercase()
+            val isPdf = (mimetype ?: "").contains("pdf", ignoreCase = true) ||
+                (contentDisposition ?: "").lowercase().contains(".pdf") ||
+                lowerUrl.substringBefore("?").substringBefore("#").endsWith(".pdf")
             when {
+                isPdf && (lowerUrl.startsWith("http://") || lowerUrl.startsWith("https://")) -> {
+                    val pdfIntent = Intent(this, PdfViewerActivity::class.java)
+                    pdfIntent.putExtra(PdfViewerActivity.EXTRA_URL, url)
+                    pdfIntent.putExtra(PdfViewerActivity.EXTRA_TITLE, pageTitle)
+                    startActivity(pdfIntent)
+                    // صفحه‌ی خالی وب‌ویو بسته می‌شه که با «برگشت» مستقیم به لیست برگردی
+                    finish()
+                }
                 url.startsWith("data:") -> {
                     saveGeneratedFile(url, nameFor("", pageTitle))
                 }
