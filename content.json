@@ -7091,5 +7091,21 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795124414507",
+    "type": "test",
+    "title": "تفکر و سبک زندگی",
+    "description": "نمونه سوالات فکر و سبک زندگی",
+    "url": "",
+    "section": "پایه نهم",
+    "links": [
+      {
+        "label": "170221",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/170221"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
