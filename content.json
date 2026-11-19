@@ -5196,5 +5196,15 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/28/dc513ea4.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/28/7ffd85d9.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050828_0800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:00",
+    "description": "پنجشنبه 28 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MDYyNjMyLCJpIjpbWyJ1c2QiLDI2NjMxNV0sWyIxOGF5YXIiLDI0NDY0ODk5XSxbInNla2tlaCIsMjUwODcwXSxbImJhaGFyIiwyNDA4NzVdLFsibmltIiwxMzIzODBdLFsicm9iIiw3MTcxMF0sWyJ1c2RfYnRjIiwxNjg3MDg1NTUxNF0sWyJ1c2RfZXRoIiw0Nzg3OTk3NDldLFsidXNkX3VzZHQiLDI3MDE1OV1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
