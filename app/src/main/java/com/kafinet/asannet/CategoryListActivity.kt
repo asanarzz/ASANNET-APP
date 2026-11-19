@@ -158,6 +158,7 @@ class CategoryListActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val result = ContentRepository.load(this@CategoryListActivity)
             allItems = result.items
+            if (isVideoGalleryMode) RatingStore.refresh(this@CategoryListActivity)
             applyFilters()
             binding.swipeRefresh.isRefreshing = false
             if (result.error) {
@@ -260,6 +261,10 @@ class CategoryListActivity : AppCompatActivity() {
         if (isVideoGalleryMode) {
             arrivalsHandler.removeCallbacks(arrivalsRunnable)
             arrivalsHandler.postDelayed(arrivalsRunnable, ARRIVALS_SCROLL_MS)
+            // امتیازها ممکنه بعد از برگشت از صفحه‌ی فیلم عوض شده باشن
+            lifecycleScope.launch {
+                if (RatingStore.refresh(this@CategoryListActivity)) applyVideoFilters()
+            }
         }
     }
 
@@ -344,6 +349,7 @@ class CategoryListActivity : AppCompatActivity() {
     private fun openVideoDetailUnlocked(item: ContentItem) {
         val posterUrl = item.images.firstOrNull().orEmpty()
         val intent = Intent(this, VideoDetailActivity::class.java)
+        intent.putExtra(VideoDetailActivity.EXTRA_ITEM_ID, item.id)
         intent.putExtra(VideoDetailActivity.EXTRA_TITLE, item.title)
         intent.putExtra(VideoDetailActivity.EXTRA_DESCRIPTION, item.description)
         intent.putExtra(VideoDetailActivity.EXTRA_POSTER_URL, posterUrl)

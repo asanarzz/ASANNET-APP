@@ -32,6 +32,14 @@ class PosterCarouselAdapter(
             .placeholder(R.drawable.ic_video)
             .into(holder.binding.imgPoster)
 
+        val stat = RatingStore.get(item.id)
+        if (stat != null) {
+            holder.binding.txtRatingBadge.text = forceEnglishDigits("★ ${stat.averageText()}")
+            holder.binding.txtRatingBadge.visibility = android.view.View.VISIBLE
+        } else {
+            holder.binding.txtRatingBadge.visibility = android.view.View.GONE
+        }
+
         holder.binding.root.setOnClickListener { onClick(item) }
     }
 
