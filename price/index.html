@@ -389,6 +389,18 @@ function readSnapshot(){
       items.push({ key: key, label: LABELS[key] || prettifyKey(key), value: num, selected: true });
     }
     if(items.length === 0) return null;
+    // بیت‌کوین و اتریوم به «دلار» نشون داده می‌شن. ربات قیمتشون رو به تومان می‌فرسته؛ با نرخ دلارِ
+    // همین لینک به دلار برمی‌گردونیم (اگه از قبل دلار بود، همون می‌مونه).
+    const usdItem = items.find(function(it){ return it.key === 'usd'; });
+    const usdRate = usdItem ? usdItem.value : 0;
+    items.forEach(function(it){
+      if(!/(^|_)(btc|eth)($|_)/.test(it.key)) return;
+      if(it.value > 1e7){                // مقدار به تومانه
+        if(!(usdRate > 0)) return;       // بدون نرخ دلار نمی‌شه تبدیل کرد؛ مثل قبل به تومان می‌مونه
+        it.value = Math.round(it.value / usdRate * 100) / 100;
+      }
+      it.unit = 'دلار';
+    });
     return { t: t, items: items };
   }catch(e){
     return null;
