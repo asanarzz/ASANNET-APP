@@ -7515,5 +7515,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795117847531",
+    "type": "file",
+    "title": "نمونه سوالات کار و فناوری",
+    "description": "نمونه سوالات کار و فناوری",
+    "url": "",
+    "section": "پایه نهم",
+    "links": [
+      {
+        "label": "99414",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/99414"
+      },
+      {
+        "label": "171168",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/171168"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
