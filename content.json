@@ -17169,36 +17169,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050829_0800",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 08:00",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTQ5MDMxLCJpIjpbWyJ1c2QiLDI3MDMzNV0sWyIxOGF5YXIiLDI0MjU5NTYwXSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjY4MzgxOTE0Ml0sWyJ1c2RfZXRoIiw0NjgzNTgwOTFdLFsidXNkX3VzZHQiLDI3MTcwNl1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_1000",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 10:00",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTU2MjMzLCJpIjpbWyJ1c2QiLDI3MDMzNV0sWyIxOGF5YXIiLDI0MDY2ODAwXSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjcyODMyOTgwMF0sWyJ1c2RfZXRoIiw0NzA4MDQ2MjNdLFsidXNkX3VzZHQiLDI3MTkwMV1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_1200",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 12:00",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTYzNDMwLCJpIjpbWyJzZWtrZWgiLDI0OTU5MF0sWyJiYWhhciIsMjM5ODQwXSxbIm5pbSIsMTMwODkwXSxbInJvYiIsNzExNTBdXX0",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_1795167528416",
     "type": "test",
     "title": "پیام‌های آسمانی",
@@ -35303,46 +35273,6 @@
         "url": "https://www.kanoon.ir/Downloads/ExamQuestion/136394"
       }
     ],
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_1400",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 14:00",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTcwNjI5LCJpIjpbWyJ1c2QiLDI3MDMzNV0sWyIxOGF5YXIiLDIzOTYyOTE3XSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjcwMDk4ODExOF0sWyJ1c2RfZXRoIiw0NzMzMjk1NTJdLFsidXNkX3VzZHQiLDI3Mjc5NV1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_1600",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 16:00",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTc3ODI1LCJpIjpbWyJ1c2QiLDI3MTIzNV0sWyIxOGF5YXIiLDIzOTU3MTQ2XSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjcwMzkwNDQwNl0sWyJ1c2RfZXRoIiw0NzE3OTE1ODRdLFsidXNkX3VzZHQiLDI3NDg1OV1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_1801",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 18:01",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTg1MDY3LCJpIjpbWyJ1c2QiLDI3MTM4NV0sWyIxOGF5YXIiLDIzOTQ5MDY2XSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjgyMzE1NjE1MF0sWyJ1c2RfZXRoIiw0NzU5MDYxNjRdLFsidXNkX3VzZHQiLDI3NDc5NV1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050829_2008",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 20:08",
-    "description": "جمعه 29 آبان 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTkyNzIzLCJpIjpbWyJ1c2QiLDI3MTMzNV0sWyIxOGF5YXIiLDIzODk5NDMzXSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjEwMzA4MTA0Nl0sWyJ1c2RfZXRoIiw0NDUzNTAyNzZdLFsidXNkX3VzZHQiLDI3NDU5NF1dfQ",
-    "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
   },
