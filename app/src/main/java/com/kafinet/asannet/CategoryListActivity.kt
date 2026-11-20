@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +33,8 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCategoryListBinding
     private lateinit var adapter: ContentAdapter
     private lateinit var sectionAdapter: SectionFolderAdapter
+    // پوشه‌ی داخل پوشه: بالا زیرپوشه‌ها، زیرشان آیتم‌هایی که مستقیم داخل همین پوشه‌اند
+    private val levelAdapter by lazy { ConcatAdapter(sectionAdapter, adapter) }
     private lateinit var moviesAdapter: PosterCarouselAdapter
     private lateinit var seriesAdapter: PosterCarouselAdapter
     private lateinit var moviesIrAdapter: PosterCarouselAdapter
@@ -64,7 +67,7 @@ class CategoryListActivity : AppCompatActivity() {
 
     // اگه این دسته حداقل یک آیتم با «بخش» مشخص داشته باشه، حالت پوشه‌ای فعال می‌شه
     private var hasSections: Boolean = false
-    // بخشی که الان توش هستیم؛ null یعنی تو لیست پوشه‌ها (یا حالت تخت قدیمی) هستیم
+    // مسیر پوشه‌ای که الان توش هستیم (مثل «آزمون‌ها/غربالگری»)؛ null یعنی سطح اول (یا حالت تخت قدیمی)
     private var currentSection: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,8 +148,11 @@ class CategoryListActivity : AppCompatActivity() {
         if (isVideoGalleryMode) {
             finish()
         } else if (hasSections && currentSection != null) {
-            currentSection = null
-            binding.txtTitle.text = categoryLabel
+            // یک سطح بالا (برای پوشه‌ی سطح اول یا «سایر» می‌شود صفحه‌ی اصلی دسته)
+            val current = currentSection!!
+            val parent = if (current == SECTION_MISC) null else FolderPath.parent(current)
+            currentSection = parent
+            binding.txtTitle.text = if (parent == null) categoryLabel else FolderPath.leaf(parent)
             binding.editSearch.text?.clear()
             applyFilters()
         } else {
@@ -178,15 +184,10 @@ class CategoryListActivity : AppCompatActivity() {
 
         hasSections = typeFiltered.any { !it.section.isNullOrBlank() }
 
-        if (hasSections && currentSection == null) {
-            showFolderList(typeFiltered)
+        if (hasSections) {
+            showFolderLevel(typeFiltered)
         } else {
-            val scoped = if (hasSections) {
-                typeFiltered.filter { (it.section ?: SECTION_MISC) == currentSection }
-            } else {
-                typeFiltered
-            }
-            showItemList(scoped)
+            showItemList(typeFiltered)
         }
     }
 
@@ -273,36 +274,68 @@ class CategoryListActivity : AppCompatActivity() {
         arrivalsHandler.removeCallbacks(arrivalsRunnable)
     }
 
-    private fun showFolderList(items: List<ContentItem>) {
-        binding.recyclerContent.adapter = sectionAdapter
+    /** یک سطح از درخت پوشه‌ها را نشان می‌دهد: زیرپوشه‌های مستقیم + آیتم‌های مستقیمِ همین پوشه. */
+    private fun showFolderLevel(items: List<ContentItem>) {
+        val path = currentSection
+
+        // پوشه‌ی «سایر» فقط آیتم‌های بدون پوشه را نشان می‌دهد
+        if (path == SECTION_MISC) {
+            showItemList(items.filter { it.section.isNullOrBlank() })
+            return
+        }
+
+        binding.recyclerContent.adapter = levelAdapter
         binding.recyclerContent.layoutManager = LinearLayoutManager(this)
 
         val grouped = LinkedHashMap<String, MutableList<ContentItem>>()
+        val direct = mutableListOf<ContentItem>()
         for (item in items) {
-            val key = item.section?.takeIf { it.isNotBlank() } ?: SECTION_MISC
-            grouped.getOrPut(key) { mutableListOf() }.add(item)
+            val sec = item.section
+            if (sec.isNullOrBlank()) {
+                // آیتم بدون پوشه فقط در سطح اول و زیر «سایر» می‌آید
+                if (path == null) grouped.getOrPut(SECTION_MISC) { mutableListOf() }.add(item)
+                continue
+            }
+            if (path == null) {
+                grouped.getOrPut(FolderPath.first(sec)) { mutableListOf() }.add(item)
+            } else if (sec == path) {
+                direct.add(item)
+            } else if (FolderPath.isUnder(sec, path)) {
+                val rest = sec.substring(path.length + 1)
+                val child = path + FolderPath.SEP + FolderPath.first(rest)
+                grouped.getOrPut(child) { mutableListOf() }.add(item)
+            }
         }
+
         // «سایر» همیشه آخرین پوشه نشون داده می‌شه؛ قبل از اون، پوشه‌هایی که از پنل
-        // مدیریت پین شدن (حداقل یکی از اعضاشون pinned=true باشه) اول میان
+        // مدیریت پین شدن (حداقل یکی از آیتم‌های زیرمجموعه‌شون pinned=true باشه) اول میان
         val nonMisc = grouped.keys.filter { it != SECTION_MISC }
         val pinnedKeys = nonMisc.filter { key -> grouped[key].orEmpty().any { it.pinned } }
         val unpinnedKeys = nonMisc.filter { key -> grouped[key].orEmpty().none { it.pinned } }
         val orderedKeys = pinnedKeys + unpinnedKeys + grouped.keys.filter { it == SECTION_MISC }
 
         var folders = orderedKeys.map { key ->
-            val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else key
+            val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else FolderPath.leaf(key)
             val members = grouped[key].orEmpty()
             val lockedFolder = members.isNotEmpty() && members.all { it.locked && it.lockGroup != null }
             SectionFolder(key, displayName, members.size, lockedFolder, members.firstOrNull())
         }
 
+        var directItems: List<ContentItem> = direct
         if (currentQuery.isNotBlank()) {
             val q = currentQuery.trim()
             folders = folders.filter { it.displayName.contains(q, ignoreCase = true) }
+            directItems = directItems.filter {
+                it.title.contains(q, ignoreCase = true) || it.description.contains(q, ignoreCase = true)
+            }
         }
+        directItems = directItems.sortedByDescending { it.pinned }
 
+        displayedItems = directItems
         sectionAdapter.updateFolders(folders)
-        binding.layoutEmpty.visibility = if (folders.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        adapter.updateItems(directItems)
+        binding.layoutEmpty.visibility =
+            if (folders.isEmpty() && directItems.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun openSection(folder: SectionFolder) {

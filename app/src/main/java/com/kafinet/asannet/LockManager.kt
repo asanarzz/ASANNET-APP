@@ -102,7 +102,11 @@ object LockManager {
                     else -> R.string.lock_dialog_message_default
                 },
                 if (item.lockGroup != null && !item.section.isNullOrBlank())
-                    activity.getString(R.string.lock_folder_name, item.section)
+                    // اسم همان پوشه‌ای که قفل شده (نه لزوماً پوشه‌ی داخلی آیتم)
+                    activity.getString(
+                        R.string.lock_folder_name,
+                        FolderPath.leaf(FolderPath.pathOfLockGroup(item.lockGroup).ifBlank { item.section })
+                    )
                 else item.title
             )
             textSize = 15f

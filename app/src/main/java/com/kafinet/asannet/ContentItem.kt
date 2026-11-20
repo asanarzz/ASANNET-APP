@@ -65,7 +65,7 @@ data class ContentItem(
             val result = mutableListOf<ContentItem>()
             for (i in 0 until array.length()) {
                 val obj: JSONObject = array.getJSONObject(i)
-                val sectionValue = obj.optString("section", "").trim()
+                val sectionValue = FolderPath.normalize(obj.optString("section", "")).orEmpty()
                 val imagesArray = obj.optJSONArray("images")
                 val images = mutableListOf<String>()
                 if (imagesArray != null) {
