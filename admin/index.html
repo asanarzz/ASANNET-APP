@@ -1685,6 +1685,47 @@ async function createFolder(type, path) {
   }
 }
 
+// حذف هر پوشه‌ای که انتخاب کنی: اگر مورد داشته باشد، موردهای داخل پوشه و همه‌ی زیرپوشه‌ها هم پاک می‌شوند
+async function deleteFolder(type, path) {
+  const members = secMembers(type, path);
+  if (!members.length) { return deleteEmptyFolder(type, path); }
+  const subCount = new Set(members.map(secOf).filter((x) => x !== path)).size;
+  const first = '⚠️ پوشه‌ی «' + path + '» با ' + members.length + ' مورد' +
+    (subCount ? ' (و ' + subCount + ' زیرپوشه‌ی داخلش)' : '') +
+    ' برای همیشه از برنامه حذف شود؟\n\nاین کار قابل برگشت نیست.';
+  if (!confirm(first)) return;
+  if (!confirm('مطمئنی؟ همه‌ی ' + members.length + ' مورد داخل «' + secLeaf(path) + '» پاک می‌شوند.')) return;
+
+  const ids = new Set(members.map((i) => i.id));
+  const lockedIds = members.filter((i) => i.locked).map((i) => i.id);
+  const groups = Array.from(new Set(members.map((i) => i.lockGroup).filter(Boolean)));
+  const itemsBefore = contentItems;
+  const metaBefore = folderMeta;
+  contentItems = contentItems.filter((i) => !ids.has(i.id));
+  folderMeta = folderMeta.filter((f) => !(f.type === type && secIsUnder(f.path, path)));
+  renderList();
+  try {
+    await saveContentList('حذف پوشه: ' + path, (fresh) => fresh.filter((i) => !ids.has(i.id)));
+    if (metaBefore.length !== folderMeta.length) await saveFolderMeta('حذف پوشه: ' + path);
+    toast('پوشه و موردهای داخلش حذف شد', 'success');
+    if (lockedIds.length) {
+      adsLoadSession();
+      if (!adsSession) {
+        toast('بعضی موردها قفل بودند؛ برای پاک شدن توکن‌هایشان بعداً در تب «قفل و توکن» وارد شو', 'error');
+      } else {
+        for (const g of groups) { try { await lkRpc('admin_lock_unset_group', { p_group_id: g }); } catch (e) { /* ignore */ } }
+        for (const id of lockedIds) { try { await lkRpc('admin_lock_unset', { p_item_id: id }); } catch (e) { /* ignore */ } }
+      }
+    }
+    renderList();
+  } catch (e) {
+    contentItems = itemsBefore;
+    folderMeta = metaBefore;
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
 // حذف پوشه‌ی خالی (با زیرپوشه‌های خالی‌اش)
 async function deleteEmptyFolder(type, path) {
   if (secMembers(type, path).length) { toast('این پوشه مورد دارد؛ اول موردها را حذف یا منتقل کن', 'error'); return; }
@@ -1847,7 +1888,7 @@ function renderFolderNode(node, type) {
       ${isEmpty ? '' : group && !lockedSelf ? '<span class="muted" style="align-self:center;">🔒 قفل از پوشه‌ی والد</span>'
         : `<button class="btn-outline btn-small" data-flock data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">${lockedSelf ? '📁🔓 باز کردن قفل' : '📁🔒 قفل پوشه'}</button>`}
       <button class="btn-outline btn-small" data-frename data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">✏️ نام / انتقال</button>
-      ${isEmpty ? `<button class="btn-danger btn-small" data-fdel data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">🗑 حذف پوشه‌ی خالی</button>` : ''}
+      <button class="btn-danger btn-small" data-fdel data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">${isEmpty ? '🗑 حذف پوشه‌ی خالی' : '🗑 حذف پوشه و موردهایش'}</button>
     </div>`;
   head.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
@@ -1956,7 +1997,7 @@ function renderList() {
     btn.addEventListener('click', () => { const [t, p] = fa(btn); renameFolder(t, p); });
   });
   area.querySelectorAll('[data-fdel]').forEach((btn) => {
-    btn.addEventListener('click', () => { const [t, p] = fa(btn); deleteEmptyFolder(t, p); });
+    btn.addEventListener('click', () => { const [t, p] = fa(btn); deleteFolder(t, p); });
   });
 }
 
