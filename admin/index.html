@@ -110,6 +110,20 @@
   .item.content-row .info .t, .item.content-row .info .d{white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere;}
   .item.content-row .actions{flex-basis:100%; flex-wrap:wrap;}
 
+  /* پوشه در پوشه (نمای درختی لیست محتوا) */
+  .ftree-type{margin:16px 0 4px; font-weight:700; font-size:13px; color:var(--muted);}
+  .ftree-folder{margin:8px 0; border:1px solid #DDD6FE; border-radius:12px; background:#fff;}
+  .ftree-folder .ftree-folder{margin-inline-start:10px;}
+  .ftree-head{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; cursor:pointer; background:#F5F3FF; border-radius:12px;}
+  .ftree-folder.open > .ftree-head{border-radius:12px 12px 0 0;}
+  .ftree-head .chev{font-size:11px; color:var(--muted); transition:transform .2s; display:inline-block;}
+  .ftree-folder.open > .ftree-head .chev{transform:rotate(-90deg);}
+  .ftree-head .fname{font-weight:700; font-size:14px; color:#5B21B6;}
+  .ftree-head .fcount{font-size:12px; color:var(--muted);}
+  .ftree-head .factions{display:flex; gap:6px; flex-wrap:wrap; flex-basis:100%;}
+  .ftree-body{display:none; padding:8px 10px 2px;}
+  .ftree-folder.open > .ftree-body{display:block;}
+
   .toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
     background:var(--text); color:#fff; padding:12px 20px; border-radius:10px; font-size:13px;
@@ -269,11 +283,16 @@
       <textarea id="in-desc" placeholder="یک خط توضیح درباره‌ی این محتوا"></textarea>
 
       <label>پوشه (اختیاری)</label>
-      <input type="text" id="in-section" placeholder="مثلاً: آزمون‌های غربالگری">
+      <select id="in-section-pick"></select>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+        <button type="button" class="btn-outline btn-small" id="btn-sec-new">➕ پوشه‌ی جدید</button>
+        <button type="button" class="btn-outline btn-small" id="btn-sec-sub">📁➕ زیرپوشه داخل پوشه‌ی انتخاب‌شده</button>
+      </div>
+      <input type="text" id="in-section" placeholder="مسیر پوشه، مثلاً: آزمون‌ها/غربالگری/کودکان" style="margin-top:6px;">
       <p class="muted">
-        اگه پر کنی، این مورد داخل یه پوشه با همین اسم قرار می‌گیره (مثلاً تو دسته‌ی «آزمون» می‌تونی
-        چند پوشه مثل «آزمون‌های غربالگری» و «نمونه سوالات» بسازی). اگه خالی بذاری، مثل قبل مستقیم
-        تو لیست دسته نشون داده می‌شه.
+        پوشه‌ی موجود را از لیست انتخاب کن، یا با دکمه‌های بالا پوشه/زیرپوشه‌ی جدید بساز. مسیر کامل پوشه همین‌جا
+        دیده می‌شود و بخش‌هایش با «/» جدا می‌شوند (مثلاً «آزمون‌ها/غربالگری» یعنی پوشه‌ی «غربالگری» داخل «آزمون‌ها»).
+        اگه خالی بذاری، مورد مستقیم تو لیست دسته نشون داده می‌شه. پوشه فقط وقتی ساخته می‌شه که حداقل یه مورد داخلش ذخیره بشه.
       </p>
 
       <label>لینک (اختیاری)</label>
@@ -1439,6 +1458,134 @@ async function saveContentList(commitMessage, mutateFn) {
 
 let listFilterType = 'all';
 
+// ---------- پوشه در پوشه ----------
+// مسیر پوشه داخل همان فیلد section ذخیره می‌شود و بخش‌هایش با «/» جدا می‌شوند
+// (مثلاً «آزمون‌ها/غربالگری/کودکان»). آیتم‌های قدیمی بدون «/» همان پوشه‌ی تک‌سطحی می‌مانند.
+function secNormalize(v) {
+  return String(v == null ? '' : v).split('/').map((x) => x.trim()).filter(Boolean).join('/');
+}
+function secOf(item) { return secNormalize(item && item.section); }
+function secIsUnder(sec, base) { return sec === base || sec.startsWith(base + '/'); }
+function secLeaf(path) { const a = path.split('/'); return a[a.length - 1]; }
+function secCompare(a, b) {
+  const x = a.split('/'), y = b.split('/');
+  for (let i = 0; i < Math.min(x.length, y.length); i++) {
+    if (x[i] !== y[i]) return x[i].localeCompare(y[i], 'fa');
+  }
+  return x.length - y.length;
+}
+// آیتم‌های یک پوشه با همه‌ی زیرپوشه‌هایش
+function secMembers(type, path) {
+  return contentItems.filter((i) => i.type === type && secIsUnder(secOf(i), path));
+}
+// همه‌ی مسیرهای پوشه (با والدهاشان) برای یک نوع محتوا
+function secAllPaths(type, extra) {
+  const set = new Set();
+  const add = (p) => {
+    if (!p) return;
+    const parts = p.split('/');
+    for (let n = 1; n <= parts.length; n++) set.add(parts.slice(0, n).join('/'));
+  };
+  contentItems.forEach((i) => { if (i.type === type) add(secOf(i)); });
+  add(extra);
+  return Array.from(set).sort(secCompare);
+}
+
+function syncSectionPicker() {
+  const sel = $('in-section-pick');
+  if (!sel) return;
+  const cur = secNormalize($('in-section').value);
+  const paths = secAllPaths(selectedType, cur);
+  sel.innerHTML = '<option value="">— بدون پوشه (مستقیم داخل دسته) —</option>' +
+    paths.map((p) => {
+      const depth = p.split('/').length - 1;
+      return `<option value="${escapeHtml(p)}">${'\u00A0\u00A0\u00A0\u00A0'.repeat(depth)}${depth ? '↳ ' : '📁 '}${escapeHtml(secLeaf(p))}</option>`;
+    }).join('');
+  sel.value = cur;
+}
+
+function initSectionPicker() {
+  const sel = $('in-section-pick');
+  if (!sel) return;
+  sel.addEventListener('change', () => { $('in-section').value = sel.value; });
+  $('in-section').addEventListener('change', () => {
+    $('in-section').value = secNormalize($('in-section').value);
+    syncSectionPicker();
+  });
+  const askName = (title) => {
+    const name = prompt(title);
+    if (name === null) return null;
+    const clean = name.trim();
+    if (!clean) return null;
+    if (clean.includes('/')) { toast('اسم پوشه نباید «/» داشته باشد', 'error'); return null; }
+    return clean;
+  };
+  $('btn-sec-new').addEventListener('click', () => {
+    const name = askName('اسم پوشه‌ی جدید (سطح اول) چیه؟');
+    if (!name) return;
+    $('in-section').value = name;
+    syncSectionPicker();
+  });
+  $('btn-sec-sub').addEventListener('click', () => {
+    const base = secNormalize($('in-section').value);
+    if (!base) { toast('اول یک پوشه انتخاب کن (یا یک پوشه‌ی جدید بساز)', 'error'); return; }
+    const name = askName('اسم زیرپوشه‌ی جدید داخل «' + secLeaf(base) + '» چیه؟');
+    if (!name) return;
+    $('in-section').value = base + '/' + name;
+    syncSectionPicker();
+  });
+}
+
+// فرم افزودن را روی یک پوشه تنظیم می‌کند (دکمه‌ی «افزودن به این پوشه» در لیست)
+function addToFolder(type, path) {
+  const tab = document.querySelector(`#type-tabs .type-tab[data-type="${type}"]`);
+  if (tab) tab.click();
+  if (editingId) cancelEdit();
+  $('in-section').value = path;
+  syncSectionPicker();
+  $('section-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// تغییر نام یا انتقال پوشه (با همه‌ی زیرپوشه‌ها و آیتم‌هایش)
+async function renameFolder(type, oldPath) {
+  const input = prompt(
+    'مسیر جدید پوشه را بنویس.\nبرای فقط تغییر نام، آخرین بخش را عوض کن؛ برای انتقال، پوشه‌ی والد را هم بنویس (مثلاً: آزمون‌ها/غربالگری).',
+    oldPath
+  );
+  if (input === null) return;
+  const newPath = secNormalize(input);
+  if (!newPath) { toast('مسیر پوشه نمی‌تواند خالی باشد', 'error'); return; }
+  if (newPath === oldPath) return;
+  if (secIsUnder(newPath, oldPath)) { toast('نمی‌شود پوشه را داخل خودش گذاشت', 'error'); return; }
+  const members = secMembers(type, oldPath);
+  if (!members.length) return;
+  if (members.some((i) => i.lockGroup)) {
+    toast('این پوشه (یا یکی از زیرپوشه‌هایش) قفل است؛ اول قفلش را بردار، بعد نام/مسیرش را عوض کن', 'error');
+    return;
+  }
+  if (lkFolderGroupFor(type, newPath)) {
+    toast('مقصد داخل یک پوشه‌ی قفل‌شده است؛ اول قفل آن پوشه را بردار', 'error');
+    return;
+  }
+  if (!confirm('پوشه‌ی «' + oldPath + '» با ' + members.length + ' مورد (و همه‌ی زیرپوشه‌ها) به «' + newPath + '» تغییر کند؟')) return;
+  const apply = (items) => items.map((i) =>
+    (i.type === type && secIsUnder(secOf(i), oldPath))
+      ? Object.assign({}, i, { section: newPath + secOf(i).slice(oldPath.length) })
+      : i
+  );
+  contentItems = apply(contentItems);
+  renderList();
+  try {
+    await saveContentList('تغییر مسیر پوشه: ' + oldPath + ' ← ' + newPath, apply);
+    toast('مسیر پوشه تغییر کرد ✓', 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+    loadContentList();
+  }
+}
+
+const openFolderKeys = new Set(); // پوشه‌های بازشده در لیست (نوع|مسیر)
+
 // ---------- پین کردن ----------
 // روی خودِ content.json ذخیره می‌شه (فیلد pinned روی هر آیتم) تا هم تو پنل
 // و هم تو خودِ اپ، موارد پین‌شده بالا بیان — نه فقط یه حالت محلیِ مرورگر.
@@ -1466,11 +1613,11 @@ async function toggleItemPin(id) {
 }
 
 async function toggleSectionPin(type, section) {
-  const members = contentItems.filter((i) => i.type === type && (i.section || '') === section);
+  const members = secMembers(type, section);
   if (!members.length) return;
   const newValue = !members.every((i) => i.pinned);
   const apply = (items) =>
-    items.map((i) => (i.type === type && (i.section || '') === section ? withPinnedFlag(i, newValue) : i));
+    items.map((i) => (i.type === type && secIsUnder(secOf(i), section) ? withPinnedFlag(i, newValue) : i));
   contentItems = apply(contentItems);
   renderList();
   try {
@@ -1506,9 +1653,95 @@ function renderListFilters() {
   });
 }
 
+// یک ردیف آیتم؛ داخل نمای درختی دکمه‌های «پین/قفل پوشه» روی خودِ هدر پوشه‌اند
+function buildItemRow(item, inTree) {
+  const meta = TYPE_META[item.type] || TYPE_META.link;
+  const pinned = isItemPinned(item);
+  const sec = secOf(item);
+  const sectionMembers = (!inTree && sec) ? secMembers(item.type, sec) : [];
+  const sectionPinned = sectionMembers.length > 0 && sectionMembers.every((i) => i.pinned);
+  const row = document.createElement('div');
+  row.className = 'item content-row' + (pinned ? ' pinned' : '');
+  if (pinned) row.style.cssText = 'border:2px solid #7C3AED; background:#FAF5FF;';
+  row.innerHTML = `
+    <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
+    <div class="info">
+      <div class="t">${pinned ? '📌 ' : ''}${item.locked ? '🔒 ' : ''}${escapeHtml(item.title || '(بدون عنوان)')}${(!inTree && item.section) ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
+      <div class="d">${escapeHtml(item.description || item.url || '')}</div>
+    </div>
+    <div class="actions">
+      <button class="btn-outline btn-small" data-pin="${item.id}">${pinned ? '📌 برداشتن پین' : '📍 پین کردن'}</button>
+      ${(!inTree && item.section) ? `<button class="btn-outline btn-small" data-pinfolder-type="${escapeHtml(item.type)}" data-pinfolder-section="${escapeHtml(sec)}">${sectionPinned ? '📁📌 برداشتن پین پوشه' : '📁📍 پین کردن کل پوشه'}</button>` : ''}
+      <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
+      ${(!inTree && item.section && item.type !== 'video') ? `<button class="btn-outline btn-small" data-lockfolder="${item.id}">${item.lockGroup ? '📁🔓 باز کردن قفل پوشه' : '📁🔒 قفل پوشه'}</button>` : ''}
+      <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
+      <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
+    </div>`;
+  return row;
+}
+
+// درخت پوشه‌های یک نوع محتوا
+function buildFolderTree(items) {
+  const root = { children: new Map(), items: [], all: [] };
+  items.forEach((it) => {
+    let node = root;
+    let path = '';
+    secOf(it).split('/').forEach((seg) => {
+      path = path ? path + '/' + seg : seg;
+      if (!node.children.has(seg)) node.children.set(seg, { name: seg, path, children: new Map(), items: [], all: [] });
+      node = node.children.get(seg);
+      node.all.push(it);
+    });
+    node.items.push(it);
+  });
+  return root;
+}
+
+function renderFolderNode(node, type) {
+  const key = type + '|' + node.path;
+  const el = document.createElement('div');
+  el.className = 'ftree-folder' + (openFolderKeys.has(key) ? ' open' : '');
+  const anyPinned = node.all.some((i) => i.pinned);
+  const allPinned = node.all.every((i) => i.pinned);
+  const group = lkFolderGroupFor(type, node.path);
+  const lockedSelf = group === lkGroupId(type, node.path);
+  const subCount = node.children.size;
+  const head = document.createElement('div');
+  head.className = 'ftree-head';
+  head.innerHTML = `
+    <span class="chev">◀</span>
+    <span class="fname">📁 ${anyPinned ? '📌 ' : ''}${group ? '🔒 ' : ''}${escapeHtml(node.name)}</span>
+    <span class="fcount">${node.all.length} مورد${subCount ? ' · ' + subCount + ' زیرپوشه' : ''}</span>
+    <div class="factions">
+      <button class="btn-outline btn-small" data-fadd data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">➕ افزودن به این پوشه</button>
+      <button class="btn-outline btn-small" data-fpin data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">${allPinned ? '📁📌 برداشتن پین' : '📁📍 پین کردن'}</button>
+      ${group && !lockedSelf ? '<span class="muted" style="align-self:center;">🔒 قفل از پوشه‌ی والد</span>'
+        : `<button class="btn-outline btn-small" data-flock data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">${lockedSelf ? '📁🔓 باز کردن قفل' : '📁🔒 قفل پوشه'}</button>`}
+      <button class="btn-outline btn-small" data-frename data-ft="${escapeHtml(type)}" data-fp="${escapeHtml(node.path)}">✏️ نام / انتقال</button>
+    </div>`;
+  head.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    const open = el.classList.toggle('open');
+    if (open) openFolderKeys.add(key); else openFolderKeys.delete(key);
+  });
+  const body = document.createElement('div');
+  body.className = 'ftree-body';
+  const kids = Array.from(node.children.values());
+  kids.filter((k) => k.all.some((i) => i.pinned))
+    .concat(kids.filter((k) => !k.all.some((i) => i.pinned)))
+    .forEach((k) => body.appendChild(renderFolderNode(k, type)));
+  const mine = node.items.slice().reverse();
+  mine.filter((i) => isItemPinned(i)).concat(mine.filter((i) => !isItemPinned(i)))
+    .forEach((i) => body.appendChild(buildItemRow(i, true)));
+  el.appendChild(head);
+  el.appendChild(body);
+  return el;
+}
+
 function renderList() {
   const area = $('list-area');
   renderListFilters();
+  syncSectionPicker();
   if (!contentItems.length) {
     area.innerHTML = '<div class="empty-msg">هنوز محتوایی اضافه نشده — از فرم بالا شروع کن</div>';
     return;
@@ -1519,33 +1752,32 @@ function renderList() {
     return;
   }
   area.innerHTML = '';
-  const reversed = visibleItems.slice().reverse();
-  const pinned = reversed.filter((i) => isItemPinned(i));
-  const unpinned = reversed.filter((i) => !isItemPinned(i));
-  [...pinned, ...unpinned].forEach((item) => {
-    const meta = TYPE_META[item.type] || TYPE_META.link;
-    const pinned = isItemPinned(item);
-    const sectionMembers = item.section ? contentItems.filter((i) => i.type === item.type && (i.section || '') === item.section) : [];
-    const sectionPinned = sectionMembers.length > 0 && sectionMembers.every((i) => i.pinned);
-    const row = document.createElement('div');
-    row.className = 'item content-row' + (pinned ? ' pinned' : '');
-    if (pinned) row.style.cssText = 'border:2px solid #7C3AED; background:#FAF5FF;';
-    row.innerHTML = `
-      <div class="badge" style="background:${meta.color}">${meta.abbr}</div>
-      <div class="info">
-        <div class="t">${pinned ? '📌 ' : ''}${item.locked ? '🔒 ' : ''}${escapeHtml(item.title || '(بدون عنوان)')}${item.section ? ' <span style="color:#7C3AED; font-weight:600;">— ' + escapeHtml(item.section) + '</span>' : ''}${item.images && item.images.length ? ' <span style="color:#059669; font-weight:600;">📷 ' + item.images.length + '</span>' : ''}${item.links && item.links.length ? ' <span style="color:#2563EB; font-weight:600;">🔗 ' + item.links.length + '</span>' : ''}</div>
-        <div class="d">${escapeHtml(item.description || item.url || '')}</div>
-      </div>
-      <div class="actions">
-        <button class="btn-outline btn-small" data-pin="${item.id}">${pinned ? '📌 برداشتن پین' : '📍 پین کردن'}</button>
-        ${item.section ? `<button class="btn-outline btn-small" data-pinfolder-type="${escapeHtml(item.type)}" data-pinfolder-section="${escapeHtml(item.section)}">${sectionPinned ? '📁📌 برداشتن پین پوشه' : '📁📍 پین کردن کل پوشه'}</button>` : ''}
-        <button class="btn-outline btn-small" data-lock="${item.id}">${item.locked ? '🔓 باز کردن قفل' : '🔒 قفل'}</button>
-        ${(item.section && item.type !== 'video') ? `<button class="btn-outline btn-small" data-lockfolder="${item.id}">${item.lockGroup ? '📁🔓 باز کردن قفل پوشه' : '📁🔒 قفل پوشه'}</button>` : ''}
-        <button class="btn-outline btn-small" data-edit="${item.id}">ویرایش</button>
-        <button class="btn-danger btn-small" data-del="${item.id}">حذف</button>
-      </div>`;
-    area.appendChild(row);
+
+  // موردهای بدون پوشه (و فیلم/سریال که «بخش»شان نوع فیلم است) مثل قبل لیست تخت می‌مانند
+  const isFoldered = (i) => i.type !== 'video' && !!secOf(i);
+  const flat = visibleItems.filter((i) => !isFoldered(i)).slice().reverse();
+  [...flat.filter((i) => isItemPinned(i)), ...flat.filter((i) => !isItemPinned(i))]
+    .forEach((i) => area.appendChild(buildItemRow(i, false)));
+
+  // موردهای داخل پوشه: برای هر نوع محتوا یک درخت
+  const foldered = visibleItems.filter(isFoldered);
+  const typeOrder = Array.from(document.querySelectorAll('#type-tabs .type-tab')).map((t) => t.getAttribute('data-type'));
+  const types = Array.from(new Set(foldered.map((i) => i.type)));
+  types.sort((a, b) => (typeOrder.indexOf(a) + 1 || 99) - (typeOrder.indexOf(b) + 1 || 99));
+  types.forEach((type) => {
+    if (listFilterType === 'all') {
+      const h = document.createElement('div');
+      h.className = 'ftree-type';
+      h.textContent = '📂 پوشه‌های ' + (TYPE_META[type] || TYPE_META.link).label;
+      area.appendChild(h);
+    }
+    const root = buildFolderTree(foldered.filter((i) => i.type === type));
+    const kids = Array.from(root.children.values());
+    kids.filter((k) => k.all.some((i) => i.pinned))
+      .concat(kids.filter((k) => !k.all.some((i) => i.pinned)))
+      .forEach((k) => area.appendChild(renderFolderNode(k, type)));
   });
+
   area.querySelectorAll('[data-pin]').forEach((btn) => {
     btn.addEventListener('click', () => toggleItemPin(btn.getAttribute('data-pin')));
   });
@@ -1571,8 +1803,26 @@ function renderList() {
     btn.addEventListener('click', () => {
       const it = contentItems.find((i) => i.id === btn.getAttribute('data-lockfolder'));
       if (!it) return;
-      if (it.lockGroup) lkUnlockFolder(it.lockGroup); else lkLockFolder(it.type, it.section);
+      if (it.lockGroup) lkUnlockFolder(it.lockGroup); else lkLockFolder(it.type, secOf(it));
     });
+  });
+  // دکمه‌های هدر پوشه (نمای درختی)
+  const fa = (el) => [el.getAttribute('data-ft'), el.getAttribute('data-fp')];
+  area.querySelectorAll('[data-fadd]').forEach((btn) => {
+    btn.addEventListener('click', () => { const [t, p] = fa(btn); addToFolder(t, p); });
+  });
+  area.querySelectorAll('[data-fpin]').forEach((btn) => {
+    btn.addEventListener('click', () => { const [t, p] = fa(btn); toggleSectionPin(t, p); });
+  });
+  area.querySelectorAll('[data-flock]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const [t, p] = fa(btn);
+      const g = lkFolderGroupFor(t, p);
+      if (g && g === lkGroupId(t, p)) lkUnlockFolder(g); else lkLockFolder(t, p);
+    });
+  });
+  area.querySelectorAll('[data-frename]').forEach((btn) => {
+    btn.addEventListener('click', () => { const [t, p] = fa(btn); renameFolder(t, p); });
   });
 }
 
@@ -1682,7 +1932,7 @@ async function handleAdd() {
 
     const sectionValue = selectedType === 'video'
       ? ({ series: 'سریال', movie_ir: 'فیلم ایرانی', series_ir: 'سریال ایرانی' }[selectedVideoKind] || '')
-      : $('in-section').value.trim();
+      : secNormalize($('in-section').value);
 
     const allowExternalBrowser = $('in-allow-external-browser').checked;
     const desktopMode = $('in-desktop-mode').checked;
@@ -1844,7 +2094,8 @@ function startEdit(id) {
 
   $('in-title').value = item.title || '';
   $('in-desc').value = item.description || '';
-  $('in-section').value = item.section || '';
+  $('in-section').value = secOf(item);
+  syncSectionPicker();
   $('in-url').value = item.url || '';
   $('in-allow-external-browser').checked = item.allowExternalBrowser !== false;
   $('in-desktop-mode').checked = item.desktopMode !== false;
@@ -1869,6 +2120,7 @@ function resetForm() {
   $('in-title').value = '';
   $('in-desc').value = '';
   $('in-section').value = '';
+  syncSectionPicker();
   $('in-url').value = '';
   $('in-allow-external-browser').checked = false;
   $('in-desktop-mode').checked = false;
@@ -1905,6 +2157,7 @@ function addFilesToSelection(fileList) {
 
 // ---------- UI wiring ----------
 function initTabs() {
+  initSectionPicker();
   document.querySelectorAll('#type-tabs .type-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('#type-tabs .type-tab').forEach((t) => t.classList.remove('active'));
@@ -1913,6 +2166,7 @@ function initTabs() {
       const hint = document.getElementById('banner-size-hint');
       if (hint) hint.style.display = (selectedType === 'home_banner') ? 'block' : 'none';
       updateVideoBoxesVisibility();
+      syncSectionPicker();
     });
   });
 
@@ -2787,8 +3041,14 @@ function lkGroupId(type, section) { return 'folder:' + type + '|' + section; }
 // اگر این پوشه (نوع+نام) قفل است، شناسه‌ی گروهش را برمی‌گرداند
 function lkFolderGroupFor(type, section) {
   if (!section || type === 'video') return null;
-  const g = lkGroupId(type, section);
-  return contentItems.some((i) => i.type === type && (i.section || '') === section && i.lockGroup === g) ? g : null;
+  // نزدیک‌ترین پوشه‌ی قفل‌شده: خودِ پوشه یا یکی از پوشه‌های والد
+  const parts = secNormalize(section).split('/');
+  for (let n = parts.length; n >= 1; n--) {
+    const path = parts.slice(0, n).join('/');
+    const g = lkGroupId(type, path);
+    if (contentItems.some((i) => i.type === type && secIsUnder(secOf(i), path) && i.lockGroup === g)) return g;
+  }
+  return null;
 }
 
 // قفل خودکار آیتم تازه (قبل از ذخیره در content.json)
@@ -2804,9 +3064,9 @@ async function lkLockFolder(type, section) {
   if (!section || type === 'video') return;
   if (!lkEnsureLogin()) return;
   const group = lkGroupId(type, section);
-  const members = contentItems.filter((i) => i.type === type && (i.section || '') === section);
+  const members = secMembers(type, section);
   if (!members.length) return;
-  if (!confirm('پوشه‌ی «' + section + '» با ' + members.length + ' مورد قفل شود؟\n\nلینک همه‌ی موردها از content.json برداشته می‌شود و فقط با توکن (یک توکن برای کل پوشه) باز می‌شود. موردهای جدیدی که بعداً به این پوشه اضافه کنی خودکار قفل می‌شوند.\n\n(توجه: لینکی که قبلاً در content.json بوده، در تاریخچه‌ی گیت‌هاب باقی می‌ماند.)')) return;
+  if (!confirm('پوشه‌ی «' + section + '» با ' + members.length + ' مورد (با همه‌ی زیرپوشه‌ها) قفل شود؟\n\nلینک همه‌ی موردها از content.json برداشته می‌شود و فقط با توکن (یک توکن برای کل پوشه) باز می‌شود. موردهای جدیدی که بعداً به این پوشه اضافه کنی خودکار قفل می‌شوند.\n\n(توجه: لینکی که قبلاً در content.json بوده، در تاریخچه‌ی گیت‌هاب باقی می‌ماند.)')) return;
 
   const hideOther = !LK_COVER_TYPES.includes(type);
   try {
@@ -2968,7 +3228,7 @@ function lkRenderSelect() {
       seen.add(i.lockGroup);
       const n = lockedAll.filter((x) => x.lockGroup === i.lockGroup).length;
       const label = (TYPE_META[i.type] || TYPE_META.link).label;
-      opts.push({ id: i.lockGroup, text: '📁 پوشه: ' + (i.section || '') + ' — ' + label + ' (' + n + ' مورد)' });
+      opts.push({ id: i.lockGroup, text: '📁 پوشه: ' + (String(i.lockGroup).split('|').slice(1).join('|') || secOf(i)) + ' — ' + label + ' (' + n + ' مورد)' });
     } else {
       const label = (TYPE_META[i.type] || TYPE_META.link).label;
       opts.push({ id: i.id, text: (i.title || '(بدون عنوان)') + ' — ' + label });
