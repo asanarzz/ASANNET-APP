@@ -759,6 +759,7 @@ const TYPE_META = {
 let cfg = null;          // {owner, repo, branch, token}
 let contentSha = null;   // sha of content.json for updates
 let contentItems = [];   // parsed array
+let contentLoadedOk = false; // فقط وقتی content.json درست خوانده شد true است (جلوگیری از پاک‌شدن محتوا با ذخیره‌ی لیست خالی)
 let selectedType = 'link';
 const IMAGE_DOWNLOAD_TYPES = ['newspaper', 'price', 'weather'];
 let selectedVideoKind = 'movie';
@@ -932,6 +933,18 @@ function ghParseJson(path, text, fallback) {
   } catch (e) {
     throw new Error('فایل ' + path + ' خراب یا ناقص دریافت شد (طول متن: ' + t.length + ' کاراکتر). ' + e.message);
   }
+}
+// content.json باید حتماً «لیست» باشد. اگر چیز دیگری برگشت (مثلاً آبجکت یا اطلاعات فایل از گیت‌هاب)،
+// به‌جای اینکه بعداً با خطای مبهمِ «contentItems.push is not a function» بترکد، همان‌جا علت را نشان می‌دهد.
+function ghParseList(path, text) {
+  const data = ghParseJson(path, text, []);
+  if (Array.isArray(data)) return data;
+  const t = (text || '').trim();
+  const looksMeta = !!(data && typeof data === 'object' && 'sha' in data && ('content' in data || 'download_url' in data));
+  const what = looksMeta
+    ? 'گیت‌هاب به‌جای متن فایل، «اطلاعات فایل» را برگرداند'
+    : 'به‌جای لیست یک ' + (data && typeof data === 'object' ? 'آبجکت است (کلیدها: ' + Object.keys(data).slice(0, 6).join('، ') + ')' : 'مقدار دیگر است');
+  throw new Error('فایل ' + path + ' باید یک لیست (شروع با [) باشد ولی ' + what + '. شروع متن: ' + t.slice(0, 60));
 }
 async function ghPutFile(path, base64Content, message, sha) {
   const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`;
@@ -1449,20 +1462,25 @@ async function loadContentList() {
     const file = await ghGetFileText('content.json');
     if (file.sha) {
       contentSha = file.sha;
-      contentItems = ghParseJson('content.json', file.text, []);
+      contentItems = ghParseList('content.json', file.text);
     } else {
       contentSha = null;
       contentItems = [];
     }
+    contentLoadedOk = true;
     await loadFolderMeta();
     renderList();
   } catch (e) {
+    contentLoadedOk = false;
     $('list-area').innerHTML = '<div class="empty-msg">خطا در بارگذاری محتوا</div>';
     toast(e.message, 'error');
   }
 }
 
 async function saveContentList(commitMessage, mutateFn) {
+  if (!contentLoadedOk || !Array.isArray(contentItems)) {
+    throw new Error('محتوا هنوز درست بارگذاری نشده؛ «بارگذاری مجدد» را بزن (برای اینکه content.json پاک یا خراب نشود، ذخیره انجام نشد)');
+  }
   try {
     const text = JSON.stringify(contentItems, null, 2);
     const result = await ghPutFile('content.json', b64EncodeUnicode(text), commitMessage, contentSha);
@@ -1473,7 +1491,7 @@ async function saveContentList(commitMessage, mutateFn) {
     // کاربر می‌خواست (افزودن/حذف) رو روی همون نسخه‌ی تازه اعمال می‌کنیم و یه‌بار دیگه ذخیره می‌کنیم.
     if (String(e.message).includes('(409)') && mutateFn) {
       const file = await ghGetFileText('content.json');
-      const freshItems = file.sha ? ghParseJson('content.json', file.text, []) : [];
+      const freshItems = file.sha ? ghParseList('content.json', file.text) : [];
       contentItems = mutateFn(freshItems);
       contentSha = file.sha;
       const text2 = JSON.stringify(contentItems, null, 2);
@@ -2212,6 +2230,7 @@ async function handleAdd() {
       Object.keys(newItem).forEach((k) => delete newItem[k]);
       Object.assign(newItem, lockedNew);
     }
+    if (!Array.isArray(contentItems)) throw new Error('لیست محتوا درست بارگذاری نشده؛ «بارگذاری مجدد» را بزن');
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -4140,7 +4159,7 @@ async function clCollectReferences() {
   let items = contentItems;
   try {
     const fresh = await ghGetFileText('content.json');
-    if (fresh.sha) items = ghParseJson('content.json', fresh.text, []);
+    if (fresh.sha) items = ghParseList('content.json', fresh.text);
   } catch (e) { items = contentItems; }
   let text = JSON.stringify(items);
   const lockedItems = items.filter((i) => i.locked);
