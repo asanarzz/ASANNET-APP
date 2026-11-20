@@ -906,6 +906,22 @@ async function ghGetFile(path) {
   if (!res.ok) throw new Error('خطا در دریافت ' + path + ' (' + res.status + ')');
   return res.json();
 }
+// گیت‌هاب برای فایل‌های بزرگ‌تر از ۱ مگابایت، فیلد «content» را در پاسخ معمولی
+// Contents API خالی برمی‌گرداند (نه خودِ فایل را خطا می‌دهد، نه base64 را کامل می‌فرستد)
+// و همین باعث می‌شد JSON.parse روی رشته‌ی خالی اجرا شود و خطای
+// «Unexpected end of JSON input» بدهد. content.json الان از ۱ مگابایت رد شده،
+// پس برای گرفتن متن کامل فایل (تا ۱۰۰ مگابایت) از نوعِ پاسخِ خامِ گیت‌هاب استفاده می‌کنیم.
+async function ghGetFileText(path) {
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`;
+  const metaRes = await fetch(url, { headers: ghHeaders() });
+  if (metaRes.status === 404) return { sha: null, text: null };
+  if (!metaRes.ok) throw new Error('خطا در دریافت ' + path + ' (' + metaRes.status + ')');
+  const meta = await metaRes.json();
+  const rawRes = await fetch(url, { headers: { ...ghHeaders(), 'Accept': 'application/vnd.github.raw+json' } });
+  if (!rawRes.ok) throw new Error('خطا در دریافت محتوای ' + path + ' (' + rawRes.status + ')');
+  const text = await rawRes.text();
+  return { sha: meta.sha, text };
+}
 async function ghPutFile(path, base64Content, message, sha) {
   const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`;
   const body = { message, content: base64Content, branch: cfg.branch };
@@ -1419,11 +1435,10 @@ function filterStatsTable(query) {
 async function loadContentList() {
   $('list-area').innerHTML = '<div class="empty-msg">در حال بارگذاری…</div>';
   try {
-    const file = await ghGetFile('content.json');
-    if (file) {
+    const file = await ghGetFileText('content.json');
+    if (file.sha) {
       contentSha = file.sha;
-      const text = b64DecodeUnicode(file.content.replace(/\n/g, ''));
-      contentItems = JSON.parse(text || '[]');
+      contentItems = JSON.parse(file.text || '[]');
     } else {
       contentSha = null;
       contentItems = [];
@@ -1446,10 +1461,10 @@ async function saveContentList(commitMessage, mutateFn) {
     // گیت‌هاب خطای ۴۰۹ می‌ده. به‌جای نمایش خطای خام، نسخه‌ی تازه رو می‌گیریم، تغییری که
     // کاربر می‌خواست (افزودن/حذف) رو روی همون نسخه‌ی تازه اعمال می‌کنیم و یه‌بار دیگه ذخیره می‌کنیم.
     if (String(e.message).includes('(409)') && mutateFn) {
-      const file = await ghGetFile('content.json');
-      const freshItems = file ? JSON.parse(b64DecodeUnicode(file.content.replace(/\n/g, ''))) : [];
+      const file = await ghGetFileText('content.json');
+      const freshItems = file.sha ? JSON.parse(file.text || '[]') : [];
       contentItems = mutateFn(freshItems);
-      contentSha = file ? file.sha : null;
+      contentSha = file.sha;
       const text2 = JSON.stringify(contentItems, null, 2);
       const result2 = await ghPutFile('content.json', b64EncodeUnicode(text2), commitMessage, contentSha);
       contentSha = result2.content.sha;
@@ -1629,10 +1644,10 @@ let folderMetaLoaded = false;
 
 async function loadFolderMeta() {
   try {
-    const f = await ghGetFile('folders.json');
-    if (f) {
+    const f = await ghGetFileText('folders.json');
+    if (f.sha) {
       folderSha = f.sha;
-      const arr = JSON.parse(b64DecodeUnicode(f.content.replace(/\n/g, '')) || '[]');
+      const arr = JSON.parse(f.text || '[]');
       folderMeta = (Array.isArray(arr) ? arr : [])
         .filter((x) => x && x.type && secNormalize(x.path))
         .map((x) => ({ type: x.type, path: secNormalize(x.path) }));
@@ -4111,11 +4126,11 @@ function clIcon(path) {
 
 // همه‌ی متن‌هایی که ممکن است به فایل‌ها اشاره کنند: content.json + لینک‌های مخفیِ آیتم‌های قفل‌شده
 async function clCollectReferences() {
-  const fresh = await ghGetFile('content.json');
   let items = contentItems;
-  if (fresh) {
-    try { items = JSON.parse(b64DecodeUnicode(fresh.content.replace(/\n/g, ''))); } catch (e) { items = contentItems; }
-  }
+  try {
+    const fresh = await ghGetFileText('content.json');
+    if (fresh.sha) items = JSON.parse(fresh.text || '[]');
+  } catch (e) { items = contentItems; }
   let text = JSON.stringify(items);
   const lockedItems = items.filter((i) => i.locked);
   if (lockedItems.length) {
@@ -4227,9 +4242,9 @@ const hpSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function hpReadReport() {
   try {
-    const f = await ghGetFile('.purge-report.json');
-    if (!f) return null;
-    return JSON.parse(b64DecodeUnicode(f.content.replace(/\n/g, '')));
+    const f = await ghGetFileText('.purge-report.json');
+    if (!f.sha) return null;
+    return JSON.parse(f.text || 'null');
   } catch (e) { return null; }
 }
 
