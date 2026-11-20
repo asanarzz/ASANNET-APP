@@ -287,13 +287,14 @@
       <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
         <button type="button" class="btn-outline btn-small" id="btn-sec-new">➕ پوشه‌ی جدید</button>
         <button type="button" class="btn-outline btn-small" id="btn-sec-sub">📁➕ زیرپوشه داخل پوشه‌ی انتخاب‌شده</button>
+        <button type="button" class="btn-outline btn-small hidden" id="btn-sec-sib">↔️➕ پوشه‌ی هم‌سطح</button>
       </div>
       <input type="text" id="in-section" placeholder="مسیر پوشه، مثلاً: آزمون‌ها/غربالگری/کودکان" style="margin-top:6px;">
       <p class="muted">
         پوشه‌ی موجود را از لیست انتخاب کن، یا با دکمه‌های بالا پوشه/زیرپوشه‌ی جدید بساز. مسیر کامل پوشه همین‌جا
         دیده می‌شود و بخش‌هایش با «/» جدا می‌شوند (مثلاً «آزمون‌ها/غربالگری» یعنی پوشه‌ی «غربالگری» داخل «آزمون‌ها»).
         اگه خالی بذاری، مورد مستقیم تو لیست دسته نشون داده می‌شه. پوشه‌ی تازه همان لحظه ذخیره می‌شود؛ تا مورد نداشته باشد فقط در پنل دیده می‌شود، نه در اپ.
-        برای ساخت چند زیرپوشه پشت هم، پوشه‌ی والد را انتخاب نگه دار و دکمه‌ی «زیرپوشه» را چند بار بزن.
+        «زیرپوشه» داخل پوشه‌ی انتخاب‌شده می‌سازد و «هم‌سطح» کنار آن (داخل همان والد). برای چند پوشه پشت هم، انتخاب را روی همان پوشه نگه دار و دکمه را چند بار بزن.
       </p>
 
       <label>لینک (اختیاری)</label>
@@ -1505,6 +1506,18 @@ function syncSectionPicker() {
       return `<option value="${escapeHtml(p)}">${'\u00A0\u00A0\u00A0\u00A0'.repeat(depth)}${depth ? '↳ ' : '📁 '}${escapeHtml(secLeaf(p))}</option>`;
     }).join('');
   sel.value = cur;
+  // برچسب دکمه‌ها نشان می‌دهد پوشه‌ی جدید دقیقاً کجا ساخته می‌شود
+  const sub = $('btn-sec-sub');
+  const sib = $('btn-sec-sib');
+  if (sub) sub.textContent = cur ? '📁➕ زیرپوشه داخل «' + secLeaf(cur) + '»' : '📁➕ زیرپوشه (اول یک پوشه انتخاب کن)';
+  if (sib) {
+    const hasParent = cur.includes('/');
+    sib.classList.toggle('hidden', !hasParent);
+    if (hasParent) {
+      const parentPath = cur.slice(0, cur.lastIndexOf('/'));
+      sib.textContent = '↔️➕ پوشه‌ی هم‌سطح «' + secLeaf(cur) + '» (داخل «' + secLeaf(parentPath) + '»)';
+    }
+  }
 }
 
 function initSectionPicker() {
@@ -1530,6 +1543,15 @@ function initSectionPicker() {
       $('in-section').value = name; // برای ساخت زیرپوشه‌های پشت‌سرهم، پوشه‌ی تازه انتخاب می‌ماند
       syncSectionPicker();
     }
+  });
+  $('btn-sec-sib').addEventListener('click', async () => {
+    const cur = secNormalize($('in-section').value);
+    if (!cur.includes('/')) return;
+    const parent = cur.slice(0, cur.lastIndexOf('/'));
+    const name = askName('اسم پوشه‌ی جدید (هم‌سطح «' + secLeaf(cur) + '»، داخل «' + secLeaf(parent) + '») چیه؟');
+    if (!name) return;
+    await createFolder(selectedType, parent + '/' + name); // انتخاب همان‌جا می‌ماند
+    syncSectionPicker();
   });
   $('btn-sec-sub').addEventListener('click', async () => {
     const base = secNormalize($('in-section').value);
