@@ -17485,5 +17485,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050829_1000",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 10:00",
+    "description": "جمعه 29 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MTU2MjMzLCJpIjpbWyJ1c2QiLDI3MDMzNV0sWyIxOGF5YXIiLDI0MDY2ODAwXSxbInNla2tlaCIsMjQ5Nzk1XSxbImJhaGFyIiwyMzk5MjBdLFsibmltIiwxMzExOTVdLFsicm9iIiw3MTMyNV0sWyJ1c2RfYnRjIiwxNjcyODMyOTgwMF0sWyJ1c2RfZXRoIiw0NzA4MDQ2MjNdLFsidXNkX3VzZHQiLDI3MTkwMV1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
