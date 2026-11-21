@@ -72720,5 +72720,18 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795240395081",
+    "type": "fun",
+    "title": "Freecell",
+    "description": "",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795240387735-0-index.html",
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795240392078-1-screenshot-20261121092238.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
