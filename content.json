@@ -74854,5 +74854,481 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795282871398",
+    "type": "test",
+    "title": "علوم اجتماعی",
+    "description": "",
+    "url": "",
+    "section": "نمونه سوالات ابتدایی/نمونه سوالات سوم ابتدایی/علوم اجتماعی",
+    "links": [
+      {
+        "label": "165897",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/165897"
+      },
+      {
+        "label": "166256",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/166256"
+      },
+      {
+        "label": "165898",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/165898"
+      },
+      {
+        "label": "165899",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/165899"
+      },
+      {
+        "label": "164595",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/164595"
+      },
+      {
+        "label": "123056",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/123056"
+      },
+      {
+        "label": "171381",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/171381"
+      },
+      {
+        "label": "172683",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/172683"
+      },
+      {
+        "label": "171027",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/171027"
+      },
+      {
+        "label": "169923",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/169923"
+      },
+      {
+        "label": "172171",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/172171"
+      },
+      {
+        "label": "173736",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/173736"
+      },
+      {
+        "label": "168511",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/168511"
+      },
+      {
+        "label": "137769",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/137769"
+      },
+      {
+        "label": "132093",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/132093"
+      },
+      {
+        "label": "132094",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/132094"
+      },
+      {
+        "label": "130925",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/130925"
+      },
+      {
+        "label": "127725",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/127725"
+      },
+      {
+        "label": "106096",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/106096"
+      },
+      {
+        "label": "100555",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/100555"
+      },
+      {
+        "label": "100090",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/100090"
+      },
+      {
+        "label": "102522",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/102522"
+      },
+      {
+        "label": "97997",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/97997"
+      },
+      {
+        "label": "97996",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/97996"
+      },
+      {
+        "label": "108947",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/108947"
+      },
+      {
+        "label": "104163",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/104163"
+      },
+      {
+        "label": "66998",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/66998"
+      },
+      {
+        "label": "67000",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/67000"
+      },
+      {
+        "label": "67004",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/67004"
+      },
+      {
+        "label": "54113",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/54113"
+      },
+      {
+        "label": "55596",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/55596"
+      },
+      {
+        "label": "54009",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/54009"
+      },
+      {
+        "label": "51682",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/51682"
+      },
+      {
+        "label": "173158",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/173158"
+      },
+      {
+        "label": "173744",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/173744"
+      },
+      {
+        "label": "177416",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/177416"
+      },
+      {
+        "label": "169153",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/169153"
+      },
+      {
+        "label": "177421",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/177421"
+      },
+      {
+        "label": "170397",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/170397"
+      },
+      {
+        "label": "142536",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142536"
+      },
+      {
+        "label": "142537",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142537"
+      },
+      {
+        "label": "142538",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142538"
+      },
+      {
+        "label": "142539",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142539"
+      },
+      {
+        "label": "142540",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142540"
+      },
+      {
+        "label": "142541",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/142541"
+      },
+      {
+        "label": "138664",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/138664"
+      },
+      {
+        "label": "138665",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/138665"
+      },
+      {
+        "label": "122465",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/122465"
+      },
+      {
+        "label": "122466",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/122466"
+      },
+      {
+        "label": "99891",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/99891"
+      },
+      {
+        "label": "107193",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/107193"
+      },
+      {
+        "label": "105474",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/105474"
+      },
+      {
+        "label": "99170",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/99170"
+      },
+      {
+        "label": "97655",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/97655"
+      },
+      {
+        "label": "66994",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/66994"
+      },
+      {
+        "label": "66986",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/66986"
+      },
+      {
+        "label": "66987",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/66987"
+      },
+      {
+        "label": "67006",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/67006"
+      },
+      {
+        "label": "66996",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/66996"
+      },
+      {
+        "label": "54059",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/54059"
+      },
+      {
+        "label": "52983",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/52983"
+      },
+      {
+        "label": "48136",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/48136"
+      },
+      {
+        "label": "47684",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/47684"
+      },
+      {
+        "label": "151176",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/151176"
+      },
+      {
+        "label": "153093",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153093"
+      },
+      {
+        "label": "151171",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/151171"
+      },
+      {
+        "label": "151172",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/151172"
+      },
+      {
+        "label": "151173",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/151173"
+      },
+      {
+        "label": "149522",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/149522"
+      },
+      {
+        "label": "149524",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/149524"
+      },
+      {
+        "label": "184159",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/184159"
+      },
+      {
+        "label": "161149",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/161149"
+      },
+      {
+        "label": "161150",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/161150"
+      },
+      {
+        "label": "154987",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/154987"
+      },
+      {
+        "label": "154135",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/154135"
+      },
+      {
+        "label": "153907",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153907"
+      },
+      {
+        "label": "153908",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153908"
+      },
+      {
+        "label": "153909",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153909"
+      },
+      {
+        "label": "153911",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153911"
+      },
+      {
+        "label": "153808",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/153808"
+      },
+      {
+        "label": "159941",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/159941"
+      },
+      {
+        "label": "159471",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/159471"
+      },
+      {
+        "label": "117607",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/117607"
+      },
+      {
+        "label": "116783",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/116783"
+      },
+      {
+        "label": "116951",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/116951"
+      },
+      {
+        "label": "117076",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/117076"
+      },
+      {
+        "label": "116784",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/116784"
+      },
+      {
+        "label": "72145",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/72145"
+      },
+      {
+        "label": "70856",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/70856"
+      },
+      {
+        "label": "69703",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/69703"
+      },
+      {
+        "label": "69113",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/69113"
+      },
+      {
+        "label": "69682",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/69682"
+      },
+      {
+        "label": "44576",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/44576"
+      },
+      {
+        "label": "40858",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/40858"
+      },
+      {
+        "label": "158892",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/158892"
+      },
+      {
+        "label": "155736",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/155736"
+      },
+      {
+        "label": "156751",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/156751"
+      },
+      {
+        "label": "154979",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/154979"
+      },
+      {
+        "label": "157515",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/157515"
+      },
+      {
+        "label": "154408",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/154408"
+      },
+      {
+        "label": "154031",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/154031"
+      },
+      {
+        "label": "117547",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/117547"
+      },
+      {
+        "label": "117539",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/117539"
+      },
+      {
+        "label": "119560",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/119560"
+      },
+      {
+        "label": "117545",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/117545"
+      },
+      {
+        "label": "118812",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/118812"
+      },
+      {
+        "label": "82281",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/82281"
+      },
+      {
+        "label": "82283",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/82283"
+      },
+      {
+        "label": "77677",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/77677"
+      },
+      {
+        "label": "76700",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/76700"
+      },
+      {
+        "label": "76701",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/76701"
+      },
+      {
+        "label": "76702",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/76702"
+      },
+      {
+        "label": "71517",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/71517"
+      },
+      {
+        "label": "70815",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/70815"
+      },
+      {
+        "label": "46305",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/46305"
+      },
+      {
+        "label": "40861",
+        "url": "https://www.kanoon.ir/Downloads/ExamQuestion/40861"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
