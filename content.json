@@ -722,15 +722,17 @@
   {
     "id": "item_1791712719673",
     "type": "software",
-    "title": "فیلتر شکن hot vpn",
+    "title": "hot vpn",
     "description": "روی choose server بزنین یه سرور که سبز شده انتخاب کنین و استارت رو بزنین",
     "url": "https://play.google.com/store/apps/details?id=com.hotcodes.hotvpn",
+    "pinned": true,
     "section": "فیلتر شکن",
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791712714099-0-screenshot-20261011131834.jpg",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791713146903-0-screenshot-20261011131813.jpg"
     ],
-    "pinned": true
+    "allowExternalBrowser": false,
+    "desktopMode": false
   },
   {
     "id": "item_1791716069660",
