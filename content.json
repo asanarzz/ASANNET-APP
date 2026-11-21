@@ -78930,5 +78930,18 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795295916602",
+    "type": "fun",
+    "title": "Shikaku",
+    "description": "",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795295911067-0-index.html",
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795295913804-1-screenshot-20261122004713.jpg"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
