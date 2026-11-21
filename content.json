@@ -72788,5 +72788,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050830_2000",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 20:00",
+    "description": "شنبه 30 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1Mjc4NjM3LCJpIjpbWyJ1c2QiLDI2ODk4NV0sWyIxOGF5YXIiLDIyOTc3MTgzXSxbInNla2tlaCIsMjM4MDc4XSxbImJhaGFyIiwyMjcxNTVdLFsibmltIiwxMjYxNDVdLFsicm9iIiw2NzU0MF0sWyJ1c2RfYnRjIiwxNjExMjMxMTc4NF0sWyJ1c2RfZXRoIiw0NTE2OTg0NDFdLFsidXNkX3VzZHQiLDI3MDkwMl1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
