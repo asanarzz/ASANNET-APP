@@ -78938,8 +78938,13 @@
     "description": "",
     "url": "",
     "images": [
-      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795295911067-0-index.html",
       "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795295913804-1-screenshot-20261122004713.jpg"
+    ],
+    "links": [
+      {
+        "label": "1795295911067-0-index",
+        "url": "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795295911067-0-index.html"
+      }
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
