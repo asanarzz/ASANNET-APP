@@ -78986,5 +78986,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795296790286",
+    "type": "software",
+    "title": "Cool vpn",
+    "description": "",
+    "url": "",
+    "section": "فیلتر شکن",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795296786224-0-screenshot-20261122010155.jpg"
+    ],
+    "links": [
+      {
+        "label": "Play store",
+        "url": "https://play.google.com/store/apps/details?id=cc.coolline.client.pro"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
