@@ -78967,5 +78967,24 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795296649794",
+    "type": "software",
+    "title": "Nora vpn",
+    "description": "Fast, stable VPN with no sign-up. One-tap secure VPN proxy for Android.",
+    "url": "",
+    "section": "فیلتر شکن",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795296645675-0-screenshot-20261122005843.jpg"
+    ],
+    "links": [
+      {
+        "label": "Play store",
+        "url": "https://play.google.com/store/apps/details?id=com.nora.vpn"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
