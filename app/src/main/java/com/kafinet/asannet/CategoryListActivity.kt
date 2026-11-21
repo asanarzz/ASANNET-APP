@@ -424,6 +424,7 @@ class CategoryListActivity : AppCompatActivity() {
             intent.putExtra(GalleryDetailActivity.EXTRA_ALLOW_EXTERNAL_BROWSER, item.allowExternalBrowser)
             intent.putExtra(GalleryDetailActivity.EXTRA_DESKTOP_MODE, item.desktopMode)
             intent.putExtra(GalleryDetailActivity.EXTRA_SHOW_DOWNLOAD, canDownloadImages(item))
+            intent.putExtra(GalleryDetailActivity.EXTRA_HIDE_WEB_DOWNLOAD, item.type == ContentType.FUN)
             startActivity(intent)
             return
         }
