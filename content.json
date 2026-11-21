@@ -72710,5 +72710,15 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/30/0ff8033c.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/8/30/372d3f30.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050830_0800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:00",
+    "description": "شنبه 30 آبان 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MjM1NDMwLCJpIjpbWyJ1c2QiLDI3MjQwMF0sWyIxOGF5YXIiLDIzMzU3NDk1XSxbInNla2tlaCIsMjUwMDAwXSxbImJhaGFyIiwyNDAwMDBdLFsibmltIiwxMzE1MDBdLFsicm9iIiw3MTUwMF0sWyJ1c2RfYnRjIiwxNTIyMTg1OTA5Nl0sWyJ1c2RfZXRoIiw0MjMxNTQzMzJdLFsidXNkX3VzZHQiLDI3MzIxMV1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
