@@ -72283,8 +72283,13 @@
     "description": "",
     "url": "",
     "images": [
-      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795210273772-0-screenshot-20261121003644.jpg",
-      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795240480840-0-index.html"
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795210273772-0-screenshot-20261121003644.jpg"
+    ],
+    "links": [
+      {
+        "label": "1795240480840-0-index",
+        "url": "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795240480840-0-index.html"
+      }
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
