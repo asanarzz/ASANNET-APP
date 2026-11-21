@@ -735,15 +735,17 @@
   {
     "id": "item_1791716069660",
     "type": "software",
-    "title": "فیلتر شکن mahsaNG",
+    "title": "mahsaNG",
     "description": "کانفیگ خودکار",
     "url": "https://play.google.com/store/apps/details?id=com.MahsaNet.MahsaNG",
+    "pinned": true,
     "section": "فیلتر شکن",
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716058825-0-screenshot-20261011141956.jpg",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716062511-1-screenshot-20261011142039.jpg"
     ],
-    "pinned": true
+    "allowExternalBrowser": false,
+    "desktopMode": false
   },
   {
     "id": "item_1791716385055",
