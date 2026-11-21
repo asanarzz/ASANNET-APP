@@ -139,6 +139,21 @@
   .link-btn{background:none; border:none; color:var(--primary); font-size:12px; text-decoration:underline; cursor:pointer; padding:0;}
   .empty-msg{text-align:center; color:var(--muted); padding:30px 10px; font-size:13px;}
 
+  /* انتخابگر پوشه‌ی فرم افزودن محتوا: فقط پوشه‌های اصلی نشان داده می‌شود، با تپ روی هر پوشه زیرپوشه‌هایش کشویی باز/بسته می‌شود */
+  .folder-tree{border:1px solid var(--border); border-radius:10px; background:#fff; max-height:260px; overflow-y:auto; padding:2px 0;}
+  .fp-row{display:flex; align-items:center; gap:8px; padding:9px 10px; cursor:pointer; font-size:14px; border-bottom:1px solid #F3F4F6; user-select:none;}
+  .fp-row:last-child{border-bottom:none;}
+  .fp-row:active{background:#F5F3FF;}
+  .fp-row.selected{background:#EEF0FF; font-weight:700; color:var(--primary-dark);}
+  .fp-row.fp-root{color:var(--muted);}
+  .fp-chevron{width:14px; flex-shrink:0; text-align:center; font-size:10px; color:var(--muted); transition:transform .15s; display:inline-block;}
+  .fp-chevron.open{transform:rotate(-90deg);}
+  .fp-chevron.fp-chevron-empty{visibility:hidden;}
+  .fp-icon{display:flex; flex-shrink:0; line-height:0;}
+  .fp-label{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .fp-empty{padding:12px; text-align:center;}
+  .fp-children{border-right:2px solid #F3E8B8; margin-right:14px;}
+
   .main-tabs{display:flex; gap:8px; max-width:820px; margin:0 auto 4px; padding:0 16px;}
   .main-tab{flex:1; text-align:center; padding:12px; border-radius:12px; background:#fff; color:var(--muted); font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(20,20,50,.04);}
   .main-tab.active{background:var(--primary); color:#fff;}
@@ -283,7 +298,7 @@
       <textarea id="in-desc" placeholder="یک خط توضیح درباره‌ی این محتوا"></textarea>
 
       <label>پوشه (اختیاری)</label>
-      <select id="in-section-pick"></select>
+      <div id="in-section-pick" class="folder-tree" role="listbox"></div>
       <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
         <button type="button" class="btn-outline btn-small" id="btn-sec-new">➕ پوشه‌ی جدید</button>
         <button type="button" class="btn-outline btn-small" id="btn-sec-sub">📁➕ زیرپوشه داخل پوشه‌ی انتخاب‌شده</button>
@@ -759,7 +774,6 @@ const TYPE_META = {
 let cfg = null;          // {owner, repo, branch, token}
 let contentSha = null;   // sha of content.json for updates
 let contentItems = [];   // parsed array
-let contentLoadedOk = false; // فقط وقتی content.json درست خوانده شد true است (جلوگیری از پاک‌شدن محتوا با ذخیره‌ی لیست خالی)
 let selectedType = 'link';
 const IMAGE_DOWNLOAD_TYPES = ['newspaper', 'price', 'weather'];
 let selectedVideoKind = 'movie';
@@ -933,18 +947,6 @@ function ghParseJson(path, text, fallback) {
   } catch (e) {
     throw new Error('فایل ' + path + ' خراب یا ناقص دریافت شد (طول متن: ' + t.length + ' کاراکتر). ' + e.message);
   }
-}
-// content.json باید حتماً «لیست» باشد. اگر چیز دیگری برگشت (مثلاً آبجکت یا اطلاعات فایل از گیت‌هاب)،
-// به‌جای اینکه بعداً با خطای مبهمِ «contentItems.push is not a function» بترکد، همان‌جا علت را نشان می‌دهد.
-function ghParseList(path, text) {
-  const data = ghParseJson(path, text, []);
-  if (Array.isArray(data)) return data;
-  const t = (text || '').trim();
-  const looksMeta = !!(data && typeof data === 'object' && 'sha' in data && ('content' in data || 'download_url' in data));
-  const what = looksMeta
-    ? 'گیت‌هاب به‌جای متن فایل، «اطلاعات فایل» را برگرداند'
-    : 'به‌جای لیست یک ' + (data && typeof data === 'object' ? 'آبجکت است (کلیدها: ' + Object.keys(data).slice(0, 6).join('، ') + ')' : 'مقدار دیگر است');
-  throw new Error('فایل ' + path + ' باید یک لیست (شروع با [) باشد ولی ' + what + '. شروع متن: ' + t.slice(0, 60));
 }
 async function ghPutFile(path, base64Content, message, sha) {
   const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`;
@@ -1462,25 +1464,20 @@ async function loadContentList() {
     const file = await ghGetFileText('content.json');
     if (file.sha) {
       contentSha = file.sha;
-      contentItems = ghParseList('content.json', file.text);
+      contentItems = ghParseJson('content.json', file.text, []);
     } else {
       contentSha = null;
       contentItems = [];
     }
-    contentLoadedOk = true;
     await loadFolderMeta();
     renderList();
   } catch (e) {
-    contentLoadedOk = false;
     $('list-area').innerHTML = '<div class="empty-msg">خطا در بارگذاری محتوا</div>';
     toast(e.message, 'error');
   }
 }
 
 async function saveContentList(commitMessage, mutateFn) {
-  if (!contentLoadedOk || !Array.isArray(contentItems)) {
-    throw new Error('محتوا هنوز درست بارگذاری نشده؛ «بارگذاری مجدد» را بزن (برای اینکه content.json پاک یا خراب نشود، ذخیره انجام نشد)');
-  }
   try {
     const text = JSON.stringify(contentItems, null, 2);
     const result = await ghPutFile('content.json', b64EncodeUnicode(text), commitMessage, contentSha);
@@ -1491,7 +1488,7 @@ async function saveContentList(commitMessage, mutateFn) {
     // کاربر می‌خواست (افزودن/حذف) رو روی همون نسخه‌ی تازه اعمال می‌کنیم و یه‌بار دیگه ذخیره می‌کنیم.
     if (String(e.message).includes('(409)') && mutateFn) {
       const file = await ghGetFileText('content.json');
-      const freshItems = file.sha ? ghParseList('content.json', file.text) : [];
+      const freshItems = file.sha ? ghParseJson('content.json', file.text, []) : [];
       contentItems = mutateFn(freshItems);
       contentSha = file.sha;
       const text2 = JSON.stringify(contentItems, null, 2);
@@ -1539,17 +1536,55 @@ function secAllPaths(type, extra) {
   return Array.from(set).sort(secCompare);
 }
 
+// ---------- انتخابگر درختی پوشه (فرم افزودن محتوا) ----------
+// باز/بسته‌بودنِ هر پوشه با کلید «نوع‌محتوا|مسیر» نگه داشته می‌شود تا تب‌های مختلف با هم تداخل نکنند
+const fpExpanded = new Set();
+const FP_ICON_SVG = '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>';
+// هرچه پوشه عمیق‌تر (زیرپوشه‌ی زیرپوشه) باشد، رنگ زرد آیکونش کم‌رنگ‌تر می‌شود تا سطح‌ها از هم جدا دیده شوند
+function fpDepthColor(depth) {
+  const lightness = Math.min(38 + depth * 13, 82);
+  return `hsl(43, 88%, ${lightness}%)`;
+}
+function fpBuildTree(paths) {
+  const nodeMap = new Map();
+  const roots = [];
+  paths.forEach((p) => {
+    const parts = p.split('/');
+    const node = { path: p, leaf: parts[parts.length - 1], depth: parts.length - 1, children: [] };
+    nodeMap.set(p, node);
+    if (node.depth === 0) { roots.push(node); return; }
+    const parent = nodeMap.get(parts.slice(0, -1).join('/'));
+    if (parent) parent.children.push(node); else roots.push(node);
+  });
+  return roots;
+}
+function fpRenderNode(node, cur) {
+  const key = selectedType + '|' + node.path;
+  const hasChildren = node.children.length > 0;
+  const isOpen = hasChildren && fpExpanded.has(key);
+  const isSelected = node.path === cur;
+  const chev = hasChildren ? `<span class="fp-chevron${isOpen ? ' open' : ''}">◀</span>` : '<span class="fp-chevron fp-chevron-empty">◀</span>';
+  const icon = `<span class="fp-icon" style="color:${fpDepthColor(node.depth)}">${FP_ICON_SVG}</span>`;
+  let html = `<div class="fp-row${isSelected ? ' selected' : ''}" data-path="${escapeHtml(node.path)}">${chev}${icon}<span class="fp-label">${escapeHtml(node.leaf)}</span></div>`;
+  if (hasChildren && isOpen) {
+    html += `<div class="fp-children">${node.children.map((c) => fpRenderNode(c, cur)).join('')}</div>`;
+  }
+  return html;
+}
 function syncSectionPicker() {
-  const sel = $('in-section-pick');
-  if (!sel) return;
+  const box = $('in-section-pick');
+  if (!box) return;
   const cur = secNormalize($('in-section').value);
   const paths = secAllPaths(selectedType, cur);
-  sel.innerHTML = '<option value="">— بدون پوشه (مستقیم داخل دسته) —</option>' +
-    paths.map((p) => {
-      const depth = p.split('/').length - 1;
-      return `<option value="${escapeHtml(p)}">${'\u00A0\u00A0\u00A0\u00A0'.repeat(depth)}${depth ? '↳ ' : '📁 '}${escapeHtml(secLeaf(p))}</option>`;
-    }).join('');
-  sel.value = cur;
+  // پوشه‌ی انتخاب‌شده هرجا تو در تو باشد، مسیرِ والدهایش خودکار باز می‌شود تا دیده شود
+  if (cur) {
+    const parts = cur.split('/');
+    for (let n = 1; n < parts.length; n++) fpExpanded.add(selectedType + '|' + parts.slice(0, n).join('/'));
+  }
+  const roots = fpBuildTree(paths);
+  const rootRow = `<div class="fp-row fp-root${cur === '' ? ' selected' : ''}" data-path="">— بدون پوشه (مستقیم داخل دسته) —</div>`;
+  const treeHtml = roots.length ? roots.map((r) => fpRenderNode(r, cur)).join('') : '<div class="fp-empty muted">هنوز پوشه‌ای نیست؛ با دکمه‌ی زیر بساز</div>';
+  box.innerHTML = rootRow + treeHtml;
   // برچسب دکمه‌ها نشان می‌دهد پوشه‌ی جدید دقیقاً کجا ساخته می‌شود
   const sub = $('btn-sec-sub');
   const sib = $('btn-sec-sib');
@@ -1565,9 +1600,20 @@ function syncSectionPicker() {
 }
 
 function initSectionPicker() {
-  const sel = $('in-section-pick');
-  if (!sel) return;
-  sel.addEventListener('change', () => { $('in-section').value = sel.value; });
+  const box = $('in-section-pick');
+  if (!box) return;
+  box.addEventListener('click', (e) => {
+    const row = e.target.closest('.fp-row');
+    if (!row || !box.contains(row)) return;
+    const path = row.dataset.path;
+    const canToggle = !!row.querySelector('.fp-chevron:not(.fp-chevron-empty)');
+    $('in-section').value = path;
+    if (canToggle) {
+      const key = selectedType + '|' + path;
+      if (fpExpanded.has(key)) fpExpanded.delete(key); else fpExpanded.add(key);
+    }
+    syncSectionPicker();
+  });
   $('in-section').addEventListener('change', () => {
     $('in-section').value = secNormalize($('in-section').value);
     syncSectionPicker();
@@ -2230,7 +2276,6 @@ async function handleAdd() {
       Object.keys(newItem).forEach((k) => delete newItem[k]);
       Object.assign(newItem, lockedNew);
     }
-    if (!Array.isArray(contentItems)) throw new Error('لیست محتوا درست بارگذاری نشده؛ «بارگذاری مجدد» را بزن');
     contentItems.push(newItem);
 
     btn.textContent = 'در حال ذخیره...';
@@ -4159,7 +4204,7 @@ async function clCollectReferences() {
   let items = contentItems;
   try {
     const fresh = await ghGetFileText('content.json');
-    if (fresh.sha) items = ghParseList('content.json', fresh.text);
+    if (fresh.sha) items = ghParseJson('content.json', fresh.text, []);
   } catch (e) { items = contentItems; }
   let text = JSON.stringify(items);
   const lockedItems = items.filter((i) => i.locked);
