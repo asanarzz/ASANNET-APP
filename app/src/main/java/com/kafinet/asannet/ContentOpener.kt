@@ -26,7 +26,9 @@ object ContentOpener {
         allowExternalBrowser: Boolean = true,
         desktopMode: Boolean = true,
         allowImageDownload: Boolean = false,
-        hideVideoDownload: Boolean = false
+        hideVideoDownload: Boolean = false,
+        // true برای دسته‌ی «سرگرمی»: صفحه‌های html (مثل بازی‌ها) دکمه‌ی دانلود بالای صفحه نداشته باشند
+        hideWebDownload: Boolean = false
     ) {
         if (url.isBlank()) return
 
@@ -34,7 +36,7 @@ object ContentOpener {
         val extension = cleanUrl.substringAfterLast('.', "")
 
         when (extension) {
-            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = true, allowExternalBrowser, desktopMode, allowImageDownload)
+            "html", "htm" -> openWeb(activity, resolveUrl(url), title, allowDownload = !hideWebDownload, allowExternalBrowser, desktopMode, allowImageDownload)
             "pdf" -> openPdf(activity, url, title, allowExternalBrowser, desktopMode)
             "apk" -> DownloadHelper.downloadAndInstallApk(activity, url, title)
             in imageExtensions -> openImage(activity, url, title)
