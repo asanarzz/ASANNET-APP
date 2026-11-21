@@ -748,15 +748,17 @@
   {
     "id": "item_1791716385055",
     "type": "software",
-    "title": "فیلتر شکن psiphon",
+    "title": "psiphon",
     "description": "",
     "url": "https://play.google.com/store/apps/details?id=com.psiphon3.subscription",
+    "pinned": true,
     "section": "فیلتر شکن",
     "images": [
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716371265-0-screenshot-20261011142707.jpg",
       "https://raw.githubusercontent.com/Asanarzz/ASANNET-APP/main/media/1791716379641-1-screenshot-20261011142636.jpg"
     ],
-    "pinned": true
+    "allowExternalBrowser": false,
+    "desktopMode": false
   },
   {
     "id": "item_1792013845673",
