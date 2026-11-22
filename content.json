@@ -79089,5 +79089,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379413760",
+    "type": "video",
+    "title": "خواب نما",
+    "description": "دانلود فیلم جدید #خواب_نما\n📺ژانر : کمدی / اجتماعی\n⌛️سال تولید: ۱۴۰۵  \n⌛️سال انتشار: ۱۴۰۵\n\n📹 بازیگران: سیدجواد رضویان، بیژن بنفشه خواه، بهاره کیان افشار، نعیمه نظام دوست، کمند امیرسلیمانی، حامد وکیلی، یوسف صیادی، قادر اکبری، مهتاب حسینی و اکرم نجفی و ...\n\n🎞کارگردان:  رضا مقصودی\n\n📖خلاصه داستان:  برای بالا کشیدن ثروت بابابزرگ، باید رفت توی جلد مادر بزرگ... اما وقتی مادربزرگ خوشگل از آب دربیاد پدربزرگ فیلش یاد هندوستان میکنه",
+    "url": "",
+    "addedAt": 1795379413760,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379409706-0-img-20261122-235858-894.jpg"
+    ],
+    "links": [
+      {
+        "label": "khab.nama-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/khab.nama-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
