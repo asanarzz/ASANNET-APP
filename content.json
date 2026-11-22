@@ -79029,5 +79029,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379053412",
+    "type": "video",
+    "title": "آن دیگری",
+    "description": "دانلود فیلم جدید #آن_دیگری\n\n🔔 ژانر: #خانوادگی | #درام\n📆 سال تولید: 1404\n📆 سال انتشار: 1405\n\n💎 بازیگران:نسیم ادبی، مهری سادات آل آقا، سیروس میمنت، مینا وحید، امین زندگانی و کسری ذوالفقاری\n\n👤 کارگردان:امیر توکلی\n\n🌀 خلاصه داستان:روایت جوانی است که در کشاکش میان خواسته های شخصی و فشارهای اجتماعی، به دنبال یافتن هویتی تازه است. او در مسیر انتخابی بزرگ، با خانواده و جامعه وارد جدالی پرچالش می شود؛ سفری پر از ترس، امید و تضاد که در نهایت به کشف معنای آزادی و خودِ واقعی اش می انجامد.",
+    "url": "",
+    "addedAt": 1795379053412,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379049653-0-img-20261122-235219-467.jpg"
+    ],
+    "links": [
+      {
+        "label": "an.digari-480",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/an.digari-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
