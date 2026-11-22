@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نظرسنجی آسان نت</title>
+<meta name="description" content="در نظرسنجی شرکت کنید؛ با برنامه آسان نت رأی بدهید.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آسان نت">
+<meta property="og:title" content="📊 شرکت در نظرسنجی آسان نت">
+<meta property="og:description" content="برای رأی دادن روی لینک بزنید و با برنامه آسان نت شرکت کنید.">
+<meta name="theme-color" content="#4F46E5">
+<style>
+  :root{--bg:#F4F5FB;--card:#fff;--text:#1E1B2E;--muted:#6B7280;--primary:#4F46E5;--line:#E5E7EB}
+  @media (prefers-color-scheme:dark){:root{--bg:#121017;--card:#1E1B29;--text:#F4F5FB;--muted:#9CA3AF;--line:#33303f}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+       background:var(--bg);color:var(--text);font-family:Tahoma,"Vazirmatn",sans-serif}
+  .card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px;text-align:center}
+  .icon{font-size:46px;line-height:1}
+  h1{font-size:21px;margin:12px 0 6px}
+  p{color:var(--muted);font-size:14px;line-height:1.9;margin:6px 0}
+  .code{direction:ltr;display:inline-block;margin:14px 0 6px;padding:10px 18px;border-radius:12px;
+        background:rgba(79,70,229,.1);color:var(--primary);font-size:22px;font-weight:bold;letter-spacing:3px}
+  .btn{display:block;width:100%;margin-top:12px;padding:14px;border-radius:14px;border:1.5px solid var(--primary);
+       font-size:16px;font-weight:bold;text-decoration:none;cursor:pointer;font-family:inherit}
+  .btn.main{background:var(--primary);color:#fff}
+  .btn.ghost{background:transparent;color:var(--primary)}
+  .note{font-size:12px;margin-top:16px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">📊</div>
+  <h1>نظرسنجی آسان نت</h1>
 
+  <div id="ok" class="hidden">
+    <div id="info" class="hidden">
+      <p id="pOrg" style="color:var(--primary);font-weight:bold;margin-bottom:0"></p>
+      <h2 id="pTitle" style="font-size:18px;line-height:1.8;margin:6px 0"></h2>
+      <p id="pLeft"></p>
+    </div>
+    <p>برای رأی دادن، نظرسنجی را در برنامه‌ی «آسان نت» باز کنید.</p>
+    <div class="code" id="codeBox"></div>
+    <a id="openBtn" class="btn main" href="#">باز کردن در آسان نت</a>
+    <a id="dlBtn" class="btn ghost" href="../apk/latest.apk">برنامه را ندارم؛ دانلود آسان نت</a>
+    <button id="copyBtn" class="btn ghost" type="button">کپی کد نظرسنجی</button>
+    <p class="note">بعد از نصب: برنامه ← نظرسنجی ← «ورود با کد». کد کپی‌شده خودکار وارد می‌شود.</p>
+  </div>
+
+  <div id="bad" class="hidden">
+    <p>لینک نظرسنجی معتبر نیست. لطفاً لینک را دوباره از مدیر کانال یا گروه بگیرید.</p>
+  </div>
+
+  <div id="notAndroid" class="hidden">
+    <p class="note">برنامه‌ی آسان نت فقط برای اندروید است؛ این لینک را با گوشی اندرویدی باز کنید.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var PACKAGE = 'com.kafinet.asannet';
+  var raw = (new URLSearchParams(location.search).get('c') || '').trim();
+  var code = raw.replace(/^ASN-?/i, '').toUpperCase();
+  var isAndroid = /Android/i.test(navigator.userAgent);
+
+  function $(id) { return document.getElementById(id); }
+
+  if (!/^[A-Z0-9]{7}$/.test(code)) {
+    $('bad').classList.remove('hidden');
+    return;
+  }
+
+  var full = 'ASN-' + code;
+  $('codeBox').textContent = full;
+  $('ok').classList.remove('hidden');
+  if (!isAndroid) $('notAndroid').classList.remove('hidden');
+
+  var intentUrl = 'intent://poll/' + code + '#Intent;scheme=asannet;package=' + PACKAGE + ';end';
+  $('openBtn').setAttribute('href', intentUrl);
+
+  function copy(text, done) {
+    function fallback() {
+      var t = document.createElement('textarea');
+      t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(t);
+      if (done) done();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { if (done) done(); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  $('copyBtn').addEventListener('click', function () {
+    var b = this;
+    copy(full, function () { b.textContent = 'کپی شد ✅'; });
+  });
+
+  // قبل از رفتن به دانلود، کد کپی می‌شود تا بعد از نصب داخل برنامه خودکار پر شود
+  $('dlBtn').addEventListener('click', function () { copy(full); });
+
+  // عنوان نظرسنجی را از Supabase می‌گیرد و نشان می‌دهد (اگر نشد، صفحه همین‌طور کار می‌کند)
+  var SB_URL = 'https://ceqkbqcohkflvzlhylij.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlcWticWNvaGtmbHZ6bGh5bGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNjE5NTQsImV4cCI6MjEwMjczNzk1NH0.KS1I4ANp3UiGsd5yOeDVR426Km9_yEFimtzTn1iyaMs';
+  fetch(SB_URL + '/rest/v1/rpc/get_poll', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ p_code: code, p_voter_code: '', p_token: '' })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (!d || !d.found) return;
+    $('pTitle').textContent = d.title;
+    $('pOrg').textContent = d.organizer || '';
+    if (!d.organizer) $('pOrg').classList.add('hidden');
+    $('pLeft').textContent = d.closed ? 'این نظرسنجی بسته شده است.' : '';
+    if (!d.closed) $('pLeft').classList.add('hidden');
+    $('info').classList.remove('hidden');
+  }).catch(function () {});
+
+  // تلاش خودکار برای باز کردن برنامه (اگر مرورگر اجازه ندهد، دکمه‌ی بالا کار می‌کند)
+  if (isAndroid) setTimeout(function () { location.href = intentUrl; }, 500);
+})();
+</script>
+</body>
+</html>
