@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bannerAdapter: BannerCarouselAdapter
+    private lateinit var categoryAdapter: CategoryGridAdapter
+    private var categoryEntries: List<CategoryEntry> = emptyList()
     private var pendingUpdate: AppUpdateInfo? = null
     private var forcedUpdateDialog: android.app.AlertDialog? = null
 
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity() {
             // دستیار آسان‌نت (ربات محلی داخل برنامه)
             CategoryEntry(null, "دستیار", R.drawable.cat_assistant, 0)
         )
+        categoryEntries = categories
 
         val bannerAdapter = BannerCarouselAdapter(emptyList()) { banner -> openBanner(banner) }
         this.bannerAdapter = bannerAdapter
@@ -104,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         loadBanners(bannerAdapter)
 
         binding.recyclerCategories.layoutManager = GridLayoutManager(this, 5)
-        binding.recyclerCategories.adapter = CategoryGridAdapter(categories) { entry ->
+        categoryAdapter = CategoryGridAdapter(categoryEntries) { entry ->
             if (entry.isSubmit) {
                 startActivity(Intent(this, SubmitDocumentsActivity::class.java))
             } else if (entry.type == ContentType.BANNER) {
@@ -124,6 +127,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+        binding.recyclerCategories.adapter = categoryAdapter
 
         updateHeaderDate()
 
@@ -207,6 +211,29 @@ class MainActivity : AppCompatActivity() {
             binding.swipeRefresh.isRefreshing = false
             bannerAutoScrollIndex = 0
             binding.recyclerBanners.scrollToPosition(0)
+            applyCategoryBadges(result.items)
+        }
+    }
+
+    /** برای هر دسته چک می‌کنه آیا موردی تازه‌تر از آخرین بازدید کاربر داره؛ اگه داشت،
+     *  رو آیکونش تو صفحه‌ی اصلی یه دایره‌ی قرمز نشون داده می‌شه. */
+    private fun applyCategoryBadges(items: List<ContentItem>) {
+        categoryEntries = categoryEntries.map { entry ->
+            val type = entry.type ?: return@map entry
+            val newest = items.asSequence()
+                .filter { it.type == type }
+                .maxOfOrNull { maxOf(it.addedAt, it.episodeAt) } ?: 0L
+            entry.copy(hasNew = SeenStore.hasUnseen(this, SeenStore.categoryKey(type.key), newest))
+        }
+        categoryAdapter.updateItems(categoryEntries)
+    }
+
+    /** وقتی کاربر از یه دسته برمی‌گرده صفحه‌ی اصلی (مثلاً بعد از دیدنش)، دوباره محتوا رو
+     *  می‌خونه تا دایره‌ی قرمزِ همون دسته (اگه دیده شده) محو بشه. */
+    private fun refreshCategoryBadges() {
+        lifecycleScope.launch {
+            val result = ContentRepository.load(this@MainActivity)
+            applyCategoryBadges(result.items)
         }
     }
 
@@ -215,6 +242,7 @@ class MainActivity : AppCompatActivity() {
         updateHeaderDate()
         updateVpnStatusIcon()
         updateProxyIcon()
+        refreshCategoryBadges()
         bannerAutoScrollHandler.removeCallbacks(bannerAutoScrollRunnable)
         bannerAutoScrollHandler.postDelayed(bannerAutoScrollRunnable, 3000)
     }

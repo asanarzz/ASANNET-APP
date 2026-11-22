@@ -15,7 +15,9 @@ data class SectionFolder(
     val count: Int,
     /** پوشه‌ی قفل‌شده با توکن؛ probe یکی از آیتم‌هاش برای چک دسترسی است. */
     val locked: Boolean = false,
-    val probe: ContentItem? = null
+    val probe: ContentItem? = null,
+    /** true یعنی از آخرین باری که کاربر این پوشه را باز کرده، موردی تازه به آن اضافه شده. */
+    val hasNew: Boolean = false
 )
 
 class SectionFolderAdapter(
@@ -41,6 +43,7 @@ class SectionFolderAdapter(
         holder.binding.txtSectionCount.textDirection = android.view.View.TEXT_DIRECTION_LTR
         holder.binding.txtSectionCount.textLocales = android.os.LocaleList(java.util.Locale.US)
         holder.binding.txtSectionCount.fontFeatureSettings = "tnum"
+        holder.binding.dotNew.visibility = if (folder.hasNew) android.view.View.VISIBLE else android.view.View.GONE
         holder.binding.rowRoot.setOnClickListener { onClick(folder) }
     }
 

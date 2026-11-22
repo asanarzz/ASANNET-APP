@@ -1,6 +1,7 @@
 package com.kafinet.asannet
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kafinet.asannet.databinding.ItemCategoryBinding
@@ -10,11 +11,13 @@ data class CategoryEntry(
     val label: String,
     val iconRes: Int,
     val bgRes: Int,
-    val isSubmit: Boolean = false
+    val isSubmit: Boolean = false,
+    /** true یعنی از آخرین باری که کاربر این دسته را باز کرده، موردی تازه به آن اضافه شده. */
+    val hasNew: Boolean = false
 )
 
 class CategoryGridAdapter(
-    private val items: List<CategoryEntry>,
+    private var items: List<CategoryEntry>,
     private val onClick: (CategoryEntry) -> Unit
 ) : RecyclerView.Adapter<CategoryGridAdapter.ViewHolder>() {
 
@@ -30,8 +33,15 @@ class CategoryGridAdapter(
         val binding = holder.binding
         binding.imgIcon.setImageResource(item.iconRes)
         binding.txtLabel.text = item.label
+        binding.dotNew.visibility = if (item.hasNew) View.VISIBLE else View.GONE
         binding.root.setOnClickListener { onClick(item) }
     }
 
     override fun getItemCount(): Int = items.size
+
+    /** رفرش کردن لیست (برای به‌روزرسانی دایره‌های «جدید» بدون نیاز به ساخت دوباره‌ی آداپتر). */
+    fun updateItems(newItems: List<CategoryEntry>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 }

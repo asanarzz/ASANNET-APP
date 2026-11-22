@@ -164,6 +164,11 @@ class CategoryListActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val result = ContentRepository.load(this@CategoryListActivity)
             allItems = result.items
+            // کل این دسته رو همین که محتواش لود شد «دیده‌شده» علامت می‌زنیم، تا دایره‌ی
+            // قرمزش رو آیکون صفحه‌ی اصلی محو بشه.
+            typeFilter?.let { type ->
+                SeenStore.markSeenNow(this@CategoryListActivity, SeenStore.categoryKey(type.key))
+            }
             if (isVideoGalleryMode) RatingStore.refresh(this@CategoryListActivity)
             applyFilters()
             binding.swipeRefresh.isRefreshing = false
@@ -318,7 +323,11 @@ class CategoryListActivity : AppCompatActivity() {
             val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else FolderPath.leaf(key)
             val members = grouped[key].orEmpty()
             val lockedFolder = members.isNotEmpty() && members.all { it.locked && it.lockGroup != null }
-            SectionFolder(key, displayName, members.size, lockedFolder, members.firstOrNull())
+            val newest = members.maxOfOrNull { maxOf(it.addedAt, it.episodeAt) } ?: 0L
+            val hasNew = typeFilter?.let { type ->
+                SeenStore.hasUnseen(this, SeenStore.folderKey(type.key, key), newest)
+            } ?: false
+            SectionFolder(key, displayName, members.size, lockedFolder, members.firstOrNull(), hasNew)
         }
 
         var directItems: List<ContentItem> = direct
@@ -352,6 +361,12 @@ class CategoryListActivity : AppCompatActivity() {
         currentSection = folder.name
         binding.txtTitle.text = folder.displayName
         binding.editSearch.text?.clear()
+        val path = folder.name
+        if (path != null) {
+            typeFilter?.let { type ->
+                SeenStore.markSeenNow(this, SeenStore.folderKey(type.key, path))
+            }
+        }
         applyFilters()
     }
 
