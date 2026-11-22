@@ -79209,5 +79209,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379948949",
+    "type": "video",
+    "title": "بی صدا حلزون",
+    "description": "دانلود فیلم #بی_صدا_حلزون\n🔰 ژانر: درام | اجتماعی \n📆 سال تولید: 1398\n📆 سال انتشار: 1402\n\n👥 بازیگران: هانیه توسلی، مهران احمدی، محسن کیایی، پدرام شریفی، بهنوش بختیاری، علیرضا جلالی تبار و... \n\n👤 کارگردان: بهرنگ دزفولی‌زاده\n\n📄 خلاصه داستان: عاشقانه‌ای بی صدا، درباره مادر کم شنوایی است که می‌خواهد تنها فرزندش شنوا شود. پدر که کاملا ناشنوا است مخالف عمل کاشت حلزون اوست و می‌خواهد فرزندش مانند خودش ناشنوا باقی بماند...",
+    "url": "",
+    "addedAt": 1795379948949,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379945370-0-img-20261123-000811-437.jpg"
+    ],
+    "links": [
+      {
+        "label": "BiSeda_Halezoun-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/BiSeda_Halezoun-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
