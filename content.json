@@ -79428,5 +79428,15 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/9/1/6395ebd0.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/9/1/a60937eb.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050901_0800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:00",
+    "description": "یکشنبه 1 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1MzIxODMwLCJpIjpbWyJ1c2QiLDI2OTMzMF0sWyIxOGF5YXIiLDIzMTE0MTU3XSxbInNla2tlaCIsMjM4MTE1XSxbImJhaGFyIiwyMjcxNDhdLFsibmltIiwxMjYxNDVdLFsicm9iIiw2NzU0MF0sWyJ1c2RfYnRjIiwxNTk1ODkwNjc1M10sWyJ1c2RfZXRoIiw0NDcxMTc0MjZdLFsidXNkX3VzZHQiLDI3MjQwNV1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
