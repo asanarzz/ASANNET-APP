@@ -10,6 +10,9 @@ class ContentAdapter(
     private val onClick: (ContentItem) -> Unit
 ) : RecyclerView.Adapter<ContentAdapter.ViewHolder>() {
 
+    /** شناسه‌ی آیتم‌هایی که از آخرین بازدید این لیست، تازه اضافه شده‌اند (برای دایره‌ی قرمز). */
+    private var newIds: Set<String> = emptySet()
+
     inner class ViewHolder(val binding: ItemContentBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,14 +51,16 @@ class ContentAdapter(
         }
         binding.imgTypeIcon.setImageResource(iconRes)
         binding.iconBg.setBackgroundResource(bgRes)
+        binding.dotNew.visibility = if (newIds.contains(item.id)) android.view.View.VISIBLE else android.view.View.GONE
 
         binding.rowRoot.setOnClickListener { onClick(item) }
     }
 
     override fun getItemCount(): Int = items.size
 
-    fun updateItems(newItems: List<ContentItem>) {
+    fun updateItems(newItems: List<ContentItem>, newIds: Set<String> = emptySet()) {
         items = newItems
+        this.newIds = newIds
         notifyDataSetChanged()
     }
 }
