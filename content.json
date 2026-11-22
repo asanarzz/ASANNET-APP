@@ -79069,5 +79069,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379317293",
+    "type": "video",
+    "title": "هفت معکوس",
+    "description": "فیلم سینمایی #هفت_معکوس\n📌 موضوع: #درام | #فانتزی\n📆 سال تولید: 1394\n📆 سال انتشار: 1396\n\n💎 بازیگران: جواد عزتی، نیوشا ضیغمی، حسام نواب صفوی، کامران تفتی و مهران رجبی \n\n👥 کارگردان: مهدی خسروی\n\n☑️ خلاصه داستان: احساس می کنم همیشه توی زندگیم لبه یه پرتگاه وایسادم، دوست دارم بپرم پایین ولی هیچ وقت جراتشو نداشتم، الانم ندارم … کاش می شد برگردم به عقب تا یه چیزایی رو درست کنم ولی افسوس که غیرممکنه!",
+    "url": "",
+    "addedAt": 1795379317293,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379312898-0-img-20261122-235718-255.jpg"
+    ],
+    "links": [
+      {
+        "label": "7Haft-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/7Haf-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
