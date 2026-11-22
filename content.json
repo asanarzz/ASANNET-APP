@@ -79149,5 +79149,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379693493",
+    "type": "video",
+    "title": "سارا و آیدا",
+    "description": "فیلم سینمایی #سارا_و_آیدا\n\n📌 موضوع: ملودرام | اجتماعی\n📆 سال تولید: 1395\n📆 سال انتشار: 1396\n\n💎 بازیگران: پگاه آهنگرانی، مصطفی زمانی، غزل شاکری، یغما گلرویی، سعید چنگیزیان، شیرین یزدان بخش و ...\n\n👤 کارگردان: مازیار میری\n\n☑️ خلاصه داستان: سارا و آیدا دوستان صمیمی هستند که آبروی یکی از آن ها به خطر افتاده و حالا باید به کمک هم شرایط را به حالت عادی بازگردانند، اما این دو دوست تا کجا پای یکدیگر می ایستند؟",
+    "url": "",
+    "addedAt": 1795379693493,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379690338-0-img-20261123-000356-777.jpg"
+    ],
+    "links": [
+      {
+        "label": "SaraAida480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/SaraAida480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
