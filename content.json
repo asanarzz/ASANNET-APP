@@ -79109,5 +79109,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379506799",
+    "type": "video",
+    "title": "صبحانه با زرافه ها",
+    "description": "دانلود فیلم #صبحانه_با_زرافه‌ها\n🔰 ژانر: #کمدی | #فانتزی \n📆 سال تولید: 1403\n📆 سال انتشار: 1404\n\n👥 بازیگران: هوتن شکیبا، بهرام رادان، پژمان جمشیدی، بیژن بنفشه خواه، هادی حجازی‌فر، مجید یوسفی، سارا امیری و...\n\n👤 کارگردان: سروش صحت\n\n📄 خلاصه داستان: درباره چند دوست است که در شب عروسی یکی از آنها، اتفاقات غیرمنتظره‌‌ای رخ می‌دهد که همه چیز را دستخوش تغییر می‌کند...",
+    "url": "",
+    "addedAt": 1795379506799,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379503739-0-img-20261123-000038-683.jpg"
+    ],
+    "links": [
+      {
+        "label": "SobhaneBaZarrafeha-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/SobhaneBaZarrafeha-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
