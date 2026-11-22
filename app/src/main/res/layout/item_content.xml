@@ -34,6 +34,14 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_test"
                 android:contentDescription="@null"/>
+
+            <View
+                android:id="@+id/dot_new"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/dot_red"
+                android:visibility="gone"/>
         </FrameLayout>
 
         <LinearLayout
