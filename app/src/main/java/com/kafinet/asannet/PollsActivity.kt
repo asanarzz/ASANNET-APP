@@ -189,8 +189,15 @@ class PollsActivity : AppCompatActivity() {
         return c
     }
 
-    private fun openPoll(code: String) {
-        startActivity(Intent(this, PollDetailActivity::class.java).putExtra(PollDetailActivity.EXTRA_CODE, code))
+    private fun openPoll(code: String, fromCode: Boolean = false) {
+        try {
+            val i = Intent(this, PollDetailActivity::class.java)
+            i.putExtra(PollDetailActivity.EXTRA_CODE, code)
+            i.putExtra(PollDetailActivity.EXTRA_FROM_CODE, fromCode)
+            startActivity(i)
+        } catch (e: Exception) {
+            Toast.makeText(this, "باز نشد: " + e.javaClass.simpleName + " " + (e.message ?: ""), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun showCodeDialog() {
@@ -220,7 +227,7 @@ class PollsActivity : AppCompatActivity() {
         box.setPadding(p, PollUi.dp(this, 10), p, 0)
         box.addView(input)
 
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("ورود با کد نظرسنجی")
             .setMessage("کدی که مدیر کانال یا گروه فرستاده را وارد کنید (مثلاً ASN-K7M2QXA).")
             .setView(box)
@@ -229,7 +236,7 @@ class PollsActivity : AppCompatActivity() {
                 if (code == null) {
                     Toast.makeText(this, "کد معتبر نیست", Toast.LENGTH_SHORT).show()
                 } else {
-                    openPoll(code)
+                    openPoll(code, fromCode = true)
                 }
             }
             .setNegativeButton("انصراف", null)
@@ -254,6 +261,7 @@ class PollLinkActivity : Activity() {
             val main = Intent(this, MainActivity::class.java)
             val detail = Intent(this, PollDetailActivity::class.java)
                 .putExtra(PollDetailActivity.EXTRA_CODE, code)
+                .putExtra(PollDetailActivity.EXTRA_FROM_CODE, true)
             startActivities(arrayOf(main, detail))
         } else {
             PollsClient.setPendingCode(this, code)

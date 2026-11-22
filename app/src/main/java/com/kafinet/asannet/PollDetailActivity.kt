@@ -25,6 +25,7 @@ class PollDetailActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_CODE = "poll_code"
         const val EXTRA_JUST_CREATED = "poll_just_created"
+        const val EXTRA_FROM_CODE = "poll_from_code"
     }
 
     private lateinit var code: String
@@ -33,12 +34,14 @@ class PollDetailActivity : AppCompatActivity() {
     private var poll: PollDetail? = null
     private val selected = LinkedHashSet<String>()
     private var pendingCreatedDialog = false
+    private var fromCode = false
     private var voting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         code = intent.getStringExtra(EXTRA_CODE).orEmpty().trim().uppercase()
         pendingCreatedDialog = intent.getBooleanExtra(EXTRA_JUST_CREATED, false)
+        fromCode = intent.getBooleanExtra(EXTRA_FROM_CODE, false)
         if (code.isBlank()) {
             finish()
             return
@@ -81,14 +84,30 @@ class PollDetailActivity : AppCompatActivity() {
                     val p = r.poll!!
                     poll = p
                     if (p.voted || p.closed) selected.clear()
-                    render(p)
+                    try {
+                        render(p)
+                    } catch (e: Exception) {
+                        showMessage("خطا در نمایش نظرسنجی:\n" + e.javaClass.simpleName + ": " + (e.message ?: ""), retry = true)
+                        return@launch
+                    }
+                    if (fromCode) {
+                        fromCode = false
+                        if (p.voted) {
+                            toast("شما قبلاً در این نظرسنجی شرکت کرده‌اید؛ نتیجه را می‌بینید و دیگر نمی‌توانید رأی را تغییر دهید.")
+                        } else if (p.closed) {
+                            toast("این نظرسنجی بسته شده است.")
+                        }
+                    }
                     if (pendingCreatedDialog) {
                         pendingCreatedDialog = false
                         showCreatedDialog(p)
                     }
                 }
                 "not_found" -> showMessage("این نظرسنجی پیدا نشد؛ ممکن است حذف شده باشد یا کد اشتباه باشد.", retry = false)
-                else -> showMessage("اتصال برقرار نشد. اینترنت را بررسی کنید.", retry = true)
+                else -> showMessage(
+                    "اتصال برقرار نشد. اینترنت را بررسی کنید." + (if (r.detail.isNotBlank()) "\n\n" + r.detail else ""),
+                    retry = true
+                )
             }
         }
     }
@@ -153,12 +172,8 @@ class PollDetailActivity : AppCompatActivity() {
 
         // --- اشتراک‌گذاری و مدیریت
         val actions = PollUi.card(this)
-        actions.addView(PollUi.button(this, "📤  اشتراک‌گذاری (همه‌ی شبکه‌ها)") { share(p) })
-        actions.addView(
-            PollUi.button(this, "📤  ارسال با کد قابل‌کپی (تلگرام، ایتا، واتس‌اپ)", filled = false) { share(p, true) },
-            PollUi.lp(this, 8)
-        )
-        actions.addView(PollUi.button(this, "📋  کپی متن، لینک و کد", filled = false) { copyText(p) }, PollUi.lp(this, 8))
+        actions.addView(PollUi.button(this, "📤  اشتراک‌گذاری نظرسنجی") { share(p) })
+        actions.addView(PollUi.button(this, "📋  کپی لینک و کد", filled = false) { copyText(p) }, PollUi.lp(this, 8))
         if (p.isOwner) {
             if (!p.closed) {
                 actions.addView(PollUi.button(this, "⛔  بستن نظرسنجی", filled = false) { confirmClose(p) }, PollUi.lp(this, 8))
@@ -290,7 +305,7 @@ class PollDetailActivity : AppCompatActivity() {
     }
 
     private fun showCreatedDialog(p: PollDetail) {
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("نظرسنجی ساخته شد ✅")
             .setMessage(
                 "حالا متن و لینک نظرسنجی را در کانال یا گروهتان بگذارید تا اعضا بتوانند رأی بدهند.\n\nکد: ASN-" + p.code
@@ -301,7 +316,7 @@ class PollDetailActivity : AppCompatActivity() {
     }
 
     private fun confirmClose(p: PollDetail) {
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("بستن نظرسنجی؟")
             .setMessage("بعد از بستن، کسی نمی‌تواند رأی بدهد و نتیجه برای همه نمایش داده می‌شود.")
             .setPositiveButton("بستن") { _, _ ->
@@ -316,7 +331,7 @@ class PollDetailActivity : AppCompatActivity() {
     }
 
     private fun confirmDelete(p: PollDetail) {
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("حذف نظرسنجی؟")
             .setMessage("نظرسنجی و همه‌ی رأی‌ها برای همیشه پاک می‌شود.")
             .setPositiveButton("حذف") { _, _ ->
@@ -336,7 +351,7 @@ class PollDetailActivity : AppCompatActivity() {
 
     private fun reportDialog(p: PollDetail) {
         val reasons = arrayOf("محتوای نامناسب یا توهین‌آمیز", "تبلیغ یا اسپم", "کلاهبرداری یا فریب", "دلیل دیگر")
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("گزارش نظرسنجی")
             .setItems(reasons) { _, which ->
                 lifecycleScope.launch {

@@ -53,7 +53,7 @@ data class PollSummary(
 )
 
 /** status: ok / not_found / error */
-class PollLoad(val poll: PollDetail?, val status: String)
+class PollLoad(val poll: PollDetail?, val status: String, val detail: String = "")
 
 class PollCreateResult(val code: String?, val error: String?)
 
@@ -63,6 +63,10 @@ object PollsClient {
 
     private const val PREFS = "kafinet_polls"
     private const val KEY_PENDING = "pending_code"
+
+    /** آخرین خطای ارتباط با سرور (برای نمایش علت وقتی چیزی باز نمی‌شود). */
+    @Volatile
+    var lastError: String = ""
 
     fun voterCode(context: Context): String = SessionManager.getNationalCode(context).orEmpty()
 
@@ -94,8 +98,14 @@ object PollsClient {
                 val code = conn.responseCode
                 val text = AdsClient.readBody(conn)
                 conn.disconnect()
-                if (code in 200..299) text.trim() else null
+                if (code in 200..299) {
+                    text.trim()
+                } else {
+                    lastError = "HTTP " + code + ": " + text.take(200)
+                    null
+                }
             } catch (e: Exception) {
+                lastError = e.javaClass.simpleName + ": " + (e.message ?: "")
                 null
             }
         }
@@ -132,7 +142,7 @@ object PollsClient {
         body.put("p_code", code)
         body.put("p_voter_code", voterCode(context))
         body.put("p_token", token(context))
-        val text = rpc(context, "get_poll", body) ?: return PollLoad(null, "error")
+        val text = rpc(context, "get_poll", body) ?: return PollLoad(null, "error", lastError)
         return try {
             val o = JSONObject(text)
             if (!o.optBoolean("found", false)) return PollLoad(null, "not_found")
@@ -171,7 +181,7 @@ object PollsClient {
                 "ok"
             )
         } catch (e: Exception) {
-            PollLoad(null, "error")
+            PollLoad(null, "error", e.javaClass.simpleName + ": " + (e.message ?: ""))
         }
     }
 
