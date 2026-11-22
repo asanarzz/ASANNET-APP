@@ -113,6 +113,34 @@
             android:name=".MyAdsActivity"
             android:exported="false" />
 
+        <!-- نظرسنجی -->
+        <activity
+            android:name=".PollsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CreatePollActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".PollDetailActivity"
+            android:exported="false" />
+
+        <!-- باز شدن لینک نظرسنجی (asannet://poll/KODE) از کانال‌ها و مرورگر -->
+        <activity
+            android:name=".PollLinkActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="asannet" android:host="poll" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ChatActivity"
             android:exported="false"
