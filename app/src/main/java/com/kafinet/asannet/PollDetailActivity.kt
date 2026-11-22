@@ -153,7 +153,11 @@ class PollDetailActivity : AppCompatActivity() {
 
         // --- اشتراک‌گذاری و مدیریت
         val actions = PollUi.card(this)
-        actions.addView(PollUi.button(this, "📤  اشتراک‌گذاری در کانال / گروه") { share(p) })
+        actions.addView(PollUi.button(this, "📤  اشتراک‌گذاری (همه‌ی شبکه‌ها)") { share(p) })
+        actions.addView(
+            PollUi.button(this, "📤  ارسال با کد قابل‌کپی (تلگرام، ایتا، واتس‌اپ)", filled = false) { share(p, true) },
+            PollUi.lp(this, 8)
+        )
         actions.addView(PollUi.button(this, "📋  کپی متن، لینک و کد", filled = false) { copyText(p) }, PollUi.lp(this, 8))
         if (p.isOwner) {
             if (!p.closed) {
@@ -272,10 +276,10 @@ class PollDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun share(p: PollDetail) {
+    private fun share(p: PollDetail, tappable: Boolean = false) {
         val send = Intent(Intent.ACTION_SEND)
         send.type = "text/plain"
-        send.putExtra(Intent.EXTRA_TEXT, PollFormat.shareText(this, p.title, p.organizer, p.code))
+        send.putExtra(Intent.EXTRA_TEXT, PollFormat.shareText(this, p.title, p.organizer, p.code, tappable))
         startActivity(Intent.createChooser(send, "ارسال نظرسنجی به ..."))
     }
 

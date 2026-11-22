@@ -291,7 +291,7 @@ object PollFormat {
     }
 
     /** متن آماده برای گذاشتن در کانال/گروه (تلگرام، ایتا، بله، روبیکا و ...). */
-    fun shareText(context: Context, title: String, organizer: String, code: String): String {
+    fun shareText(context: Context, title: String, organizer: String, code: String, tappable: Boolean = false): String {
         val base = context.getString(R.string.poll_link_base).trim()
         val sb = StringBuilder()
         sb.append("📊 نظرسنجی: ").append(title).append("\n")
@@ -301,7 +301,15 @@ object PollFormat {
             sb.append("🔗 شرکت در نظرسنجی:\n")
             sb.append(base.trimEnd('/')).append("/?c=").append(code).append("\n\n")
         }
-        sb.append("کد نظرسنجی: ASN-").append(code).append("\n")
+        if (tappable) {
+            // کد داخل بک‌تیک: در تلگرام، ایتا و واتس‌اپ مونو‌اسپیس می‌شود و با یک لمس کپی می‌شود
+            sb.append("👇 برای کپی، روی کد بزنید\n\n")
+            sb.append("`ASN-").append(code).append("`\n\n")
+        } else {
+            // متن ساده: در همه‌ی شبکه‌ها (بله، روبیکا، اینستاگرام، پیامک و ...) بدون علامت اضافه نمایش داده می‌شود
+            sb.append("👇 کد نظرسنجی (نگه دارید و کپی کنید)\n\n")
+            sb.append("ASN-").append(code).append("\n\n")
+        }
         sb.append("برنامه «آسان نت» ← نظرسنجی ← ورود با کد")
         return sb.toString()
     }
