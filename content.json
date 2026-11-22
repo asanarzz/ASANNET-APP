@@ -79129,5 +79129,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795379614799",
+    "type": "video",
+    "title": "دختر ديروز",
+    "description": "فیلم سینمایی #دختر_دیروز \n💣 نسخه #اورجینال \n🎪 ژانر: #کمدی - #خانوادگی \n\n🎩 کارگردان: محمدرضا موسوی \n🗓 تاریخ تولید و انتشار: ۱۴۰۵ ـ ۱۴۰۵\n\n\n🎭 بازیگران: حمید لولایی، بهنوش بختیاری، زهره حمیدی، مجید مشیری، یوسف صیادی، علیرضا سوزنچی\n﻿\n💬 خلاصه داستان: دختری جوان و مصمم به نام صفا را روایت می‌کند که در سال‌های جنگ تصمیم می‌گیرد برای رسیدن به هدفش، از موانع مختلف عبور کند. او با هر چالش، مهارت تازه‌ای یاد می‌گیرد و قدمی به آرزویش نزدیک‌تر می‌شود؛ اما اتفاقاتی در مسیرش رخ می‌دهد که زندگی او را به شکلی غیرمنتظره تغییر می‌دهد",
+    "url": "",
+    "addedAt": 1795379614799,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795379609888-0-img-20261123-000220-765.jpg"
+    ],
+    "links": [
+      {
+        "label": "dokhtar.diruz-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/dokhtar.diruz-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
