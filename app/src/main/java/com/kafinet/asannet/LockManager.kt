@@ -132,7 +132,7 @@ object LockManager {
             ).apply { topMargin = (12 * density).toInt() }
         )
 
-        val dialog = AlertDialog.Builder(activity)
+        val dialog = StyledDialog.Builder(activity)
             .setTitle(R.string.lock_dialog_title)
             .setView(container)
             .setPositiveButton(R.string.lock_confirm, null)

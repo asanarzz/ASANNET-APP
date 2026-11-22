@@ -149,7 +149,7 @@ object DownloadHelper {
         val activity: Activity = context
 
         if (Build.VERSION.SDK_INT >= 26 && !activity.packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(activity)
+            StyledDialog.Builder(activity)
                 .setTitle("اجازه‌ی نصب برنامه")
                 .setMessage(
                     "برای نصب نسخه‌ی جدید، در صفحه‌ی بعد گزینه‌ی «اجازه از این منبع» را روشن کنید. " +
@@ -190,7 +190,7 @@ object DownloadHelper {
     /** پنجره‌ی پیشرفت دانلود: درصد، حجم دانلودشده و دکمه‌ی لغو. بعد از دانلود، نصب خودکار باز می‌شود. */
     private fun showApkDownloadDialog(activity: Activity, url: String, title: String) {
         val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
-        val builder = AlertDialog.Builder(activity)
+        val builder = StyledDialog.Builder(activity)
         val ctx = builder.context
         val density = ctx.resources.displayMetrics.density
         fun dp(v: Int): Int = (v * density).toInt()
@@ -438,7 +438,7 @@ object DownloadHelper {
      */
     private fun downloadAndOpenWithProgress(activity: Activity, url: String, title: String, mimeType: String) {
         val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
-        val builder = AlertDialog.Builder(activity)
+        val builder = StyledDialog.Builder(activity)
         val ctx = builder.context
         val density = ctx.resources.displayMetrics.density
         fun dp(v: Int): Int = (v * density).toInt()

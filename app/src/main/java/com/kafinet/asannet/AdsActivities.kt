@@ -63,7 +63,7 @@ private fun showSearchListDialog(
         list,
         LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpOf(context, 320))
     )
-    val dialog = AlertDialog.Builder(context)
+    val dialog = StyledDialog.Builder(context)
         .setTitle(title)
         .setView(container)
         .setNegativeButton("انصراف", null)
@@ -530,7 +530,7 @@ class PostAdActivity : AppCompatActivity() {
 
         binding.txtCategory.setOnClickListener {
             val items = AdCategories.all.toTypedArray()
-            AlertDialog.Builder(this)
+            StyledDialog.Builder(this)
                 .setTitle("دسته‌بندی")
                 .setItems(items) { _, which ->
                     category = items[which]
@@ -621,7 +621,7 @@ class PostAdActivity : AppCompatActivity() {
             setPadding(pad, dpOf(this@PostAdActivity, 8), pad, 0)
             addView(input, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("نام شهر را بنویسید")
             .setView(box)
             .setPositiveButton("تأیید") { _, _ ->
@@ -757,7 +757,7 @@ class MyAdsActivity : AppCompatActivity() {
     }
 
     private fun confirmDelete(ad: Ad) {
-        AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("حذف آگهی")
             .setMessage("آگهی «${ad.title}» حذف شود؟")
             .setPositiveButton("حذف") { _, _ ->

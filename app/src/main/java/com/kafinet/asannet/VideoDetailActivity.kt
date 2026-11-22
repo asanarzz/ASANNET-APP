@@ -247,7 +247,7 @@ class VideoDetailActivity : AppCompatActivity() {
         container.addView(row)
         refreshStars()
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle(R.string.rating_dialog_title)
             .setView(container)
             .setPositiveButton(R.string.rating_submit) { _, _ ->
@@ -311,44 +311,17 @@ class VideoDetailActivity : AppCompatActivity() {
     /** دو انتخاب: دانلود همین الان، یا فقط اضافه‌کردن به لیست دانلود (بعداً از «دانلودها» شروعش می‌کنی). */
     private fun showDownloadChoice(url: String, downloadTitle: String) {
         // مثل پنجره‌ی آهنگ‌ها: هر گزینه یه دکمه‌ی جدا (نوشته تو یه کادر)
-        val labels = listOf("دانلود همین الان", "افزودن به لیست دانلود")
-        val density = resources.displayMetrics.density
-        val container = LinearLayout(this)
-        container.orientation = LinearLayout.VERTICAL
-        val sidePad = (20 * density).toInt()
-        container.setPadding(sidePad, (12 * density).toInt(), sidePad, (8 * density).toInt())
-
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        labels.forEachIndexed { index, label ->
-            val choiceButton = Button(this)
-            choiceButton.text = label
-            choiceButton.isAllCaps = false
-            choiceButton.textSize = 15f
-            choiceButton.backgroundTintList = android.content.res.ColorStateList.valueOf(
-                ContextCompat.getColor(this, R.color.primary)
-            )
-            choiceButton.setTextColor(ContextCompat.getColor(this, R.color.white))
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                (50 * density).toInt()
-            )
-            if (index > 0) params.topMargin = (10 * density).toInt()
-            choiceButton.setOnClickListener {
-                dialog?.dismiss()
-                if (index == 0) {
+        val labels = arrayOf("دانلود همین الان", "افزودن به لیست دانلود")
+        StyledDialog.Builder(this)
+            .setTitle(downloadTitle)
+            .setItems(labels) { _, which ->
+                if (which == 0) {
                     DownloadHelper.downloadUrl(this, url, downloadTitle)
                 } else {
                     DownloadHelper.addToDownloadList(this, url, downloadTitle)
                 }
             }
-            container.addView(choiceButton, params)
-        }
-
-        dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(downloadTitle)
-            .setView(container)
-            .create()
-        dialog.show()
+            .show()
     }
 
     private fun resolveUrl(url: String): String {

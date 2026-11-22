@@ -47,7 +47,7 @@ object DlnaCaster {
         }
         val local = localIpv4()
         if (local == null) {
-            AlertDialog.Builder(activity)
+            StyledDialog.Builder(activity)
                 .setTitle("اتصال به Wi-Fi")
                 .setMessage("برای ارسال به تلویزیون، گوشی باید به همان Wi-Fi که تلویزیون به آن وصل است متصل باشد.")
                 .setPositiveButton("باشه", null)
@@ -55,7 +55,7 @@ object DlnaCaster {
             return
         }
 
-        val builder = AlertDialog.Builder(activity)
+        val builder = StyledDialog.Builder(activity)
         val ctx = builder.context
         val density = ctx.resources.displayMetrics.density
         fun dp(v: Int): Int = (v * density).toInt()

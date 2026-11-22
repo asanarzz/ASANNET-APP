@@ -409,7 +409,7 @@ class ProxyListSheet(
             textDirection = View.TEXT_DIRECTION_LTR
             setPadding(dp(16), dp(12), dp(16), dp(12))
         }
-        AlertDialog.Builder(activity)
+        StyledDialog.Builder(activity)
             .setTitle("افزودن پروکسی")
             .setView(input)
             .setPositiveButton("افزودن") { _, _ ->
@@ -443,7 +443,7 @@ class ProxyListSheet(
     }
 
     private fun confirmClearCustom() {
-        AlertDialog.Builder(activity)
+        StyledDialog.Builder(activity)
             .setMessage("همه‌ی پروکسی‌هایی که خودت اضافه کرده‌ای حذف شود؟ (لیست اصلی برنامه دست نمی‌خورد)")
             .setPositiveButton("حذف همه") { _, _ ->
                 val a = ProxyManager.active
@@ -460,7 +460,7 @@ class ProxyListSheet(
     }
 
     private fun confirmDelete(p: ProxyEntry) {
-        AlertDialog.Builder(activity)
+        StyledDialog.Builder(activity)
             .setMessage("«${p.name}» از لیست حذف شود؟")
             .setPositiveButton("حذف") { _, _ ->
                 if (ProxyManager.active?.id == p.id) ProxyManager.setActive(activity, null)

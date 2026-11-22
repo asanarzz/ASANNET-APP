@@ -496,39 +496,10 @@ class CategoryListActivity : AppCompatActivity() {
 
     /** پنجره‌ای که گزینه‌هایش دکمه‌های جدا (هرکدام در یک کادر) هستند. */
     private fun showButtonDialog(title: String, labels: List<String>, onPick: (Int) -> Unit) {
-        val density = resources.displayMetrics.density
-        val container = android.widget.LinearLayout(this)
-        container.orientation = android.widget.LinearLayout.VERTICAL
-        val sidePad = (20 * density).toInt()
-        container.setPadding(sidePad, (12 * density).toInt(), sidePad, (8 * density).toInt())
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        labels.forEachIndexed { i, label ->
-            val button = android.widget.Button(this)
-            button.text = label
-            button.isAllCaps = false
-            button.textSize = 15f
-            button.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.primary)
-                )
-            )
-            button.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white))
-            val params = android.widget.LinearLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                (50 * density).toInt()
-            )
-            if (i > 0) params.topMargin = (10 * density).toInt()
-            button.setOnClickListener {
-                dialog?.dismiss()
-                onPick(i)
-            }
-            container.addView(button, params)
-        }
-        dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle(title)
-            .setView(container)
-            .create()
-        dialog.show()
+            .setItems(labels.toTypedArray()) { _, which -> onPick(which) }
+            .show()
     }
 
     /** آهنگ‌های یک مورد: آدرس خودِ مورد (اگر باشد) + همه‌ی لینک‌های برچسب‌دارش. */
@@ -547,7 +518,7 @@ class CategoryListActivity : AppCompatActivity() {
         val titles = songs.map { it.first }
         val urls = songs.map { it.second }
         val entries = (listOf("▶ پخش همه (${songs.size} آهنگ)") + titles).toTypedArray()
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle(item.title)
             .setItems(entries) { _, which ->
                 if (which == 0) {

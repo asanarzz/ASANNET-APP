@@ -592,7 +592,7 @@ class WebViewActivity : AppCompatActivity() {
             override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
                 if (result == null) return false
                 if (isFinishing) { result.cancel(); return true }
-                AlertDialog.Builder(this@WebViewActivity)
+                StyledDialog.Builder(this@WebViewActivity)
                     .setMessage(message ?: "")
                     .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
                     .setOnCancelListener { result.cancel() }
@@ -603,7 +603,7 @@ class WebViewActivity : AppCompatActivity() {
             override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
                 if (result == null) return false
                 if (isFinishing) { result.cancel(); return true }
-                AlertDialog.Builder(this@WebViewActivity)
+                StyledDialog.Builder(this@WebViewActivity)
                     .setMessage(message ?: "")
                     .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
                     .setNegativeButton(android.R.string.cancel) { _, _ -> result.cancel() }
@@ -621,7 +621,7 @@ class WebViewActivity : AppCompatActivity() {
                     setText(defaultValue ?: "")
                     setSingleLine(true)
                 }
-                AlertDialog.Builder(this@WebViewActivity)
+                StyledDialog.Builder(this@WebViewActivity)
                     .setMessage(message ?: "")
                     .setView(input)
                     .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm(input.text.toString()) }
