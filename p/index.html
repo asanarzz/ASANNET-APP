@@ -33,7 +33,7 @@
 <body>
 <div class="card">
   <div class="icon">📊</div>
-  <h1>نظرسنجی آسان نت</h1>
+  <h1 id="pHead">نظرسنجی آسان نت</h1>
 
   <div id="ok" class="hidden">
     <div id="info" class="hidden">
@@ -114,8 +114,12 @@
   }).then(function (r) { return r.json(); }).then(function (d) {
     if (!d || !d.found) return;
     $('pTitle').textContent = d.title;
-    $('pOrg').textContent = d.organizer || '';
-    if (!d.organizer) $('pOrg').classList.add('hidden');
+    // اسم کانال/پیج/گروهی که مدیر موقع ساخت نظرسنجی نوشته، به‌جای عنوان ثابت نمایش داده می‌شود
+    if (d.organizer) {
+      $('pHead').textContent = d.organizer;
+      document.title = d.organizer + ' | نظرسنجی';
+    }
+    $('pOrg').classList.add('hidden');
     $('pLeft').textContent = d.closed ? 'این نظرسنجی بسته شده است.' : '';
     if (!d.closed) $('pLeft').classList.add('hidden');
     $('info').classList.remove('hidden');
