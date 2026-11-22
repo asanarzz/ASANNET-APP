@@ -3,29 +3,49 @@ package com.kafinet.asannet
 import android.content.Context
 
 /**
- * ردیابی «دیده‌شدن» محتوای تازه روی خود گوشی: برای هر دسته (روی آیکون صفحه‌ی اصلی)
- * و هر پوشه‌ی داخل یک دسته، آخرین باری که کاربر بازش کرده ذخیره می‌شود؛ اگر از آن
- * موقع چیز تازه‌تری اضافه شده باشد (بر اساس addedAt/episodeAt آیتم‌ها)، همان‌جا یک
- * دایره‌ی قرمز نشان داده می‌شود تا کاربر بفهمد مورد جدیدی هست.
+ * ردیابی «دیده‌شدن» محتوای تازه روی خود گوشی، به‌ازای تک‌تک آیتم‌ها (نه فقط به‌ازای
+ * یک بار باز کردن پوشه): شناسه‌ی هر آیتمی که کاربر واقعاً بازش کرده، همین‌جا ذخیره
+ * می‌شود. تا وقتی همه‌ی آیتم‌های تازه‌ی یک پوشه/دسته یکی‌یکی باز نشده باشند، دایره‌ی
+ * قرمزِ همان پوشه/دسته (و البته خودِ همان آیتم) باقی می‌ماند.
  */
 object SeenStore {
     private const val PREFS = "kafinet_seen"
+    private const val KEY_SEEN_IDS = "seen_item_ids"
+    private const val KEY_BASELINE_DONE = "baseline_done"
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    /** آخرین زمانی که این کلید (دسته یا پوشه) باز شده؛ صفر یعنی هیچ‌وقت. */
-    private fun lastSeen(context: Context, key: String): Long =
-        prefs(context).getLong(key, 0L)
+    private fun seenIds(context: Context): MutableSet<String> =
+        HashSet(prefs(context).getStringSet(KEY_SEEN_IDS, emptySet()).orEmpty())
 
-    /** این کلید را «دیده‌شده تا همین لحظه» علامت می‌زند. */
-    fun markSeenNow(context: Context, key: String) {
-        prefs(context).edit().putLong(key, System.currentTimeMillis()).apply()
+    /** آیا کاربر این آیتم رو باز کرده (دیده)؟ */
+    fun isItemSeen(context: Context, id: String): Boolean = seenIds(context).contains(id)
+
+    /** این آیتم رو «دیده‌شده» علامت می‌زنه (وقتی کاربر واقعاً بازش می‌کنه). */
+    fun markItemSeen(context: Context, id: String) {
+        val set = seenIds(context)
+        if (set.add(id)) {
+            prefs(context).edit().putStringSet(KEY_SEEN_IDS, set).apply()
+        }
     }
 
-    /** آیا جدیدترین موردِ این گروه، بعد از آخرین باری که کاربر بازش کرده اضافه شده؟ */
-    fun hasUnseen(context: Context, key: String, newestTimestamp: Long): Boolean =
-        newestTimestamp > 0L && newestTimestamp > lastSeen(context, key)
+    /**
+     * اولین باری که این قابلیت رو برنامه داره (روی این گوشی)، همه‌ی آیتم‌های موجودِ الان
+     * رو «دیده‌شده» حساب می‌کنه؛ وگرنه کل محتوای قبلیِ برنامه یهو دایره‌ی قرمز می‌گرفت.
+     * از این به بعد، فقط آیتم‌هایی که واقعاً تازه اضافه می‌شن جزو «ندیده» حساب می‌شن.
+     */
+    fun ensureBaseline(context: Context, allIds: Collection<String>) {
+        val p = prefs(context)
+        if (p.getBoolean(KEY_BASELINE_DONE, false)) return
+        val set = seenIds(context)
+        set.addAll(allIds)
+        p.edit().putStringSet(KEY_SEEN_IDS, set).putBoolean(KEY_BASELINE_DONE, true).apply()
+    }
 
-    fun categoryKey(typeKey: String): String = "cat_$typeKey"
-    fun folderKey(typeKey: String, folderPath: String): String = "sec_${typeKey}_$folderPath"
+    /** آیا بین این گروه از شناسه‌ها، حداقل یکی هست که هنوز باز نشده؟ */
+    fun hasUnseen(context: Context, ids: Collection<String>): Boolean {
+        if (ids.isEmpty()) return false
+        val seen = seenIds(context)
+        return ids.any { it !in seen }
+    }
 }

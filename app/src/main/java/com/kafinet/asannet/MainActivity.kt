@@ -215,15 +215,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** برای هر دسته چک می‌کنه آیا موردی تازه‌تر از آخرین بازدید کاربر داره؛ اگه داشت،
-     *  رو آیکونش تو صفحه‌ی اصلی یه دایره‌ی قرمز نشون داده می‌شه. */
+    /** برای هر دسته چک می‌کنه آیا موردی هست که هنوز تک‌تک باز نشده؛ اگه داشت، رو
+     *  آیکونش تو صفحه‌ی اصلی یه دایره‌ی قرمز نشون داده می‌شه. دایره تا وقتی همه‌ی
+     *  آیتم‌های تازه‌ی اون دسته یکی‌یکی باز نشن، محو نمی‌شه. */
     private fun applyCategoryBadges(items: List<ContentItem>) {
+        SeenStore.ensureBaseline(this, items.map { it.id })
         categoryEntries = categoryEntries.map { entry ->
             val type = entry.type ?: return@map entry
-            val newest = items.asSequence()
-                .filter { it.type == type }
-                .maxOfOrNull { maxOf(it.addedAt, it.episodeAt) } ?: 0L
-            entry.copy(hasNew = SeenStore.hasUnseen(this, SeenStore.categoryKey(type.key), newest))
+            val idsOfType = items.asSequence().filter { it.type == type }.map { it.id }.toList()
+            entry.copy(hasNew = SeenStore.hasUnseen(this, idsOfType))
         }
         categoryAdapter.updateItems(categoryEntries)
     }

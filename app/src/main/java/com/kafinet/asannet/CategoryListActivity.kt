@@ -164,11 +164,10 @@ class CategoryListActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val result = ContentRepository.load(this@CategoryListActivity)
             allItems = result.items
-            // کل این دسته رو همین که محتواش لود شد «دیده‌شده» علامت می‌زنیم، تا دایره‌ی
-            // قرمزش رو آیکون صفحه‌ی اصلی محو بشه.
-            typeFilter?.let { type ->
-                SeenStore.markSeenNow(this@CategoryListActivity, SeenStore.categoryKey(type.key))
-            }
+            // اطمینان از این‌که محتوای قدیمیِ از قبل موجود، یهو «جدید» حساب نشه
+            // (فقط لازمه یه بار تو کل عمر نصب انجام بشه؛ اگه قبلاً تو صفحه‌ی اصلی
+            // انجام شده باشه، اینجا کاری نمی‌کنه)
+            SeenStore.ensureBaseline(this@CategoryListActivity, result.items.map { it.id })
             if (isVideoGalleryMode) RatingStore.refresh(this@CategoryListActivity)
             applyFilters()
             binding.swipeRefresh.isRefreshing = false
@@ -271,6 +270,9 @@ class CategoryListActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 if (RatingStore.refresh(this@CategoryListActivity)) applyVideoFilters()
             }
+        } else if (allItems.isNotEmpty()) {
+            // بعد از برگشت از دیدن یه آیتم، دایره‌های «جدید» (پوشه‌ها و خودِ آیتم‌ها) رو دوباره حساب کن
+            applyFilters()
         }
     }
 
@@ -323,10 +325,7 @@ class CategoryListActivity : AppCompatActivity() {
             val displayName = if (key == SECTION_MISC) getString(R.string.section_misc) else FolderPath.leaf(key)
             val members = grouped[key].orEmpty()
             val lockedFolder = members.isNotEmpty() && members.all { it.locked && it.lockGroup != null }
-            val newest = members.maxOfOrNull { maxOf(it.addedAt, it.episodeAt) } ?: 0L
-            val hasNew = typeFilter?.let { type ->
-                SeenStore.hasUnseen(this, SeenStore.folderKey(type.key, key), newest)
-            } ?: false
+            val hasNew = SeenStore.hasUnseen(this, members.map { it.id })
             SectionFolder(key, displayName, members.size, lockedFolder, members.firstOrNull(), hasNew)
         }
 
@@ -342,7 +341,8 @@ class CategoryListActivity : AppCompatActivity() {
 
         displayedItems = directItems
         sectionAdapter.updateFolders(folders)
-        adapter.updateItems(directItems)
+        val directNewIds = directItems.filter { !SeenStore.isItemSeen(this, it.id) }.map { it.id }.toSet()
+        adapter.updateItems(directItems, directNewIds)
         binding.layoutEmpty.visibility =
             if (folders.isEmpty() && directItems.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
@@ -361,12 +361,6 @@ class CategoryListActivity : AppCompatActivity() {
         currentSection = folder.name
         binding.txtTitle.text = folder.displayName
         binding.editSearch.text?.clear()
-        val path = folder.name
-        if (path != null) {
-            typeFilter?.let { type ->
-                SeenStore.markSeenNow(this, SeenStore.folderKey(type.key, path))
-            }
-        }
         applyFilters()
     }
 
@@ -384,13 +378,15 @@ class CategoryListActivity : AppCompatActivity() {
         // موارد پین‌شده از پنل مدیریت بالای لیست می‌آیند (ترتیب نسبی بقیه دست‌نخورده می‌ماند)
         filtered = filtered.sortedByDescending { it.pinned }
         displayedItems = filtered
-        adapter.updateItems(filtered)
+        val newIds = filtered.filter { !SeenStore.isItemSeen(this, it.id) }.map { it.id }.toSet()
+        adapter.updateItems(filtered, newIds)
         binding.layoutEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     /** با تپ روی پوستر فیلم/سریال، صفحه‌ی جزئیات (پوستر بزرگ + توضیحات + دکمه‌ی
      *  دانلود فیلم) باز می‌شه — به‌جای پخش مستقیم. */
     private fun openVideoDetail(item: ContentItem) {
+        SeenStore.markItemSeen(this, item.id)
         LockManager.withAccess(this, item) { openVideoDetailUnlocked(it) }
     }
 
@@ -423,6 +419,9 @@ class CategoryListActivity : AppCompatActivity() {
             (item.type == ContentType.NEWSPAPER || item.type == ContentType.PRICE || item.type == ContentType.WEATHER)
 
     private fun openItem(item: ContentItem) {
+        // همین که کاربر روش می‌زنه، یعنی دیدتش؛ دایره‌ی قرمزش (و اگه این آخرین مورد
+        // ندیده‌ی پوشه/دسته‌اش بود، دایره‌ی خودِ پوشه/دسته هم) از این به بعد محو می‌مونه.
+        SeenStore.markItemSeen(this, item.id)
         LockManager.withAccess(this, item) { openItemUnlocked(it) }
     }
 
