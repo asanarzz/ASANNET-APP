@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--
-        آدرس صفحه‌ی نظرسنجی روی دامنه‌ی خودت، مثلاً:  https://asannet.ir/p/
-        تا وقتی این مقدار خالی است، متن اشتراک‌گذاری فقط «کد نظرسنجی» را دارد (بدون لینک).
-        هر وقت دامنه گرفتی و صفحه‌ی site/p/index.html را بالا آوردی، همین‌جا بنویسش.
-    -->
-    <string name="poll_link_base" translatable="false"></string>
+    <!-- صفحه‌ی لینک نظرسنجی (رایگان، روی همان GitHub Pages برنامه) -->
+    <string name="poll_link_base" translatable="false">https://asanarzz.github.io/ASANNET-APP/p/</string>
 </resources>
