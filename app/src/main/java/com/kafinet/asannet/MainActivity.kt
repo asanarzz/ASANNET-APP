@@ -68,6 +68,14 @@ class MainActivity : AppCompatActivity() {
         ensureNotificationPermission()
         lifecycleScope.launch { SupabaseClient.logVisit(this@MainActivity, null) }
 
+        // اگر کاربر از لینک نظرسنجی آمده و تازه ثبت‌نام/ورود کرده، همان نظرسنجی را باز کن
+        PollsClient.takePendingCode(this)?.let { pendingCode ->
+            startActivity(
+                Intent(this, PollDetailActivity::class.java)
+                    .putExtra(PollDetailActivity.EXTRA_CODE, pendingCode)
+            )
+        }
+
 
         val categories = listOf(
             // ردیف اول (از چپ به راست): موزیک، عکس، فیلم، تلویزیون، رادیو
@@ -112,6 +120,9 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, SubmitDocumentsActivity::class.java))
             } else if (entry.type == ContentType.BANNER) {
                 startActivity(Intent(this, AdsActivity::class.java))
+            } else if (entry.type == ContentType.POLL) {
+                // نظرسنجی: بخش جدید (ساخت نظرسنجی برای کانال/گروه + ورود با کد)
+                startActivity(Intent(this, PollsActivity::class.java))
             } else if (entry.type == null) {
                 // دستیار آسان‌نت: صفحهٔ محلی داخل assets (بدون اینترنت)
                 startActivity(Intent(this, WebViewActivity::class.java).apply {
