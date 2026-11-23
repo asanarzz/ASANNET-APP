@@ -79676,5 +79676,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050902_1400",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 14:00",
+    "description": "دوشنبه 2 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NDI5ODMxLCJpIjpbWyJ1c2QiLDI3MTYzNV0sWyIxOGF5YXIiLDI0MTY1Njc3XSxbInNla2tlaCIsMjUyMDYwXSxbImJhaGFyIiwyMzg3NjhdLFsibmltIiwxMzM2NzBdLFsicm9iIiw3NDI1MF0sWyJ1c2RfYnRjIiwxNjY2ODQ0MTcyNl0sWyJ1c2RfZXRoIiw0Njc3NjYzMzVdLFsidXNkX3VzZHQiLDI3NTYyOV1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
