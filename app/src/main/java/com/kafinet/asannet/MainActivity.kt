@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var categoryAdapter: CategoryGridAdapter
     private var categoryEntries: List<CategoryEntry> = emptyList()
     private var pendingUpdate: AppUpdateInfo? = null
-    private var forcedUpdateDialog: StyledDialog? = null
+    private var forcedUpdateDialog: android.app.AlertDialog? = null
 
     private val bannerAutoScrollHandler = Handler(Looper.getMainLooper())
     private var bannerAutoScrollIndex = 0
@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(
                 Intent(this, PollDetailActivity::class.java)
                     .putExtra(PollDetailActivity.EXTRA_CODE, pendingCode)
-                    .putExtra(PollDetailActivity.EXTRA_FROM_CODE, true)
             )
         }
 
@@ -124,6 +123,11 @@ class MainActivity : AppCompatActivity() {
             } else if (entry.type == ContentType.POLL) {
                 // نظرسنجی: بخش جدید (ساخت نظرسنجی برای کانال/گروه + ورود با کد)
                 startActivity(Intent(this, PollsActivity::class.java))
+            } else if (entry.type == ContentType.IMAGE) {
+                // بخش عکس: صفحهٔ اصلیِ بخش (ابزارهای عکس + لینک‌ها و فایل‌ها)
+                val photoIntent = Intent(this, PhotoHubActivity::class.java)
+                photoIntent.putExtra(PhotoHubActivity.EXTRA_LABEL, entry.label)
+                startActivity(photoIntent)
             } else if (entry.type == null) {
                 // دستیار آسان‌نت: صفحهٔ محلی داخل assets (بدون اینترنت)
                 startActivity(Intent(this, WebViewActivity::class.java).apply {
@@ -330,7 +334,7 @@ class MainActivity : AppCompatActivity() {
         val pm = packageManager
         val otherOption = "اپم تو لیست نیست (باز کردن تنظیمات VPN گوشی)"
         val labels = apps.map { it.loadLabel(pm).toString() }.toTypedArray() + otherOption
-        StyledDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("کدوم فیلترشکن؟")
             .setItems(labels) { _, which ->
                 if (which == apps.size) {
@@ -387,7 +391,7 @@ class MainActivity : AppCompatActivity() {
     private fun showForcedUpdateDialog(update: AppUpdateInfo) {
         if (isFinishing || isDestroyed) return
         if (forcedUpdateDialog?.isShowing == true) return
-        val dialog = StyledDialog.Builder(this)
+        val dialog = android.app.AlertDialog.Builder(this)
             .setTitle("به‌روزرسانی ضروری")
             .setMessage(
                 "نسخه‌ی جدید «آسان نت» (" + update.versionName + ") منتشر شده است.\n" +
