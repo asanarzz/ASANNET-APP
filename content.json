@@ -79704,8 +79704,13 @@
     "description": "",
     "url": "",
     "images": [
-      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795525878089-0-screenshot-20261124164003.jpg",
-      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795525884157-1-index.html"
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795525878089-0-screenshot-20261124164003.jpg"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795525884157-1-index.html"
+      }
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
