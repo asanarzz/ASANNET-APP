@@ -79646,5 +79646,15 @@
       "https://static.jaaar.com/assets/images/pishkhan/1405/9/3/193002e6.jpg",
       "https://static.jaaar.com/assets/images/pishkhan/1405/9/3/b2f627ff.jpg"
     ]
+  },
+  {
+    "id": "item_priceauto_14050903_0806",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 08:06",
+    "description": "سه‌شنبه 3 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NDk0OTczLCJpIjpbWyJ1c2QiLDI3MjQ4NV0sWyIxOGF5YXIiLDI0NTYyMDkxXSxbInNla2tlaCIsMjU0NTQ4XSxbImJhaGFyIiwyNDIyNTBdLFsibmltIiwxMzQ5MjBdLFsicm9iIiw3NTI1MF0sWyJ1c2RfYnRjIiwxNjQ4MTkyODI2M10sWyJ1c2RfZXRoIiw0NjMxODM2MjddLFsidXNkX3VzZHQiLDI3Nzg1N11dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
