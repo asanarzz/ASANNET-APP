@@ -79247,5 +79247,20 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795553152921",
+    "type": "image",
+    "title": "Pixlr",
+    "description": "",
+    "url": "",
+    "links": [
+      {
+        "label": "express",
+        "url": "https://pixlr.com/express/"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
