@@ -79686,5 +79686,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050903_1600",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 16:00",
+    "description": "سه‌شنبه 3 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NTIzNDM0LCJpIjpbWyJ1c2QiLDI4NDczMF0sWyIxOGF5YXIiLDI1OTEyNTM2XSxbInNla2tlaCIsMjY4NjY4XSxbImJhaGFyIiwyNTY5ODhdLFsibmltIiwxNDI5MzVdLFsicm9iIiw3OTg5NV0sWyJ1c2RfYnRjIiwxNzE2MjY1MDI3OV0sWyJ1c2RfZXRoIiw0ODMxMDcwODZdLFsidXNkX3VzZHQiLDI4ODc0N11dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
