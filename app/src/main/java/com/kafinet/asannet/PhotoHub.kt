@@ -87,6 +87,12 @@ class PhotoToolsActivity : PhotoToolActivity() {
             PhotoIdActivity::class.java
         )
         addTool(
+            container, R.drawable.ic_chat, R.color.type_fun,
+            "ساخت استیکر",
+            "استیکر WebP استاندارد ۵۱۲ پیکسلی برای ایتا و تلگرام، با حذف پس‌زمینه‌ی ساده",
+            PhotoStickerActivity::class.java
+        )
+        addTool(
             container, R.drawable.ic_refresh, R.color.type_link,
             "تبدیل فرمت عکس",
             "تبدیل بین JPG، PNG، WebP و BMP",
