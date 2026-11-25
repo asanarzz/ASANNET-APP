@@ -136,12 +136,22 @@ class PollDetailActivity : AppCompatActivity() {
         if (p.description.isNotBlank()) {
             head.addView(PollUi.text(this, p.description, 15f, R.color.text_main), PollUi.lp(this, 10))
         }
-        val meta = ArrayList<String>()
-        meta.add((if (p.closed) "⛔ " else "⏳ ") + PollFormat.timeLeft(p.endsAt, p.closed))
+        val metaRow = LinearLayout(this)
+        metaRow.orientation = LinearLayout.HORIZONTAL
+        val timeTv = PollUi.text(
+            this, (if (p.closed) "⛔ " else "⏳ ") + PollFormat.timeLeft(p.endsAt, p.closed),
+            14f, R.color.text_main, bold = true
+        )
+        metaRow.addView(timeTv)
         val tv = p.totalVoters
-        if (tv != null) meta.add("👥 " + PollFormat.digits(tv) + " نفر")
-        head.addView(PollUi.text(this, meta.joinToString("      "), 13f, R.color.text_muted), PollUi.lp(this, 12))
-        head.addView(PollUi.text(this, PollFormat.resultsLabel(p.showResults), 12f, R.color.text_muted), PollUi.lp(this, 4))
+        if (tv != null) {
+            val cnt = PollUi.text(this, "👥 " + PollFormat.digits(tv) + " نفر", 14f, R.color.text_main, bold = true)
+            val clp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            clp.marginStart = PollUi.dp(this, 22)
+            metaRow.addView(cnt, clp)
+        }
+        head.addView(metaRow, PollUi.lp(this, 12))
+        head.addView(PollUi.text(this, PollFormat.resultsLabel(p.showResults), 13f, R.color.text_main, bold = true), PollUi.lp(this, 8))
         box.addView(head)
 
         // --- گزینه‌ها
@@ -167,7 +177,7 @@ class PollDetailActivity : AppCompatActivity() {
                 else -> ""
             }
             if (msg.isNotEmpty()) {
-                val t = PollUi.text(this, msg, 14f, R.color.text_muted, bold = true)
+                val t = PollUi.text(this, msg, 16f, R.color.text_main, bold = true)
                 t.gravity = Gravity.CENTER
                 box.addView(t, PollUi.lp(this, 14))
             }
@@ -237,9 +247,13 @@ class PollDetailActivity : AppCompatActivity() {
         if (votes != null) {
             val total = p.totalVoters ?: 0
             pct = if (total > 0) (votes * 100) / total else 0
-            top.addView(
-                PollUi.text(this, PollFormat.digits(votes) + " رأی • " + PollFormat.digits(pct) + "٪", 13f, R.color.text_muted)
-            )
+            val box = LinearLayout(this)
+            box.orientation = LinearLayout.HORIZONTAL
+            box.addView(PollUi.text(this, PollFormat.digits(votes) + " رأی", 14f, R.color.text_main, bold = true))
+            val plp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            plp.marginStart = PollUi.dp(this, 16)
+            box.addView(PollUi.text(this, PollFormat.digits(pct) + "٪", 14f, R.color.primary, bold = true), plp)
+            top.addView(box)
         }
         row.addView(top)
 
