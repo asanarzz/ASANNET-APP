@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
+import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -14,6 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /* ===================================================================
  *  ساخت استیکر (ایتا، تلگرام)
@@ -337,7 +341,32 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
     override fun actionLabel(): String = "ساخت استیکرها"
 
     override fun resultHint(): String =
-        "برای ارسال، دکمه‌ی «اشتراک‌گذاری» را بزنید و ایتا را انتخاب کنید (نه از سنجاق داخل ایتا)."
+        "برای ایتا: «ذخیره در گالری» را بزنید، بعد از خودِ گالری گوشی استیکر را باز کنید و اشتراک‌گذاری کنید و ایتا را بزنید. " +
+            "دکمه‌ی «اشتراک‌گذاری» همین‌جا هم همین کار را خودکار انجام می‌دهد. از سنجاق داخل ایتا نفرستید."
+
+    override fun saveLabel(): String = "ذخیره در گالری"
+
+    override fun performSave(list: List<PhotoResult>, onDone: (Int) -> Unit) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // اندروید ۹ و پایین‌تر: همان پوشه‌ی Downloads/آسان نت
+            saveResults(list, onDone)
+            return
+        }
+        saveResultsToGallery(list, true) { uris ->
+            onDone(uris.size)
+        }
+    }
+
+    override fun performShare(list: List<PhotoResult>) {
+        // مثل اشتراک‌گذاری از خودِ گالری: اول در گالری ذخیره می‌شود و آدرس گالری به ایتا داده می‌شود
+        saveResultsToGallery(list, false) { uris ->
+            if (uris.isNotEmpty()) {
+                PhotoFiles.shareUris(this, uris, "image/webp")
+            } else {
+                PhotoFiles.share(this, list.map { it.file }, "image/webp")
+            }
+        }
+    }
 
     private fun updateToleranceLabel() {
         toleranceLabel.text = "حساسیت حذف پس‌زمینه: " + tolerance
@@ -489,7 +518,8 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
         val w = sticker.width
         val h = sticker.height
         sticker.recycle()
-        val file = PhotoFiles.newFile(this, "Sticker_" + PhotoImageUtils.baseName(source.name) + ".webp")
+        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val file = PhotoFiles.newFile(this, "sticker_" + stamp + "_" + (index + 1) + ".webp")
         file.writeBytes(enc.bytes)
         val note = if (enc.reachedTarget) "" else "حجم این استیکر از ۵۱۲ کیلوبایت بیشتر شد."
         return PhotoResult(file, file.name, "image/webp", source.name, source.sizeBytes, w, h, note)

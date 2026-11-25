@@ -1,6 +1,7 @@
 package com.kafinet.asannet
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -18,6 +19,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.InputType
 import android.text.TextUtils
@@ -27,7 +29,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -86,6 +87,9 @@ object PhotoUi {
     const val MATCH = ViewGroup.LayoutParams.MATCH_PARENT
     const val WRAP = ViewGroup.LayoutParams.WRAP_CONTENT
 
+    /** ضریب بزرگ‌نمایی همه‌ی نوشته‌های بخش عکس (برای خوانایی بهتر). */
+    const val TEXT_SCALE = 1.3f
+
     fun dp(context: Context, value: Int): Int =
         (value * context.resources.displayMetrics.density + 0.5f).toInt()
 
@@ -120,7 +124,7 @@ object PhotoUi {
     fun text(context: Context, value: CharSequence, sizeSp: Float, colorInt: Int, bold: Boolean = false): TextView {
         val tv = TextView(context)
         tv.text = value
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp * TEXT_SCALE)
         tv.setTextColor(colorInt)
         tv.setTypeface(font(context), if (bold) Typeface.BOLD else Typeface.NORMAL)
         tv.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -160,7 +164,7 @@ object PhotoUi {
         e.hint = hint
         e.setHintTextColor(color(context, R.color.text_muted))
         e.setTextColor(color(context, R.color.text_main))
-        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f * TEXT_SCALE)
         e.typeface = font(context)
         e.maxLines = 1
         e.inputType = if (numeric) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
@@ -259,27 +263,21 @@ class PhotoChips(
     selectedIndex: Int,
     private val onChange: (Int) -> Unit
 ) {
-    val view: HorizontalScrollView = HorizontalScrollView(context)
+    val view: PhotoFlowLayout = PhotoFlowLayout(context)
     private val chips = ArrayList<TextView>()
     var selected: Int = selectedIndex
         private set
 
     init {
-        view.isHorizontalScrollBarEnabled = false
-        val row = LinearLayout(context)
-        row.orientation = LinearLayout.HORIZONTAL
-        view.addView(row, ViewGroup.LayoutParams(PhotoUi.WRAP, PhotoUi.WRAP))
         for (i in labels.indices) {
             val chip = PhotoUi.text(context, labels[i], 14f, Color.BLACK, true)
             chip.gravity = Gravity.CENTER
-            chip.setPadding(PhotoUi.dp(context, 14), PhotoUi.dp(context, 8), PhotoUi.dp(context, 14), PhotoUi.dp(context, 8))
+            chip.setPadding(PhotoUi.dp(context, 14), PhotoUi.dp(context, 9), PhotoUi.dp(context, 14), PhotoUi.dp(context, 9))
             chip.isClickable = true
             chip.isFocusable = true
             chip.setOnClickListener { select(i, true) }
-            val lp = LinearLayout.LayoutParams(PhotoUi.WRAP, PhotoUi.WRAP)
-            lp.marginEnd = PhotoUi.dp(context, 8)
             chips.add(chip)
-            row.addView(chip, lp)
+            view.addView(chip)
         }
         restyle()
     }
@@ -882,6 +880,68 @@ object PhotoFiles {
         }
     }
 
+    /**
+     * فایل را در گالریِ گوشی (پوشه‌ی Pictures/آسان نت) ذخیره می‌کند، درست مثل عکسی که با دوربین گرفته شده.
+     * آدرس گالری برگردانده می‌شود؛ اگر نشد (مثلاً اندروید ۹ و پایین‌تر) null برمی‌گردد.
+     */
+    fun saveToGallery(context: Context, file: File, displayName: String, mime: String): Uri? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        return try {
+            val resolver = context.contentResolver
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, safeName(displayName))
+            values.put(MediaStore.Images.Media.MIME_TYPE, mime)
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/آسان نت")
+            values.put(MediaStore.Images.Media.IS_PENDING, 1)
+            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: return null
+            try {
+                val output = resolver.openOutputStream(uri)
+                if (output == null) {
+                    resolver.delete(uri, null, null)
+                    return null
+                }
+                output.use { out ->
+                    file.inputStream().use { input -> input.copyTo(out) }
+                }
+                val done = ContentValues()
+                done.put(MediaStore.Images.Media.IS_PENDING, 0)
+                resolver.update(uri, done, null, null)
+                uri
+            } catch (e: Exception) {
+                try {
+                    resolver.delete(uri, null, null)
+                } catch (ignored: Exception) {
+                }
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /** چند آدرس (مثلاً آدرس‌های گالری) را با برنامه‌های دیگر به اشتراک می‌گذارد. */
+    fun shareUris(activity: Activity, uris: List<Uri>, mime: String) {
+        if (uris.isEmpty()) return
+        try {
+            val list = ArrayList<Uri>(uris)
+            val intent = if (list.size == 1) {
+                Intent(Intent.ACTION_SEND).apply {
+                    type = mime
+                    putExtra(Intent.EXTRA_STREAM, list[0])
+                }
+            } else {
+                Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                    type = mime
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, list)
+                }
+            }
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            activity.startActivity(Intent.createChooser(intent, "اشتراک‌گذاری"))
+        } catch (e: Exception) {
+            Toast.makeText(activity, "اشتراک‌گذاری ممکن نشد", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     /** فایل را با برنامه‌ی مناسب گوشی باز می‌کند (مثلاً PDF). */
     fun view(activity: Activity, file: File, mime: String) {
         try {
@@ -1109,6 +1169,47 @@ abstract class PhotoToolActivity : AppCompatActivity() {
         return chips
     }
 
+    private val galleryUris = HashMap<String, Uri>()
+
+    /**
+     * نتیجه‌ها را در گالریِ گوشی (Pictures/آسان نت) ذخیره می‌کند و آدرس‌های گالری را برمی‌گرداند.
+     * اگر گوشی اجازه ندهد (اندروید ۹ و پایین‌تر)، فهرستِ خالی برمی‌گردد.
+     */
+    fun saveResultsToGallery(list: List<PhotoResult>, showMessage: Boolean, onDone: (List<Uri>) -> Unit) {
+        if (list.isEmpty()) return
+        if (!DownloadHelper.ensureStoragePermission(this)) {
+            toastLong("برای ذخیره، اجازه‌ی حافظه را تأیید کنید و دوباره بزنید")
+            return
+        }
+        lifecycleScope.launch {
+            val uris = withContext(Dispatchers.IO) {
+                val out = ArrayList<Uri>()
+                for (r in list) {
+                    val key = r.file.absolutePath
+                    val known = galleryUris[key]
+                    if (known != null) {
+                        out.add(known)
+                    } else {
+                        val u = PhotoFiles.saveToGallery(this@PhotoToolActivity, r.file, r.displayName, r.mime)
+                        if (u != null) {
+                            galleryUris[key] = u
+                            out.add(u)
+                        }
+                    }
+                }
+                out
+            }
+            if (showMessage) {
+                if (uris.isNotEmpty()) {
+                    toastLong(uris.size.toString() + " فایل در گالری (پوشه‌ی Pictures/آسان نت) ذخیره شد")
+                } else {
+                    toastLong("ذخیره در گالری انجام نشد")
+                }
+            }
+            onDone(uris)
+        }
+    }
+
     /** چند فایل را در پوشه‌ی Downloads/آسان نت ذخیره می‌کند. */
     fun saveResults(list: List<PhotoResult>, onDone: (Int) -> Unit) {
         if (list.isEmpty()) return
@@ -1261,6 +1362,19 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
     protected open fun onSourcesChanged() {}
 
     protected open fun resultHint(): String = ""
+
+    /** نوشته‌ی دکمه‌ی ذخیره. */
+    protected open fun saveLabel(): String = "ذخیره در گوشی"
+
+    /** ذخیره‌ی خروجی‌ها (پیش‌فرض: پوشه‌ی Downloads/آسان نت). */
+    protected open fun performSave(list: List<PhotoResult>, onDone: (Int) -> Unit) {
+        saveResults(list, onDone)
+    }
+
+    /** اشتراک‌گذاری خروجی‌ها. */
+    protected open fun performShare(list: List<PhotoResult>) {
+        PhotoFiles.share(this, list.map { it.file }, PhotoFiles.commonMime(list))
+    }
 
     /** همه‌ی عکس‌ها را پردازش می‌کند (روی ترد پس‌زمینه). برای ابزارهایی با یک خروجی، این تابع عوض می‌شود. */
     protected open fun produce(
@@ -1548,9 +1662,9 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
 
         val buttons = LinearLayout(this)
         buttons.orientation = LinearLayout.HORIZONTAL
-        val saveButton = PhotoUi.button(this, "ذخیره در گوشی", true) { }
+        val saveButton = PhotoUi.button(this, saveLabel(), true) { }
         saveButton.setOnClickListener {
-            saveResults(results) { n ->
+            performSave(results) { n ->
                 if (n > 0) {
                     saved = true
                     saveButton.text = "ذخیره شد"
@@ -1558,7 +1672,7 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
             }
         }
         val shareButton = PhotoUi.button(this, "اشتراک‌گذاری", false) {
-            PhotoFiles.share(this, results.map { it.file }, PhotoFiles.commonMime(results))
+            performShare(results)
         }
         val b1 = LinearLayout.LayoutParams(0, PhotoUi.WRAP, 1f)
         b1.marginEnd = dp(8)
@@ -1624,7 +1738,7 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
 
         if (r.mime == "application/pdf") {
             val openButton = smallAction("باز کردن") { PhotoFiles.view(this, r.file, r.mime) }
-            openButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            openButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * PhotoUi.TEXT_SCALE)
             row.addView(openButton, LinearLayout.LayoutParams(PhotoUi.WRAP, PhotoUi.WRAP))
         }
         return row

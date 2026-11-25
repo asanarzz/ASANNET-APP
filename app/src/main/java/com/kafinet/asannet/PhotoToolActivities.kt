@@ -1043,17 +1043,21 @@ class PhotoEditorActivity : PhotoToolActivity() {
         ) { index -> cropView.setRatio(ratios[index]) }
 
         addLabel(card1, "چرخش و آینه", 14)
-        val rotRow = LinearLayout(this)
-        rotRow.orientation = LinearLayout.HORIZONTAL
         val labels = arrayOf("چرخش راست", "چرخش چپ", "آینه افقی", "آینه عمودی")
-        for (i in labels.indices) {
-            val b = actionButton(labels[i]) { transformAction(i) }
-            b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12.5f)
-            val lp = LinearLayout.LayoutParams(0, PhotoUi.WRAP, 1f)
-            if (i < labels.size - 1) lp.marginEnd = dp(6)
-            rotRow.addView(b, lp)
+        for (rowIndex in 0 until 2) {
+            val rotRow = LinearLayout(this)
+            rotRow.orientation = LinearLayout.HORIZONTAL
+            for (col in 0 until 2) {
+                val i = rowIndex * 2 + col
+                val b = actionButton(labels[i]) { transformAction(i) }
+                val lp = LinearLayout.LayoutParams(0, PhotoUi.WRAP, 1f)
+                if (col == 0) lp.marginEnd = dp(8)
+                rotRow.addView(b, lp)
+            }
+            val rowLp = LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP)
+            if (rowIndex == 1) rowLp.topMargin = dp(8)
+            card1.addView(rotRow, rowLp)
         }
-        card1.addView(rotRow, LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP))
 
         val card2 = newCard(container, "۲) نور و رنگ")
         addLabel(card2, "حالت آماده", 0)

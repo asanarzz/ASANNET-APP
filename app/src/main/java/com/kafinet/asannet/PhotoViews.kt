@@ -12,6 +12,7 @@ import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.ViewGroup
 
 /**
  * کادر ثابت با نسبت دلخواه (مثل ۳×۴)؛ کاربر عکس را زیر کادر جابه‌جا و با دو انگشت بزرگ/کوچک می‌کند.
@@ -62,7 +63,7 @@ class PhotoFrameView(context: Context) : View(context) {
         guidePaint.strokeWidth = 1.5f * density
         guidePaint.pathEffect = DashPathEffect(floatArrayOf(10f * density, 8f * density), 0f)
         textPaint.color = Color.argb(220, 255, 255, 255)
-        textPaint.textSize = 14f * density
+        textPaint.textSize = 18f * density
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.typeface = PhotoUi.font(context)
         setBackgroundColor(Color.parseColor("#1F1B2E"))
@@ -527,5 +528,72 @@ class PhotoCropView(context: Context) : View(context) {
         drawCorner(canvas, crop.right, crop.top, -1f, 1f)
         drawCorner(canvas, crop.left, crop.bottom, 1f, -1f)
         drawCorner(canvas, crop.right, crop.bottom, -1f, -1f)
+    }
+}
+
+/**
+ * چیدمانی که اجزا را کنار هم می‌چیند و اگر جا نشد، به خط بعد می‌برد (راست‌به‌چپ هم درست کار می‌کند).
+ * برای ردیف گزینه‌ها (چیپ‌ها) استفاده می‌شود تا هیچ گزینه‌ای بیرون از صفحه نماند.
+ */
+class PhotoFlowLayout(context: Context) : ViewGroup(context) {
+
+    private val gap = (8f * context.resources.displayMetrics.density).toInt()
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val mode = View.MeasureSpec.getMode(widthMeasureSpec)
+        val specWidth = View.MeasureSpec.getSize(widthMeasureSpec)
+        val maxWidth = if (mode == View.MeasureSpec.UNSPECIFIED) 100000 else maxOf(0, specWidth - paddingLeft - paddingRight)
+        var lineWidth = 0
+        var lineHeight = 0
+        var totalHeight = 0
+        var widest = 0
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child.visibility == View.GONE) continue
+            child.measure(
+                View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val cw = child.measuredWidth
+            val ch = child.measuredHeight
+            if (lineWidth > 0 && lineWidth + gap + cw > maxWidth) {
+                totalHeight += lineHeight + gap
+                widest = maxOf(widest, lineWidth)
+                lineWidth = 0
+                lineHeight = 0
+            }
+            lineWidth += (if (lineWidth > 0) gap else 0) + cw
+            lineHeight = maxOf(lineHeight, ch)
+        }
+        totalHeight += lineHeight
+        widest = maxOf(widest, lineWidth)
+        setMeasuredDimension(
+            View.resolveSize(widest + paddingLeft + paddingRight, widthMeasureSpec),
+            View.resolveSize(totalHeight + paddingTop + paddingBottom, heightMeasureSpec)
+        )
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        val rtl = layoutDirection == View.LAYOUT_DIRECTION_RTL
+        val availWidth = r - l - paddingLeft - paddingRight
+        var used = 0
+        var y = paddingTop
+        var lineHeight = 0
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child.visibility == View.GONE) continue
+            val cw = child.measuredWidth
+            val ch = child.measuredHeight
+            if (used > 0 && used + gap + cw > availWidth) {
+                y += lineHeight + gap
+                used = 0
+                lineHeight = 0
+            }
+            val offset = if (used > 0) used + gap else 0
+            val left = if (rtl) (r - l - paddingRight - offset - cw) else (paddingLeft + offset)
+            child.layout(left, y, left + cw, y + ch)
+            used = offset + cw
+            lineHeight = maxOf(lineHeight, ch)
+        }
     }
 }
