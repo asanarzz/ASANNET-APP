@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/header_gradient"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="14dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/fm_title"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btn_search"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_search"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:id="@+id/btn_more"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_more_vert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/edit_search"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_fm_chip"
+        android:hint="@string/fm_search_hint"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingHorizontal="14dp"
+        android:textColor="@color/text_main"
+        android:textColorHint="@color/text_muted"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <HorizontalScrollView
+        android:id="@+id/scroll_chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingVertical="8dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="10dp">
+
+        <LinearLayout
+            android:id="@+id/chips_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/txt_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="14dp"
+        android:maxLines="1"
+        android:ellipsize="start"
+        android:gravity="start"
+        android:textDirection="ltr"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/txt_storage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="4dp"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_files"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/layout_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_empty"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/txt_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/fm_empty"
+                android:textColor="@color/text_muted"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layout_permission"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fm_perm_title"
+                android:textColor="@color/text_main"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="@string/fm_perm_desc"
+                android:textColor="@color/text_muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btn_grant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/bg_fm_button"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="12dp"
+                android:text="@string/fm_perm_button"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- نوار کارهای انتخاب -->
+    <LinearLayout
+        android:id="@+id/bar_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/primary_dark"
+        android:paddingVertical="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/act_copy"
+            style="@style/FmBarAction"
+            android:drawableTop="@drawable/ic_fm_copy"
+            android:text="@string/fm_copy" />
+
+        <TextView
+            android:id="@+id/act_move"
+            style="@style/FmBarAction"
+            android:drawableTop="@drawable/ic_fm_move"
+            android:text="@string/fm_move" />
+
+        <TextView
+            android:id="@+id/act_delete"
+            style="@style/FmBarAction"
+            android:drawableTop="@drawable/ic_fm_delete"
+            android:text="@string/fm_delete" />
+
+        <TextView
+            android:id="@+id/act_share"
+            style="@style/FmBarAction"
+            android:drawableTop="@drawable/ic_share"
+            android:text="@string/fm_share" />
+
+        <TextView
+            android:id="@+id/act_more"
+            style="@style/FmBarAction"
+            android:drawableTop="@drawable/ic_more_vert"
+            android:text="@string/fm_more" />
+    </LinearLayout>
+
+    <!-- نوار چسباندن -->
+    <LinearLayout
+        android:id="@+id/bar_paste"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/primary_dark"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txt_paste_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_paste_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/fm_cancel"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/btn_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_fm_button"
+            android:backgroundTint="@color/primary"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="9dp"
+            android:text="@string/fm_paste_here"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>
