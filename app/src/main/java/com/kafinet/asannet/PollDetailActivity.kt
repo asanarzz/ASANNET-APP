@@ -15,6 +15,9 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.launch
@@ -173,6 +176,9 @@ class PollDetailActivity : AppCompatActivity() {
         // --- اشتراک‌گذاری و مدیریت
         val actions = PollUi.card(this)
         actions.addView(PollUi.button(this, "📤  اشتراک‌گذاری نظرسنجی") { share(p) })
+        if (p.canSeeResults) {
+            actions.addView(PollUi.button(this, "🖼  اشتراک‌گذاری نتیجه (عکس)", filled = false) { shareResultImage(p) }, PollUi.lp(this, 8))
+        }
         actions.addView(PollUi.button(this, "📋  کپی لینک و کد", filled = false) { copyText(p) }, PollUi.lp(this, 8))
         if (p.isOwner) {
             if (!p.closed) {
@@ -296,6 +302,22 @@ class PollDetailActivity : AppCompatActivity() {
         send.type = "text/plain"
         send.putExtra(Intent.EXTRA_TEXT, PollFormat.shareText(this, p.title, p.organizer, p.code, tappable))
         startActivity(Intent.createChooser(send, "ارسال نظرسنجی به ..."))
+    }
+
+    private fun shareResultImage(p: PollDetail) {
+        lifecycleScope.launch {
+            try {
+                val file = withContext(Dispatchers.IO) { PollResultImage.createFile(this@PollDetailActivity, p) }
+                val uri = FileProvider.getUriForFile(this@PollDetailActivity, "$packageName.fileprovider", file)
+                val send = Intent(Intent.ACTION_SEND)
+                send.type = "image/png"
+                send.putExtra(Intent.EXTRA_STREAM, uri)
+                send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(Intent.createChooser(send, "ارسال نتیجه به ..."))
+            } catch (e: Exception) {
+                toast("ساخت عکس نتیجه انجام نشد: " + e.javaClass.simpleName)
+            }
+        }
     }
 
     private fun copyText(p: PollDetail) {
