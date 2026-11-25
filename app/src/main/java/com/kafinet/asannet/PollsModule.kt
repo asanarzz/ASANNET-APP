@@ -334,6 +334,9 @@ object PollFormat {
 
 object PollUi {
 
+    /** ضریب بزرگ‌نمایی همه‌ی نوشته‌های بخش نظرسنجی */
+    const val TEXT_SCALE = 1.2f
+
     fun dp(ctx: Context, v: Int): Int = (v * ctx.resources.displayMetrics.density + 0.5f).toInt()
 
     fun color(ctx: Context, res: Int): Int = ContextCompat.getColor(ctx, res)
@@ -360,7 +363,7 @@ object PollUi {
     ): TextView {
         val tv = TextView(ctx)
         tv.text = value
-        tv.textSize = sizeSp
+        tv.textSize = sizeSp * TEXT_SCALE
         tv.setTextColor(color(ctx, colorRes))
         font(ctx)?.let { tv.typeface = Typeface.create(it, if (bold) Typeface.BOLD else Typeface.NORMAL) }
         return tv

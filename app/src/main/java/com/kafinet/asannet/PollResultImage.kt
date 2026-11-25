@@ -62,28 +62,28 @@ object PollResultImage {
                 .build()
 
         val headerText = if (p.organizer.isNotBlank()) p.organizer else "نظرسنجی آسان نت"
-        val headerL = layout(headerText, tp(54f, Color.WHITE, true), contentW)
+        val headerL = layout(headerText, tp(64f, Color.WHITE, true), contentW)
         val headerH = headerL.height + 110
 
-        val titleL = layout(p.title, tp(58f, cText, true), contentW)
+        val titleL = layout(p.title, tp(70f, cText, true), contentW)
 
         val meta = ArrayList<String>()
         p.totalVoters?.let { meta.add(PollFormat.digits(it) + " نفر شرکت کرده‌اند") }
         meta.add(PollFormat.timeLeft(p.endsAt, p.closed))
-        val metaL = layout(meta.joinToString("   •   "), tp(36f, cMuted), contentW)
+        val metaL = layout(meta.joinToString("   •   "), tp(46f, cMuted), contentW)
 
         val total = p.totalVoters ?: 0
         val n = maxOf(p.options.size, 1)
         val colW = contentW / n.toFloat()
         val maxVotes = p.options.maxOfOrNull { it.votes ?: 0 } ?: 0
         val labelSize = when {
-            n <= 3 -> 42f
-            n <= 5 -> 36f
-            n <= 7 -> 30f
-            else -> 26f
+            n <= 3 -> 52f
+            n <= 5 -> 44f
+            n <= 7 -> 35f
+            else -> 29f
         }
-        val valueSize = if (n <= 5) 44f else 36f
-        val pctSize = if (n <= 5) 32f else 28f
+        val valueSize = if (n <= 5) 56f else 44f
+        val pctSize = if (n <= 5) 42f else 34f
         val chartH = 520
 
         class Col(
@@ -110,7 +110,7 @@ object PollResultImage {
         val valueBlockH = (cols.firstOrNull()?.let { it.count.height + it.percent.height } ?: 0) + 18
         val labelMaxH = cols.maxOfOrNull { it.label.height } ?: 0
 
-        val footerL = layout("ساخته‌شده با برنامه آسان نت", tp(34f, cMuted), contentW, center = true)
+        val footerL = layout("ساخته‌شده با برنامه آسان نت", tp(42f, cMuted), contentW, center = true)
 
         var height = headerH + 50 + titleL.height + 16 + metaL.height + 50
         height += valueBlockH + chartH + 24 + labelMaxH + 50 + footerL.height + 50

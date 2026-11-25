@@ -90,7 +90,7 @@ class CreatePollActivity : AppCompatActivity() {
         switchMultiple.text = "انتخاب چند گزینه‌ای (هر نفر چند گزینه بتواند انتخاب کند)"
         switchMultiple.setTextColor(PollUi.color(this, R.color.text_main))
         PollUi.font(this)?.let { switchMultiple.typeface = it }
-        switchMultiple.textSize = 14f
+        switchMultiple.textSize = 17f
         form.addView(switchMultiple, PollUi.lp(this, 18))
 
         // نمایش نتیجه
@@ -144,7 +144,7 @@ class CreatePollActivity : AppCompatActivity() {
         e.hint = hint
         e.setHintTextColor(PollUi.color(this, R.color.text_muted))
         e.setTextColor(PollUi.color(this, R.color.text_main))
-        e.textSize = 16f
+        e.textSize = 19f
         PollUi.font(this)?.let { e.typeface = it }
         e.setBackgroundResource(R.drawable.ads_input_bg)
         val p = PollUi.dp(this, 12)
