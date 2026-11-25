@@ -13,7 +13,9 @@ data class CategoryEntry(
     val bgRes: Int,
     val isSubmit: Boolean = false,
     /** true یعنی از آخرین باری که کاربر این دسته را باز کرده، موردی تازه به آن اضافه شده. */
-    val hasNew: Boolean = false
+    val hasNew: Boolean = false,
+    /** true یعنی آیکون «مدیریت فایل» (فایل منیجر کامل). */
+    val isFileManager: Boolean = false
 )
 
 class CategoryGridAdapter(

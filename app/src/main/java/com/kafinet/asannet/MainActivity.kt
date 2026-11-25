@@ -101,6 +101,8 @@ class MainActivity : AppCompatActivity() {
             CategoryEntry(ContentType.SERVICES, "همه خدمات", R.drawable.cat_services, 0),
             // آب و هوا: مثل بقیهٔ بخش‌ها از پنل مدیریت (نوع weather) فایل و لینک می‌گیرد
             CategoryEntry(ContentType.WEATHER, getString(R.string.cat_weather), R.drawable.cat_weather, 0),
+            // مدیریت فایل (فایل منیجر کامل) — بین آب و هوا و دستیار
+            CategoryEntry(null, getString(R.string.cat_filemanager), R.drawable.cat_filemanager, 0, isFileManager = true),
             // دستیار آسان‌نت (ربات محلی داخل برنامه)
             CategoryEntry(null, "دستیار", R.drawable.cat_assistant, 0)
         )
@@ -128,6 +130,8 @@ class MainActivity : AppCompatActivity() {
                 val photoIntent = Intent(this, PhotoHubActivity::class.java)
                 photoIntent.putExtra(PhotoHubActivity.EXTRA_LABEL, entry.label)
                 startActivity(photoIntent)
+            } else if (entry.isFileManager) {
+                startActivity(Intent(this, FileManagerActivity::class.java))
             } else if (entry.type == null) {
                 // دستیار آسان‌نت: صفحهٔ محلی داخل assets (بدون اینترنت)
                 startActivity(Intent(this, WebViewActivity::class.java).apply {
