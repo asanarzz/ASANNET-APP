@@ -79709,5 +79709,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050904_1400",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 14:00",
+    "description": "چهارشنبه 4 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NjAyNjM1LCJpIjpbWyJ1c2QiLDI4NzY0M10sWyIxOGF5YXIiLDI1MzcxMDg3XSxbInNla2tlaCIsMjYyNjg1XSxbImJhaGFyIiwyNTIwNDBdLFsibmltIiwxNDEyMTVdLFsicm9iIiw3NjY2NV0sWyJ1c2RfYnRjIiwxNjk2NTA3NDExMF0sWyJ1c2RfZXRoIiw0NzMzMjcyMzldLFsidXNkX3VzZHQiLDI5NDA5Nl1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
