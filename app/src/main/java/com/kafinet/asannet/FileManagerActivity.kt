@@ -13,6 +13,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -59,6 +60,9 @@ class FileManagerActivity : AppCompatActivity() {
 
     private var busy = false
 
+    /** صفحه‌ی خانه (کارت‌های حافظه) نمایش داده می‌شود. */
+    private var homeMode = false
+
     companion object {
         private const val PREFS = "kafinet_fm"
         private const val SORT_NAME = 0
@@ -92,8 +96,7 @@ class FileManagerActivity : AppCompatActivity() {
                 }
             }
         )
-        binding.recyclerFiles.layoutManager = LinearLayoutManager(this)
-        binding.recyclerFiles.adapter = adapter
+        applyViewMode()
 
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSearch.setOnClickListener { toggleSearch() }
@@ -107,7 +110,21 @@ class FileManagerActivity : AppCompatActivity() {
         binding.actCopy.setOnClickListener { startClip(move = false) }
         binding.actMove.setOnClickListener { startClip(move = true) }
         binding.actDelete.setOnClickListener { confirmDelete() }
-        binding.actShare.setOnClickListener { FileOps.shareFiles(this, adapter.selectedFiles()) }
+        binding.actRename.setOnClickListener {
+            val sel = adapter.selectedFiles()
+            if (sel.size == 1) renameDialog(sel[0]) else toast(R.string.fm_rename_one)
+        }
+        binding.btnSelectAll.setOnClickListener {
+            adapter.selectAll()
+            updateSelectionUi()
+        }
+        binding.btnInterval.setOnClickListener {
+            if (adapter.selectInterval()) updateSelectionUi() else toast(R.string.fm_interval_need_two)
+        }
+        binding.btnCancelSel.setOnClickListener {
+            adapter.clearSelection()
+            updateSelectionUi()
+        }
         binding.actMore.setOnClickListener { showSelectionMenu() }
 
         binding.btnPaste.setOnClickListener { pasteHere() }
@@ -135,12 +152,22 @@ class FileManagerActivity : AppCompatActivity() {
         })
     }
 
+    /** نوع نمایش (آیکون / لیست / جزئیات و اندازه) را از تنظیمات ذخیره‌شده اعمال می‌کند. */
+    private fun applyViewMode() {
+        adapter.style = FileViewMode.style(this)
+        adapter.scale = FileViewMode.scale(this)
+        binding.recyclerFiles.layoutManager = FileViewMode.layoutManager(this)
+        binding.recyclerFiles.adapter = adapter
+    }
+
     override fun onResume() {
         super.onResume()
         if (hasAccess()) {
             binding.layoutPermission.visibility = View.GONE
             if (volumes.isEmpty()) {
                 setupVolumes()
+            } else if (homeMode) {
+                buildHomeCards()
             } else {
                 loadCurrent()
             }
@@ -213,7 +240,78 @@ class FileManagerActivity : AppCompatActivity() {
         volumes = list
         buildChips()
         currentVolume = list[0]
-        navigate(list[0].root)
+        current = list[0].root
+        showHome()
+    }
+
+    // ---------------------------------------------------------------- صفحه‌ی خانه (کارت‌های حافظه)
+
+    private fun showHome() {
+        closeSearch()
+        adapter.clearSelection()
+        listJob?.cancel()
+        homeMode = true
+        binding.layoutHome.visibility = View.VISIBLE
+        binding.recyclerFiles.visibility = View.GONE
+        binding.layoutEmpty.visibility = View.GONE
+        binding.progress.visibility = View.GONE
+        binding.txtPath.text = ""
+        binding.txtStorage.text = ""
+        buildHomeCards()
+        updateSelectionUi()
+    }
+
+    private fun buildHomeCards() {
+        val box = binding.homeCards
+        box.removeAllViews()
+        for (vol in volumes) box.addView(storageCard(vol))
+    }
+
+    private fun storageCard(vol: Volume): View {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val ft = FileOps.freeAndTotal(vol.root)
+        val total = ft?.second ?: 0L
+        val used = if (ft != null) total - ft.first else 0L
+        val pct = if (total > 0) (used * 100 / total).toInt() else 0
+
+        val ring = StorageRingView(this)
+        ring.setPercent(pct)
+
+        val name = TextView(this).apply {
+            text = vol.label
+            textSize = 15f
+            setTextColor(ContextCompat.getColor(context, R.color.text_main))
+            paint.isFakeBoldText = true
+        }
+        val sub = TextView(this).apply {
+            text = FileOps.formatSize(used) + " / " + FileOps.formatSize(total)
+            textSize = 11f
+            setTextColor(ContextCompat.getColor(context, R.color.text_muted))
+        }
+        val texts = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            addView(name)
+            addView(sub)
+        }
+        val card = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setBackgroundResource(R.drawable.bg_fm_chip)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            isClickable = true
+            setOnClickListener {
+                if (!busy) navigate(vol.root)
+            }
+        }
+        card.addView(ring, android.widget.LinearLayout.LayoutParams(dp(52), dp(52)))
+        card.addView(texts, android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+            marginStart = dp(10)
+        })
+        val lp = android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        lp.setMargins(dp(4), dp(4), dp(4), dp(4))
+        card.layoutParams = lp
+        return card
     }
 
     private fun volumeOf(dir: File): Volume {
@@ -226,7 +324,7 @@ class FileManagerActivity : AppCompatActivity() {
     private fun buildChips() {
         val box = binding.chipsContainer
         box.removeAllViews()
-        fun chip(label: String, dir: File) {
+        fun chip(label: String, action: () -> Unit) {
             val tv = TextView(this)
             tv.text = label
             tv.textSize = 13f
@@ -242,27 +340,34 @@ class FileManagerActivity : AppCompatActivity() {
             lp.marginEnd = (8 * resources.displayMetrics.density).toInt()
             tv.setOnClickListener {
                 if (busy) return@setOnClickListener
-                if (!dir.exists()) {
-                    dir.mkdirs()
-                }
-                closeSearch()
-                adapter.clearSelection()
-                navigate(dir)
+                action()
             }
             box.addView(tv, lp)
         }
-        volumes.forEach { chip(it.label, it.root) }
-        chip(getString(R.string.fm_downloads), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-        chip(getString(R.string.fm_camera), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM))
-        chip(getString(R.string.fm_pictures), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-        chip(getString(R.string.fm_documents), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS))
-        chip(getString(R.string.fm_music), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC))
-        chip(getString(R.string.fm_movies), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES))
+        fun goTo(dir: File) {
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+            closeSearch()
+            adapter.clearSelection()
+            navigate(dir)
+        }
+        chip("🏠 " + getString(R.string.fm_home)) { showHome() }
+        volumes.forEach { v -> chip(v.label) { goTo(v.root) } }
+        chip(getString(R.string.fm_downloads)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)) }
+        chip(getString(R.string.fm_camera)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)) }
+        chip(getString(R.string.fm_pictures)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)) }
+        chip(getString(R.string.fm_documents)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)) }
+        chip(getString(R.string.fm_music)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)) }
+        chip(getString(R.string.fm_movies)) { goTo(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)) }
     }
 
     // ---------------------------------------------------------------- ناوبری و لیست
 
     private fun navigate(dir: File) {
+        homeMode = false
+        binding.layoutHome.visibility = View.GONE
+        binding.recyclerFiles.visibility = View.VISIBLE
         current = dir
         currentVolume = volumeOf(dir)
         adapter.clearSelection()
@@ -369,13 +474,14 @@ class FileManagerActivity : AppCompatActivity() {
                 closeSearch()
                 loadCurrent()
             }
+            homeMode -> finish()
             else -> {
                 val dir = current
                 val vol = currentVolume
                 if (dir != null && vol != null && dir.absolutePath != vol.root.absolutePath && dir.parentFile != null) {
                     navigate(dir.parentFile!!)
                 } else {
-                    finish()
+                    showHome()
                 }
             }
         }
@@ -444,9 +550,15 @@ class FileManagerActivity : AppCompatActivity() {
     private fun updateSelectionUi() {
         val sel = adapter.isSelecting
         binding.barSelection.visibility = if (sel) View.VISIBLE else View.GONE
-        binding.btnSearch.visibility = if (sel) View.GONE else View.VISIBLE
-        binding.btnCast.visibility = if (!sel || castableSelection() != null) View.VISIBLE else View.GONE
-        if (sel) {
+        binding.btnSearch.visibility = if (sel || homeMode) View.GONE else View.VISIBLE
+        binding.btnMore.visibility = if (sel || homeMode) View.GONE else View.VISIBLE
+        binding.btnCast.visibility = if (sel) View.GONE else View.VISIBLE
+        binding.btnSelectAll.visibility = if (sel) View.VISIBLE else View.GONE
+        binding.btnInterval.visibility = if (sel) View.VISIBLE else View.GONE
+        binding.btnCancelSel.visibility = if (sel) View.VISIBLE else View.GONE
+        if (homeMode && !sel) {
+            binding.txtTitle.setText(R.string.fm_title)
+        } else if (sel) {
             binding.txtTitle.text = getString(
                 R.string.fm_selected_count, PersianDateUtils.toPersianDigits(adapter.selectedCount.toString())
             )
@@ -462,7 +574,7 @@ class FileManagerActivity : AppCompatActivity() {
     }
 
     private fun updatePasteBar() {
-        val show = clipFiles.isNotEmpty() && !adapter.isSelecting
+        val show = clipFiles.isNotEmpty() && !adapter.isSelecting && !homeMode
         binding.barPaste.visibility = if (show) View.VISIBLE else View.GONE
         if (show) {
             val n = PersianDateUtils.toPersianDigits(clipFiles.size.toString())
@@ -487,29 +599,101 @@ class FileManagerActivity : AppCompatActivity() {
 
     private fun pasteHere() {
         val dir = current ?: return
-        val files = clipFiles
+        if (clipFiles.isEmpty() || busy || homeMode) return
+        transfer(clipFiles, dir, clipMove)
+    }
+
+    /** کپی یا جابه‌جایی فایل‌ها به پوشه‌ی مقصد (روی ترد پس‌زمینه). */
+    private fun transfer(files: List<File>, dest: File, move: Boolean) {
         if (files.isEmpty() || busy) return
-        val move = clipMove
-        if (files.any { it.isDirectory && FileOps.isInside(dir, it) }) {
+        if (files.any { it.isDirectory && FileOps.isInside(dest, it) }) {
             Toast.makeText(this, R.string.fm_folder_into_itself, Toast.LENGTH_SHORT).show()
             return
         }
+        val fromClip = files === clipFiles
         runBusy {
             var ok = true
             for (f in files) {
                 if (!f.exists()) { ok = false; continue }
                 if (move) {
-                    if (f.parentFile?.canonicalPath == dir.canonicalPath) continue
-                    if (!FileOps.moveTo(f, dir)) ok = false
+                    if (f.parentFile?.canonicalPath == dest.canonicalPath) continue
+                    if (!FileOps.moveTo(f, dest)) ok = false
                 } else {
-                    if (FileOps.copyRecursive(f, dir) == null) ok = false
+                    if (FileOps.copyRecursive(f, dest) == null) ok = false
                 }
             }
-            if (ok) {
+            if (ok && fromClip) {
                 clipFiles = emptyList()
             }
             ok
         }
+    }
+
+    /** پنجره‌ی انتخاب پوشه‌ی مقصد (برای «کپی به…» و «جابه‌جایی به…»). */
+    private fun pickFolder(title: Int, onPicked: (File) -> Unit) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        var dir: File = current ?: Environment.getExternalStorageDirectory()
+        if (!dir.isDirectory) dir = Environment.getExternalStorageDirectory()
+
+        val pathTv = TextView(this).apply {
+            textSize = 12f
+            textDirection = View.TEXT_DIRECTION_LTR
+            setTextColor(ContextCompat.getColor(context, R.color.text_muted))
+            maxLines = 2
+        }
+        val list = android.widget.LinearLayout(this).apply { orientation = android.widget.LinearLayout.VERTICAL }
+        val scroll = android.widget.ScrollView(this).apply { addView(list) }
+        val root = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            addView(pathTv)
+            addView(scroll, android.widget.LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(300)).apply {
+                topMargin = dp(8)
+            })
+        }
+
+        val dialog = StyledDialog.Builder(this)
+            .setTitle(title)
+            .setView(root)
+            .setPositiveButton(R.string.fm_choose_here) { _, _ -> onPicked(dir) }
+            .setNegativeButton(R.string.fm_cancel, null)
+            .create()
+
+        fun row(text: String, onClick: () -> Unit) {
+            val tv = TextView(this).apply {
+                this.text = text
+                textSize = 15f
+                setTextColor(ContextCompat.getColor(context, R.color.text_main))
+                setPadding(dp(8), dp(12), dp(8), dp(12))
+                isClickable = true
+                setOnClickListener { onClick() }
+            }
+            list.addView(tv)
+        }
+
+        fun render() {
+            pathTv.text = dir.absolutePath
+            list.removeAllViews()
+            val up = dir.parentFile
+            if (up != null && up.canRead()) {
+                row(getString(R.string.fm_pick_up)) {
+                    dir = up
+                    render()
+                }
+            }
+            val subs = (dir.listFiles() ?: emptyArray())
+                .filter { it.isDirectory && (showHidden || !it.name.startsWith(".")) }
+                .sortedBy { it.name.lowercase() }
+            for (sub in subs) {
+                row("📁  " + sub.name) {
+                    dir = sub
+                    render()
+                }
+            }
+        }
+
+        dialog.show()
+        render()
     }
 
     // ---------------------------------------------------------------- حذف
@@ -545,6 +729,7 @@ class FileManagerActivity : AppCompatActivity() {
         if (clipFiles.isNotEmpty()) {
             items.add(getString(R.string.fm_paste_now)); actions.add { pasteHere() }
         }
+        items.add(getString(R.string.fm_view)); actions.add { FileViewMode.showDialog(this) { applyViewMode() } }
         items.add(getString(R.string.fm_sort)); actions.add { sortDialog() }
         items.add(getString(if (showHidden) R.string.fm_hide_hidden else R.string.fm_show_hidden))
         actions.add {
@@ -567,8 +752,14 @@ class FileManagerActivity : AppCompatActivity() {
         if (sel.isEmpty()) return
         val items = ArrayList<String>()
         val actions = ArrayList<() -> Unit>()
-        if (sel.size == 1) {
-            items.add(getString(R.string.fm_rename)); actions.add { renameDialog(sel[0]) }
+
+        val allHidden = sel.all { it.name.startsWith(".") }
+        items.add(getString(if (allHidden) R.string.fm_unhide else R.string.fm_hide)); actions.add { toggleHide(sel, allHidden) }
+        if (sel.any { it.isFile }) {
+            items.add(getString(R.string.fm_share)); actions.add { FileOps.shareFiles(this, sel) }
+        }
+        if (sel.size == 1 && sel[0].isFile) {
+            items.add(getString(R.string.fm_open_as)); actions.add { openAsDialog(sel[0]) }
         }
         castableSelection()?.let { f ->
             items.add(getString(R.string.fm_cast_tv)); actions.add { castFile(f) }
@@ -577,12 +768,39 @@ class FileManagerActivity : AppCompatActivity() {
         if (sel.size == 1) {
             items.add(getString(R.string.fm_properties)); actions.add { showProperties(sel[0]) }
         }
-        items.add(getString(R.string.fm_select_all)); actions.add {
-            adapter.selectAll()
-            updateSelectionUi()
-        }
+        items.add(getString(R.string.fm_move_to)); actions.add { pickFolder(R.string.fm_move_to) { dest -> transfer(sel, dest, true) } }
+        items.add(getString(R.string.fm_copy_to)); actions.add { pickFolder(R.string.fm_copy_to) { dest -> transfer(sel, dest, false) } }
         StyledDialog.Builder(this)
             .setItems(items.toTypedArray()) { _, which -> actions[which]() }
+            .setNegativeButton(R.string.fm_cancel, null)
+            .show()
+    }
+
+    /** مخفی کردن = گذاشتن «.» اول اسم (روش استاندارد اندروید)؛ نمایان کردن = برداشتن آن. */
+    private fun toggleHide(sel: List<File>, unhide: Boolean) {
+        runBusy {
+            var ok = true
+            for (f in sel) {
+                val parent = f.parentFile ?: continue
+                val newName = if (unhide) f.name.trimStart('.') else "." + f.name
+                if (newName.isEmpty()) { ok = false; continue }
+                if (!f.renameTo(FileOps.uniqueDest(parent, newName))) ok = false
+            }
+            ok
+        }
+        if (!unhide && !showHidden) Toast.makeText(this, R.string.fm_hidden_note, Toast.LENGTH_LONG).show()
+    }
+
+    private fun openAsDialog(file: File) {
+        val names = arrayOf(
+            getString(R.string.fm_open_as_text), getString(R.string.fm_open_as_image),
+            getString(R.string.fm_open_as_audio), getString(R.string.fm_open_as_video),
+            getString(R.string.fm_open_as_any)
+        )
+        val mimes = arrayOf("text/plain", "image/*", "audio/*", "video/*", "*/*")
+        StyledDialog.Builder(this)
+            .setTitle(R.string.fm_open_as)
+            .setItems(names) { _, which -> FileOps.openFileAs(this, file, mimes[which]) }
             .setNegativeButton(R.string.fm_cancel, null)
             .show()
     }

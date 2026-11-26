@@ -229,10 +229,13 @@ object FileOps {
     private fun uriFor(context: Context, file: File): Uri =
         FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 
-    fun openFile(context: Context, file: File) {
+    fun openFile(context: Context, file: File) = openFileAs(context, file, mimeOf(file))
+
+    /** باز کردن فایل با نوع دلخواه (مثلاً «باز کردن به عنوان متن»). */
+    fun openFileAs(context: Context, file: File, mime: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uriFor(context, file), mimeOf(file))
+                setDataAndType(uriFor(context, file), mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
