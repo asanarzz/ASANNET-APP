@@ -82,4 +82,5 @@
     <string name="lc_started">پخش روی تلویزیون شروع شد</string>
     <string name="lc_failed">ارسال ناموفق بود. ممکن است تلویزیون این فرمت را پشتیبانی نکند.\n(%1$s)</string>
     <string name="lc_stopped">پخش روی تلویزیون متوقف شد</string>
+    <string name="fm_cast_tv">پخش روی تلویزیون</string>
 </resources>
