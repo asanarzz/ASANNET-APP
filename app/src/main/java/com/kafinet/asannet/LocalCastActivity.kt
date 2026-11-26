@@ -14,6 +14,8 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import android.os.Environment
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -41,6 +43,10 @@ class LocalCastActivity : AppCompatActivity() {
     private lateinit var adapter: CastMediaAdapter
     private var tab = FileKind.IMAGE
 
+    // تب «پوشه‌ها»: پوشه‌ی فعلی (FileKind.FOLDER یعنی تب پوشه‌ها انتخاب شده)
+    private val rootDir: File = Environment.getExternalStorageDirectory()
+    private var currentDir: File = rootDir
+
     companion object {
         /** مسیر یک فایل که از مدیریت فایل فرستاده می‌شود تا مستقیم روی تلویزیون پخش شود. */
         const val EXTRA_FILE = "extra_file"
@@ -51,11 +57,23 @@ class LocalCastActivity : AppCompatActivity() {
         binding = ActivityLocalCastBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = CastMediaAdapter { media -> onMediaClick(media) }
+        adapter = CastMediaAdapter { media ->
+            if (media.kind == FileKind.FOLDER) openFolder(media.file) else onMediaClick(media)
+        }
         binding.recyclerMedia.layoutManager = GridLayoutManager(this, 3)
         binding.recyclerMedia.adapter = adapter
 
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val up = currentDir.parentFile
+                if (tab == FileKind.FOLDER && currentDir.absolutePath != rootDir.absolutePath && up != null) {
+                    openFolder(up)
+                } else {
+                    finish()
+                }
+            }
+        })
         binding.btnTv.setOnClickListener { showTvPicker(null) }
         binding.btnStop.setOnClickListener {
             Thread { LocalCastEngine.stopByUser() }.start()
@@ -65,6 +83,7 @@ class LocalCastActivity : AppCompatActivity() {
         binding.tabPhotos.setOnClickListener { selectTab(FileKind.IMAGE) }
         binding.tabVideos.setOnClickListener { selectTab(FileKind.VIDEO) }
         binding.tabMusic.setOnClickListener { selectTab(FileKind.AUDIO) }
+        binding.tabFiles.setOnClickListener { selectTab(FileKind.FOLDER) }
 
         updateTvLabel()
         selectTab(FileKind.IMAGE)
@@ -99,16 +118,45 @@ class LocalCastActivity : AppCompatActivity() {
         style(binding.tabPhotos, kind == FileKind.IMAGE)
         style(binding.tabVideos, kind == FileKind.VIDEO)
         style(binding.tabMusic, kind == FileKind.AUDIO)
+        style(binding.tabFiles, kind == FileKind.FOLDER)
+        binding.txtPath.visibility = if (kind == FileKind.FOLDER) View.VISIBLE else View.GONE
         loadMedia(kind)
     }
 
     // ---------------------------------------------------------------- فهرست رسانه‌ها
 
+    private fun openFolder(dir: File) {
+        currentDir = dir
+        loadMedia(FileKind.FOLDER)
+    }
+
+    /** پوشه‌ها + فقط فایل‌های عکس/ویدیو/موزیک داخل پوشه‌ی فعلی. */
+    private fun listFolder(dir: File): List<CastMedia> {
+        val children = dir.listFiles() ?: return emptyList()
+        val folders = ArrayList<CastMedia>()
+        val medias = ArrayList<CastMedia>()
+        for (c in children.sortedBy { it.name.lowercase() }) {
+            if (c.name.startsWith(".")) continue
+            if (c.isDirectory) {
+                folders.add(CastMedia(Uri.fromFile(c), c, c.name, FileKind.FOLDER))
+            } else {
+                val k = FileOps.kindOf(c)
+                if (k == FileKind.IMAGE || k == FileKind.VIDEO || k == FileKind.AUDIO) {
+                    medias.add(CastMedia(Uri.fromFile(c), c, c.name, k))
+                }
+            }
+        }
+        return folders + medias
+    }
+
     private fun loadMedia(kind: FileKind) {
         binding.progress.visibility = View.VISIBLE
         binding.txtEmpty.visibility = View.GONE
+        if (kind == FileKind.FOLDER) binding.txtPath.text = currentDir.absolutePath
         lifecycleScope.launch {
-            val list = withContext(Dispatchers.IO) { queryMedia(kind) }
+            val list = withContext(Dispatchers.IO) {
+                if (kind == FileKind.FOLDER) listFolder(currentDir) else queryMedia(kind)
+            }
             if (kind != tab) return@launch
             binding.progress.visibility = View.GONE
             adapter.submit(list)
@@ -318,9 +366,17 @@ class CastMediaAdapter(private val onClick: (CastMedia) -> Unit) : RecyclerView.
         b.txtTitle.text = m.title
         b.txtTitle.visibility = if (m.kind == FileKind.IMAGE) View.GONE else View.VISIBLE
         b.txtPlay.visibility = if (m.kind == FileKind.VIDEO) View.VISIBLE else View.GONE
-        if (m.kind == FileKind.AUDIO) {
+        if (m.kind == FileKind.FOLDER) {
             Glide.with(b.imgThumb).clear(b.imgThumb)
             b.imgThumb.setImageDrawable(null)
+            b.txtNote.text = "📁"
+            b.txtNote.visibility = View.VISIBLE
+            b.txtTitle.visibility = View.VISIBLE
+            b.cellRoot.setBackgroundColor(0xFF7C3AED.toInt())
+        } else if (m.kind == FileKind.AUDIO) {
+            Glide.with(b.imgThumb).clear(b.imgThumb)
+            b.imgThumb.setImageDrawable(null)
+            b.txtNote.text = "♪"
             b.txtNote.visibility = View.VISIBLE
             b.cellRoot.setBackgroundColor(0xFFEA580C.toInt())
         } else {
