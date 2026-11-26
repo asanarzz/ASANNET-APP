@@ -85,7 +85,26 @@
             android:id="@+id/tab_music"
             style="@style/LcTab"
             android:text="@string/lc_tab_music" />
+
+        <TextView
+            android:id="@+id/tab_files"
+            style="@style/LcTab"
+            android:text="@string/lc_tab_files" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginBottom="4dp"
+        android:maxLines="1"
+        android:ellipsize="start"
+        android:gravity="start"
+        android:textDirection="ltr"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <FrameLayout
         android:layout_width="match_parent"
