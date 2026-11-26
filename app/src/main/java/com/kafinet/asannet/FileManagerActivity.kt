@@ -280,14 +280,14 @@ class FileManagerActivity : AppCompatActivity() {
 
         val name = TextView(this).apply {
             text = vol.label
-            textSize = 15f
+            textSize = 17f
             setTextColor(ContextCompat.getColor(context, R.color.text_main))
             paint.isFakeBoldText = true
         }
         val sub = TextView(this).apply {
             text = FileOps.formatSize(used) + " / " + FileOps.formatSize(total)
-            textSize = 11f
-            setTextColor(ContextCompat.getColor(context, R.color.text_muted))
+            textSize = 14f
+            setTextColor(ContextCompat.getColor(context, R.color.fm_text_secondary))
         }
         val texts = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
@@ -327,7 +327,7 @@ class FileManagerActivity : AppCompatActivity() {
         fun chip(label: String, action: () -> Unit) {
             val tv = TextView(this)
             tv.text = label
-            tv.textSize = 13f
+            tv.textSize = 14f
             tv.setTextColor(ContextCompat.getColor(this, R.color.text_main))
             tv.setBackgroundResource(R.drawable.bg_fm_chip)
             val h = (14 * resources.displayMetrics.density).toInt()

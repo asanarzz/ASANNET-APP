@@ -34,13 +34,11 @@ object PersianDateUtils {
 
     private val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
 
-    fun toPersianDigits(input: String): String {
-        val sb = StringBuilder()
-        for (ch in input) {
-            if (ch in '0'..'9') sb.append(persianDigits[ch - '0']) else sb.append(ch)
-        }
-        return sb.toString()
-    }
+    /**
+     * قبلاً ارقام انگلیسی را به فارسی (۱۲۳) تبدیل می‌کرد؛ طبق درخواست، همه‌جای برنامه ارقام انگلیسی
+     * (123) نمایش داده می‌شود، پس همان ورودی برگردانده می‌شود (نام تابع برای سازگاری با بقیه‌ی کد مانده).
+     */
+    fun toPersianDigits(input: String): String = input
 
     fun formatDate(year: Int, month: Int, day: Int): String {
         val y = year.toString()
