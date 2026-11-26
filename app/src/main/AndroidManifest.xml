@@ -46,6 +46,15 @@
             android:exported="false" />
 
         <activity
+            android:name=".LocalCastActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".LocalCastService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <activity
             android:name=".ReferralActivity"
             android:exported="false" />
 
