@@ -70,7 +70,7 @@ class FileManagerAdapter(
             lp.height = size
             b.iconBox.layoutParams = lp
             b.txtName.text = f.name
-            b.txtName.setTextSize(TypedValue.COMPLEX_UNIT_SP, when (scale) { FileViewMode.LARGE -> 13f; FileViewMode.MEDIUM -> 12f; else -> 11f })
+            b.txtName.setTextSize(TypedValue.COMPLEX_UNIT_SP, when (scale) { FileViewMode.LARGE -> 14f; FileViewMode.MEDIUM -> 13f; else -> 12f })
             bindIcon(row, b.iconBox, b.imgThumb, b.imgFolder, b.txtExt, b.txtCheck, isSel)
             b.cellRoot.setBackgroundColor(if (isSel) Color.parseColor("#224F46E5") else Color.TRANSPARENT)
             b.cellRoot.setOnClickListener { onClick(row) }
@@ -86,7 +86,7 @@ class FileManagerAdapter(
         b.iconBox.layoutParams = lp
         val padV = when (scale) { FileViewMode.LARGE -> 8; FileViewMode.MEDIUM -> 6; else -> 3 }
         b.rowInner.setPadding(b.rowInner.paddingLeft, dp(b.root, padV), b.rowInner.paddingRight, dp(b.root, padV))
-        b.txtName.setTextSize(TypedValue.COMPLEX_UNIT_SP, when (scale) { FileViewMode.LARGE -> 15f; FileViewMode.MEDIUM -> 14f; else -> 13f })
+        b.txtName.setTextSize(TypedValue.COMPLEX_UNIT_SP, when (scale) { FileViewMode.LARGE -> 16f; FileViewMode.MEDIUM -> 15f; else -> 14f })
 
         b.txtName.text = f.name
         val detail = style == FileViewMode.DETAIL

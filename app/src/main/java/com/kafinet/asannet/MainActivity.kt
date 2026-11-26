@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var categoryAdapter: CategoryGridAdapter
     private var categoryEntries: List<CategoryEntry> = emptyList()
     private var pendingUpdate: AppUpdateInfo? = null
-    private var forcedUpdateDialog: android.app.AlertDialog? = null
+    private var forcedUpdateDialog: StyledDialog? = null
 
     private val bannerAutoScrollHandler = Handler(Looper.getMainLooper())
     private var bannerAutoScrollIndex = 0
@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity() {
         val pm = packageManager
         val otherOption = "اپم تو لیست نیست (باز کردن تنظیمات VPN گوشی)"
         val labels = apps.map { it.loadLabel(pm).toString() }.toTypedArray() + otherOption
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        StyledDialog.Builder(this)
             .setTitle("کدوم فیلترشکن؟")
             .setItems(labels) { _, which ->
                 if (which == apps.size) {
@@ -395,7 +395,7 @@ class MainActivity : AppCompatActivity() {
     private fun showForcedUpdateDialog(update: AppUpdateInfo) {
         if (isFinishing || isDestroyed) return
         if (forcedUpdateDialog?.isShowing == true) return
-        val dialog = android.app.AlertDialog.Builder(this)
+        val dialog = StyledDialog.Builder(this)
             .setTitle("به‌روزرسانی ضروری")
             .setMessage(
                 "نسخه‌ی جدید «آسان نت» (" + update.versionName + ") منتشر شده است.\n" +

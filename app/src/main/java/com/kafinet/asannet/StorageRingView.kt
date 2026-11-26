@@ -25,8 +25,10 @@ class StorageRingView(context: Context) : android.view.View(context) {
     }
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
-        textSize = 13 * density
+        textSize = 15 * density
+        isFakeBoldText = true
         color = ContextCompat.getColor(context, R.color.text_main)
+        androidx.core.content.res.ResourcesCompat.getFont(context, R.font.yekan_boom)?.let { typeface = it }
     }
 
     fun setPercent(p: Int) {
@@ -40,7 +42,7 @@ class StorageRingView(context: Context) : android.view.View(context) {
         rect.set(pad, pad, width - pad, height - pad)
         canvas.drawArc(rect, 0f, 360f, false, track)
         canvas.drawArc(rect, -90f, 360f * percent / 100f, false, arc)
-        val label = PersianDateUtils.toPersianDigits(percent.toString()) + "٪"
+        val label = PersianDateUtils.percent.toString() + "%"
         val y = height / 2f - (text.descent() + text.ascent()) / 2f
         canvas.drawText(label, width / 2f, y, text)
     }
