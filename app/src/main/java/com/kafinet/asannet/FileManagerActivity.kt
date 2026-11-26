@@ -97,6 +97,7 @@ class FileManagerActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSearch.setOnClickListener { toggleSearch() }
+        binding.btnCast.setOnClickListener { startActivity(Intent(this, LocalCastActivity::class.java)) }
         binding.btnMore.setOnClickListener { showHeaderMenu() }
         binding.btnGrant.setOnClickListener { requestAccess() }
 
@@ -441,6 +442,7 @@ class FileManagerActivity : AppCompatActivity() {
         val sel = adapter.isSelecting
         binding.barSelection.visibility = if (sel) View.VISIBLE else View.GONE
         binding.btnSearch.visibility = if (sel) View.GONE else View.VISIBLE
+        binding.btnCast.visibility = if (sel) View.GONE else View.VISIBLE
         if (sel) {
             binding.txtTitle.text = getString(
                 R.string.fm_selected_count, PersianDateUtils.toPersianDigits(adapter.selectedCount.toString())
