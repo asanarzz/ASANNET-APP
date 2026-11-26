@@ -12,4 +12,18 @@
         <item name="android:textSize">12sp</item>
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
+
+    <!-- تب‌های صفحه‌ی ارسال به تلویزیون -->
+    <style name="LcTab">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">3dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingVertical">9dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/bg_fm_chip</item>
+        <item name="android:textColor">@color/text_main</item>
+    </style>
 </resources>

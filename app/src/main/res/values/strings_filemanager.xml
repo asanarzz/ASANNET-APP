@@ -64,4 +64,22 @@
     <string name="fm_documents">اسناد</string>
     <string name="fm_music">موزیک</string>
     <string name="fm_movies">فیلم</string>
+    <string name="lc_title">ارسال به تلویزیون</string>
+    <string name="lc_tab_photos">عکس‌ها</string>
+    <string name="lc_tab_videos">ویدیوها</string>
+    <string name="lc_tab_music">موزیک</string>
+    <string name="lc_empty">فایلی پیدا نشد</string>
+    <string name="lc_no_tv">تلویزیونی انتخاب نشده — آیکون بالا را بزن</string>
+    <string name="lc_tv_selected">تلویزیون: %1$s</string>
+    <string name="lc_pick_tv">انتخاب تلویزیون</string>
+    <string name="lc_scanning">در حال جستجوی تلویزیون‌ها در شبکه…</string>
+    <string name="lc_choose">یک تلویزیون را انتخاب کن:</string>
+    <string name="lc_rescan">جستجوی دوباره</string>
+    <string name="lc_close">بستن</string>
+    <string name="lc_wifi_title">اتصال به Wi-Fi</string>
+    <string name="lc_wifi_msg">برای ارسال به تلویزیون، گوشی باید به همان Wi-Fi که تلویزیون به آن وصل است متصل باشد.</string>
+    <string name="lc_sending">در حال ارسال به «%1$s»…</string>
+    <string name="lc_started">پخش روی تلویزیون شروع شد</string>
+    <string name="lc_failed">ارسال ناموفق بود. ممکن است تلویزیون این فرمت را پشتیبانی نکند.\n(%1$s)</string>
+    <string name="lc_stopped">پخش روی تلویزیون متوقف شد</string>
 </resources>
