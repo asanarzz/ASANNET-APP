@@ -79668,5 +79668,18 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795689304014",
+    "type": "fun",
+    "title": "تخته نرد",
+    "description": "",
+    "url": "",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795689290442-0-screenshot-20261126135834.jpg",
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795689301888-1-index.html"
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
