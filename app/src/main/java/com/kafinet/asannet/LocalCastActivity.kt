@@ -41,6 +41,11 @@ class LocalCastActivity : AppCompatActivity() {
     private lateinit var adapter: CastMediaAdapter
     private var tab = FileKind.IMAGE
 
+    companion object {
+        /** مسیر یک فایل که از مدیریت فایل فرستاده می‌شود تا مستقیم روی تلویزیون پخش شود. */
+        const val EXTRA_FILE = "extra_file"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLocalCastBinding.inflate(layoutInflater)
@@ -63,6 +68,16 @@ class LocalCastActivity : AppCompatActivity() {
 
         updateTvLabel()
         selectTab(FileKind.IMAGE)
+
+        // پخش مستقیم یک فایل که از داخل مدیریت فایل انتخاب شده
+        val path = intent.getStringExtra(EXTRA_FILE)
+        if (path != null && savedInstanceState == null) {
+            val f = File(path)
+            val kind = FileOps.kindOf(f)
+            if (f.isFile && (kind == FileKind.IMAGE || kind == FileKind.VIDEO || kind == FileKind.AUDIO)) {
+                onMediaClick(CastMedia(Uri.fromFile(f), f, f.name, kind))
+            }
+        }
     }
 
     private fun updateTvLabel() {

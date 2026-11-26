@@ -97,7 +97,10 @@ class FileManagerActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSearch.setOnClickListener { toggleSearch() }
-        binding.btnCast.setOnClickListener { startActivity(Intent(this, LocalCastActivity::class.java)) }
+        binding.btnCast.setOnClickListener {
+            val f = castableSelection()
+            if (f != null) castFile(f) else startActivity(Intent(this, LocalCastActivity::class.java))
+        }
         binding.btnMore.setOnClickListener { showHeaderMenu() }
         binding.btnGrant.setOnClickListener { requestAccess() }
 
@@ -442,7 +445,7 @@ class FileManagerActivity : AppCompatActivity() {
         val sel = adapter.isSelecting
         binding.barSelection.visibility = if (sel) View.VISIBLE else View.GONE
         binding.btnSearch.visibility = if (sel) View.GONE else View.VISIBLE
-        binding.btnCast.visibility = if (sel) View.GONE else View.VISIBLE
+        binding.btnCast.visibility = if (!sel || castableSelection() != null) View.VISIBLE else View.GONE
         if (sel) {
             binding.txtTitle.text = getString(
                 R.string.fm_selected_count, PersianDateUtils.toPersianDigits(adapter.selectedCount.toString())
@@ -567,6 +570,9 @@ class FileManagerActivity : AppCompatActivity() {
         if (sel.size == 1) {
             items.add(getString(R.string.fm_rename)); actions.add { renameDialog(sel[0]) }
         }
+        castableSelection()?.let { f ->
+            items.add(getString(R.string.fm_cast_tv)); actions.add { castFile(f) }
+        }
         items.add(getString(R.string.fm_zip)); actions.add { zipSelected(sel) }
         if (sel.size == 1) {
             items.add(getString(R.string.fm_properties)); actions.add { showProperties(sel[0]) }
@@ -579,6 +585,22 @@ class FileManagerActivity : AppCompatActivity() {
             .setItems(items.toTypedArray()) { _, which -> actions[which]() }
             .setNegativeButton(R.string.fm_cancel, null)
             .show()
+    }
+
+    /** اگر دقیقاً یک فایل عکس/ویدیو/موزیک انتخاب شده، همان را برمی‌گرداند. */
+    private fun castableSelection(): File? {
+        val sel = adapter.selectedFiles()
+        if (sel.size != 1) return null
+        val f = sel[0]
+        if (!f.isFile) return null
+        return when (FileOps.kindOf(f)) {
+            FileKind.IMAGE, FileKind.VIDEO, FileKind.AUDIO -> f
+            else -> null
+        }
+    }
+
+    private fun castFile(f: File) {
+        startActivity(Intent(this, LocalCastActivity::class.java).putExtra(LocalCastActivity.EXTRA_FILE, f.absolutePath))
     }
 
     private fun sortDialog() {
