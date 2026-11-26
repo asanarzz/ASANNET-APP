@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cell_root"
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+    android:layout_margin="2dp"
+    android:background="@drawable/bg_fm_icon"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/img_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/txt_note"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="♪"
+        android:textColor="@color/white"
+        android:textSize="34sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txt_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="▶"
+        android:textColor="#CCFFFFFF"
+        android:textSize="26sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#99000000"
+        android:ellipsize="middle"
+        android:maxLines="1"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="3dp"
+        android:textColor="@color/white"
+        android:textSize="11sp" />
+</FrameLayout>
