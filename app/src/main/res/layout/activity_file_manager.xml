@@ -38,6 +38,36 @@
             android:textStyle="bold" />
 
         <ImageView
+            android:id="@+id/btn_select_all"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_fm_select_all"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/fm_select_all"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/btn_interval"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_fm_interval"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/fm_select_interval"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/btn_cancel_sel"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_fm_cancel"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/fm_cancel"
+            android:visibility="gone" />
+
+        <ImageView
             android:id="@+id/btn_cast"
             android:layout_width="38dp"
             android:layout_height="38dp"
@@ -165,6 +195,20 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
+        <ScrollView
+            android:id="@+id/layout_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/home_cards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp" />
+        </ScrollView>
+
         <LinearLayout
             android:id="@+id/layout_permission"
             android:layout_width="match_parent"
@@ -227,8 +271,8 @@
         <TextView
             android:id="@+id/act_move"
             style="@style/FmBarAction"
-            android:drawableTop="@drawable/ic_fm_move"
-            android:text="@string/fm_move" />
+            android:drawableTop="@drawable/ic_fm_cut"
+            android:text="@string/fm_cut" />
 
         <TextView
             android:id="@+id/act_delete"
@@ -237,10 +281,10 @@
             android:text="@string/fm_delete" />
 
         <TextView
-            android:id="@+id/act_share"
+            android:id="@+id/act_rename"
             style="@style/FmBarAction"
-            android:drawableTop="@drawable/ic_share"
-            android:text="@string/fm_share" />
+            android:drawableTop="@drawable/ic_fm_rename"
+            android:text="@string/fm_rename" />
 
         <TextView
             android:id="@+id/act_more"
