@@ -75,7 +75,7 @@
                 android:maxLines="1"
                 android:ellipsize="middle"
                 android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -85,8 +85,8 @@
                 android:layout_marginTop="2dp"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
+                android:textColor="@color/fm_text_secondary"
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

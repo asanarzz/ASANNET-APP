@@ -61,8 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="14dp"
         android:layout_marginTop="10dp"
-        android:textColor="@color/text_muted"
-        android:textSize="13sp" />
+        android:textColor="@color/fm_text_secondary"
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -111,8 +111,8 @@
             android:ellipsize="start"
             android:gravity="start"
             android:textDirection="ltr"
-            android:textColor="@color/text_muted"
-            android:textSize="12sp" />
+            android:textColor="@color/fm_text_secondary"
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/btn_view"
@@ -124,7 +124,7 @@
             android:paddingVertical="5dp"
             android:text="@string/fm_view"
             android:textColor="@color/text_main"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
 

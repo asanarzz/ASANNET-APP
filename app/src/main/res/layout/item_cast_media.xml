@@ -45,5 +45,5 @@
         android:paddingHorizontal="6dp"
         android:paddingVertical="3dp"
         android:textColor="@color/white"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 </FrameLayout>
