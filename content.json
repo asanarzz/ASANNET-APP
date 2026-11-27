@@ -79924,5 +79924,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795805451435",
+    "type": "software",
+    "title": "بانک تجارت",
+    "description": "درگاه اینترنتی بانک تجارت",
+    "url": "https://hb.tejaratbank.ir/register",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
