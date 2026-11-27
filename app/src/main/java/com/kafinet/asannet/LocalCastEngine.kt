@@ -3,6 +3,7 @@ package com.kafinet.asannet
 import android.content.Context
 import android.net.wifi.WifiManager
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
@@ -106,6 +107,17 @@ object LocalCastEngine {
             }
         }
         throw lastError ?: IOException("ارسال ناموفق")
+    }
+
+    /** لوگوی آسان‌نت را (مثل AllCast) به‌عنوان صفحه‌ی آماده‌باش روی تلویزیون نشان می‌دهد؛ با پخش فایل بعدی جایگزین می‌شود. */
+    fun showLogo(context: android.content.Context, device: Device) {
+        val f = File(context.cacheDir, "asannet_tv_logo.jpg")
+        if (!f.isFile || f.length() == 0L) {
+            context.resources.openRawResource(R.raw.asannet_tv_logo).use { input ->
+                FileOutputStream(f).use { input.copyTo(it) }
+            }
+        }
+        castFile(device, f, "ASAN NET")
     }
 
     /** دستور توقف را فقط وقتی کاربر خودش دکمه‌ی توقف را بزند به تلویزیون می‌فرستد، و سرور فایل را می‌بندد. */
