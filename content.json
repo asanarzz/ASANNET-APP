@@ -79688,5 +79688,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795776040393",
+    "type": "video",
+    "title": "آنجا همان ساعت",
+    "description": "دانلود  فیلم #آنجا_همان_ساعت\n\n🎭 ژانر: درام | عاشقانه \n📆 سال تولید: 1397\n📆 سال انتشار: 1404\n\n👥 بازیگران: پرویز پرستویی، ماهور الوند، هدیه بازوند، شهرام حقیقت دوست، سعید پیردوست، امیرحسین فتحی، شاهرخ فروتنیان، احسان کاردان، فاطمه خانوردی، داریوش آهنچیان و...\n\n👤 کارگردان: سیروس الوند\n\n📝خلاصه داستان: رعنا و امیر زندگی عاشقانه خود را در محله قدیمی، در حاشیه شهر آغاز کرده‌اند غافل از آنکه شیطنتی جنون آمیز خوشبختی ساده آنها را نشانه گرفته است...",
+    "url": "",
+    "addedAt": 1795776040393,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795776035894-0-img-20261127-140928-185.jpg"
+    ],
+    "links": [
+      {
+        "label": "Anja-haman-saat-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Anja-haman-saat-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
