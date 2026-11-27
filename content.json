@@ -79904,5 +79904,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795804542998",
+    "type": "software",
+    "title": "بانک پاسارگاد",
+    "description": "درگاه اینترنتی بانک پاسارگاد",
+    "url": "https://web.wepod.ir/signup/mobile",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
