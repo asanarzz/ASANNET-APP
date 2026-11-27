@@ -79818,5 +79818,31 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795802130911",
+    "type": "video",
+    "title": "بیست و یک",
+    "description": "سریال بیست و یک \n\nژانر: معمایی جنایی\nکارگردان: بهنام بهزادی\n\nبازیگران: سعید آقاخانی، مهدی حسینی نیا، شادی مختاری، رضا بهبودی، یکتا ناصر، بهناز جعفری، بهاره کیان افشار، ناهید مسلمی، نازنین احمدی \n\nخلاصه داستان: داستان حول محور دختری است که به علت آسیب های روحی و روانی ای که به او وارد شده دچار جنون و دست به قتل های زنجیره ای زده است ، در این بین کارآگاهی برای حل این مسئله متوجه می‌شود که نمی‌شود این پرونده را تنهایی جلو برد و...",
+    "url": "",
+    "addedAt": 1795802130911,
+    "section": "سریال ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795802128413-0-img-20261127-211822-695.jpg"
+    ],
+    "links": [
+      {
+        "label": "bistoyek-S01E01-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/Series/bistveyek-S01E01-480_2.mp4",
+        "season": 1
+      },
+      {
+        "label": "bistoyek-S01E02-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/Series/bistveyek-S01E02-480.mp4",
+        "season": 2
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
