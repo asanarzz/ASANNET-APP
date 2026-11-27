@@ -79854,5 +79854,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795803119233",
+    "type": "software",
+    "title": "بانک صادرات ایران",
+    "description": "درگاه اینترنتی بانک صادرات ایران",
+    "url": "https://eb.bsi.ir/mbackend/",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
