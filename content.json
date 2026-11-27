@@ -79628,5 +79628,25 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795775581031",
+    "type": "video",
+    "title": "در آغوش درخت",
+    "description": "دانلود فیلم #در_آغوش_درخت\n\n🔰 ژانر: #درام | #اجتماعی \n📆 سال تولید: 1401\n📆 سال انتشار: 1404\n👥 بازیگران: جواد قامتی، مارال بنی آدم، روح الله زمانی، اهورا لطفی، رایان لطفی و...\n👤 کارگردان: بابک خواجه‌پاشا\n\n📄 خلاصه داستان: بحران پیچیده زندگی کیمیا و فرید است که دوازده سال از ازدواجشان می‌گذرد و جهان زیبای فرزندانشان را بهم ریخته است، کودکانی که هیچ چیز جز سادگی و مهربانی را در زندگی نمی‌شناسند...",
+    "url": "",
+    "addedAt": 1795775581031,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795775576482-0-img-20261127-135640-689.jpg"
+    ],
+    "links": [
+      {
+        "label": "dar-aghooshe-derakht-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/dar-aghooshe-derakht-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
