@@ -333,7 +333,19 @@ class LocalCastActivity : AppCompatActivity() {
                     LocalCastEngine.selected = device
                     updateTvLabel()
                     dialog.dismiss()
-                    onPicked?.invoke(device)
+                    if (onPicked != null) {
+                        onPicked.invoke(device)
+                    } else {
+                        // فقط اتصال: لوگوی آسان‌نت روی تلویزیون بماند تا فایل پخش شود
+                        val app = applicationContext
+                        Thread {
+                            try {
+                                LocalCastEngine.showLogo(app, device)
+                                runOnUiThread { LocalCastService.start(app) }
+                            } catch (ignored: Exception) {
+                            }
+                        }.start()
+                    }
                 }
             }
             listBox.addView(row)
