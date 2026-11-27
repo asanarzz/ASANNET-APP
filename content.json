@@ -79874,5 +79874,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795803600331",
+    "type": "software",
+    "title": "بانک ملی ایران",
+    "description": "درگاه اینترنتی بانک ملی ایران",
+    "url": "https://baambank.ir/fa/auth/login",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
