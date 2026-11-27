@@ -79282,46 +79282,6 @@
     "desktopMode": false
   },
   {
-    "id": "item_priceauto_14050906_0800",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 08:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NzUzODM3LCJpIjpbWyJ1c2QiLDI5MzA0NV0sWyIxOGF5YXIiLDI1NzQzNDQ1XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODAxNjIwMTQ2OV0sWyJ1c2RfZXRoIiw1MDc0NTEzNzRdLFsidXNkX3VzZHQiLDI5NzYxNl1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_1000",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 10:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NzYxMDQ5LCJpIjpbWyJ1c2QiLDI5MzA0NV0sWyIxOGF5YXIiLDI1NzgwMzgxXSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODEwMTgyMDQyNl0sWyJ1c2RfZXRoIiw1MTAxMzI3MzZdLFsidXNkX3VzZHQiLDI5NzA4MV1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_1200",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 12:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NzY4MjM1LCJpIjpbWyJ1c2QiLDI5MzA0NV0sWyIxOGF5YXIiLDI1ODY5MjU5XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODE2NjUzNjQ4NF0sWyJ1c2RfZXRoIiw1MDk0NzkyNDZdLFsidXNkX3VzZHQiLDI5NzQ0Ml1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_1400",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 14:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1Nzc1NDU4LCJpIjpbWyJ1c2QiLDI5MzA0NV0sWyIxOGF5YXIiLDI1ODkxMTkwXSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODA2NjA0ODQyM10sWyJ1c2RfZXRoIiw1MDY0NTUwMjFdLFsidXNkX3VzZHQiLDI5Njg3M11dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
     "id": "item_1795775581031",
     "type": "video",
     "title": "در آغوش درخت",
@@ -79478,36 +79438,6 @@
         "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/ars-az-ashkhaye-vagheyi-480.mp4"
       }
     ],
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_1600",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 16:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NzgyNjI5LCJpIjpbWyJ1c2QiLDI5MzY5NV0sWyIxOGF5YXIiLDI1ODkwMDM1XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODExMTY4MDE3OV0sWyJ1c2RfZXRoIiw1MDYyODYxMjZdLFsidXNkX3VzZHQiLDI5NjM3OF1dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_1800",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 18:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1Nzg5ODMyLCJpIjpbWyJ1c2QiLDI5MzM0NV0sWyIxOGF5YXIiLDI1ODE3MzE3XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODAxODQyMzI4MF0sWyJ1c2RfZXRoIiw1MDU1MTg1MDVdLFsidXNkX3VzZHQiLDI5NTk1M11dfQ",
-    "section": "دلار و طلا",
-    "allowExternalBrowser": false,
-    "desktopMode": false
-  },
-  {
-    "id": "item_priceauto_14050906_2000",
-    "type": "price",
-    "title": "قیمت دلار و طلا — ساعت 20:00",
-    "description": "جمعه 6 آذر 1405",
-    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1Nzk3MDI5LCJpIjpbWyJ1c2QiLDI5MzA0NV0sWyIxOGF5YXIiLDI1NzkxOTI0XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxNzU4OTE0Njk5MF0sWyJ1c2RfZXRoIiw0ODk3NzQ5MDBdLFsidXNkX3VzZHQiLDI5NjMxOV1dfQ",
-    "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
   },
