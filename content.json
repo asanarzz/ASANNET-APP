@@ -79748,5 +79748,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795776494128",
+    "type": "video",
+    "title": "دانهء انجیر معابد",
+    "description": "فیلم سینمایی \n#دانه_ی_انجیر_معابد»\n🚫 این فیلم توقیف است و اجازه پخش ندارد. \n🔰 ژانر: درام | خانوادگی \n📆 سال انتشار: 1403\n💎 بازیگران: سهیلا گلستانی، میثاق زارع، مهسا رستمی، ستاره ملکی، رضا اخلاقی‌ راد، نیوشا اخشی، شیوا اردویی، امینه مزروعی آرانی و ...\n🎬 کارگردان: محمد رسول اُف\n📝 خلاصه داستان: داستان فیلم درباره یک قاضی تحقیق در دادگاه انقلاب تهران است که با گمشدن مرموزانۀ اسلحه‌اش در میانۀ شدت گرفتن اعتراض‌ها درگیر پارانویا و سوظن حتی نسبت به همسر و دو دخترش می‌شود...",
+    "url": "",
+    "addedAt": 1795776494128,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795776489366-0-img-20261127-141706-861.jpg"
+    ],
+    "links": [
+      {
+        "label": "Dane-Anjir-Maabed-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/Dane-Anjir-Maabed-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
