@@ -79728,5 +79728,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795776323334",
+    "type": "video",
+    "title": "زعفرانیه 14 تیر",
+    "description": "دانلود فیلم جدید زعفرانیه 14 تیر\n🔰 ژانر: #درام | #اجتماعی \n📆 سال تولید: 1397\n📆 سال انتشار: 1404\n\n👥 بازیگران: مهدی هاشمی، هنگامه قاضیانی، نازنین بیاتی، علی قاسمی، لیندا کیانی، مسعود رایگان و...\n\n👤 کارگردان: سیدعلی هاشمی\n\n📄 خلاصه داستان: 14 تیر روز تولد میمنت است، مادر خوشبخت خانواده انوشه، اما 14 تیر امسال آبستن اتفاقات عجیبی است برای این خانواده…",
+    "url": "",
+    "addedAt": 1795776323334,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795776317623-0-img-20261127-141418-590.jpg"
+    ],
+    "links": [
+      {
+        "label": "zafaranieh.14tir-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/zafaranieh.14tir-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
