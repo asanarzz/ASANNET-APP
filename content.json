@@ -79864,5 +79864,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795803353958",
+    "type": "software",
+    "title": "بانک کشاورزی",
+    "description": "درگاه اینترنتی بانک کشاورزی",
+    "url": "https://baran.bank-keshavarzi.com/#/preRegisterScreen",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
