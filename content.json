@@ -79844,5 +79844,15 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795802809578",
+    "type": "software",
+    "title": "بانک قرض‌الحسنه رسالت",
+    "description": "درگاه اینترنتی بانک قرض‌الحسنه رسالت",
+    "url": "https://oauth.rqb.ir/Account/LoginProcess?redirectUri=%2Fconnect%2Fauthorize%2Fcallback%3FauthzId%3D30C1BD0A72DFC0629390C0DC65C4A00953ECCE4DA1376CCFEBB86C95BFB02F79&subsystem=MobileBank&clientId=VirtualBanking_MB",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
