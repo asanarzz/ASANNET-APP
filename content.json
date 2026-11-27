@@ -79668,5 +79668,25 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795775918026",
+    "type": "video",
+    "title": "سودابه",
+    "description": "دانلود فیلم #سودابه\n\n🔰 ژانر: #درام | #معمایی \n📆 سال تولید: 1397\n📆 سال انتشار: 1404\n\n👥 بازیگران: آرمان درویش، ساناز سعیدی، رضا مولایی، آناهیتا درگاهی، رویا تیموریان، رضا بابک، ستاره اسکندری، رضا مولایی، میثم فخرایی، سارا عابدی، نیکی میرزایی و...\n\n👤 کارگردان: محمدعلی سجادی\n\n📄 خلاصه داستان: داستان مهرداد است که با سودابه، خواهر دوست و همکارش سیامک ازدواج می‌کند و او را به خانه قدیمی‌شان می‌برد تا در کنار مادرش زندگی کنند، در این همزیستی آنها با اتفاقات غریبی روبه‌رو می‌شوند...",
+    "url": "",
+    "addedAt": 1795775918026,
+    "section": "فیلم ایرانی",
+    "images": [
+      "https://raw.githubusercontent.com/asanarzz/ASANNET-APP/main/media/1795775913426-0-img-20261127-140732-825.jpg"
+    ],
+    "links": [
+      {
+        "label": "soodabeh-480p",
+        "url": "https://github.com/asanarzz/DOWNLOAD/releases/download/film/soodabeh-480.mp4"
+      }
+    ],
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
