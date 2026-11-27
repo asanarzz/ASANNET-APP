@@ -79788,5 +79788,15 @@
     ],
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050906_1600",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 16:00",
+    "description": "جمعه 6 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1NzgyNjI5LCJpIjpbWyJ1c2QiLDI5MzY5NV0sWyIxOGF5YXIiLDI1ODkwMDM1XSxbInNla2tlaCIsMjY0ODY4XSxbImJhaGFyIiwyNTUyODBdLFsibmltIiwxNDIzMzBdLFsicm9iIiw3ODMzNV0sWyJ1c2RfYnRjIiwxODExMTY4MDE3OV0sWyJ1c2RfZXRoIiw1MDYyODYxMjZdLFsidXNkX3VzZHQiLDI5NjM3OF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
