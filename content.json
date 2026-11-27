@@ -79884,5 +79884,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795803971101",
+    "type": "software",
+    "title": "بانک رفاه",
+    "description": "درگاه اینترنتی بانک رفاه",
+    "url": "https://frpwa.rb24.ir/signin",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
