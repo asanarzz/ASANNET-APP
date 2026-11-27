@@ -79894,5 +79894,15 @@
     "section": "بانک",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795804181770",
+    "type": "software",
+    "title": "بانک توسعه تعاون",
+    "description": "درگاه اینترنتی بانک توسعه تعاون",
+    "url": "https://app.btt724.ir/",
+    "section": "بانک",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
