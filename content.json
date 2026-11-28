@@ -79566,5 +79566,17 @@
     "section": "موسیقی",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795899527652",
+    "type": "tv",
+    "title": "VOA PERSIAN",
+    "description": "شبکه تلویزیونی صدای آمریکا",
+    "url": "",
+    "section": "VIP",
+    "allowExternalBrowser": false,
+    "desktopMode": false,
+    "locked": true,
+    "lockGroup": "folder:tv|VIP"
   }
 ]
