@@ -1062,11 +1062,20 @@ abstract class PhotoToolActivity : AppCompatActivity() {
 
     protected lateinit var content: LinearLayout
 
+    /** بخش ثابتِ بالای صفحه (پیش‌نمایش عکس)؛ با اسکرول‌کردنِ تنظیمات پایین نمی‌رود. */
+    protected lateinit var pinned: LinearLayout
+
     protected abstract fun toolTitle(): String
 
     protected abstract fun buildContent(container: LinearLayout)
 
     protected fun dp(v: Int): Int = PhotoUi.dp(this, v)
+
+    /** ارتفاعِ بخش ثابت به‌صورت درصدی از ارتفاع صفحه (با حداقل و حداکثر بر حسب dp). */
+    protected fun pinnedHeight(fraction: Float, minDp: Int, maxDp: Int): Int {
+        val h = (resources.displayMetrics.heightPixels * fraction).toInt()
+        return h.coerceIn(dp(minDp), dp(maxDp))
+    }
 
     protected fun toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -1089,6 +1098,14 @@ abstract class PhotoToolActivity : AppCompatActivity() {
         root.layoutDirection = View.LAYOUT_DIRECTION_RTL
         root.setBackgroundColor(PhotoUi.color(this, R.color.bg))
         root.addView(buildHeader(), LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP))
+
+        pinned = LinearLayout(this)
+        pinned.orientation = LinearLayout.VERTICAL
+        pinned.setPadding(dp(16), dp(8), dp(16), dp(8))
+        pinned.setBackgroundColor(PhotoUi.color(this, R.color.bg))
+        pinned.elevation = dp(4).toFloat()
+        pinned.visibility = View.GONE
+        root.addView(pinned, LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP))
 
         val scroll = ScrollView(this)
         content = LinearLayout(this)
@@ -1344,9 +1361,30 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var progressText: TextView
     private lateinit var resultCard: LinearLayout
+    private lateinit var basePreviewImage: ImageView
+    private lateinit var basePlanText: TextView
+    private var basePreviewUri: Uri? = null
+    private var basePreviewToken = 0
+    private var planReady = false
 
     /** آیا کاربر بتواند ترتیب عکس‌ها را عوض کند (برای PDF). */
     protected open val allowReorder: Boolean = false
+
+    /** پیش‌نمایشِ ثابتِ بالای صفحه (اولین عکس + توضیح خروجی)؛ ابزارهایی که پیش‌نمایش خودشان را دارند خاموشش می‌کنند. */
+    protected open val usesDefaultPreview: Boolean = true
+
+    /** اندازه‌ی واقعیِ اولین عکس (عرض، ارتفاع)؛ برای توضیح خروجی. */
+    protected var firstPhotoSize: IntArray? = null
+
+    /** یک خط توضیح درباره‌ی خروجی (بر اساس تنظیمات فعلی) که زیر پیش‌نمایش نوشته می‌شود. */
+    protected open fun describePlan(): String = ""
+
+    /** بعد از هر تغییرِ تنظیمات صدا زده می‌شود تا توضیح خروجی به‌روز شود. */
+    protected fun refreshPlan() {
+        if (!usesDefaultPreview || !planReady) return
+        if (!::basePlanText.isInitialized) return
+        basePlanText.text = describePlan()
+    }
 
     protected abstract fun actionLabel(): String
 
@@ -1404,6 +1442,17 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
         val textMain = PhotoUi.color(this, R.color.text_main)
         val muted = PhotoUi.color(this, R.color.text_muted)
 
+        if (usesDefaultPreview) {
+            basePreviewImage = ImageView(this)
+            basePreviewImage.scaleType = ImageView.ScaleType.FIT_CENTER
+            basePreviewImage.background = PhotoUi.rounded(PhotoUi.color(this, R.color.surface), dp(14).toFloat())
+            pinned.addView(basePreviewImage, LinearLayout.LayoutParams(PhotoUi.MATCH, pinnedHeight(0.2f, 110, 200)))
+            basePlanText = PhotoUi.text(this, "", 13f, textMain, true)
+            val planLp = LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP)
+            planLp.topMargin = dp(6)
+            pinned.addView(basePlanText, planLp)
+        }
+
         // کارت عکس‌ها
         val photosCard = newCard(container, null)
         val head = LinearLayout(this)
@@ -1451,6 +1500,7 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
         resultCard = newCard(container, null)
         resultCard.visibility = View.GONE
 
+        planReady = true
         refreshSources()
     }
 
@@ -1510,6 +1560,7 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
     private fun refreshSources() {
         listBox.removeAllViews()
         countText.text = if (sources.isEmpty()) "" else "${sources.size} عکس"
+        updateBasePreview()
         if (sources.isEmpty()) {
             val empty = PhotoUi.text(
                 this,
@@ -1523,6 +1574,35 @@ abstract class PhotoBatchActivity<O : Any> : PhotoToolActivity() {
         }
         for (i in sources.indices) {
             listBox.addView(buildSourceRow(i, sources[i]), LinearLayout.LayoutParams(PhotoUi.MATCH, PhotoUi.WRAP))
+        }
+    }
+
+    /** اولین عکس را بالای صفحه ثابت نگه می‌دارد تا هنگام اسکرول تنظیمات دیده شود. */
+    private fun updateBasePreview() {
+        if (!usesDefaultPreview) return
+        if (sources.isEmpty()) {
+            pinned.visibility = View.GONE
+            basePreviewUri = null
+            firstPhotoSize = null
+            return
+        }
+        pinned.visibility = View.VISIBLE
+        val first = sources[0]
+        if (basePreviewUri == first.uri) {
+            refreshPlan()
+            return
+        }
+        basePreviewUri = first.uri
+        basePreviewToken++
+        val token = basePreviewToken
+        lifecycleScope.launch {
+            val bmp = withContext(Dispatchers.IO) { PhotoImageUtils.decode(this@PhotoBatchActivity, first.uri, 700) }
+            val size = withContext(Dispatchers.IO) { PhotoImageUtils.readSize(this@PhotoBatchActivity, first.uri) }
+            if (token == basePreviewToken) {
+                firstPhotoSize = size
+                if (bmp != null) basePreviewImage.setImageBitmap(bmp)
+                refreshPlan()
+            }
         }
     }
 

@@ -77,6 +77,29 @@ class PhotoFrameView(context: Context) : View(context) {
         invalidate()
     }
 
+    /** فیلتر رنگ برای پیش‌نمایشِ زنده‌ی نور و رنگ. */
+    fun setPreviewFilter(filter: ColorFilter?) {
+        bitmapPaint.colorFilter = filter
+        invalidate()
+    }
+
+    /**
+     * محدوده‌ی کادر را به‌صورت درصدی از عکس برمی‌گرداند (چپ، بالا، راست، پایین).
+     * اگر عکس کوچک‌تر از کادر باشد، مقدارها می‌توانند بیرون از ۰ تا ۱ باشند.
+     */
+    fun frameRectInBitmap(): RectF? {
+        val bmp = bitmap ?: return null
+        if (frame.width() <= 0f || scale <= 0f) return null
+        val bw = bmp.width.toFloat()
+        val bh = bmp.height.toFloat()
+        return RectF(
+            (frame.left - tx) / scale / bw,
+            (frame.top - ty) / scale / bh,
+            (frame.right - tx) / scale / bw,
+            (frame.bottom - ty) / scale / bh
+        )
+    }
+
     /** نسبت کادر (عرض به ارتفاع)؛ مثلاً ۳ و ۴ برای عکس ۳×۴. */
     fun setFrameRatio(w: Float, h: Float) {
         if (w <= 0f || h <= 0f) return
@@ -264,6 +287,7 @@ class PhotoCropView(context: Context) : View(context) {
     private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val handlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val hintPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     companion object {
         private const val DRAG_NONE = 0
@@ -290,6 +314,10 @@ class PhotoCropView(context: Context) : View(context) {
         handlePaint.style = Paint.Style.STROKE
         handlePaint.strokeWidth = 4f * density
         handlePaint.strokeCap = Paint.Cap.ROUND
+        hintPaint.color = Color.argb(220, 255, 255, 255)
+        hintPaint.textSize = 18f * density
+        hintPaint.textAlign = Paint.Align.CENTER
+        hintPaint.typeface = PhotoUi.font(context)
         setBackgroundColor(Color.parseColor("#1F1B2E"))
     }
 
@@ -505,7 +533,11 @@ class PhotoCropView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val bmp = bitmap ?: return
+        val bmp = bitmap
+        if (bmp == null) {
+            canvas.drawText("ابتدا یک عکس انتخاب کنید", width / 2f, height / 2f, hintPaint)
+            return
+        }
         if (imageRect.width() <= 0f) return
         canvas.drawBitmap(bmp, null, imageRect, bitmapPaint)
 

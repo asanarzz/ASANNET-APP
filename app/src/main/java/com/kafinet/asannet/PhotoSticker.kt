@@ -329,20 +329,21 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
     private lateinit var toleranceBox: LinearLayout
     private lateinit var toleranceLabel: TextView
     private lateinit var outlineChips: PhotoChips
-    private lateinit var previewCard: LinearLayout
     private lateinit var previewImage: ImageView
     private var tolerance = 30
     private var previewBase: Bitmap? = null
     private var baseToken = 0
     private var renderToken = 0
 
+    override val usesDefaultPreview: Boolean = false
+
     override fun toolTitle(): String = "ساخت استیکر"
 
     override fun actionLabel(): String = "ساخت استیکرها"
 
     override fun resultHint(): String =
-        "برای ایتا: «ذخیره در گالری» را بزنید، بعد از خودِ گالری گوشی استیکر را باز کنید و اشتراک‌گذاری کنید و ایتا را بزنید. " +
-            "دکمه‌ی «اشتراک‌گذاری» همین‌جا هم همین کار را خودکار انجام می‌دهد. از سنجاق داخل ایتا نفرستید."
+        "برای ایتا یا تلگرام، «اشتراک‌گذاری» را بزنید؛ دو روش دارد و اگر با روش ۱ استیکر نشد، روش ۲ را امتحان کنید. " +
+            "یا «ذخیره در گالری» را بزنید و از خودِ گالری گوشی بفرستید. از سنجاق داخل ایتا نفرستید."
 
     override fun saveLabel(): String = "ذخیره در گالری"
 
@@ -358,7 +359,21 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
     }
 
     override fun performShare(list: List<PhotoResult>) {
-        // مثل اشتراک‌گذاری از خودِ گالری: اول در گالری ذخیره می‌شود و آدرس گالری به ایتا داده می‌شود
+        StyledDialog.Builder(this)
+            .setTitle("ارسال استیکر")
+            .setMessage("اگر با روش ۱ استیکر نشد، روش ۲ را امتحان کنید.")
+            .setItems(arrayOf("روش ۱: از طریق گالری", "روش ۲: به‌صورت فایل")) { _, which ->
+                if (which == 0) {
+                    shareViaGallery(list)
+                } else {
+                    shareAsFile(list)
+                }
+            }
+            .show()
+    }
+
+    /** مثل اشتراک‌گذاری از خودِ گالری: اول در گالری ذخیره می‌شود و آدرسِ گالری به برنامه‌ی مقصد داده می‌شود. */
+    private fun shareViaGallery(list: List<PhotoResult>) {
         saveResultsToGallery(list, false) { uris ->
             if (uris.isNotEmpty()) {
                 PhotoFiles.shareUris(this, uris, "image/webp")
@@ -366,6 +381,11 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
                 PhotoFiles.share(this, list.map { it.file }, "image/webp")
             }
         }
+    }
+
+    /** به‌صورت «فایل»؛ بعضی پیام‌رسان‌ها WebP را فقط وقتی به‌صورت فایل برسد استیکر حساب می‌کنند. */
+    private fun shareAsFile(list: List<PhotoResult>) {
+        PhotoFiles.share(this, list.map { it.file }, "application/octet-stream")
     }
 
     private fun updateToleranceLabel() {
@@ -444,12 +464,12 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
             12
         )
 
-        previewCard = newCard(container, "پیش‌نمایش (اولین عکس)")
+        // پیش‌نمایش ثابت بالای صفحه (با اسکرول‌کردن تنظیمات جابه‌جا نمی‌شود)
         previewImage = ImageView(this)
         previewImage.scaleType = ImageView.ScaleType.FIT_CENTER
         previewImage.background = checkerDrawable()
-        previewCard.addView(previewImage, LinearLayout.LayoutParams(PhotoUi.MATCH, dp(300)))
-        previewCard.visibility = View.GONE
+        pinned.addView(previewImage, LinearLayout.LayoutParams(PhotoUi.MATCH, pinnedHeight(0.3f, 140, 320)))
+        pinned.visibility = View.GONE
 
         updateVisibility()
     }
@@ -470,7 +490,7 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
         val token = baseToken
         if (first == null) {
             previewBase = null
-            previewCard.visibility = View.GONE
+            pinned.visibility = View.GONE
             return
         }
         lifecycleScope.launch {
@@ -485,10 +505,10 @@ class PhotoStickerActivity : PhotoBatchActivity<StickerOptions>() {
     private fun refreshPreview() {
         val base = previewBase
         if (base == null) {
-            previewCard.visibility = View.GONE
+            pinned.visibility = View.GONE
             return
         }
-        previewCard.visibility = View.VISIBLE
+        pinned.visibility = View.VISIBLE
         val options = currentOptions()
         renderToken++
         val token = renderToken
