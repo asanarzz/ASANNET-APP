@@ -80023,5 +80023,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_priceauto_14050907_1800",
+    "type": "price",
+    "title": "قیمت دلار و طلا — ساعت 18:00",
+    "description": "شنبه 7 آذر 1405",
+    "url": "https://asanarzz.github.io/ASANNET-APP/price/?s=eyJ0IjoxNzk1ODc2MjMyLCJpIjpbWyJ1c2QiLDI5ODcwMF0sWyIxOGF5YXIiLDI2NDAzNDUxXSxbInNla2tlaCIsMjY4MDcwXSxbImJhaGFyIiwyNjA0MzNdLFsibmltIiwxNDMwNjBdLFsicm9iIiw3NjUwNV0sWyJ1c2RfYnRjIiwxNzcwNzMxODMzNl0sWyJ1c2RfZXRoIiw0OTE5NjE4ODddLFsidXNkX3VzZHQiLDI5ODc5OF1dfQ",
+    "section": "دلار و طلا",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
