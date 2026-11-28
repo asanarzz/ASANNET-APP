@@ -127,6 +127,7 @@ object LocalCastEngine {
             if (d != null) soap(d.controlUrl, "Stop", "<InstanceID>0</InstanceID>")
         } catch (ignored: Exception) {
         }
+        selected = null
         stopServer()
     }
 

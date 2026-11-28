@@ -88,7 +88,10 @@ class LocalCastActivity : AppCompatActivity() {
         })
         binding.btnTv.setOnClickListener { showTvPicker(null) }
         binding.btnStop.setOnClickListener {
-            Thread { LocalCastEngine.stopByUser() }.start()
+            Thread {
+                LocalCastEngine.stopByUser()
+                runOnUiThread { if (!isFinishing) updateTvLabel() }
+            }.start()
             LocalCastService.stop(this)
             Toast.makeText(this, R.string.lc_stopped, Toast.LENGTH_SHORT).show()
         }
@@ -111,12 +114,17 @@ class LocalCastActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateTvLabel()
+    }
+
     private fun updateTvLabel() {
         val d = LocalCastEngine.selected
         binding.txtTv.text = if (d == null) getString(R.string.lc_no_tv) else getString(R.string.lc_tv_selected, d.name)
         // آیکون کست: سبز وقتی تلویزیون وصل است، سفید وقتی نه
-        if (d == null) binding.btnTv.clearColorFilter()
-        else binding.btnTv.setColorFilter(0xFF4ADE80.toInt(), android.graphics.PorterDuff.Mode.SRC_IN)
+        if (d == null) binding.btnTv.setBackgroundResource(0)
+        else binding.btnTv.setBackgroundResource(R.drawable.bg_cast_connected)
     }
 
     private fun selectTab(kind: FileKind) {
