@@ -80043,5 +80043,15 @@
     "section": "دلار و طلا",
     "allowExternalBrowser": false,
     "desktopMode": false
+  },
+  {
+    "id": "item_1795887863671",
+    "type": "radio",
+    "title": "رادیو موسیقی لوفای فارسی",
+    "description": "موسیقی لوفای فارسی",
+    "url": "https://stream.zeno.fm/3q0k3nxazjkvv",
+    "section": "موسیقی",
+    "allowExternalBrowser": false,
+    "desktopMode": false
   }
 ]
