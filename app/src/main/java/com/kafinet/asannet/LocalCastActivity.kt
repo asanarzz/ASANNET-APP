@@ -114,6 +114,9 @@ class LocalCastActivity : AppCompatActivity() {
     private fun updateTvLabel() {
         val d = LocalCastEngine.selected
         binding.txtTv.text = if (d == null) getString(R.string.lc_no_tv) else getString(R.string.lc_tv_selected, d.name)
+        // آیکون کست: سبز وقتی تلویزیون وصل است، سفید وقتی نه
+        if (d == null) binding.btnTv.clearColorFilter()
+        else binding.btnTv.setColorFilter(0xFF4ADE80.toInt(), android.graphics.PorterDuff.Mode.SRC_IN)
     }
 
     private fun selectTab(kind: FileKind) {
